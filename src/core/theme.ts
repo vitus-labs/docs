@@ -27,12 +27,15 @@ export default {
     reset: 1,
   },
   layoutColor: {
-    topMenu: '#2B3946',
-    sideMenu: '#536474',
+    topMenu: '#081B2C',
+    sideMenu: '#112F4A',
   },
   color: {
     black: {
-      base: '#000',
+      base: '#fff',
+    },
+    primary: {
+      base: '#fff',
     },
   },
   transition: {

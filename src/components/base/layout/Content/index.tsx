@@ -8,7 +8,7 @@ export default element
     contentAlignX: 'block',
   })
   .theme((t) => ({
-    padding: 40,
+    // padding: 40,
   }))
   .states((t) => ({
     light: {
