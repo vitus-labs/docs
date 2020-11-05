@@ -1,20 +1,27 @@
 import text from '../Text'
 
 export default text
+  .attrs((t) => ({
+    tag: 'h1',
+  }))
   .theme((t) => ({
-    fontWeight: 600,
+    fontFamily: t.fontFamily.headings,
   }))
   .sizes((t) => ({
     level1: {
-      fontSize: 42,
-      marginBottom: 8,
+      fontSize: 48,
     },
     level2: {
-      fontSize: 32,
-      marginBottom: 4,
+      fontSize: 42,
     },
     level3: {
-      fontSize: 26,
-      fontWeight: 700,
+      fontSize: 36,
+    },
+    level4: {
+      fontSize: 32,
+    },
+    level5: {
+      fontSize: 24,
+      fontFamily: t.fontFamily.base,
     },
   }))

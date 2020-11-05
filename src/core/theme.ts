@@ -1,4 +1,5 @@
 export default {
+  isDark: true,
   rootSize: 16,
   breakpoints: {
     xs: 0,
@@ -7,6 +8,16 @@ export default {
     lg: 992,
     xl: 1200,
     xxl: 1600,
+  },
+  grid: {
+    columns: 12,
+    container: {
+      xs: '100%',
+      sm: 540,
+      md: 720,
+      lg: 960,
+      xl: 1140,
+    },
   },
   spacing: {
     reset: 0,
@@ -19,7 +30,10 @@ export default {
     xxl: 24,
     xxxl: 32,
   },
-  fontFamily: { base: "'Open Sans', sans-serif" },
+  fontFamily: {
+    base: "'Montserrat', sans-serif",
+    headings: "'Varela Round', sans-serif",
+  },
   fontSize: {
     base: 16,
   },
@@ -34,8 +48,11 @@ export default {
     black: {
       base: '#fff',
     },
-    primary: {
+    white: {
       base: '#fff',
+    },
+    primary: {
+      base: '#E96B6B',
     },
   },
   transition: {

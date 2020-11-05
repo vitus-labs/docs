@@ -12,3 +12,8 @@ export default element
     lineHeight: 2,
     color: t.color.black.base,
   }))
+  .multiple({
+    centered: {
+      textAlign: 'center',
+    },
+  })

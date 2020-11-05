@@ -4,6 +4,7 @@ export default element
   .attrs({
     tag: 'section',
     contentDirection: 'rows',
+    contentAlignX: 'block',
   })
   .states((t, css) => ({
     primary: {

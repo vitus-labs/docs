@@ -6,10 +6,10 @@ export default link.theme((t) => ({
   color: '#fff',
 
   hover: {
-    color: '#54D6FF',
+    color: t.color.primary.base,
   },
 
   active: {
-    color: '#54D6FF',
+    color: t.color.primary.base,
   },
 }))

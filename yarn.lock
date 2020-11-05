@@ -1285,6 +1285,11 @@
     "@typescript-eslint/types" "4.2.0"
     eslint-visitor-keys "^2.0.0"
 
+"@vitus-labs/coolgrid@^0.7.7":
+  version "0.7.7"
+  resolved "https://registry.yarnpkg.com/@vitus-labs/coolgrid/-/coolgrid-0.7.7.tgz#a7e90e9bc1c8917eeac513c884bf82d7b65871f2"
+  integrity sha512-lgidzOOAPIrYzleL9fmwiR3AQR558PnEllznRGNz/wv9D9ywVgm4F/XC8KGqRJqToWvzYaTX+uk1vXziCz4kaw==
+
 "@vitus-labs/core@^0.9.0":
   version "0.9.0"
   resolved "https://registry.yarnpkg.com/@vitus-labs/core/-/core-0.9.0.tgz#d8145636af6871436f6a2c90c2b19c65f6131d95"

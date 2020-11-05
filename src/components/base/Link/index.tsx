@@ -11,7 +11,7 @@ export default element
     }
   })
   .theme((t) => ({
-    color: '#628EFF',
+    color: t.color.primary.base,
     transition: t.transition.base,
 
     hover: {

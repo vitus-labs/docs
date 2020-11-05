@@ -19,7 +19,7 @@ export default rocketstyle({
     fontFamily: t.fontFamily.base,
     fontSize: t.fontSize.base,
     lineHeight: t.lineHeight.reset,
-    color: t.color.black.base,
+    color: t.isDark ? t.color.white.base : t.color.black.base,
     textDecoration: 'none',
     outline: 'none',
   }))
