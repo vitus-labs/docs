@@ -5,7 +5,7 @@ import TopMenu from '../TopMenu'
 const component = ({ children }) => (
   <>
     <TopMenu />
-    <Content>{children}</Content>
+    <Content noGap>{children}</Content>
   </>
 )
 

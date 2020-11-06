@@ -7,7 +7,7 @@ import GlobalStyles from '~/core/GlobalStyles'
 
 export default ({ Component, pageProps }) => (
   <ThemeProvider theme={theme}>
-    <GlobalStyles />
+    <GlobalStyles theme={theme} />
 
     <Head>
       <link

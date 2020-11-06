@@ -6,6 +6,7 @@ export default text
   }))
   .theme((t) => ({
     fontFamily: t.fontFamily.headings,
+    lineHeight: t.lineHeight.md,
   }))
   .sizes((t) => ({
     level1: {

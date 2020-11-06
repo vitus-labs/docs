@@ -1,4 +1,4 @@
-import { createGlobalStyle } from 'styled-components'
+import { createGlobalStyle, css } from 'styled-components'
 
 export default createGlobalStyle`
   body {
@@ -6,5 +6,9 @@ export default createGlobalStyle`
     margin: 0;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+
+    ${({ theme: t }) => css`
+      background-color: ${t.layoutColor.bg};
+    `}
   }
 `

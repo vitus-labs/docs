@@ -35,12 +35,21 @@ export default {
     headings: "'Varela Round', sans-serif",
   },
   fontSize: {
+    sm: 12,
+    md: 14,
     base: 16,
+    lg: 18,
+    xl: 20,
   },
   lineHeight: {
     reset: 1,
+    sm: 1.2,
+    md: 1.4,
+    base: 1.5,
+    xl: 2,
   },
   layoutColor: {
+    bg: '#071A2C',
     topMenu: '#081B2C',
     sideMenu: '#112F4A',
   },

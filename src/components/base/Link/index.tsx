@@ -18,4 +18,11 @@ export default element
       textDecoration: 'underline',
     },
   }))
+  .variants((t) => ({
+    transparent: {
+      hover: {
+        textDecoration: 'none',
+      },
+    },
+  }))
   .multiple({ active: true })
