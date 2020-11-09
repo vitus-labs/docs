@@ -8,11 +8,7 @@ export default element
     contentAlignY: 'top',
     contentAlignX: 'block',
   })
-  .theme({
+  .theme((t) => ({
     height: '100vh',
-  })
-  .styles(
-    (css) => css`
-      background: linear-gradient(180deg, #3d4b58 0%, #35414d 100%);
-    `
-  )
+    backgroundColor: t.layoutColor.bg,
+  }))

@@ -1,6 +1,7 @@
 import text from '../Text'
 
 export default text
+  .config({ name: 'Heading' })
   .attrs((t) => ({
     tag: 'h1',
   }))

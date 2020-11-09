@@ -6,9 +6,9 @@ import Text from '~/components/base/Text'
 import Icon from '~/components/base/Icon'
 
 export default ({ heading, label, icon }) => (
-  <Link transparent href='/docs/ui-system/elements'>
+  <Link transparent href="/docs/ui-system/elements">
     <Box>
-      <Icon name={icon} />
+      <Icon xLarge name={icon} />
       <Heading level5 label={heading} />
       <Text>{label}</Text>
     </Box>

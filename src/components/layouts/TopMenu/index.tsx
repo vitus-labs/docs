@@ -1,6 +1,6 @@
 import React from 'react'
 import { TopMenu } from '~/components/base/layout'
-import Logo from '~/components/base/Logo'
+import Logo from './Logo'
 import Menu from './Menu'
 
 const component = () => (

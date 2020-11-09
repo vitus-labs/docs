@@ -1,6 +1,7 @@
 import { element } from '~/components/core'
 
 export default element
+  .config({ name: 'Bg' })
   .attrs({
     tag: 'section',
     contentDirection: 'rows',

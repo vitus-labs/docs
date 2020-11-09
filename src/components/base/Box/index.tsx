@@ -1,6 +1,7 @@
 import { element } from '~/components/core'
 
 export default element
+  .config({ name: 'Box' })
   .attrs({
     tag: 'article',
     contentDirection: 'rows',

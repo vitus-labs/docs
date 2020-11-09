@@ -1,6 +1,7 @@
 import { element } from '~/components/core'
 
 export default element
+  .config({ name: 'Link' })
   .attrs(({ href, onClick }) => {
     const isLink = !!href
     const isButton = !!onClick

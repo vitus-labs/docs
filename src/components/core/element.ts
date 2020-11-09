@@ -1,6 +1,7 @@
 import rocketstyle from '@vitus-labs/rocketstyle'
 import { styles, makeItResponsive } from '@vitus-labs/unistyle'
 import { Element } from '@vitus-labs/elements'
+import withLink from './withLink'
 
 export default rocketstyle({
   useBooleans: true,
@@ -14,6 +15,7 @@ export default rocketstyle({
   name: 'core/Element',
   component: Element,
 })
+  .compose({ withLink })
   .theme((t) => ({
     boxSizing: 'border-box',
     fontFamily: t.fontFamily.base,

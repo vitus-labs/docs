@@ -11,16 +11,16 @@ export default () => (
     <Container gap={20}>
       <Row>
         <Col>
-          <Box heading="Elements" icon="" label="Toolking" />
+          <Box heading="Elements" icon="elements" label="Toolking" />
         </Col>
         <Col>
-          <Box heading="Rocketstyle" icon="" label="Toolking" />
+          <Box heading="Rocketstyle" icon="rocketstyle" label="Toolking" />
         </Col>
         <Col>
-          <Box heading="Unistyle" icon="" label="Toolking" />
+          <Box heading="Unistyle" icon="unistyle" label="Toolking" />
         </Col>
         <Col>
-          <Box heading="Coolgrid" icon="" label="Toolking" />
+          <Box heading="Coolgrid" icon="coolgrid" label="Toolking" />
         </Col>
       </Row>
     </Container>
