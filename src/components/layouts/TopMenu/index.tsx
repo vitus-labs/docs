@@ -10,6 +10,7 @@ const component = () => (
     content={Menu}
     afterContent="github"
     contentAlignX="right"
+    transparent
   />
 )
 

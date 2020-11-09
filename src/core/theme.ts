@@ -7,7 +7,8 @@ export default {
     md: 768,
     lg: 992,
     xl: 1200,
-    xxl: 1600,
+    xxl: 1440,
+    xxxl: 1600,
   },
   grid: {
     columns: 12,
@@ -16,7 +17,23 @@ export default {
       sm: 540,
       md: 720,
       lg: 960,
-      xl: 1140,
+      xxl: 1360,
+      xxxl: 1560,
+    },
+  },
+  layout: {
+    root: {
+      height: '100vh',
+      bg: '#071A2C',
+    },
+    topMenu: {
+      height: 70,
+      bg: '#081B2C',
+    },
+    sideMenu: {
+      height: 'calc(100vh - 70px)',
+      width: 320,
+      bg: '#112F4A',
     },
   },
   spacing: {
@@ -41,6 +58,16 @@ export default {
     lg: 18,
     xl: 20,
   },
+  fontWeight: {
+    thin: 200,
+    light: 300,
+    base: 400,
+    medium: 500,
+    semibold: 600,
+    bold: 700,
+    lighter: 'lighter',
+    bolder: 'bolder',
+  },
   lineHeight: {
     reset: 1,
     sm: 1.2,
@@ -48,6 +75,7 @@ export default {
     base: 1.5,
     xl: 2,
   },
+  borderRadius: { sm: 4, md: 7, base: 14, circle: '50%', extra: 160 },
   layoutColor: {
     bg: '#071A2C',
     topMenu: '#081B2C',

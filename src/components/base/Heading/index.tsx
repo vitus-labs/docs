@@ -24,6 +24,7 @@ export default text
     },
     level5: {
       fontSize: 24,
+      fontWeight: t.fontWeight.semibold,
       fontFamily: t.fontFamily.base,
     },
   }))

@@ -8,11 +8,11 @@ export default link.theme((t) => ({
   fontWeight: 600,
 
   hover: {
-    backgroundColor: '#627586',
+    backgroundColor: t.color.primary.base,
   },
 
   active: {
     fontSize: 18,
-    backgroundColor: '#627586',
+    backgroundColor: t.color.primary.base,
   },
 }))

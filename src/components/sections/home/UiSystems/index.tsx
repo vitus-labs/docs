@@ -8,19 +8,39 @@ export default () => (
     heading="Build better universal UI Systems"
     label="Set of preconfigured tools ready to be used"
   >
-    <Container gap={20}>
+    <Container gap={36}>
       <Row>
         <Col>
-          <Box heading="Elements" icon="elements" label="Toolking" />
+          <Box
+            link={(r) => r.uiSystem.elements}
+            heading="Elements"
+            icon="elements"
+            label="Toolking"
+          />
         </Col>
         <Col>
-          <Box heading="Rocketstyle" icon="rocketstyle" label="Toolking" />
+          <Box
+            link={(r) => r.uiSystem.rocketstyle}
+            heading="Rocketstyle"
+            icon="rocketstyle"
+            label="Toolking"
+          />
         </Col>
         <Col>
-          <Box heading="Unistyle" icon="unistyle" label="Toolking" />
+          <Box
+            link={(r) => r.uiSystem.unistyle}
+            heading="Unistyle"
+            icon="unistyle"
+            label="Toolking"
+          />
         </Col>
         <Col>
-          <Box heading="Coolgrid" icon="coolgrid" label="Toolking" />
+          <Box
+            link={(r) => r.uiSystem.coolgrid}
+            heading="Coolgrid"
+            icon="coolgrid"
+            label="Toolking"
+          />
         </Col>
       </Row>
     </Container>

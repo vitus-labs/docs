@@ -8,7 +8,9 @@ export default element
     contentAlignX: 'center',
   })
   .theme((t, css) => ({
-    padding: 16,
+    width: '100%',
+    paddingX: 24,
+    paddingY: 36,
     borderRadius: 16,
     extendCss: [
       css`

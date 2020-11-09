@@ -8,19 +8,43 @@ export default () => (
     heading="Tooling to bootstrap your productivity"
     label="Set of preconfigured tools ready to be used"
   >
-    <Container gap={20}>
+    <Container gap={36}>
       <Row>
         <Col>
-          <Box heading="Rollup" icon="rollup" label="Toolking" />
+          <Box
+            variant="secondary"
+            link={(r) => r.tooling.rollup}
+            heading="Rollup"
+            icon="rollup"
+            label="Toolking"
+          />
         </Col>
         <Col>
-          <Box heading="Babel" icon="babel" label="Toolking" />
+          <Box
+            variant="secondary"
+            link={(r) => r.tooling.babel}
+            heading="Babel"
+            icon="babel"
+            label="Toolking"
+          />
         </Col>
         <Col>
-          <Box heading="Storybook" icon="storybook" label="Toolking" />
+          <Box
+            variant="secondary"
+            link={(r) => r.tooling.storybook}
+            heading="Storybook"
+            icon="storybook"
+            label="Toolking"
+          />
         </Col>
         <Col>
-          <Box heading="ESLint" icon="eslint" label="Toolking" />
+          <Box
+            variant='secondary'
+            link={(r) => r.tooling.eslint}
+            heading="ESLint"
+            icon="eslint"
+            label="Toolking"
+          />
         </Col>
       </Row>
     </Container>

@@ -1,14 +1,24 @@
 import { element } from '~/components/core'
 
 export default element
+  .attrs(({ centered, multiple = [] }) => {
+    const isContentCentered = centered || multiple.includes('centered')
 
-  .attrs({
-    tag: 'section',
-    contentDirection: 'rows',
-    block: true,
+    return {
+      tag: 'section',
+      contentDirection: 'rows',
+      contentAlignX: isContentCentered ? 'center' : 'block',
+      block: true,
+    }
   })
-  .styles(
-    (css) => css`
-      width: 100%;
-    `
-  )
+  .variants({
+    gapMd: {
+      paddingY: 40,
+    },
+    gapLg: {
+      paddingY: 80,
+    },
+  })
+  .multiple({
+    centered: true,
+  })

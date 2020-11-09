@@ -9,6 +9,6 @@ export default element
     contentAlignX: 'block',
   })
   .theme((t) => ({
-    height: '100vh',
-    backgroundColor: t.layoutColor.bg,
+    height: t.layout.root.height,
+    backgroundColor: t.layout.root.bg,
   }))
