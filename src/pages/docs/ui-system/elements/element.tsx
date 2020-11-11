@@ -1,3 +1,3 @@
-import Page from '~/components/pages/elements/Element'
+import Page from '~/components/pages/ui-system/elements/Element'
 
 export default Page

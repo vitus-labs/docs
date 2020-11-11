@@ -4,29 +4,32 @@ import Heading from '~/components/base/Heading'
 import Text from '~/components/base/Text'
 import Link from '~/components/base/Link'
 
-export default () => (
+const component = () => (
   <Layout>
     <Heading level1>Basics</Heading>
     <Text paragraph>
       Elements are a package of patterns which should cover very common and
-      frequent use-cases, so you don't have to repeat yourself again and
+      frequent use-cases, so you don&apos;t have to repeat yourself again and
       again.Elements are a package of patterns which should cover very common
-      and frequent use-cases, so you don't have to repeat yourself again and
-      again.
+      and frequent use-cases, so you don&apos;t have to repeat yourself again
+      and again.
     </Text>
+    
     <Heading level2>Motivation</Heading>
     <Text paragraph>
       The goal is to cover many repeatable use-cases of writing code and make
-      banch of components which would solve this. You shouldn't focus on some
-      specifics of CSS or thinking about HTML validation or so. The goal is to
-      make configurable components so you can focus on your goals and business
-      value.
+      banch of components which would solve this. You shouldn&apos;t focus on
+      some specifics of CSS or thinking about HTML validation or so. The goal is
+      to make configurable components so you can focus on your goals and
+      business value.
     </Text>
+
     <Heading level2>Installation</Heading>
     <Text paragraph>
       You can install it with your preferred tool (<Text highlight>yarn</Text>{' '}
       or <Text highlight>npm</Text>).
     </Text>
+    
     TODO: editor
     <Heading level2>Dependencies</Heading>
     <Text paragraph>
@@ -68,3 +71,5 @@ export default () => (
     </Text>
   </Layout>
 )
+
+export default component

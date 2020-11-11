@@ -3,7 +3,7 @@ import { Container, Row, Col } from '~/components/base/grid'
 import Section from '../components/Section'
 import Box from '../components/Box'
 
-export default () => (
+const component = () => (
   <Section
     heading="Tooling to bootstrap your productivity"
     label="Set of preconfigured tools ready to be used"
@@ -13,7 +13,7 @@ export default () => (
         <Col>
           <Box
             variant="secondary"
-            link={(r) => r.tooling.rollup}
+            link={(r) => r.tooling.rollup.base}
             heading="Rollup"
             icon="rollup"
             label="Toolking"
@@ -22,7 +22,7 @@ export default () => (
         <Col>
           <Box
             variant="secondary"
-            link={(r) => r.tooling.babel}
+            link={(r) => r.tooling.babel.base}
             heading="Babel"
             icon="babel"
             label="Toolking"
@@ -31,7 +31,7 @@ export default () => (
         <Col>
           <Box
             variant="secondary"
-            link={(r) => r.tooling.storybook}
+            link={(r) => r.tooling.storybook.base}
             heading="Storybook"
             icon="storybook"
             label="Toolking"
@@ -39,8 +39,8 @@ export default () => (
         </Col>
         <Col>
           <Box
-            variant='secondary'
-            link={(r) => r.tooling.eslint}
+            variant="secondary"
+            link={(r) => r.tooling.eslint.base}
             heading="ESLint"
             icon="eslint"
             label="Toolking"
@@ -50,3 +50,5 @@ export default () => (
     </Container>
   </Section>
 )
+
+export default component

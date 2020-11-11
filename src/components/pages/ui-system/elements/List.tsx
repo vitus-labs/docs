@@ -3,7 +3,7 @@ import Layout from '~/components/sections/elements/Layout'
 import Heading from '~/components/base/Heading'
 import Text from '~/components/base/Text'
 
-export default () => (
+const component = () => (
   <Layout>
     <Heading level1>Basics</Heading>
     <Text>
@@ -36,3 +36,5 @@ export default () => (
     <Heading level3>Element</Heading>
   </Layout>
 )
+
+export default component

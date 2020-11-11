@@ -1,4 +1,4 @@
-import text from '../Text'
+import { text } from '~/components/core'
 
 export default text
   .config({ name: 'Heading' })

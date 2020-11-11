@@ -5,7 +5,7 @@ import theme from '~/core/theme'
 import { Root } from '~/components/base/layout'
 import GlobalStyles from '~/core/GlobalStyles'
 
-export default ({ Component, pageProps }) => (
+const component = ({ Component, pageProps }) => (
   <ThemeProvider theme={theme}>
     <GlobalStyles theme={theme} />
 
@@ -21,3 +21,5 @@ export default ({ Component, pageProps }) => (
     </Root>
   </ThemeProvider>
 )
+
+export default component

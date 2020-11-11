@@ -2,7 +2,7 @@ import React from 'react'
 import Link from 'next/link'
 import routes from '~/core/routes'
 
-export default (WrappedComponent) => {
+const component = (WrappedComponent) => {
   const Enhance = ({
     href,
     prefetch = false,
@@ -11,7 +11,6 @@ export default (WrappedComponent) => {
     shallow,
     ...props
   }) => {
-
     const goTo = () => {
       if (typeof href === 'function') return href(routes as typeof routes)
       if (typeof href === 'string') return href
@@ -38,3 +37,5 @@ export default (WrappedComponent) => {
 
   return Enhance
 }
+
+export default component

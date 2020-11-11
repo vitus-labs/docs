@@ -3,7 +3,7 @@ import { Container, Row, Col } from '~/components/base/grid'
 import Section from '../components/Section'
 import Box from '../components/Box'
 
-export default () => (
+const component = () => (
   <Section
     heading="Build better universal UI Systems"
     label="Set of preconfigured tools ready to be used"
@@ -12,7 +12,7 @@ export default () => (
       <Row>
         <Col>
           <Box
-            link={(r) => r.uiSystem.elements}
+            link={(r) => r.uiSystem.elements.base}
             heading="Elements"
             icon="elements"
             label="Toolking"
@@ -20,7 +20,7 @@ export default () => (
         </Col>
         <Col>
           <Box
-            link={(r) => r.uiSystem.rocketstyle}
+            link={(r) => r.uiSystem.rocketstyle.base}
             heading="Rocketstyle"
             icon="rocketstyle"
             label="Toolking"
@@ -28,7 +28,7 @@ export default () => (
         </Col>
         <Col>
           <Box
-            link={(r) => r.uiSystem.unistyle}
+            link={(r) => r.uiSystem.unistyle.base}
             heading="Unistyle"
             icon="unistyle"
             label="Toolking"
@@ -36,7 +36,7 @@ export default () => (
         </Col>
         <Col>
           <Box
-            link={(r) => r.uiSystem.coolgrid}
+            link={(r) => r.uiSystem.coolgrid.base}
             heading="Coolgrid"
             icon="coolgrid"
             label="Toolking"
@@ -46,3 +46,5 @@ export default () => (
     </Container>
   </Section>
 )
+
+export default component

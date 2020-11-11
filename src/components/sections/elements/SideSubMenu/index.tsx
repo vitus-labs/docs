@@ -3,9 +3,10 @@ import Menu, { Item } from '~/components/base/menu/SideSubMenu'
 
 const component = () => (
   <Menu>
-    <Item active label="Basics" href="/docs/elements" />
-    <Item label="Element" href="/docs/elements/element" />
-    <Item label="List" href="/docs/elements/list" />
+    <Item active label="Motivation" href="#motivation" />
+    <Item label="Installation" href="#installation" />
+    <Item label="Getting started" href="#getting-started" />
+    <Item label="Components" href="#components" />
   </Menu>
 )
 

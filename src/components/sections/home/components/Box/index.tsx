@@ -7,7 +7,7 @@ import Icon from '~/components/base/Icon'
 
 const Heading = heading.theme({ marginTop: 16 })
 
-export default ({ variant = 'primary', heading, label, icon, link }) => (
+const component = ({ variant = 'primary', heading, label, icon, link }) => (
   <Link transparent href={link}>
     <Box>
       <Icon xLarge name={icon} circle={variant === 'secondary'} />
@@ -16,3 +16,5 @@ export default ({ variant = 'primary', heading, label, icon, link }) => (
     </Box>
   </Link>
 )
+
+export default component

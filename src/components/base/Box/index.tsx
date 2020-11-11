@@ -12,9 +12,10 @@ export default element
     paddingX: 24,
     paddingY: 36,
     borderRadius: 16,
-    extendCss: [
-      css`
-        background: rgba(255, 255, 255, 0.08);
-      `,
-    ],
+    transition: t.transition.base,
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+
+    hover: {
+      backgroundColor: 'rgba(255, 255, 255, 0.16)',
+    },
   }))

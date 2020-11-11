@@ -29,11 +29,14 @@ export default {
     topMenu: {
       height: 70,
       bg: '#081B2C',
+      borderColor: '#4F6579',
+      zIndex: 100,
     },
     sideMenu: {
       height: 'calc(100vh - 70px)',
       width: 320,
       bg: '#112F4A',
+      zindex: 90,
     },
   },
   spacing: {

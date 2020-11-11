@@ -3,7 +3,7 @@ import Section from '~/components/base/Section'
 import Heading from '~/components/base/Heading'
 import Text from '~/components/base/Text'
 
-export default () => (
+const component = () => (
   <Section centered gapLg>
     <Heading level1 label="Libraries for easier development" />
     <Text>
@@ -12,3 +12,5 @@ export default () => (
     </Text>
   </Section>
 )
+
+export default component
