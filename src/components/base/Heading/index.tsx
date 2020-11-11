@@ -2,9 +2,9 @@ import { text } from '~/components/core'
 
 export default text
   .config({ name: 'Heading' })
-  .attrs((t) => ({
+  .attrs({
     tag: 'h1',
-  }))
+  })
   .theme((t) => ({
     fontFamily: t.fontFamily.headings,
     lineHeight: t.lineHeight.md,

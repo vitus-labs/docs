@@ -1,6 +1,7 @@
 import { element } from '~/components/core'
 
 export default element
+  .config({ name: 'base/layout/Content' })
   .attrs({
     block: true,
     contentDirection: 'rows',
