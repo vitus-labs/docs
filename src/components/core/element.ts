@@ -47,26 +47,26 @@ export default rocketstyle({
           theme:
             {
               ...restStyles,
-              ...baseStyles.base,
+              ...baseStyles,
             } || {},
           styles,
           css,
         })
 
         const hoverTheme = makeItResponsive({
-          theme: hoverStyles || {},
+          theme: hoverStyles,
           styles,
           css,
         })
 
         const focusTheme = makeItResponsive({
-          theme: focusStyles || {},
+          theme: focusStyles,
           styles,
           css,
         })
 
         const activeTheme = makeItResponsive({
-          theme: activeStyles || {},
+          theme: activeStyles,
           styles,
           css,
         })
