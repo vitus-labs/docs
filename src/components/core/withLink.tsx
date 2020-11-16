@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React from 'react'
 import { useRouter } from 'next/router'
 import Link from 'next/link'
 import routes from '~/core/routes'
@@ -12,7 +12,6 @@ const component = (WrappedComponent) => {
     shallow,
     ...props
   }) => {
-    // const [active, setActive] = useState(false)
     const { route } = useRouter()
 
     if (!href) return <WrappedComponent {...props} />
@@ -26,9 +25,14 @@ const component = (WrappedComponent) => {
 
     const destination = goTo()
 
-    // useEffect(() => {
-    //   setActive(route === destination)
-    // }, [route, destination])
+    const Child = (routeProps) => (
+      <WrappedComponent
+        active={route === destination}
+        href={destination}
+        {...props}
+        {...routeProps}
+      />
+    )
 
     return (
       <Link
@@ -38,11 +42,7 @@ const component = (WrappedComponent) => {
         shallow={shallow}
         prefetch={prefetch}
       >
-        <WrappedComponent
-          active={route === destination}
-          href={destination}
-          {...props}
-        />
+        <Child />
       </Link>
     )
   }

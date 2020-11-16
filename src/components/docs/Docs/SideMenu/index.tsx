@@ -1,7 +1,5 @@
-import React, { useContext } from 'react'
-import { useRouter } from 'next/router'
 import Menu from '~/components/base/menu/SideMenu'
-import { Context } from '~/components/docs/context/DocsLinks'
+import Item from './Item'
 
 const data = [
   {
@@ -24,25 +22,10 @@ const data = [
     label: 'Overlay',
     href: (r) => r.uiSystem.elements.overlay,
   },
+  {
+    label: 'Portal',
+    href: (r) => r.uiSystem.elements.portal,
+  },
 ]
 
-const component = () => {
-  const { route } = useRouter()
-  const { links } = useContext(Context)
-
-  const createMenu = () => {
-    return data.map((item) => {
-      console.log(item.href)
-      console.log(route)
-      if (item.href === route) {
-        return { ...item, data: links }
-      }
-
-      return item
-    })
-  }
-
-  return <Menu data={createMenu()} />
-}
-
-export default component
+export default Menu.attrs({ component: Item, data })

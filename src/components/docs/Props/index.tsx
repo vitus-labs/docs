@@ -1,4 +1,4 @@
-import React, { ReactNode, FC } from 'react'
+import React, { Fragment, ReactNode, FC } from 'react'
 import styled from 'styled-components'
 import Highlight from '../Highlight'
 import Value from '../Value'
@@ -44,7 +44,7 @@ const Props = ({ children }) => {
           <HeadCol>Description</HeadCol>
         </tr>
       </Head>
-      {children}
+      <tbody>{children}</tbody>
     </Table>
   )
 }
@@ -64,9 +64,9 @@ const Prop: FC<PropProps> = ({ name, type, defaultValue, label }) => (
     <Col>
       {type.split(' | ').map((item, i) => {
         return (
-          <>
-            <Value key={i}>{item}</Value> |{' '}
-          </>
+          <Fragment key={i}>
+            <Value>{item}</Value> |{' '}
+          </Fragment>
         )
       })}
     </Col>

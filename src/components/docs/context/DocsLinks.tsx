@@ -16,15 +16,16 @@ const data = {}
 export const Context = createContext<Partial<ContextTypes>>({})
 
 export const DocsLinksProvider: FC = ({ children }) => {
+  // const { route } = useRouter()
   const [state, setState] = useState({})
 
   const registerLink = ({ title, link }: Link) => {
-    data[link] = { title, link }
+    data[link] = { title, link: `#${link}` }
     setState(data)
   }
 
   const unregisterLink = ({ link }) => {
-    data[link] = undefined
+    delete data[link]
     setState(data)
   }
 

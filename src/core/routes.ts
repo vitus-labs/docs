@@ -7,6 +7,7 @@ export default {
       list: '/docs/ui-system/elements/list',
       text: '/docs/ui-system/elements/text',
       overlay: '/docs/ui-system/elements/overlay',
+      portal: '/docs/ui-system/elements/portal',
     },
     rocketstyle: {
       base: '/docs/ui-system/rocketstyle',

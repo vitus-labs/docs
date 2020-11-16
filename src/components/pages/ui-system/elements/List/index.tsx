@@ -50,11 +50,11 @@ const component = () => (
           <Highlight>data</Highlight> and <Highlight>component</Highlight> to
           List component and it will iterate on the background and render list
           of elements.
-          <Grid>
-            <>editor</>
-            <>editor</>
-          </Grid>
         </Text>
+        <Grid>
+          <>editor</>
+          <>editor</>
+        </Grid>
       </Subsection>
     </Section>
 
