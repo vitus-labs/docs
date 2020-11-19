@@ -1,14 +1,14 @@
 import React from 'react'
-import { LiveProvider, LiveEditor, LiveError } from 'react-live'
 import {
   Docs,
   Section,
   Subsection,
-  Grid,
   Text,
   Highlight,
+  Link,
+  Editor,
 } from '~/components/docs'
-import Link from '~/components/base/Link'
+import { scope, element, list, text } from './examples'
 
 const component = () => (
   <Docs title="Basics">
@@ -36,12 +36,7 @@ const component = () => (
         or <Highlight>npm</Highlight>).
       </Text>
 
-      <Grid>
-        <LiveProvider code="<strong>Hello World!</strong>">
-          <LiveEditor />
-          <LiveError />
-        </LiveProvider>
-      </Grid>
+      <Editor disabled code="yarn add @vitus-labs/elements @vitus-labs/core" />
     </Section>
 
     <Section title="Dependencies">
@@ -61,6 +56,8 @@ const component = () => (
           things and much more can be covered by this component.{' '}
           <Link href={(r) => r.uiSystem.elements.element}>See the docs</Link>
         </Text>
+
+        <Editor scope={scope} code={element} />
       </Subsection>
 
       <Subsection title="List">
@@ -70,6 +67,8 @@ const component = () => (
           for you.{' '}
           <Link href={(r) => r.uiSystem.elements.list}>See the docs</Link>
         </Text>
+
+        <Editor scope={scope} code={list} />
       </Subsection>
 
       <Subsection title="Text">
@@ -77,6 +76,8 @@ const component = () => (
           Simple component for s or any inline text element like strong, small
           etc. <Link href={(r) => r.uiSystem.elements.text}>See the docs</Link>
         </Text>
+
+        <Editor scope={scope} code={text} />
       </Subsection>
 
       <Subsection title="Overlay">
@@ -86,6 +87,20 @@ const component = () => (
           align elements the way you like without any extra effort.{' '}
           <Link href={(r) => r.uiSystem.elements.overlay}>See the docs</Link>
         </Text>
+
+        <Editor
+          scope={scope}
+          code={`
+          // import { Element } from '@vitus-labs/elements'
+
+          const Icon = () => <div>ico</div>
+          const Loading = () => <div>...</div>
+
+          const Button = () => <Element label="Submitting" beforeContent={Icon} afterContent={Loading} />
+
+          render (<Button />)
+          `}
+        />
       </Subsection>
 
       <Subsection title="Portal">
@@ -94,6 +109,20 @@ const component = () => (
           elements to DOM.{' '}
           <Link href={(r) => r.uiSystem.elements.portal}>See the docs</Link>
         </Text>
+
+        <Editor
+          scope={scope}
+          code={`
+          // import { Element } from '@vitus-labs/elements'
+
+          const Icon = () => <div>ico</div>
+          const Loading = () => <div>...</div>
+
+          const Button = () => <Element label="Submitting" beforeContent={Icon} afterContent={Loading} />
+
+          render (<Button />)
+          `}
+        />
       </Subsection>
     </Section>
   </Docs>
