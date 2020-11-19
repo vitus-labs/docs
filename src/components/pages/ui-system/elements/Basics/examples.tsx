@@ -30,8 +30,8 @@ export const list = `
 // import { Element, List } from '@vitus-labs/elements'
 
 const data = [
-    {name: 'John', surname: 'Doe'},
-    {name: 'Sam', surname: 'Johnson'},
+    { name: 'John', surname: 'Doe' },
+    { name: 'Sam', surname: 'Johnson' },
 ]
 
 const component = ({ name, surname }) => (

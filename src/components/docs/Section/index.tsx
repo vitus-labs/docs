@@ -1,7 +1,15 @@
 import React from 'react'
-import Section from '~/components/base/Section'
-import Heading from '~/components/base/Heading'
+import section from '~/components/base/Section'
+import heading from '~/components/base/Heading'
 import registerLinks from './registerLinks'
+
+const Section = section.theme((t) => ({
+  marginBottom: 64,
+}))
+
+const Heading = heading.theme((t) => ({
+  marginBottom: 16,
+}))
 
 const component = ({ children, name, title, ...props }) => (
   <Section name={name} {...props}>

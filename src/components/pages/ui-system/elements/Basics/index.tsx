@@ -36,7 +36,10 @@ const component = () => (
         or <Highlight>npm</Highlight>).
       </Text>
 
-      <Editor disabled code="yarn add @vitus-labs/elements @vitus-labs/core" />
+      <Editor
+        preview={false}
+        code="yarn add @vitus-labs/elements @vitus-labs/core"
+      />
     </Section>
 
     <Section title="Dependencies">

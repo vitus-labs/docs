@@ -10,8 +10,29 @@ import {
   Highlight,
   Props,
   Prop,
+  Editor,
 } from '~/components/docs'
-import Placeholder from '~/components/base/placeholders/Element'
+import {
+  scope,
+  exampleVertical,
+  exampleHorizontal,
+  renderChildren,
+  beforeAfter,
+  horizontal,
+  vertical,
+  horizontalAlignBeforeContentHorizontally,
+  horizontalAlignContentHorizontally,
+  horizontalAlignAfterContentHorizontally,
+  horizontalAlignBeforeContentVertically,
+  horizontalAlignContentVertically,
+  horizontalAlignAfterContentVertically,
+  verticalAlignBeforeContentHorizontally,
+  verticalAlignContentHorizontally,
+  verticalAlignAfterContentHorizontally,
+  verticalAlignBeforeContentVertically,
+  verticalAlignContentVertically,
+  verticalAlignAfterContentVertically,
+} from './examples'
 
 const component: FC = () => (
   <Docs title="Element">
@@ -38,26 +59,8 @@ const component: FC = () => (
     </Text>
 
     <Section title="Examples">
-      <Grid>
-        editor
-        <Placeholder
-          wrapper
-          beforeContent={<Placeholder inner />}
-          afterContent={<Placeholder inner />}
-          content={<Placeholder inner />}
-        />
-      </Grid>
-
-      <Grid>
-        editor
-        <Placeholder
-          vertical
-          wrapper
-          beforeContent={<Placeholder inner />}
-          afterContent={<Placeholder inner />}
-          content={<Placeholder inner />}
-        />
-      </Grid>
+      <Editor scope={scope} code={exampleHorizontal} />
+      <Editor scope={scope} code={exampleVertical} />
     </Section>
 
     <Section title="Render children">
@@ -69,29 +72,23 @@ const component: FC = () => (
         <Highlight>children</Highlight> will <Highlight>have</Highlight> the
         highest priority to be rendered and <Highlight>label</Highlight> or{' '}
         <Highlight>content</Highlight> will be ignored. Priorities are{' '}
-        <Highlight>children &rarr; content &rarr; label</Highlight>. Elements
-        depends on the following packages which need to be installed as well.
+        <Highlight>children &rarr; content &rarr; label</Highlight>. You can
+        pick any of those prop names based on your prefeference.
       </Text>
-
-      <Grid>
-        <>TODO: editor</>
-        <>preview</>
-      </Grid>
+      <Editor scope={scope} code={renderChildren} />
     </Section>
 
     <Section title="Before & After content">
       <Text>
-        You can also pass <Highlight>beforeContent</Highlight> or{' '}
+        You can pass <Highlight>beforeContent</Highlight> or{' '}
         <Highlight>afterContent</Highlight>. This may be also kind of
         alternative to using <Highlight>:before</Highlight> or{' '}
         <Highlight>:after</Highlight> pseudo elements. This is useful especially
-        in cases like buttons with loading icon or input wrppers with icons or
-        anything similar.
+        in cases like buttons with loading icon or input wrappers with icons or
+        anything similar. It supports more types to render before/after content,
+        check out examples.
       </Text>
-      <Grid>
-        <>TODO: editor</>
-        <>preview</>
-      </Grid>
+      <Editor scope={scope} code={beforeAfter} />
     </Section>
 
     <Section title="Vertical & Horizontal alignment">
@@ -100,28 +97,23 @@ const component: FC = () => (
         <Highlight>beforeContent</Highlight> on the left side of{' '}
         <Highlight>children</Highlight> or above. The same applies for{' '}
         <Highlight>afterContent</Highlight> (below children or on the right
-        side). Check out the examples below to see more. For vertical aligning
-        you can use prop <Highlight>vertical</Highlight> set to{' '}
-        <Highlight>true</Highlight> or use <Highlight>direction</Highlight> prop
-        which can be set to <Highlight>rows</Highlight> or{' '}
-        <Highlight>inline</Highlight>.
+        side). Check out the examples below to see more.
       </Text>
 
-      <Grid>
-        <Placeholder
-          wrapper
-          beforeContent={<Placeholder inner />}
-          afterContent={<Placeholder inner />}
-          content={<Placeholder inner />}
-        />
-        <Placeholder
-          vertical
-          wrapper
-          beforeContent={<Placeholder inner />}
-          afterContent={<Placeholder inner />}
-          content={<Placeholder inner />}
-        />
-      </Grid>
+      <Subsection title="Horizontal mode">
+        <Text>Element aligns inner elements horizontally by default.</Text>
+        <Editor scope={scope} code={horizontal} />
+      </Subsection>
+
+      <Subsection title="Vertical mode">
+        <Text>
+          For vertical aligning you can use prop <Highlight>vertical</Highlight>{' '}
+          set to <Highlight>true</Highlight> or use{' '}
+          <Highlight>direction</Highlight> prop which can be set to{' '}
+          <Highlight>rows</Highlight> or <Highlight>inline</Highlight>.
+        </Text>
+        <Editor scope={scope} code={vertical} />
+      </Subsection>
     </Section>
 
     <Section title="Horizontal element">
@@ -138,26 +130,10 @@ const component: FC = () => (
       <Subsection title="Align content, beforeContent and afterContent horizontally">
         <Grid columns={3}>
           <Column>
-            <Placeholder
-              thin
-              beforeContentAlignX="left"
-              beforeContent={<Placeholder active thinInner />}
-              content={<Placeholder thinInner />}
-              afterContent={<Placeholder thinInner />}
-            />
-            <Placeholder
-              thin
-              beforeContentAlignX="center"
-              beforeContent={<Placeholder active thinInner />}
-              content={<Placeholder thinInner />}
-              afterContent={<Placeholder thinInner />}
-            />
-            <Placeholder
-              thin
-              beforeContentAlignX="right"
-              beforeContent={<Placeholder active thinInner />}
-              content={<Placeholder thinInner />}
-              afterContent={<Placeholder thinInner />}
+            <Editor
+              scope={scope}
+              code={horizontalAlignBeforeContentHorizontally}
+              editor={false}
             />
             <Caption>
               <Highlight>beforeContent</Highlight> aligned (left, center, right)
@@ -165,26 +141,10 @@ const component: FC = () => (
           </Column>
 
           <Column>
-            <Placeholder
-              thin
-              contentAlignX="left"
-              beforeContent={<Placeholder thinInner />}
-              content={<Placeholder active thinInner />}
-              afterContent={<Placeholder thinInner />}
-            />
-            <Placeholder
-              thin
-              contentAlignX="center"
-              beforeContent={<Placeholder thinInner />}
-              content={<Placeholder active thinInner />}
-              afterContent={<Placeholder thinInner />}
-            />
-            <Placeholder
-              thin
-              contentAlignX="right"
-              beforeContent={<Placeholder thinInner />}
-              content={<Placeholder active thinInner />}
-              afterContent={<Placeholder thinInner />}
+            <Editor
+              scope={scope}
+              code={horizontalAlignContentHorizontally}
+              editor={false}
             />
             <Caption>
               <Highlight>children / content / label</Highlight> aligned (left,
@@ -193,26 +153,10 @@ const component: FC = () => (
           </Column>
 
           <Column>
-            <Placeholder
-              thin
-              afterContentAlignX="left"
-              beforeContent={<Placeholder thinInner />}
-              content={<Placeholder thinInner />}
-              afterContent={<Placeholder active thinInner />}
-            />
-            <Placeholder
-              thin
-              afterContentAlignX="center"
-              beforeContent={<Placeholder thinInner />}
-              content={<Placeholder thinInner />}
-              afterContent={<Placeholder active thinInner />}
-            />
-            <Placeholder
-              thin
-              afterContentAlignX="right"
-              beforeContent={<Placeholder thinInner />}
-              content={<Placeholder thinInner />}
-              afterContent={<Placeholder active thinInner />}
+            <Editor
+              scope={scope}
+              code={horizontalAlignAfterContentHorizontally}
+              editor={false}
             />
             <Caption>
               <Highlight>afterContent</Highlight> aligned (left, center, right)
@@ -224,26 +168,10 @@ const component: FC = () => (
       <Subsection title="Align content, beforeContent and afterContent vertically">
         <Grid columns={3}>
           <Column>
-            <Placeholder
-              thin
-              beforeContentAlignY="top"
-              beforeContent={<Placeholder active thinInner />}
-              content={<Placeholder thinInner />}
-              afterContent={<Placeholder thinInner />}
-            />
-            <Placeholder
-              thin
-              beforeContentAlignY="center"
-              beforeContent={<Placeholder active thinInner />}
-              content={<Placeholder thinInner />}
-              afterContent={<Placeholder thinInner />}
-            />
-            <Placeholder
-              thin
-              beforeContentAlignY="bottom"
-              beforeContent={<Placeholder active thinInner />}
-              content={<Placeholder thinInner />}
-              afterContent={<Placeholder thinInner />}
+            <Editor
+              scope={scope}
+              code={horizontalAlignBeforeContentVertically}
+              editor={false}
             />
             <Caption>
               <Highlight>beforeContent</Highlight> aligned (top, center, bottom)
@@ -251,26 +179,10 @@ const component: FC = () => (
           </Column>
 
           <Column>
-            <Placeholder
-              thin
-              contentAlignY="top"
-              beforeContent={<Placeholder thinInner />}
-              content={<Placeholder active thinInner />}
-              afterContent={<Placeholder thinInner />}
-            />
-            <Placeholder
-              thin
-              contentAlignY="center"
-              beforeContent={<Placeholder thinInner />}
-              content={<Placeholder active thinInner />}
-              afterContent={<Placeholder thinInner />}
-            />
-            <Placeholder
-              thin
-              contentAlignY="bottom"
-              beforeContent={<Placeholder thinInner />}
-              content={<Placeholder active thinInner />}
-              afterContent={<Placeholder thinInner />}
+            <Editor
+              scope={scope}
+              code={horizontalAlignContentVertically}
+              editor={false}
             />
             <Caption>
               <Highlight>children / content / label</Highlight> aligned (top,
@@ -279,26 +191,10 @@ const component: FC = () => (
           </Column>
 
           <Column>
-            <Placeholder
-              thin
-              afterContentAlignY="top"
-              beforeContent={<Placeholder thinInner />}
-              content={<Placeholder thinInner />}
-              afterContent={<Placeholder active thinInner />}
-            />
-            <Placeholder
-              thin
-              afterContentAlignY="center"
-              beforeContent={<Placeholder thinInner />}
-              content={<Placeholder thinInner />}
-              afterContent={<Placeholder active thinInner />}
-            />
-            <Placeholder
-              thin
-              afterContentAlignY="bottom"
-              beforeContent={<Placeholder thinInner />}
-              content={<Placeholder thinInner />}
-              afterContent={<Placeholder active thinInner />}
+            <Editor
+              scope={scope}
+              code={horizontalAlignAfterContentVertically}
+              editor={false}
             />
             <Caption>
               <Highlight>afterContent</Highlight> aligned (top, center, bottom)
@@ -324,29 +220,10 @@ const component: FC = () => (
       <Subsection title="Align content, beforeContent and afterContent horizontally">
         <Grid columns={3}>
           <Column>
-            <Placeholder
-              vertical
-              thin
-              beforeContentAlignX="left"
-              beforeContent={<Placeholder active thinInner />}
-              content={<Placeholder thinInner />}
-              afterContent={<Placeholder thinInner />}
-            />
-            <Placeholder
-              vertical
-              thin
-              beforeContentAlignX="center"
-              beforeContent={<Placeholder active thinInner />}
-              content={<Placeholder thinInner />}
-              afterContent={<Placeholder thinInner />}
-            />
-            <Placeholder
-              vertical
-              thin
-              beforeContentAlignX="right"
-              beforeContent={<Placeholder active thinInner />}
-              content={<Placeholder thinInner />}
-              afterContent={<Placeholder thinInner />}
+            <Editor
+              scope={scope}
+              code={verticalAlignBeforeContentHorizontally}
+              editor={false}
             />
             <Caption>
               <Highlight>beforeContent</Highlight> aligned (left, center, right)
@@ -354,29 +231,10 @@ const component: FC = () => (
           </Column>
 
           <Column>
-            <Placeholder
-              vertical
-              thin
-              contentAlignX="left"
-              beforeContent={<Placeholder thinInner />}
-              content={<Placeholder active thinInner />}
-              afterContent={<Placeholder thinInner />}
-            />
-            <Placeholder
-              vertical
-              thin
-              contentAlignX="center"
-              beforeContent={<Placeholder thinInner />}
-              content={<Placeholder active thinInner />}
-              afterContent={<Placeholder thinInner />}
-            />
-            <Placeholder
-              vertical
-              thin
-              contentAlignX="right"
-              beforeContent={<Placeholder thinInner />}
-              content={<Placeholder active thinInner />}
-              afterContent={<Placeholder thinInner />}
+            <Editor
+              scope={scope}
+              code={verticalAlignContentHorizontally}
+              editor={false}
             />
             <Caption>
               <Highlight>children / content / label</Highlight> aligned (left,
@@ -385,29 +243,10 @@ const component: FC = () => (
           </Column>
 
           <Column>
-            <Placeholder
-              vertical
-              thin
-              afterContentAlignX="left"
-              beforeContent={<Placeholder thinInner />}
-              content={<Placeholder thinInner />}
-              afterContent={<Placeholder active thinInner />}
-            />
-            <Placeholder
-              vertical
-              thin
-              afterContentAlignX="center"
-              beforeContent={<Placeholder thinInner />}
-              content={<Placeholder thinInner />}
-              afterContent={<Placeholder active thinInner />}
-            />
-            <Placeholder
-              vertical
-              thin
-              afterContentAlignX="right"
-              beforeContent={<Placeholder thinInner />}
-              content={<Placeholder thinInner />}
-              afterContent={<Placeholder active thinInner />}
+            <Editor
+              scope={scope}
+              code={verticalAlignAfterContentHorizontally}
+              editor={false}
             />
             <Caption>
               <Highlight>afterContent</Highlight> aligned (left, center, right)
@@ -419,29 +258,10 @@ const component: FC = () => (
       <Subsection title="Align content, beforeContent and afterContent vertically">
         <Grid>
           <Column>
-            <Placeholder
-              vertical
-              thin
-              beforeContentAlignY="top"
-              beforeContent={<Placeholder active thinInner />}
-              content={<Placeholder thinInner />}
-              afterContent={<Placeholder thinInner />}
-            />
-            <Placeholder
-              vertical
-              thin
-              beforeContentAlignY="center"
-              beforeContent={<Placeholder active thinInner />}
-              content={<Placeholder thinInner />}
-              afterContent={<Placeholder thinInner />}
-            />
-            <Placeholder
-              vertical
-              thin
-              beforeContentAlignY="bottom"
-              beforeContent={<Placeholder active thinInner />}
-              content={<Placeholder thinInner />}
-              afterContent={<Placeholder thinInner />}
+            <Editor
+              scope={scope}
+              code={verticalAlignBeforeContentVertically}
+              editor={false}
             />
             <Caption>
               <Highlight>beforeContent</Highlight> aligned (left, center, right)
@@ -449,29 +269,10 @@ const component: FC = () => (
           </Column>
 
           <Column>
-            <Placeholder
-              vertical
-              thin
-              contentAlignY="top"
-              beforeContent={<Placeholder thinInner />}
-              content={<Placeholder active thinInner />}
-              afterContent={<Placeholder thinInner />}
-            />
-            <Placeholder
-              vertical
-              thin
-              contentAlignY="center"
-              beforeContent={<Placeholder thinInner />}
-              content={<Placeholder active thinInner />}
-              afterContent={<Placeholder thinInner />}
-            />
-            <Placeholder
-              vertical
-              thin
-              contentAlignY="bottom"
-              beforeContent={<Placeholder thinInner />}
-              content={<Placeholder active thinInner />}
-              afterContent={<Placeholder thinInner />}
+            <Editor
+              scope={scope}
+              code={verticalAlignContentVertically}
+              editor={false}
             />
             <Caption>
               <Highlight>children / content / label</Highlight> aligned (left,
@@ -480,29 +281,10 @@ const component: FC = () => (
           </Column>
 
           <Column>
-            <Placeholder
-              vertical
-              thin
-              afterContentAlignY="top"
-              beforeContent={<Placeholder thinInner />}
-              content={<Placeholder thinInner />}
-              afterContent={<Placeholder active thinInner />}
-            />
-            <Placeholder
-              vertical
-              thin
-              afterContentAlignY="center"
-              beforeContent={<Placeholder thinInner />}
-              content={<Placeholder thinInner />}
-              afterContent={<Placeholder active thinInner />}
-            />
-            <Placeholder
-              vertical
-              thin
-              afterContentAlignY="bottom"
-              beforeContent={<Placeholder thinInner />}
-              content={<Placeholder thinInner />}
-              afterContent={<Placeholder active thinInner />}
+            <Editor
+              scope={scope}
+              code={verticalAlignAfterContentVertically}
+              editor={false}
             />
             <Caption>
               <Highlight>afterContent</Highlight> aligned (left, center, right)

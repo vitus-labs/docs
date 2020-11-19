@@ -1,6 +1,6 @@
-import { Element, List, Text, Overlay, Portal } from '@vitus-labs/elements'
+import { Element, List } from '@vitus-labs/elements'
 
-export const scope = { Element, List, Text, Overlay, Portal }
+export const scope = { Element, List }
 
 export const examples = `
 // import { Element, List } from '@vitus-labs/elements'

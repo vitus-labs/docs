@@ -6,10 +6,13 @@ import { Provider, Editor, Error, Preview } from '~/components/base/editor'
 type Props = {
   // live: object
   code: string
+} & Partial<{
   scope: object
-  noInline?: boolean
-  disabled?: boolean
-}
+  noInline: boolean
+  disabled: boolean
+  editor: boolean
+  preview: boolean
+}>
 
 const component: FC<Props> = ({
   live = {},
@@ -17,16 +20,22 @@ const component: FC<Props> = ({
   scope,
   noInline = true,
   disabled,
+  editor = true,
+  preview = true,
 }) => {
   const { error } = live
+
   return (
     <Provider code={code} scope={scope} noInline={noInline}>
       <Container gap={48} gutter={0}>
         <Row>
-          <Col>
-            <Editor disabled={disabled} />
-          </Col>
-          {!disabled && (
+          {editor && (
+            <Col>
+              <Editor disabled={disabled} />
+            </Col>
+          )}
+
+          {preview && (
             <Col>
               <Preview />
             </Col>

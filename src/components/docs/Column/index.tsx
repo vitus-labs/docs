@@ -4,11 +4,11 @@ import { Container, Row, Col } from '~/components/base/grid'
 const component = ({ children, columns = 2 }) => {
   return (
     <Container fluid gap={16} gutter={0}>
-      <Row>
-        {Children.map(children, (child, i) => (
+      {Children.map(children, (child, i) => (
+        <Row>
           <Col key={i}>{child}</Col>
-        ))}
-      </Row>
+        </Row>
+      ))}
     </Container>
   )
 }
