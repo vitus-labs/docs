@@ -56,25 +56,29 @@ type PropProps = {
   label: string | ReactNode
 }
 
-const Prop: FC<PropProps> = ({ name, type, defaultValue, label }) => (
-  <Row>
-    <Col>
-      <Highlight>{name}</Highlight>
-    </Col>
-    <Col>
-      {type.split(' | ').map((item, i) => {
-        return (
-          <Fragment key={i}>
-            <Value>{item}</Value> |{' '}
-          </Fragment>
-        )
-      })}
-    </Col>
-    <Col>
-      <Highlight>{defaultValue}</Highlight>
-    </Col>
-    <Col>{label}</Col>
-  </Row>
-)
+const Prop: FC<PropProps> = ({ name, type, defaultValue, label }) => {
+  const propTypes = type.split(' | ')
+
+  return (
+    <Row>
+      <Col>
+        <Highlight>{name}</Highlight>
+      </Col>
+      <Col>
+        {propTypes.map((item, i) => {
+          return (
+            <Fragment key={i}>
+              <Value>{item}</Value> {propTypes.length - 1 !== i && <>| </>}
+            </Fragment>
+          )
+        })}
+      </Col>
+      <Col>
+        <Highlight>{defaultValue}</Highlight>
+      </Col>
+      <Col>{label}</Col>
+    </Row>
+  )
+}
 
 export { Props, Prop }
