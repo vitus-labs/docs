@@ -2,7 +2,7 @@ import React from 'react'
 import {
   Docs,
   Section,
-  Grid,
+  Link,
   Text,
   Highlight,
   Props,
@@ -14,8 +14,11 @@ import { scope, examples } from './examples'
 const component = () => (
   <Docs title="Portal">
     <Text>
-      Portal is just a normal <Highlight>React Portal</Highlight> component with
-      some prop extensions.
+      Portal is just a normal{' '}
+      <Link external href="https://reactjs.org/docs/portals.html">
+        React Portal
+      </Link>{' '}
+      component with some prop extensions.
     </Text>
 
     <Section title="Examples">

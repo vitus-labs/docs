@@ -15,7 +15,7 @@ const Wrapper = element
     width: t.layout.sideMenu.width,
   }))
 
-const Inner = element
+const InnerWrapper = element
   .config({
     name: 'base/layout/SideMenu/Inner',
   })
@@ -30,13 +30,29 @@ const Inner = element
     top: t.layout.topMenu.height,
     width: t.layout.sideMenu.width,
     height: t.layout.sideMenu.height,
-    backgroundColor: t.layout.sideMenu.bg,
     zIndex: t.layout.sideMenu.zIndex,
+    overflowY: 'scroll',
+  }))
+
+const Inner = element
+  .config({
+    name: 'base/layout/SideMenu/Inner',
+  })
+  .attrs({
+    block: true,
+    contentDirection: 'rows',
+    contentAlignY: 'top',
+  })
+  .theme((t) => ({
+    width: 'inherit',
+    backgroundColor: t.layout.sideMenu.bg,
   }))
 
 const component = (props) => (
   <Wrapper>
-    <Inner {...props} />
+    <InnerWrapper>
+      <Inner {...props} />
+    </InnerWrapper>
   </Wrapper>
 )
 

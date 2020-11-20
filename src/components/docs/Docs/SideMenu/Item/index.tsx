@@ -4,9 +4,10 @@ import { Context } from '~/components/docs/context/DocsLinks'
 import MenuItem from '~/components/base/menu/SideMenu/Item'
 import SideSubMenu from '~/components/base/menu/SideSubMenu'
 
-const NewItem = forwardRef(({ href, ...props }, ref) => {
+const NewItem = forwardRef((props, ref) => {
   const { route } = useRouter()
   const { links } = useContext(Context)
+  const { href } = props
 
   const hasSubmenu = route === href
 
@@ -20,7 +21,7 @@ const NewItem = forwardRef(({ href, ...props }, ref) => {
 
   return (
     <>
-      <MenuItem ref={ref} href={href} {...props} />
+      <MenuItem ref={ref} {...props} />
       {renderSubmenu()}
     </>
   )
