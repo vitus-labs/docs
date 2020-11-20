@@ -2,26 +2,30 @@ import React from 'react'
 import {
   Docs,
   Section,
-  Grid,
   Text,
   Highlight,
   Subsection,
   Props,
   Prop,
+  Editor,
 } from '~/components/docs'
+import {
+  scope,
+  examples,
+  renderLabel,
+  renderChildren,
+  blockText,
+} from './examples'
 
 const component = () => (
-  <Docs title="Overlay">
+  <Docs title="Text">
     <Text>
       Text is a basic component to simply render text content. By default, it
       has reseted some styling.
     </Text>
 
     <Section title="Examples">
-      <Grid>
-        <>editor</>
-        <>editor</>
-      </Grid>
+      <Editor scope={scope} code={examples} />
     </Section>
 
     <Section title="Using Text component">
@@ -35,10 +39,7 @@ const component = () => (
           First of all, you can use <Highlight>Text</Highlight> and pass
           children.
         </Text>
-        <Grid>
-          <>editor</>
-          <>editor</>
-        </Grid>
+        <Editor scope={scope} code={renderChildren} />
       </Subsection>
 
       <Subsection title="Label prop">
@@ -50,10 +51,18 @@ const component = () => (
           then <Highlight>children</Highlight> will have a priority and{' '}
           <Highlight>label</Highlight> will be ignored.
         </Text>
-        <Grid>
-          <>editor</>
-          <>editor</>
-        </Grid>
+        <Editor scope={scope} code={renderLabel} />
+      </Subsection>
+
+      <Subsection title="Block text">
+        <Text>
+          By default it renders <Highlight>span</Highlight> element as an{' '}
+          <Highlight>inline</Highlight> text element. If you would like to use
+          it as a <Highlight>paragraph</Highlight>, you can set prop{' '}
+          <Highlight>paragraph</Highlight> to <Highlight>true</Highlight>, or
+          just use property <Highlight>tag='p'</Highlight>.
+        </Text>
+        <Editor scope={scope} code={blockText} />
       </Subsection>
     </Section>
 
