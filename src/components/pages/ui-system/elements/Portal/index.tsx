@@ -7,7 +7,9 @@ import {
   Highlight,
   Props,
   Prop,
+  Editor,
 } from '~/components/docs'
+import { scope, examples } from './examples'
 
 const component = () => (
   <Docs title="Portal">
@@ -17,21 +19,7 @@ const component = () => (
     </Text>
 
     <Section title="Examples">
-      <Grid>
-        <>editor</>
-        <>editor</>
-      </Grid>
-    </Section>
-
-    <Section title="Using Portal">
-      <Text>
-        There are several ways of rendering text within{' '}
-        <Highlight>Text</Highlight> component. So let's take a look at them.
-      </Text>
-      <Grid>
-        <>editor</>
-        <>editor</>
-      </Grid>
+      <Editor scope={scope} code={examples} />
     </Section>
 
     <Section title="Props">
