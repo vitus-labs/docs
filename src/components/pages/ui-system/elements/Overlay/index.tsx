@@ -8,7 +8,9 @@ import {
   Subsection,
   Props,
   Prop,
+  Editor,
 } from '~/components/docs'
+import { scope, examples, dropdown, tooltip } from './examples'
 
 const component = () => (
   <Docs title="Overlay">
@@ -19,10 +21,7 @@ const component = () => (
     </Text>
 
     <Section title="Examples">
-      <Grid>
-        <>editor</>
-        <>editor</>
-      </Grid>
+      <Editor scope={scope} code={examples} />
     </Section>
 
     <Section title="Using Overlay">
@@ -36,10 +35,7 @@ const component = () => (
           First of all, you can use <Highlight>Text</Highlight> and pass
           children.
         </Text>
-        <Grid>
-          <>editor</>
-          <>editor</>
-        </Grid>
+        <Editor scope={scope} code={dropdown} />
       </Subsection>
 
       <Subsection title="Creating a tooltip">
@@ -51,10 +47,7 @@ const component = () => (
           then <Highlight>children</Highlight> will have a priority and{' '}
           <Highlight>label</Highlight> will be ignored.
         </Text>
-        <Grid>
-          <>editor</>
-          <>editor</>
-        </Grid>
+        <Editor scope={scope} code={tooltip} />
       </Subsection>
     </Section>
 
