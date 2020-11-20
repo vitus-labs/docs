@@ -33,14 +33,14 @@ const Col = styled.td`
   height: 40px;
 `
 
-const Props = ({ children }) => {
+const Props = ({ children, noDefaults }) => {
   return (
     <Table>
       <Head>
         <tr>
           <HeadCol>Name</HeadCol>
           <HeadCol>Type</HeadCol>
-          <HeadCol>Default value</HeadCol>
+          {!noDefaults && <HeadCol>Default value</HeadCol>}
           <HeadCol>Description</HeadCol>
         </tr>
       </Head>
@@ -53,7 +53,7 @@ type PropProps = {
   name: string
   type: string
   defaultValue?: any
-  label: string | ReactNode
+  label?: string | ReactNode
 }
 
 const Prop: FC<PropProps> = ({ name, type, defaultValue, label }) => {
@@ -73,9 +73,11 @@ const Prop: FC<PropProps> = ({ name, type, defaultValue, label }) => {
           )
         })}
       </Col>
-      <Col>
-        <Highlight>{defaultValue}</Highlight>
-      </Col>
+      {defaultValue && (
+        <Col>
+          <Highlight>{defaultValue}</Highlight>
+        </Col>
+      )}
       <Col>{label}</Col>
     </Row>
   )
