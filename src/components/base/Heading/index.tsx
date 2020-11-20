@@ -14,13 +14,13 @@ export default text
       fontSize: 48,
     },
     level2: {
-      fontSize: 42,
+      fontSize: 40,
     },
     level3: {
-      fontSize: 36,
+      fontSize: 32,
     },
     level4: {
-      fontSize: 32,
+      fontSize: 28,
     },
     level5: {
       fontSize: 24,

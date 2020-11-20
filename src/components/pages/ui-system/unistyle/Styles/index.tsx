@@ -11,7 +11,7 @@ import {
   Prop,
 } from '~/components/docs'
 import * as s from './styleTypes'
-import { prioritization, usage, usageExample } from './examples'
+import { prioritization, usage, usageExample, extendCss } from './examples'
 
 const component = () => (
   <Docs title="Styles">
@@ -51,7 +51,7 @@ const component = () => (
       </Text>
     </Section>
 
-    <Section title="Value preferences">
+    <Section title="Value priorities">
       <Text>
         As there are cases, that we have an ability to define a value more ways
         (<Highlight>paddingLeft</Highlight>, or{' '}
@@ -64,6 +64,56 @@ const component = () => (
         In general, the more specific the value is, the higher priority it has.
       </Text>
       <Editor preview={false} code={prioritization} />
+
+      <Subsection title="Paddings & Margins">
+        <Text>
+          In case of paddings and margins can happen following example:{' '}
+          <Highlight>padding</Highlight> → <Highlight>paddingY</Highlight> →{' '}
+          <Highlight>paddingBottom</Highlight> where output will be{' '}
+          <Highlight>paddingBottom</Highlight> value if more than one is
+          defined. The same applies for margins.
+        </Text>
+      </Subsection>
+
+      <Subsection title="Sizes">
+        <Text>
+          In case of sizes like width, height, minWidth, minHeight, maxWidth and
+          maxHeight can happen following example: <Highlight>minSize</Highlight>{' '}
+          → <Highlight>minWidth</Highlight> where output will be{' '}
+          <Highlight>minWidth</Highlight> value if more than one is defined. The
+          same applies for margins.
+        </Text>
+      </Subsection>
+
+      <Subsection title="Border radius">
+        <Text>
+          You can use shorthands for border radius as well. Unfortunately, it's
+          pretty tricky to prioritize them clearly as they are not related to
+          sides but element corners. Therefore, there is also slightly different
+          property naming.
+          <Highlight>borderRadiusTop</Highlight> →{' '}
+          <Highlight>borderRadiusLeft</Highlight> →{' '}
+          <Highlight>borderRadiusTop</Highlight> where output will be{' '}
+          <Highlight>borderRadiusTop</Highlight> value if more than one is
+          defined. The same applies for others.
+        </Text>
+        <Text>
+          As you can see from text above, higher preference have sides{' '}
+          <Highlight>left</Highlight>, <Highlight>right</Highlight> over{' '}
+          <Highlight>top</Highlight> and <Highlight>bottom</Highlight>.
+        </Text>
+      </Subsection>
+    </Section>
+
+    <Section title="Extending styles">
+      <Text>
+        In case you need to use a property which is not supported yet or to
+        overwrite some rules, you use <Highlight>extendCss</Highlight> property
+        name. You can pass it either as <Highlight>string</Highlight>, or{' '}
+        <Highlight>css</Highlight> styled-components (recommended) function with
+        your styles.
+      </Text>
+      <Editor preview={false} code={extendCss} />
     </Section>
 
     <Section title="Available properties">
