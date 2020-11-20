@@ -3,7 +3,7 @@ import { Element, Overlay } from '@vitus-labs/elements'
 export const scope = { Element, Overlay }
 
 export const examples = `
-// import { Text } from '@vitus-labs/elements'
+// import { Overlay, Element } from '@vitus-labs/elements'
 
 const Button = (props) => {
   const { active } = props
@@ -56,7 +56,7 @@ render(
 `
 
 export const dropdown = `
-// import { Text } from '@vitus-labs/elements'
+// import { Overlay, Element } from '@vitus-labs/elements'
 
 const Button = (props) => {
   const { active } = props
@@ -124,27 +124,23 @@ render(
 `
 
 export const tooltip = `
-// import { Text } from '@vitus-labs/elements'
+// import { Overlay, Element } from '@vitus-labs/elements'
 
-const Button = (props) => {
-  const { active } = props
-  
-  return (
-    <Element
-      {...props}
-      label="Hover on me"
-      tag="button" 
-      style={{
-        background: 'rgba(84, 214, 255, 0.4)',
-        border: '1px solid #54D6FF',
-        padding: '8px 16px',
-        color: '#fff',
-        borderRadius: 4,
-        outline: 'none',
-      }}
-    />
-  )
-}
+const Button = (props) => (
+  <Element
+    {...props}
+    label="Hover on me"
+    tag="button" 
+    style={{
+      background: 'rgba(84, 214, 255, 0.4)',
+      border: '1px solid #54D6FF',
+      padding: '8px 16px',
+      color: '#fff',
+      borderRadius: 4,
+      outline: 'none',
+    }}
+  />
+)
 
 const Content = (props) => (
   <Element 

@@ -8,7 +8,7 @@ import {
   Link,
   Editor,
 } from '~/components/docs'
-import { scope, element, list, text } from './examples'
+import { scope, element, list, text, overlay, portal } from './examples'
 
 const component = () => (
   <Docs title="Basics">
@@ -90,20 +90,7 @@ const component = () => (
           align elements the way you like without any extra effort.{' '}
           <Link href={(r) => r.uiSystem.elements.overlay}>See the docs</Link>
         </Text>
-
-        <Editor
-          scope={scope}
-          code={`
-          // import { Element } from '@vitus-labs/elements'
-
-          const Icon = () => <div>ico</div>
-          const Loading = () => <div>...</div>
-
-          const Button = () => <Element label="Submitting" beforeContent={Icon} afterContent={Loading} />
-
-          render (<Button />)
-          `}
-        />
+        <Editor scope={scope} code={overlay} />
       </Subsection>
 
       <Subsection title="Portal">
@@ -112,20 +99,7 @@ const component = () => (
           elements to DOM.{' '}
           <Link href={(r) => r.uiSystem.elements.portal}>See the docs</Link>
         </Text>
-
-        <Editor
-          scope={scope}
-          code={`
-          // import { Element } from '@vitus-labs/elements'
-
-          const Icon = () => <div>ico</div>
-          const Loading = () => <div>...</div>
-
-          const Button = () => <Element label="Submitting" beforeContent={Icon} afterContent={Loading} />
-
-          render (<Button />)
-          `}
-        />
+        <Editor scope={scope} code={portal} />
       </Subsection>
     </Section>
   </Docs>

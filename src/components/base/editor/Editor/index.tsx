@@ -14,8 +14,7 @@ const Box = box
     borderRadius: 0,
     hover: undefined,
     fontSize: 14,
-    height: 400,
-    minHeight: 400,
+    maxHeight: 400,
   }))
   .styles(
     (css) => css`

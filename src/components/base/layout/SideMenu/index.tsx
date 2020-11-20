@@ -31,6 +31,7 @@ const InnerWrapper = element
     width: t.layout.sideMenu.width,
     height: t.layout.sideMenu.height,
     zIndex: t.layout.sideMenu.zIndex,
+    backgroundColor: t.layout.sideMenu.bg,
     overflowY: 'scroll',
   }))
 
