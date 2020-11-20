@@ -5,18 +5,6 @@ export const scope = { Element }
 export const exampleHorizontal = `
 // import { Element } from '@vitus-labs/elements'
 
-const Box = () => (
-  <Element 
-    gap={16}
-    content={Content}
-    css={styles}
-    beforeContent={BeforeAfter} 
-    afterContent={BeforeAfter}
-  />
-)
-
-// example helpers
-
 const BeforeAfter = () => (
   <Element css={beforeAfterStyles} />
 )
@@ -48,15 +36,10 @@ const styles = \`
   border: 1px solid #54D6FF;
 \`
 
-render(<Box />)
-`
 
-export const exampleVertical = `
-// import { Element } from '@vitus-labs/elements'
-
-const Box = () => (
+// ↓↓↓ Element ↓↓↓// ↓↓↓ Element ↓↓↓
+render(
   <Element 
-    vertical
     gap={16}
     content={Content}
     css={styles}
@@ -64,8 +47,10 @@ const Box = () => (
     afterContent={BeforeAfter}
   />
 )
+`
 
-// example helpers
+export const exampleVertical = `
+// import { Element } from '@vitus-labs/elements'
 
 const BeforeAfter = () => (
   <Element css={beforeAfterStyles} />
@@ -98,7 +83,17 @@ const styles = \`
   border: 1px solid #54D6FF;
 \`
 
-render(<Box />)
+// ↓↓↓ Element ↓↓↓
+render(
+  <Element 
+    vertical
+    gap={16}
+    content={Content}
+    css={styles}
+    beforeContent={BeforeAfter} 
+    afterContent={BeforeAfter}
+  />
+)
 `
 
 export const renderChildren = `
@@ -136,6 +131,7 @@ const styles = \`
   margin-bottom: 12px;
 \`
 
+// ↓↓↓ Element ↓↓↓
 render(
   <>
     <Element 
@@ -203,6 +199,7 @@ const styles = \`
   margin-bottom: 12px;
 \`
 
+// ↓↓↓ Element ↓↓↓
 render(
   <>
     <Element 
@@ -273,6 +270,7 @@ const styles = \`
   margin-bottom: 12px;
 \`
 
+// ↓↓↓ Element ↓↓↓
 render(
   // horizontal is by default
   <Element 
@@ -287,8 +285,6 @@ render(
 
 export const vertical = `
 // import { Element } from '@vitus-labs/elements'
-
-// example helpers
 
 const BeforeAfter = () => (
   <Element css={beforeAfterStyles} />
@@ -323,6 +319,7 @@ const styles = \`
   margin-right: 16px;
 \`
 
+// ↓↓↓ Element ↓↓↓
 render(
   <>
     <Element contentDirection="inline">
@@ -401,6 +398,7 @@ const styles = \`
   margin-bottom: 12px;
 \`
 
+// ↓↓↓ Element ↓↓↓
 render(
   <>
     <Element 
@@ -478,6 +476,7 @@ const styles = \`
   margin-bottom: 12px;
 \`
 
+// ↓↓↓ Element ↓↓↓
 render(
   <>
     <Element 
@@ -564,6 +563,7 @@ const styles = \`
   margin-bottom: 12px;
 \`
 
+// ↓↓↓ Element ↓↓↓
 render(
   <>
     <Element 
@@ -652,6 +652,7 @@ const styles = \`
   margin-bottom: 12px;
 \`
 
+// ↓↓↓ Element ↓↓↓
 render(
   <>
     <Element 
@@ -740,6 +741,7 @@ const styles = \`
   margin-bottom: 12px;
 \`
 
+// ↓↓↓ Element ↓↓↓
 render(
   <>
     <Element 
@@ -828,6 +830,7 @@ const styles = \`
   margin-bottom: 12px;
 \`
 
+// ↓↓↓ Element ↓↓↓
 render(
   <>
     <Element 
@@ -919,6 +922,7 @@ const styles = \`
   margin-bottom: 12px;
 \`
 
+// ↓↓↓ Element ↓↓↓
 render(
   <>
   <Element>
@@ -1021,6 +1025,7 @@ const styles = \`
   margin-bottom: 12px;
 \`
 
+// ↓↓↓ Element ↓↓↓
 render(
   <>
   <Element>
@@ -1123,6 +1128,7 @@ const styles = \`
   margin-bottom: 12px;
 \`
 
+// ↓↓↓ Element ↓↓↓
 render(
   <>
   <Element>
@@ -1225,6 +1231,7 @@ const styles = \`
   margin-bottom: 12px;
 \`
 
+// ↓↓↓ Element ↓↓↓
 render(
   <>
     <Element>
@@ -1327,6 +1334,7 @@ const styles = \`
   margin-bottom: 12px;
 \`
 
+// ↓↓↓ Element ↓↓↓
 render(
   <>
     <Element>
@@ -1429,6 +1437,7 @@ const styles = \`
   margin-bottom: 12px;
 \`
 
+// ↓↓↓ Element ↓↓↓
 render(
   <>
     <Element>

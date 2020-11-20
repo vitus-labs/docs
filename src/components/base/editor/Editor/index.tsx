@@ -6,6 +6,7 @@ const Box = box
   .attrs({
     tag: 'div',
     contentAlignX: 'left',
+    contentAlignY: 'top',
   })
   .theme((t) => ({
     padding: 8,

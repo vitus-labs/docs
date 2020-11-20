@@ -94,11 +94,7 @@ const component = () => (
           As there is always need to add a <Highlight>key</Highlight> when
           rendering elements dynamically, you don't have to worry about it. It
           will add a{' '}
-          <Link
-            href="https://reactjs.org/docs/lists-and-keys.html"
-            rel="noopener noreferrer"
-            target="_blank"
-          >
+          <Link external href="https://reactjs.org/docs/lists-and-keys.html">
             key
           </Link>{' '}
           for you out of the box.
