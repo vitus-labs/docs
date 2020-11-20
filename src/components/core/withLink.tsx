@@ -6,6 +6,7 @@ import routes from '~/core/routes'
 const component = (WrappedComponent) => {
   const Enhance = ({
     href,
+    external,
     prefetch = false,
     replace,
     scroll,
@@ -24,15 +25,12 @@ const component = (WrappedComponent) => {
     }
 
     const destination = goTo()
-
-    const Child = (routeProps) => (
-      <WrappedComponent
-        active={route === destination}
-        href={destination}
-        {...props}
-        {...routeProps}
-      />
-    )
+    const externalProps = external
+      ? {
+          rel: 'noopener noreferrer',
+          target: '_blank',
+        }
+      : {}
 
     return (
       <Link
@@ -42,7 +40,12 @@ const component = (WrappedComponent) => {
         shallow={shallow}
         prefetch={prefetch}
       >
-        <Child />
+        <WrappedComponent
+          active={route === destination}
+          href={destination}
+          {...props}
+          {...externalProps}
+        />
       </Link>
     )
   }
