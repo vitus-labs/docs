@@ -6,14 +6,14 @@ const createGap = (size) => ({
   gapSize: size,
 })
 
-export default rocketstyle({
+export default rocketstyle()({
   useBooleans: true,
   dimensions: {
     states: 'state',
     sizes: 'size',
     variants: 'variant',
-    multiple: ['multiple', { multi: true }],
-  },
+    multiple: { propName: 'multiple', multi: true },
+  } as const,
 })({
   name: 'core/List',
   component: List,

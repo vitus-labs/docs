@@ -7,7 +7,7 @@ export default element
     contentDirection: 'rows',
     contentAlignX: 'center',
   })
-  .theme((t, css) => ({
+  .theme((t) => ({
     width: '100%',
     paddingX: 24,
     paddingY: 36,

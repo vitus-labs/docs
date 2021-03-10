@@ -1,14 +1,10 @@
 import React from 'react'
 import Head from 'next/head'
-import { ThemeProvider } from 'styled-components'
-import theme from '~/core/theme'
 import { Root } from '~/components/base/layout'
-import GlobalStyles from '~/core/GlobalStyles'
+import { Provider } from '~/theme'
 
 const component = ({ Component, pageProps }) => (
-  <ThemeProvider theme={theme}>
-    <GlobalStyles theme={theme} />
-
+  <Provider>
     <Head>
       <link
         href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,400;0,600;1,400&family=Varela+Round&display=swap"
@@ -19,7 +15,7 @@ const component = ({ Component, pageProps }) => (
     <Root>
       <Component {...pageProps} />
     </Root>
-  </ThemeProvider>
+  </Provider>
 )
 
 export default component

@@ -3,14 +3,14 @@ import { styles, makeItResponsive } from '@vitus-labs/unistyle'
 import { Element } from '@vitus-labs/elements'
 import withLink from './withLink'
 
-export default rocketstyle({
+export default rocketstyle()({
   useBooleans: true,
   dimensions: {
     states: 'state',
     sizes: 'size',
     variants: 'variant',
-    multiple: ['multiple', { multi: true }],
-  },
+    multiple: { propName: 'multiple', multi: true },
+  } as const,
 })({
   name: 'core/Element',
   component: Element,
