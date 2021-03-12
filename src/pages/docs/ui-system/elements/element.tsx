@@ -1,3 +1,8 @@
-import Page from '~/components/pages/ui-system/elements/Element/index.mdx'
+import Layout from '~/components/docs/Docs'
+import Page from '~/components/pages/docs/ui-system/elements/Element/index.mdx'
 
-export default Page
+export default () => (
+  <Layout>
+    <Page />
+  </Layout>
+)

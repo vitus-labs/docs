@@ -1,0 +1,30 @@
+```tsx
+import { styles } from '@vitus-labs/unistyle'
+import { css } from 'styled-components'
+
+const css = styles({
+  theme: {
+    borderWidth: 1,
+    fontSize: 14,
+    paddingX: 8,
+    marginY: 4,
+    hideEmpty: true,
+  },
+  css,
+  rootSize: 16,
+})
+
+// the output will be
+const output = `
+  font-size: 0.875rem; // 14px
+  padding-left: 0.5rem; // 8px
+  padding-right: 0.5rem; // 8px
+  margin-top: 0.25rem; // 4px
+  margin-bottom: 0.25rem; // 4px
+  border-width: 1px; // doesn't convert border value
+
+  &:empty {
+    display: none;
+  }
+`
+```

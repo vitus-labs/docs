@@ -1,0 +1,23 @@
+```tsx
+// import { Element, List } from '@vitus-labs/elements'
+
+const User = ({ name, surname }) => (
+  <Element
+    label={name + ' ' + surname}
+    style={{
+      paddingTop: 8,
+      paddingBottom: 8,
+    }}
+  />
+)
+
+const Users = () => (
+  <List rootElement vertical>
+    <User name="John" surname="Doe" />
+    <User name="Sam" surname="Johnson" />
+  </List>
+)
+
+// ↓↓↓ List ↓↓↓
+render(<Users />)
+```

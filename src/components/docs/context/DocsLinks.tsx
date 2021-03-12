@@ -11,7 +11,7 @@ type ContextTypes = {
   unregisterLink: (args: { link: string }) => void
 }
 
-const data = {}
+const data: Record<string, unknown> = {}
 
 export const Context = createContext<Partial<ContextTypes>>({})
 

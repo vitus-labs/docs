@@ -4,6 +4,7 @@ import box from '../../Box'
 
 const Box = box
   .attrs({
+    tag: 'div',
     contentAlignX: 'left',
   })
   .theme((t) => ({

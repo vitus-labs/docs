@@ -1,0 +1,41 @@
+```tsx
+// import { Element, List } from '@vitus-labs/elements'
+
+const data = [
+  { name: 'John', surname: 'Doe' },
+  { name: 'Sam', surname: 'Johnson' },
+]
+
+const Wrapper = (props) => (
+  <Element
+    {...props}
+    style={{
+      background: '#fff',
+    }}
+  />
+)
+
+const User = ({ name, surname }) => (
+  <Element
+    label={name + ' ' + surname}
+    style={{
+      paddingTop: 8,
+      paddingBottom: 8,
+    }}
+  />
+)
+
+const Users = () => (
+  <List
+    rootElement
+    vertical
+    contentAlignX="block"
+    data={data}
+    component={User}
+    wrapComponent={Wrapper}
+  />
+)
+
+// ↓↓↓ List ↓↓↓
+render(<Users />)
+```

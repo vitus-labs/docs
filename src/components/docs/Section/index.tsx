@@ -1,4 +1,4 @@
-import React from 'react'
+import { FC } from 'react'
 import section from '~/components/base/Section'
 import heading from '~/components/base/Heading'
 import registerLinks from './registerLinks'
@@ -11,7 +11,12 @@ const Heading = heading.theme((t) => ({
   marginBottom: 16,
 }))
 
-const component = ({ children, name, title, ...props }) => (
+type Props = {
+  name: string
+  title: string
+}
+
+const component: FC<Props> = ({ children, name, title, ...props }) => (
   <Section name={name} {...props}>
     <Heading level2>{title}</Heading>
     {children}

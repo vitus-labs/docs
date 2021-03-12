@@ -1,0 +1,31 @@
+import Breakpoints from './examples/breakpoints.mdx'
+import AlignContent from './examples/align-content.mdx'
+import ExtendCss from './examples/extend-css.mdx'
+
+# Utils
+
+This section contains set of useful utility functions which may come handy
+(and are being used internally in other @vitus-labs/\* packages as well).
+
+## Breakpoints
+
+When you import **breakpoints**, you just get a default set of defined
+breakpoints as a JSON object so you can pass it to **ThemeProvider** fo
+example.
+
+<Breakpoints />
+
+## Align content
+
+There are differences between using **flex** align properties on web and
+React Native, therefore aim of this function is to synchronize naming
+and generate expected css styles.
+
+<AlignContent />
+
+## Extended Css
+
+This might be usefull when you would like to use **css** from
+styled-components as a param in a callback.
+
+<ExtendCss />

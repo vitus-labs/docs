@@ -1,0 +1,29 @@
+```tsx
+// import { Element, List } from '@vitus-labs/elements'
+
+const data = ['John Doe', 'Sam Johnson']
+
+const User = ({ label }) => (
+  <Element
+    label={label}
+    style={{
+      paddingTop: 8,
+      paddingBottom: 8,
+    }}
+  />
+)
+
+const Users = () => (
+  <List
+    rootElement
+    vertical
+    // each item will be passed as 'label' prop
+    valueName="label"
+    data={data}
+    component={User}
+  />
+)
+
+// ↓↓↓ List ↓↓↓
+render(<Users />)
+```

@@ -1,7 +1,11 @@
-import React, { Children } from 'react'
+import { FC, Children } from 'react'
 import { Container, Row, Col } from '~/components/base/grid'
 
-const component = ({ children, columns = 2 }) => {
+type Props = {
+  columns?: number
+}
+
+const component: FC<Props> = ({ children, columns = 2 }) => {
   return (
     <Container fluid gap={16} gutter={0}>
       {Children.map(children, (child, i) => (

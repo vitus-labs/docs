@@ -1,0 +1,35 @@
+```tsx
+// import { Element, List } from '@vitus-labs/elements'
+
+const data = [
+  { name: 'John', surname: 'Doe' },
+  { name: 'Sam', surname: 'Johnson' },
+]
+
+const User = ({ userId, name, surname }) => (
+  <Element
+    label={'[ ' + userId + ' ] - ' + name + ' ' + surname}
+    style={{
+      paddingTop: 8,
+      paddingBottom: 8,
+    }}
+  />
+)
+
+const Users = () => (
+  <List
+    rootElement
+    vertical
+    contentAlignX="block"
+    data={data}
+    component={User}
+    itemProps={(item, extendProps) => ({
+      // ↓↓↓ create your own props dynamically
+      userId: item.position, // + '-' + extendProps.position
+    })}
+  />
+)
+
+// ↓↓↓ List ↓↓↓
+render(<Users />)
+```

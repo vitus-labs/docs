@@ -27,7 +27,7 @@ const component: FC<Props> = ({
 
   return (
     <Provider code={code} scope={scope} noInline={noInline}>
-      <Container gap={48} gutter={0}>
+      <Container gap={48} gutter={24} columns={2} size={1}>
         <Row>
           {editor && (
             <Col>

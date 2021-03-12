@@ -9,13 +9,13 @@ const Box = box
     contentAlignY: 'top',
   })
   .theme((t) => ({
-    padding: 8,
-    paddingY: 8,
-    borderRadius: 0,
-    hover: undefined,
-    fontSize: 14,
     maxHeight: 400,
     overflowY: 'auto',
+    padding: t.spacing.small,
+    paddingY: t.spacing.small,
+    borderRadius: 0,
+    hover: {},
+    fontSize: t.fontSize.medium,
   }))
 
   .styles(
@@ -26,7 +26,13 @@ const Box = box
 
 const component = (props) => (
   <Box>
-    <LiveEditor {...props} style={{ overflowY: 'auto', width: '100%' }} />
+    <LiveEditor
+      {...props}
+      style={{
+        overflowY: 'auto',
+        width: '100%',
+      }}
+    />
   </Box>
 )
 

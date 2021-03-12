@@ -1,6 +1,6 @@
-import React from 'react'
+import { FC } from 'react'
 import Badge from '~/components/base/Badge'
 
-const component = ({ children }) => <Badge>{children}</Badge>
+const component: FC = ({ children }) => <Badge>{children}</Badge>
 
 export default component

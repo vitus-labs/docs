@@ -8,12 +8,14 @@ import Error from './Error'
 
 export { LiveProvider as Provider, Editor, Error, Preview }
 
-export default ({ children, className, live = true }) => {
+export default ({ children, className, editor = true, live = true }) => {
   const language = className.replace(/language-/, '')
 
-  console.log(children)
+  // mdx returns flase value as string, therefore the check below
+  const showEditor = editor === true
+  const showPreview = live === true
 
-  if (live) {
+  if (showPreview && !showEditor) {
     return (
       <LiveProvider
         language={language}
@@ -21,7 +23,21 @@ export default ({ children, className, live = true }) => {
         code={children}
         scope={{ Element, List, Text, Overlay, Portal }}
       >
-        <Container gap={48} gutter={12}>
+        <Preview />
+        <Error />
+      </LiveProvider>
+    )
+  }
+
+  if (showPreview && showEditor) {
+    return (
+      <LiveProvider
+        language={language}
+        noInline={showEditor}
+        code={children}
+        scope={{ Element, List, Text, Overlay, Portal }}
+      >
+        <Container gap={48} gutter={12} columns={2} size={1}>
           <Row>
             <Col>
               <Editor />
@@ -30,11 +46,11 @@ export default ({ children, className, live = true }) => {
               <Preview />
             </Col>
           </Row>
-          <Row>
+          {/* <Row>
             <Col>
               <Error />
             </Col>
-          </Row>
+          </Row> */}
         </Container>
       </LiveProvider>
     )

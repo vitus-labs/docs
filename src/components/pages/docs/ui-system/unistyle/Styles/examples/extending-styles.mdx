@@ -1,0 +1,31 @@
+```tsx
+import { styles } from '@vitus-labs/unistyle'
+import { css } from 'styled-components'
+
+// padding example
+const css = styles({
+  theme: {
+    padding: 16,
+    paddingX: 8,
+    paddingLeft: 4,
+    // the magic happens here
+    extendCss: css`
+      padding-left: 32px;
+      margin-top: 12px;
+    `,
+  },
+  css,
+  rootSize: 16,
+})
+
+// the output will be following
+// extendCss is append to the end of styles so it guarantees
+// overriding previous properties
+const output = css`
+  padding: 1rem; // 16px
+  padding-right: 0.5rem; // 8px (paddingX is more specific than padding)
+  padding-left: 0.25rem; // 4px (paddingLeft is more specific than paddingX)
+  padding-left: 32px;
+  margin-top: 12px;
+`
+```

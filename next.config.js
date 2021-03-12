@@ -39,4 +39,5 @@ module.exports = withPlugins(PLUGINS, {
   dir: 'src',
   poweredByHeader: false,
   // reactStrictMode: true,
+  pageExtensions: ['js', 'jsx', 'ts', 'tsx', 'md', 'mdx'],
 })

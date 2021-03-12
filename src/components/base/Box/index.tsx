@@ -4,6 +4,7 @@ export default element
   .config({ name: 'base/Box' })
   .attrs({
     tag: 'article',
+    block: true,
     contentDirection: 'rows',
     contentAlignX: 'center',
   })

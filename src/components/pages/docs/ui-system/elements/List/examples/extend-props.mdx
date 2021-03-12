@@ -1,0 +1,36 @@
+```tsx
+// import { Element, List } from '@vitus-labs/elements'
+
+const data = [
+  { name: 'John', surname: 'Doe' },
+  { name: 'Sam', surname: 'Johnson' },
+]
+
+const User = ({ position, name, surname, odd }) => (
+  <Element
+    label={'[ ' + position + ' ] - ' + name + ' ' + surname}
+    style={{
+      paddingLeft: 4,
+      paddingRight: 4,
+      paddingTop: 8,
+      paddingBottom: 8,
+      color: odd ? 'palevioletred' : 'papayawhip',
+      background: odd ? 'papayawhip' : 'palevioletred',
+    }}
+  />
+)
+
+const Users = () => (
+  <List
+    rootElement
+    vertical
+    contentAlignX="block"
+    data={data}
+    component={User}
+    extendProps
+  />
+)
+
+// ↓↓↓ List ↓↓↓
+render(<Users />)
+```

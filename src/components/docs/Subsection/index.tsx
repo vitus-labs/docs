@@ -1,4 +1,4 @@
-import React, { FC } from 'react'
+import { FC } from 'react'
 import section from '~/components/base/Section'
 import heading from '~/components/base/Heading'
 
