@@ -34,4 +34,10 @@ const Content = (props) => (
     Some content here
   </Element>
 )
+
+render(
+  <Overlay refName="innerRef" trigger={Button}>
+    <Content />
+  </Overlay>
+)
 ```
