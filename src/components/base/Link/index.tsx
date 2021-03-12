@@ -1,16 +1,7 @@
-import { element } from '~/components/core'
+import { link } from '~/components/core'
 
-export default element
-  .config({ name: 'Link' })
-  .attrs(({ href, onClick }) => {
-    const isLink = !!href
-    const isButton = !!onClick
-    const tag = isLink ? 'a' : isButton ? 'button' : 'span'
-
-    return {
-      tag,
-    }
-  })
+export default link
+  .config({ name: 'base/Link' })
   .theme((t) => ({
     color: t.color.primary.base,
     transition: t.transition.base,
@@ -19,11 +10,11 @@ export default element
       textDecoration: 'underline',
     },
   }))
-  .variants((t) => ({
+  .variants({
     transparent: {
       hover: {
         textDecoration: 'none',
       },
     },
-  }))
+  })
   .multiple({ active: true })

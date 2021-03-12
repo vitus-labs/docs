@@ -1,0 +1,168 @@
+import { Grid, Column } from '~/components/docs'
+import ExampleHorizontal from './examples/example-horizontal.mdx'
+import ExampleVertical from './examples/example-vertical.mdx'
+import RenderChildren from './examples/render-children.mdx'
+import BeforeAfterContent from './examples/before-after-content.mdx'
+import HorizontalVariant from './examples/horizontal-variant.mdx'
+import VerticalVariant from './examples/vertical-variant.mdx'
+import HorizontalHorizontalBeforeContentAlignment from './examples/horizontal-beforeContent-horizontal-alignment.mdx'
+import HorizontalHorizontalContentAlignment from './examples/horizontal-content-horizontal-alignment.mdx'
+import HorizontalHorizontalAfterContentAlignment from './examples/horizontal-afterContent-horizontal-alignment.mdx'
+import HorizontalVerticalBeforeContentAlignment from './examples/horizontal-beforeContent-vertical-alignment.mdx'
+import HorizontalVerticalContentAlignment from './examples/horizontal-content-vertical-alignment.mdx'
+import HorizontalVerticalAfterContentAlignment from './examples/horizontal-afterContent-vertical-alignment.mdx'
+import Props from './props.mdx'
+
+# Element
+
+Element is the smallest possible unit to be used for creating components.
+By default it renders **div**. You can render any valid HTML **tag** by
+passsing it as a prop.
+
+Element is by default **inline-flex**. You can set **flex** by using
+boolean **block** value which will also stretch the element to width of
+**100%**.
+
+Element also checks by default if **tag** passed in is type of **inline**
+HTML tag like **button** or **span**. If so, other helper sub-elements
+rendered inside (**beforeContent** and **afterContent** wrappers) are by
+default converted to **span** element so it is HTML valid.
+
+## Examples
+
+<ExampleHorizontal />
+
+<ExampleVertical />
+
+## Render children
+
+To render children inside component you can pass content as
+**children**, **label**, or **content** prop. Label or content might be
+nicer or more comfortable for inline elements. If you pass more of them
+**children** will **have** the highest priority to be rendered and
+**label** or **content** will be ignored. Priorities are **children →
+content → label**. You can pick any of those prop names based on your
+prefeference.
+
+<RenderChildren />
+
+## Before & After content
+
+You can pass **beforeContent** or **afterContent**. This may be also
+kind of alternative to using **:before** or **:after** pseudo elements.
+This is useful especially in cases like buttons with loading icon or
+input wrappers with icons or anything similar. It supports more types to
+render before/after content, check out examples.
+
+<BeforeAfterContent />
+
+## Vertical & Horizontal alignment
+
+Element can be aligned horizontally or vertically. So you can have
+**beforeContent** on the left side of **children** or above. The same
+applies for **afterContent** (below children or on the right side).
+Check out the examples below to see more.
+
+### Horizontal variant
+
+Element aligns inner elements horizontally by default.
+
+<HorizontalVariant />
+
+### Vertical variant
+
+For vertical aligning you can use prop **vertical** set to **true** or
+use **direction** prop which can be set to **rows** or **inline**.
+
+<VerticalVariant />
+
+## Horizontal element
+
+Element can be aligned horizontally or vertically. So you can have
+**beforeContent** on the left side of **children** or above. The same
+applies for **afterContent** (below children or on the right side).
+Check out the examples below to see more. For vertical aligning you can
+use prop **vertical** set to **true**.
+
+### Align content, beforeContent & afterContent horizontally
+
+<Grid columns={3}>
+  <Column>
+    <HorizontalHorizontalBeforeContentAlignment />
+    *__beforeContent__ aligned (left, center, right)*
+  </Column>
+  <Column>
+    <HorizontalHorizontalContentAlignment />
+    *__children / content / label__ aligned (left, center, right)*
+  </Column>
+  <Column>
+    <HorizontalHorizontalAfterContentAlignment />
+    *__afterContent__ aligned (left, center, right)*
+  </Column>
+</Grid>
+
+### Align content, beforeContent & afterContent vertically
+
+<Grid columns={3}>
+  <Column>
+    <HorizontalVerticalBeforeContentAlignment />
+    *__beforeContent__ aligned (top, center, bottom)*
+  </Column>
+  <Column>
+    <HorizontalVerticalContentAlignment />
+    *__children / content / label__ aligned (top, center, bottom)*
+  </Column>
+  <Column>
+    <HorizontalVerticalAfterContentAlignment />
+    *__afterContent__ aligned (top, center, bottom)*
+  </Column>
+</Grid>
+
+## Vertical element
+
+Element can be aligned horizontally or vertically. So you can have
+**beforeContent** on the left side of **children** or above. The same
+applies for **afterContent** (below children or on the right side).
+Check out the examples below to see more. For vertical aligning you can
+use prop **vertical** set to **true** or use **direction** prop which
+can be set to **rows** or **inline**.
+
+### Align content, beforeContent and afterContent horizontally
+
+<Grid columns={3}>
+  <Column>
+    <HorizontalVerticalBeforeContentAlignment />
+    *__beforeContent__ aligned (top, center, bottom)*
+  </Column>
+  <Column>
+    <HorizontalVerticalContentAlignment />
+    *__children / content / label__ aligned (top, center, bottom)*
+  </Column>
+  <Column>
+    <HorizontalVerticalAfterContentAlignment />
+    *__afterContent__ aligned (top, center, bottom)*
+  </Column>
+</Grid>
+
+### Align content, beforeContent and afterContent vertically
+
+<Grid columns={3}>
+  <Column>
+    <HorizontalVerticalBeforeContentAlignment />
+    *__beforeContent__ aligned (top, center, bottom)*
+  </Column>
+  <Column>
+    <HorizontalVerticalContentAlignment />
+    *__children / content / label__ aligned (top, center, bottom)*
+  </Column>
+  <Column>
+    <HorizontalVerticalAfterContentAlignment />
+    *__afterContent__ aligned (top, center, bottom)*
+  </Column>
+</Grid>
+
+## Props
+
+These are props to which can be passed to **Element**
+
+<Props />

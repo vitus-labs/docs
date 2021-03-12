@@ -23,4 +23,4 @@ export default {
     storybook: { base: '/docs/tooling/storybook' },
     eslint: { base: '/docs/tooling/eslint' },
   },
-}
+} as const

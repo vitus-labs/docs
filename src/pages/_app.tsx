@@ -1,21 +1,36 @@
 import React from 'react'
 import Head from 'next/head'
-import { Root } from '~/components/base/layout'
+import { MDXProvider } from '@mdx-js/react'
 import { Provider } from '~/theme'
 
-const component = ({ Component, pageProps }) => (
-  <Provider>
-    <Head>
-      <link
-        href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,400;0,600;1,400&family=Varela+Round&display=swap"
-        rel="stylesheet"
-      />
-    </Head>
+import Heading from '~/components/base/Heading'
+import Text from '~/components/base/Text'
+import Badge from '~/components/base/Badge'
+import Editor from '~/components/base/editor'
 
-    <Root>
+const markdownComponents = {
+  h1: ({ children }: any) => <Heading tag="h1" level2 label={children} />,
+  h2: ({ children }: any) => <Heading tag="h2" level3 label={children} />,
+  h3: ({ children }: any) => <Heading tag="h3" level4 label={children} />,
+  p: ({ children }: any) => <Text paragraph label={children} />,
+  em: ({ children }: any) => <Text caption label={children} />,
+  strong: ({ children }: any) => <Badge label={children} />,
+  code: Editor,
+}
+
+const component = ({ Component, pageProps }) => (
+  <MDXProvider components={markdownComponents}>
+    <Provider>
+      <Head>
+        <link
+          href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,400;0,600;1,400&family=Varela+Round&display=swap"
+          rel="stylesheet"
+        />
+      </Head>
+
       <Component {...pageProps} />
-    </Root>
-  </Provider>
+    </Provider>
+  </MDXProvider>
 )
 
 export default component

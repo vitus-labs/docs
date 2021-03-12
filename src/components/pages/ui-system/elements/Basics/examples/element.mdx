@@ -1,0 +1,23 @@
+```tsx
+// import { Element } from '@vitus-labs/elements'
+
+const Icon = () => <div>ico</div>
+const Loading = () => <div>...</div>
+
+const Button = () => (
+  <Element
+    content="Submitting"
+    beforeContent={Icon}
+    afterContent={Loading}
+    gap={32}
+    style={{
+      padding: 16,
+      backgroundColor: 'papayawhip',
+      color: 'palevioletred',
+      borderRadius: 4,
+    }}
+  />
+)
+
+render(<Button />)
+```

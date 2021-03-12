@@ -1,4 +1,5 @@
-import React from 'react'
+import { VFC } from 'react'
+import { ExtractProps } from '~/types'
 import { element } from '~/components/core'
 
 const Wrapper = element
@@ -31,8 +32,9 @@ const InnerWrapper = element
     width: t.layout.sideMenu.width,
     height: t.layout.sideMenu.height,
     zIndex: t.layout.sideMenu.zIndex,
-    backgroundColor: t.layout.sideMenu.bg,
-    overflowY: 'scroll',
+    background: t.layout.sideMenu.background,
+    overflowY: 'auto',
+    overflowX: 'hidden',
   }))
 
 const Inner = element
@@ -46,10 +48,12 @@ const Inner = element
   })
   .theme((t) => ({
     width: 'inherit',
-    backgroundColor: t.layout.sideMenu.bg,
+    backgroundColor: t.layout.sideMenu.background,
   }))
 
-const component = (props) => (
+type Props = ExtractProps<typeof Inner>
+
+const component: VFC<Props> = (props) => (
   <Wrapper>
     <InnerWrapper>
       <Inner {...props} />

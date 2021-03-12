@@ -15,7 +15,9 @@ const Box = box
     hover: undefined,
     fontSize: 14,
     maxHeight: 400,
+    overflowY: 'auto',
   }))
+
   .styles(
     (css) => css`
       padding: 0;
@@ -24,7 +26,7 @@ const Box = box
 
 const component = (props) => (
   <Box>
-    <LiveEditor {...props} style={{ overflowY: 'scroll', width: '100%' }} />
+    <LiveEditor {...props} style={{ overflowY: 'auto', width: '100%' }} />
   </Box>
 )
 

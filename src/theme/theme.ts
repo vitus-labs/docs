@@ -1,5 +1,4 @@
-export default {
-  isDark: true,
+const theme = {
   rootSize: 16,
   breakpoints: {
     xs: 0,
@@ -10,6 +9,9 @@ export default {
     xxl: 1440,
     xxxl: 1600,
   },
+  // ------------------------------------------------------
+  // GRID OPTIONS
+  // ------------------------------------------------------
   grid: {
     columns: 12,
     container: {
@@ -21,45 +23,64 @@ export default {
       xxxl: 1560,
     },
   },
+  // ------------------------------------------------------
+  // LAYOUT OPTIONS
+  // ------------------------------------------------------
   layout: {
     root: {
       height: '100vh',
-      bg: '#071A2C',
+      background: '#071A2C',
     },
     topMenu: {
       height: 70,
-      bg: '#081B2C',
+      background: '#081B2C',
       borderColor: '#4F6579',
       zIndex: 100,
     },
     sideMenu: {
       height: 'calc(100vh - 70px)',
       width: 320,
-      bg: '#112F4A',
-      zindex: 90,
+      background: '#112F4A',
+      zIndex: 90,
     },
   },
+  // ------------------------------------------------------
+  // SPACING OPTIONS
+  // ------------------------------------------------------
   spacing: {
     reset: 0,
-    xxs: 2,
-    xs: 4,
-    sm: 8,
-    base: 12,
-    lg: 16,
-    xl: 20,
-    xxl: 24,
-    xxxl: 32,
+    xxSmall: 2,
+    xSmall: 4,
+    small: 8,
+    medium: 12,
+    large: 16,
+    xLarge: 20,
+    xxLarge: 24,
+    xxxLarge: 32,
   },
+  ratio: {
+    base: 1,
+    large: 1 + 1 / 3,
+  },
+  // ------------------------------------------------------
+  // TYPOGRAPHY OPTIONS
+  // ------------------------------------------------------
   fontFamily: {
     base: "'Montserrat', sans-serif",
     headings: "'Varela Round', sans-serif",
   },
   fontSize: {
-    sm: 12,
-    md: 14,
+    smaller: '80%',
+    small: 12,
+    medium: 14,
     base: 16,
-    lg: 18,
-    xl: 20,
+    large: 18,
+    xLarge: 20,
+    xxLarge: 24,
+    xxxLarge: 28,
+    extraLarge: 32,
+    extraXLarge: 40,
+    extraXxLarge: 48,
   },
   fontWeight: {
     thin: 200,
@@ -73,18 +94,23 @@ export default {
   },
   lineHeight: {
     reset: 1,
-    sm: 1.2,
-    md: 1.4,
+    small: 1.2,
+    medium: 1.4,
     base: 1.5,
-    xl: 2,
+    xLarge: 2,
   },
-  borderRadius: { sm: 4, md: 7, base: 14, circle: '50%', extra: 160 },
-  layoutColor: {
-    bg: '#071A2C',
-    topMenu: '#081B2C',
-    sideMenu: '#112F4A',
-  },
+
+  // ------------------------------------------------------
+  // COLORS OPTIONS
+  // ------------------------------------------------------
   color: {
+    light: {
+      base: '#fff',
+    },
+    dark: {
+      base: '#000',
+    },
+    // deprecated
     black: {
       base: '#fff',
     },
@@ -95,7 +121,13 @@ export default {
       base: '#E96B6B',
     },
   },
+
+  borderRadius: { xs: 2, sm: 4, md: 7, base: 14, circle: '50%', extra: 160 },
   transition: {
     base: '0.2s ease-in-out',
   },
-}
+} as const
+
+export type Theme = typeof theme
+
+export default theme

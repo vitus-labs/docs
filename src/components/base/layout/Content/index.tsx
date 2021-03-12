@@ -13,7 +13,7 @@ export default element
   }))
   .states((t) => ({
     light: {
-      backgroundColor: t.layoutColor.bg,
+      background: t.layout.root.background,
     },
   }))
   .variants((t) => ({

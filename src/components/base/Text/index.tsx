@@ -1,6 +1,7 @@
 import { text } from '~/components/core'
 
 export default text
+  .config({ name: 'base/Text' })
   .attrs(({ paragraph }) => ({
     tag: paragraph ? 'p' : 'span',
   }))
@@ -9,17 +10,17 @@ export default text
   })
   .variants((t) => ({
     paragraph: {
-      marginBottom: t.spacing.lg,
+      marginBottom: t.spacing.large,
     },
     highlight: {
-      fontWeight: 600,
+      fontWeight: t.fontWeight.semibold,
       fontStyle: 'italic',
     },
     caption: {
-      fontStyle: 'italic',
       marginBottom: t.spacing.reset,
-      fontSize: t.fontSize.sm,
+      fontSize: t.fontSize.small,
       textAlign: 'center',
+      fontStyle: 'italic',
     },
   }))
   .multiple((t) => ({

@@ -1,14 +1,16 @@
 import { createGlobalStyle, css } from 'styled-components'
+import type { Theme } from './theme'
 
-export default createGlobalStyle`
+export default createGlobalStyle<{ theme: Theme }>`
   body {
-    font-size: 16px;
-    margin: 0;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-
     ${({ theme: t }) => css`
-      background-color: ${t.layoutColor.bg};
-    `}
+      font-size: ${t.rootSize}px;
+      margin: ${t.spacing.reset};
+      padding: ${t.spacing.reset};
+      background: ${t.layout.root.background};
+
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    `};
   }
 `

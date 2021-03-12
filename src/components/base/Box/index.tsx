@@ -1,7 +1,7 @@
 import { element } from '~/components/core'
 
 export default element
-  .config({ name: 'Box' })
+  .config({ name: 'base/Box' })
   .attrs({
     tag: 'article',
     contentDirection: 'rows',
@@ -9,9 +9,9 @@ export default element
   })
   .theme((t) => ({
     width: '100%',
-    paddingX: 24,
-    paddingY: 36,
-    borderRadius: 16,
+    paddingX: t.spacing.xxLarge,
+    paddingY: t.spacing.xxLarge * t.ratio.large,
+    borderRadius: t.borderRadius.base,
     transition: t.transition.base,
     backgroundColor: 'rgba(255, 255, 255, 0.08)',
 

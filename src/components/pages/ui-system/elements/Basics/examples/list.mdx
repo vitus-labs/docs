@@ -1,0 +1,18 @@
+```tsx
+// import { Element, List } from '@vitus-labs/elements'
+
+const data = [
+  { name: 'John', surname: 'Doe' },
+  { name: 'Sam', surname: 'Johnson' },
+]
+
+const component = ({ name, surname }) => (
+  <Element label={name + ' ' + surname} />
+)
+
+const Users = () => (
+  <List rootElement vertical data={data} component={component} />
+)
+
+render(<Users />)
+```

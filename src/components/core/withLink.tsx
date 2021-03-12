@@ -1,12 +1,22 @@
-import React from 'react'
+import { FC, ComponentType } from 'react'
 import { useRouter } from 'next/router'
 import Link from 'next/link'
 import routes from '~/core/routes'
 
-const component = (WrappedComponent) => {
-  const Enhance = ({
+export type Props = Partial<{
+  href: string | ((r: typeof routes) => any)
+  external: boolean
+  prefetch: boolean
+  replace: boolean
+  scroll: boolean
+  shallow: boolean
+}>
+
+const component = (
+  WrappedComponent: ComponentType<Partial<{ active: boolean; href: string }>>
+) => {
+  const Enhance: FC<Props> = ({
     href,
-    external,
     prefetch = false,
     replace,
     scroll,
@@ -19,13 +29,13 @@ const component = (WrappedComponent) => {
 
     const goTo = () => {
       if (typeof href === 'string') return href
-      if (typeof href === 'function') return href(routes as typeof routes)
+      if (typeof href === 'function') return href<typeof routes>(routes)
 
-      return undefined
+      return ''
     }
 
     const destination = goTo()
-    const externalProps = external
+    const externalProps = destination.startsWith('http')
       ? {
           rel: 'noopener noreferrer',
           target: '_blank',

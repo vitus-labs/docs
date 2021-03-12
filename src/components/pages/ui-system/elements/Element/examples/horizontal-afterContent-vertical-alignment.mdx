@@ -1,0 +1,85 @@
+```tsx live=false
+// import { Element } from '@vitus-labs/elements'
+
+const Before = () => <Element css={beforeContentStyles} />
+
+const After = () => <Element css={afterContentStyles} />
+
+const Content = () => <Element css={contentStyles} />
+
+const beforeAfterStyles = `
+  height: 100%;
+`
+
+const beforeContentStyles = `
+  width: 20px;
+  height: 20px;
+  background: rgba(84, 214, 255, 0.4);
+  border: 1px solid #54D6FF;
+`
+
+const afterContentStyles = `
+  width: 20px;
+  height: 20px;
+  background: #54D6FF;
+  border: 1px solid #54D6FF;
+`
+
+const contentStyles = `
+  width: 100%;
+  height: 20px;
+  background: rgba(84, 214, 255, 0.4);
+  border: 1px solid #54D6FF;
+`
+
+const styles = `
+  width: 100%;
+  min-width: 240px;
+  height: 80px;
+  padding: 16px;
+  background: rgba(84, 214, 255, 0.4);
+  border: 1px solid #54D6FF;
+  margin-bottom: 12px;
+`
+
+// ↓↓↓ Element ↓↓↓
+render(
+  <>
+    <Element
+      vertical
+      gap={16}
+      content={Content} // used content here
+      css={styles}
+      afterContentAlignY="top"
+      beforeContent={Before}
+      afterContent={After}
+      beforeContentCss={beforeAfterStyles}
+    />
+
+    <Element
+      vertical
+      gap={16}
+      label={Content} // used label here
+      css={styles}
+      afterContentAlignY="center"
+      beforeContent={Before}
+      afterContent={After}
+      beforeContentCss={beforeAfterStyles}
+    />
+
+    <Element
+      vertical
+      gap={16}
+      content={Content}
+      css={styles}
+      afterContentAlignY="bottom"
+      beforeContent={Before}
+      afterContent={After}
+      beforeContentCss={beforeAfterStyles}
+    >
+      {/* used children */}
+      <Content />
+    </Element>
+  </>
+)
+```

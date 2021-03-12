@@ -4,18 +4,18 @@ import TopMenu from '~/components/layouts/TopMenu'
 import Intro from '~/components/sections/home/Intro'
 import UiSystems from '~/components/sections/home/UiSystems'
 import Tooling from '~/components/sections/home/Tooling'
-import Bg from '~/components/base/Bg'
+import Background from '~/components/base/Background'
 
 const component = () => (
   <Layout>
-    <Bg primary>
+    <Background primary>
       <TopMenu />
       <Intro />
       <UiSystems />
-    </Bg>
-    <Bg secondary>
+    </Background>
+    <Background secondary>
       <Tooling />
-    </Bg>
+    </Background>
   </Layout>
 )
 

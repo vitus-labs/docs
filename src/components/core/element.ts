@@ -1,42 +1,52 @@
 import rocketstyle from '@vitus-labs/rocketstyle'
-import { styles, makeItResponsive } from '@vitus-labs/unistyle'
 import { Element } from '@vitus-labs/elements'
-import withLink from './withLink'
+import { styles, StylesTheme, makeItResponsive } from '@vitus-labs/unistyle'
+import type { Theme } from '~/theme'
 
-export default rocketstyle()({
-  useBooleans: true,
-  dimensions: {
-    states: 'state',
-    sizes: 'size',
-    variants: 'variant',
-    multiple: { propName: 'multiple', multi: true },
-  } as const,
-})({
-  name: 'core/Element',
+type ResponsiveThemeDefinition = {
+  [I in keyof StylesTheme]:
+    | StylesTheme[I]
+    | Partial<{
+        xs: StylesTheme[I]
+        sm: StylesTheme[I]
+        md: StylesTheme[I]
+        lg: StylesTheme[I]
+        xl: StylesTheme[I]
+        xxl: StylesTheme[I]
+      }>
+    | [
+        xs?: StylesTheme[I],
+        sm?: StylesTheme[I],
+        md?: StylesTheme[I],
+        lg?: StylesTheme[I],
+        xl?: StylesTheme[I],
+        xxl?: StylesTheme[I]
+      ]
+}
+
+type ComponentThemeDefinition = ResponsiveThemeDefinition & {
+  hover: ResponsiveThemeDefinition
+} & {
+  active: ResponsiveThemeDefinition
+} & {
+  focus: ResponsiveThemeDefinition
+}
+
+export default rocketstyle<Theme, ComponentThemeDefinition>()()({
   component: Element,
+  name: 'core/Element',
 })
-  .compose({ withLink })
   .theme((t) => ({
-    boxSizing: 'border-box',
     fontFamily: t.fontFamily.base,
-    fontSize: t.fontSize.base,
-    lineHeight: t.lineHeight.reset,
-    color: t.isDark ? t.color.white.base : t.color.black.base,
-    textDecoration: 'none',
-    outline: 'none',
   }))
   .styles(
-    (css) => css`
-      ${({
-        href,
-        onClick,
-        $rocketstyle,
-        $rocketstate: { disabled, active, hover, focus },
-      }) => {
+    (css) => css<any>`
+      ${({ href, onClick, $rocketstyle, $rocketstate }) => {
         const isDynamic = onClick || href
+        const { disabled, active, pseudo = {} } = $rocketstate
+        const { hover, pressed, focus } = pseudo
 
         const {
-          base: baseStyles = {},
           hover: hoverStyles = {},
           focus: focusStyles = {},
           active: activeStyles = {},
@@ -47,7 +57,6 @@ export default rocketstyle()({
           theme:
             {
               ...restStyles,
-              ...baseStyles,
             } || {},
           styles,
           css,
@@ -81,13 +90,14 @@ export default rocketstyle()({
           isDynamic &&
           css`
             cursor: pointer;
-          `}
+          `};
 
           /* -------------------------------------------------------- */
-        /* HOVER STATE */
-        /* -------------------------------------------------------- */
-        ${!disabled &&
+          /* HOVER STATE */
+          /* -------------------------------------------------------- */
+          ${!disabled &&
           !active &&
+          isDynamic &&
           css`
             &:hover {
               ${hoverTheme};
@@ -126,7 +136,7 @@ export default rocketstyle()({
           `};
 
           ${!disabled &&
-          active &&
+          (active || pressed) &&
           css`
             ${activeTheme};
           `};

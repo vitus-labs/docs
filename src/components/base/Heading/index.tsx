@@ -1,29 +1,29 @@
 import { text } from '~/components/core'
 
 export default text
-  .config({ name: 'Heading' })
+  .config({ name: 'base/Heading' })
   .attrs({
     tag: 'h1',
   })
   .theme((t) => ({
     fontFamily: t.fontFamily.headings,
-    lineHeight: t.lineHeight.md,
+    lineHeight: t.lineHeight.medium,
   }))
   .sizes((t) => ({
     level1: {
-      fontSize: 48,
+      fontSize: t.fontSize.extraXxLarge,
     },
     level2: {
-      fontSize: 40,
+      fontSize: t.fontSize.extraXLarge,
     },
     level3: {
-      fontSize: 32,
+      fontSize: t.fontSize.extraLarge,
     },
     level4: {
-      fontSize: 28,
+      fontSize: t.fontSize.xxxLarge,
     },
     level5: {
-      fontSize: 24,
+      fontSize: t.fontSize.xxLarge,
       fontWeight: t.fontWeight.semibold,
       fontFamily: t.fontFamily.base,
     },

@@ -1,0 +1,42 @@
+```tsx
+// import { Element } from '@vitus-labs/elements'
+
+const BeforeAfter = () => <Element css={beforeAfterStyles} />
+
+const Content = () => <Element css={contentStyles} />
+
+const beforeAfterStyles = `
+  height: 40px;
+  width: 100%;
+  background: rgba(84, 214, 255, 0.4);
+  border: 1px solid #54D6FF;
+`
+
+const contentStyles = `
+  width: 100%;
+  height: 100%;
+  background: rgba(84, 214, 255, 0.4);
+  border: 1px solid #54D6FF;
+`
+
+const styles = `
+  width: 100%;
+  min-width: 240px;
+  height: 320px;
+  padding: 16px;
+  background: rgba(84, 214, 255, 0.4);
+  border: 1px solid #54D6FF;
+`
+
+// ↓↓↓ Element ↓↓↓
+render(
+  <Element
+    vertical
+    gap={16}
+    content={Content}
+    css={styles}
+    beforeContent={BeforeAfter}
+    afterContent={BeforeAfter}
+  />
+)
+```

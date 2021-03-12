@@ -1,7 +1,9 @@
-import React from 'react'
+import { element } from '~/components/core'
 
-const component = () => (
-  <img src={require('../../../assets/logo-vitus-labs.svg')} alt="Vitus Labs" />
-)
-
-export default component
+export default element.attrs({
+  contentAlignX: 'left',
+  contentAlignY: 'center',
+  dangerouslySetInnerHTML: {
+    __html: require(`~/assets/logo/vitus-labs.svg?include`),
+  },
+})

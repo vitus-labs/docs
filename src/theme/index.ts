@@ -1,5 +1,7 @@
 import GlobalStyles from './GlobalStyles'
 import Provider from './Provider'
-import theme from './theme'
+import theme, { Theme } from './theme'
+
+export type { Theme }
 
 export { GlobalStyles, Provider, theme }

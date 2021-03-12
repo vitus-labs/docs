@@ -1,17 +1,15 @@
 import element from '~/components/core/element'
+import loadIcon from './loadIcon'
 
 export default element
   .config({ name: 'Icon' })
-  .attrs(({ name = 'elements' }) => ({
+  .compose({ loadIcon })
+  .attrs<{ name: string; role?: string }>({
     tag: 'span',
     role: 'img',
     contentAlignX: 'center',
-    dangerouslySetInnerHTML: {
-      __html: require(`../../../assets/icons/${name}.svg?include`),
-    },
-    alt: 'Icon',
-  }))
-  .sizes((t) => ({
+  })
+  .sizes({
     large: {
       width: 64,
       height: 64,
@@ -20,7 +18,7 @@ export default element
       width: 108,
       height: 108,
     },
-  }))
+  })
   .variants((t) => ({
     circle: {
       backgroundColor: t.color.white.base,

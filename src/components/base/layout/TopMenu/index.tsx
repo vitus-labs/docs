@@ -1,5 +1,5 @@
-import React from 'react'
 import { element } from '~/components/core'
+import { Container } from '../../grid'
 
 const Wrapper = element
   .config({
@@ -26,8 +26,7 @@ const Inner = element
     left: 0,
     right: 0,
     height: t.layout.topMenu.height,
-    paddingX: t.spacing.xxxl,
-    backgroundColor: t.layout.topMenu.bg,
+    backgroundColor: t.layout.topMenu.background,
     zIndex: t.layout.topMenu.zIndex,
     borderWidthBottom: 1,
     borderStyleBottom: 'solid',

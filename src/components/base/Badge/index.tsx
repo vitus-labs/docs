@@ -1,17 +1,18 @@
 import { element } from '~/components/core'
 
 export default element
-  .config({ name: 'Badge' })
+  .config({ name: 'base/Badge' })
   .attrs({
     tag: 'span',
     contentAlignX: 'center',
   })
-  .theme((t, css) => ({
-    paddingX: 4,
-    paddingY: 2,
-    borderRadius: 2,
+  .theme((t) => ({
+    paddingX: t.spacing.xSmall,
+    paddingY: t.spacing.xxSmall,
+    borderRadius: t.borderRadius.xs,
     backgroundColor: 'rgba(255, 255, 255, 0.16)',
-    fontSize: '80%',
+    fontSize: t.fontSize.smaller,
     fontWeight: t.fontWeight.semibold,
-    margin: 2,
+    margin: t.spacing.xxSmall,
+    lineHeight: t.lineHeight.small,
   }))

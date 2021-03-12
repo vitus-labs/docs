@@ -11,5 +11,5 @@ export default element
   })
   .theme((t) => ({
     height: t.layout.root.height,
-    backgroundColor: t.layout.root.bg,
+    backgroundColor: t.layout.root.background,
   }))
