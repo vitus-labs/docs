@@ -8,6 +8,7 @@ const Box = box
     contentAlignX: 'left',
   })
   .theme((t) => ({
+    hideEmpty: true,
     paddingX: 8,
     paddingY: 8,
     borderRadius: 0,

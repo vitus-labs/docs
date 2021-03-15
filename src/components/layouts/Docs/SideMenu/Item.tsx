@@ -1,6 +1,6 @@
 import React, { useContext, forwardRef } from 'react'
 import { useRouter } from 'next/router'
-import { Context } from '~/components/docs/context/DocsLinks'
+import { Context } from '../context'
 import MenuItem from '~/components/base/menu/SideMenu/Item'
 import SideSubMenu from '~/components/base/menu/SideSubMenu'
 

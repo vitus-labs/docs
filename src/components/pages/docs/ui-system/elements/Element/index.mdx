@@ -136,7 +136,6 @@ can be set to **rows** or **inline**.
 <Grid columns={3}>
   <Column>
     <HorizontalVerticalBeforeContentAlignment />
-    *__beforeContent__ aligned (top, center, bottom)*
   </Column>
   <Column>
     <HorizontalVerticalContentAlignment />
@@ -152,8 +151,11 @@ can be set to **rows** or **inline**.
 
 <Grid columns={3}>
   <Column>
-    <HorizontalVerticalBeforeContentAlignment />
+    <HorizontalVerticalBeforeContentAlignment>
+      this is a test
+    </HorizontalVerticalBeforeContentAlignment>
     *__beforeContent__ aligned (top, center, bottom)*
+
   </Column>
   <Column>
     <HorizontalVerticalContentAlignment />

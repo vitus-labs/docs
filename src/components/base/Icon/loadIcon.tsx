@@ -6,7 +6,7 @@ const component = (WrappedComponent) => {
         dangerouslySetInnerHTML={
           name
             ? {
-                __html: require(`~/assets/icons/${name}.svg?include`),
+                __html: require(`~/assets/images/logo-${name}.svg?include`),
               }
             : undefined
         }
