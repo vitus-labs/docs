@@ -2,21 +2,6 @@
 title: Elements / Element
 ---
 
-<!-- // import { Grid, Column } from '~/components/docs'
-// import ExampleHorizontal from './examples/example-horizontal.mdx'
-// import ExampleVertical from './examples/example-vertical.mdx'
-// import RenderChildren from './examples/render-children.mdx'
-// import BeforeAfterContent from './examples/before-after-content.mdx'
-// import HorizontalVariant from './examples/horizontal-variant.mdx'
-// import VerticalVariant from './examples/vertical-variant.mdx'
-// import HorizontalHorizontalBeforeContentAlignment from './examples/horizontal-beforeContent-horizontal-alignment.mdx'
-// import HorizontalHorizontalContentAlignment from './examples/horizontal-content-horizontal-alignment.mdx'
-// import HorizontalHorizontalAfterContentAlignment from './examples/horizontal-afterContent-horizontal-alignment.mdx'
-// import HorizontalVerticalBeforeContentAlignment from './examples/horizontal-beforeContent-vertical-alignment.mdx'
-// import HorizontalVerticalContentAlignment from './examples/horizontal-content-vertical-alignment.mdx'
-// import HorizontalVerticalAfterContentAlignment from './examples/horizontal-afterContent-vertical-alignment.mdx'
-// import Props from './props.mdx' -->
-
 # Element
 
 Element is the smallest possible unit to be used for creating components.
@@ -130,10 +115,6 @@ prefeference.
 ```tsx
 // import { Element } from '@vitus-labs/elements'
 
-const BeforeAfter = () => <Element css={beforeAfterStyles} />
-
-const Content = () => <Element css={contentStyles} />
-
 const beforeAfterStyles = `
   ${defaultCss};
   width: 40px;
@@ -155,25 +136,32 @@ const styles = `
   margin-bottom: 12px;
 `
 
+const BeforeAfter = () => <Element css={beforeAfterStyles} />
+
+const Content = () => <Element css={contentStyles} />
+
 // ↓↓↓ Element ↓↓↓
 render(
   <>
+    {/* used content here */}
     <Element
       gap={16}
-      content={Content} // used content here
+      content={Content}
       css={styles}
       beforeContent={BeforeAfter}
       afterContent={BeforeAfter}
     />
 
+    {/* used label here */}
     <Element
       gap={16}
-      label={Content} // used label here
+      label={Content}
       css={styles}
       beforeContent={BeforeAfter}
       afterContent={BeforeAfter}
     />
 
+    {/* used children here */}
     <Element
       gap={16}
       content={Content}
@@ -181,7 +169,6 @@ render(
       beforeContent={BeforeAfter}
       afterContent={BeforeAfter}
     >
-      {/* used children */}
       <Content />
     </Element>
   </>
@@ -199,10 +186,6 @@ render before/after content, check out examples.
 ```tsx
 // import { Element } from '@vitus-labs/elements'
 
-const BeforeAfter = () => <Element css={beforeAfterStyles} />
-
-const Content = () => <Element css={contentStyles} />
-
 const beforeAfterStyles = `
   ${defaultCss};
   width: 40px;
@@ -224,36 +207,44 @@ const styles = `
   margin-bottom: 12px;
 `
 
+const BeforeAfter = () => <Element css={beforeAfterStyles} />
+
+const Content = () => <Element css={contentStyles} />
+
+{
+  /*
+  beforeContent - renders box on the leftt side
+  afterContent - renders box on the right side
+*/
+}
+
 // ↓↓↓ Element ↓↓↓
 render(
   <>
+    {/* [1] Function as prop */}
     <Element
       gap={16}
       content={Content}
       css={styles}
-      // renders box on the left side
       beforeContent={BeforeAfter}
-      // renders box on the right side
       afterContent={BeforeAfter}
     />
 
+    {/* [2] Rendered component as prop */}
     <Element
       gap={16}
       content={Content}
       css={styles}
-      // renders box on the left side
       beforeContent={<BeforeAfter />}
-      // renders box on the right side
       afterContent={<BeforeAfter />}
     />
 
+    {/* [3] Function as prop */}
     <Element
       gap={16}
       content={Content}
       css={styles}
-      // renders box on the left side
       beforeContent={() => <BeforeAfter />}
-      // renders box on the right side
       afterContent={() => <BeforeAfter />}
     />
   </>
@@ -274,10 +265,6 @@ Element aligns inner elements horizontally by default.
 ```tsx
 // import { Element } from '@vitus-labs/elements'
 
-const BeforeAfter = () => <Element css={beforeAfterStyles} />
-
-const Content = () => <Element css={contentStyles} />
-
 const beforeAfterStyles = `
   ${defaultCss};
   width: 40px;
@@ -299,9 +286,16 @@ const styles = `
   margin-bottom: 12px;
 `
 
+const BeforeAfter = () => <Element css={beforeAfterStyles} />
+
+const Content = () => <Element css={contentStyles} />
+
+{
+  /* Element is horizontal by default */
+}
+
 // ↓↓↓ Element ↓↓↓
 render(
-  // horizontal is by default
   <Element
     gap={16}
     content={Content}
@@ -315,14 +309,11 @@ render(
 ### Vertical variant
 
 For vertical aligning you can use prop **vertical** set to **true** or
-use **direction** prop which can be set to **rows** or **inline**.
+use **direction** prop which can be set to **rows** | **inline** |
+**reverseRows** | **reverseInline**.
 
-```tsx
+```tsx preview=inline
 // import { Element } from '@vitus-labs/elements'
-
-const BeforeAfter = () => <Element css={beforeAfterStyles} />
-
-const Content = () => <Element css={contentStyles} />
 
 const beforeAfterStyles = `
   ${defaultCss};
@@ -338,38 +329,39 @@ const contentStyles = `
 
 const styles = `
   ${defaultCss};
-  width: 100%;
-  min-width: 240px;
+  width: 50%;
   height: 320px;
   padding: 16px;
   margin-left: 16px;
   margin-right: 16px;
 `
 
+const BeforeAfter = () => <Element css={beforeAfterStyles} />
+
+const Content = () => <Element css={contentStyles} />
+
 // ↓↓↓ Element ↓↓↓
 render(
   <>
-    <Element contentDirection="inline">
-      <Element
-        // add vertical prop
-        vertical
-        gap={16}
-        content={Content}
-        css={styles}
-        beforeContent={BeforeAfter}
-        afterContent={BeforeAfter}
-      />
+    {/* make it vertical by adding `vertical` prop */}
+    <Element
+      vertical
+      gap={16}
+      content={Content}
+      css={styles}
+      beforeContent={BeforeAfter}
+      afterContent={BeforeAfter}
+    />
 
-      <Element
-        // add direction prop
-        direction="rows"
-        gap={16}
-        content={Content}
-        css={styles}
-        beforeContent={BeforeAfter}
-        afterContent={BeforeAfter}
-      />
-    </Element>
+    {/* make it vertical by adding `direction` prop */}
+    <Element
+      direction="rows"
+      gap={16}
+      content={Content}
+      css={styles}
+      beforeContent={BeforeAfter}
+      afterContent={BeforeAfter}
+    />
   </>
 )
 ```
@@ -824,9 +816,8 @@ const styles = `
 render(
   <>
     <Element
-      vertical
       gap={16}
-      content={Content} // used content here
+      content={Content}
       css={styles}
       afterContentAlignY="top"
       beforeContent={Before}
@@ -835,9 +826,8 @@ render(
     />
 
     <Element
-      vertical
       gap={16}
-      label={Content} // used label here
+      content={Content}
       css={styles}
       afterContentAlignY="center"
       beforeContent={Before}
@@ -846,7 +836,6 @@ render(
     />
 
     <Element
-      vertical
       gap={16}
       content={Content}
       css={styles}
@@ -854,10 +843,7 @@ render(
       beforeContent={Before}
       afterContent={After}
       beforeContentCss={beforeAfterStyles}
-    >
-      {/* used children */}
-      <Content />
-    </Element>
+    />
   </>
 )
 ```
@@ -875,7 +861,539 @@ can be set to **rows** or **inline**.
 
 ### Align content, beforeContent and afterContent horizontally
 
+```tsx editor=false preview=inline
+// import { Element } from '@vitus-labs/elements'
+
+const Before = () => <Element css={beforeContentStyles} />
+
+const After = () => <Element css={afterContentStyles} />
+
+const Content = () => <Element css={contentStyles} />
+
+const beforeAfterStyles = `
+  width: 100%;
+  height: 20px;
+`
+
+const beforeContentStyles = `
+  ${activeCss};
+  width: 50%;
+  height: 20px;
+`
+
+const afterContentStyles = `
+  ${defaultCss};
+  width: 50%;
+  height: 20px;
+`
+
+const contentStyles = `
+  ${defaultCss};
+  width: 50%;
+  height: 100%;
+`
+
+const styles = `
+  ${defaultCss};
+  width: 100%;
+  min-width: 60px;
+  height: 240px;
+  padding: 8px;
+  margin-left: 8px;
+  margin-right: 8px;
+  margin-bottom: 12px;
+`
+
+// ↓↓↓ Element ↓↓↓
+render(
+  <>
+    <Element
+      vertical
+      gap={16}
+      content={Content} // used content here
+      css={styles}
+      beforeContentAlignX="left"
+      afterContentAlignX="center"
+      contentAlignX="center"
+      beforeContent={Before}
+      afterContent={After}
+      afterContentCss={beforeAfterStyles}
+    />
+
+    <Element
+      vertical
+      gap={16}
+      content={Content}
+      css={styles}
+      beforeContentAlignX="center"
+      afterContentAlignX="center"
+      contentAlignX="center"
+      beforeContent={Before}
+      afterContent={After}
+      afterContentCss={beforeAfterStyles}
+    />
+
+    <Element
+      vertical
+      gap={16}
+      content={Content}
+      css={styles}
+      beforeContentAlignX="right"
+      afterContentAlignX="center"
+      contentAlignX="center"
+      beforeContent={Before}
+      afterContent={After}
+      afterContentCss={beforeAfterStyles}
+    />
+  </>
+)
+```
+
+```tsx editor=false preview=inline
+// import { Element } from '@vitus-labs/elements'
+
+const Before = () => <Element css={beforeContentStyles} />
+
+const After = () => <Element css={afterContentStyles} />
+
+const Content = () => <Element css={contentStyles} />
+
+const beforeAfterStyles = `
+  width: 100%;
+  height: 20px;
+`
+
+const beforeContentStyles = `
+  ${defaultCss};
+  width: 50%;
+  height: 20px;
+`
+
+const afterContentStyles = `
+  ${defaultCss};
+  width: 50%;
+  height: 20px;
+`
+
+const contentStyles = `
+  ${activeCss};
+  width: 50%;
+  height: 100%;
+`
+
+const styles = `
+  ${defaultCss};
+  width: 100%;
+  min-width: 60px;
+  height: 240px;
+  padding: 8px;
+  margin-left: 8px;
+  margin-right: 8px;
+  margin-bottom: 12px;
+`
+
+// ↓↓↓ Element ↓↓↓
+render(
+  <>
+    <Element
+      vertical
+      gap={16}
+      content={Content}
+      css={styles}
+      beforeContentAlignX="center"
+      afterContentAlignX="center"
+      contentAlignX="left"
+      beforeContent={Before}
+      afterContent={After}
+      afterContentCss={beforeAfterStyles}
+    />
+
+    <Element
+      vertical
+      gap={16}
+      content={Content}
+      css={styles}
+      beforeContentAlignX="center"
+      afterContentAlignX="center"
+      contentAlignX="center"
+      beforeContent={Before}
+      afterContent={After}
+      afterContentCss={beforeAfterStyles}
+    />
+
+    <Element
+      vertical
+      gap={16}
+      content={Content}
+      css={styles}
+      beforeContentAlignX="center"
+      afterContentAlignX="center"
+      contentAlignX="right"
+      beforeContent={Before}
+      afterContent={After}
+      afterContentCss={beforeAfterStyles}
+    />
+  </>
+)
+```
+
+```tsx editor=false preview=inline
+// import { Element } from '@vitus-labs/elements'
+
+const Before = () => <Element css={beforeContentStyles} />
+
+const After = () => <Element css={afterContentStyles} />
+
+const Content = () => <Element css={contentStyles} />
+
+const beforeAfterStyles = `
+  width: 100%;
+  height: 20px;
+`
+
+const beforeContentStyles = `
+  ${defaultCss};
+  width: 50%;
+  height: 20px;
+`
+
+const afterContentStyles = `
+ ${activeCss};
+  width: 50%;
+  height: 20px;
+`
+
+const contentStyles = `
+  ${defaultCss};
+  width: 50%;
+  height: 100%;
+`
+
+const styles = `
+  ${defaultCss};
+  width: 100%;
+  min-width: 60px;
+  height: 240px;
+  padding: 8px;
+  margin-left: 8px;
+  margin-right: 8px;
+  margin-bottom: 12px;
+`
+
+// ↓↓↓ Element ↓↓↓
+render(
+  <>
+    <Element
+      vertical
+      gap={16}
+      content={Content}
+      css={styles}
+      beforeContentAlignX="center"
+      afterContentAlignX="left"
+      contentAlignX="center"
+      beforeContent={Before}
+      afterContent={After}
+      afterContentCss={beforeAfterStyles}
+    />
+
+    <Element
+      vertical
+      gap={16}
+      content={Content}
+      css={styles}
+      beforeContentAlignX="center"
+      afterContentAlignX="center"
+      contentAlignX="center"
+      beforeContent={Before}
+      afterContent={After}
+      afterContentCss={beforeAfterStyles}
+    />
+
+    <Element
+      vertical
+      gap={16}
+      content={Content}
+      css={styles}
+      beforeContentAlignX="center"
+      afterContentAlignX="right"
+      contentAlignX="center"
+      beforeContent={Before}
+      afterContent={After}
+      afterContentCss={beforeAfterStyles}
+    />
+  </>
+)
+```
+
 ### Align content, beforeContent and afterContent vertically
+
+```tsx editor=false preview=inline
+// import { Element } from '@vitus-labs/elements'
+
+const Before = () => <Element css={beforeContentStyles} />
+
+const After = () => <Element css={afterContentStyles} />
+
+const Content = () => <Element css={contentStyles} />
+
+const beforeAfterStyles = `
+  width: 100%;
+  height: 60px;
+`
+
+const beforeContentStyles = `
+  ${activeCss};
+  width: 100%;
+  height: 20px;
+`
+
+const afterContentStyles = `
+  ${defaultCss};
+  width: 100%;
+  height: 20px;
+`
+
+const contentStyles = `
+  ${defaultCss};
+  width: 100%;
+  height: 100%;
+`
+
+const styles = `
+  ${defaultCss};
+  width: 100%;
+  min-width: 60px;
+  height: 240px;
+  padding: 8px;
+  margin-left: 8px;
+  margin-right: 8px;
+  margin-bottom: 12px;
+`
+
+// ↓↓↓ Element ↓↓↓
+render(
+  <>
+    <Element
+      vertical
+      gap={16}
+      content={Content}
+      css={styles}
+      beforeContentAlignY="top"
+      afterContentAlignX="center"
+      contentAlignX="center"
+      beforeContent={Before}
+      afterContent={After}
+      beforeContentCss={beforeAfterStyles}
+    />
+
+    <Element
+      vertical
+      gap={16}
+      content={Content}
+      css={styles}
+      beforeContentAlignY="center"
+      afterContentAlignX="center"
+      contentAlignX="center"
+      beforeContent={Before}
+      afterContent={After}
+      beforeContentCss={beforeAfterStyles}
+    />
+
+    <Element
+      vertical
+      gap={16}
+      content={Content}
+      css={styles}
+      beforeContentAlignY="bottom"
+      afterContentAlignX="center"
+      contentAlignX="center"
+      beforeContent={Before}
+      afterContent={After}
+      beforeContentCss={beforeAfterStyles}
+    />
+  </>
+)
+```
+
+```tsx editor=false preview=inline
+// import { Element } from '@vitus-labs/elements'
+
+const Before = () => <Element css={beforeContentStyles} />
+
+const After = () => <Element css={afterContentStyles} />
+
+const Content = () => <Element css={contentStyles} />
+
+const beforeAfterStyles = `
+  width: 100%;
+  height: 60px;
+`
+
+const beforeContentStyles = `
+  ${defaultCss};
+  width: 100%;
+  height: 20px;
+`
+
+const afterContentStyles = `
+  ${defaultCss};
+  width: 100%;
+  height: 20px;
+`
+
+const contentStyles = `
+  ${activeCss};
+  width: 100%;
+  height: 20px;
+`
+
+const styles = `
+  ${defaultCss};
+  width: 100%;
+  min-width: 60px;
+  height: 240px;
+  padding: 8px;
+  margin-left: 8px;
+  margin-right: 8px;
+  margin-bottom: 12px;
+`
+
+// ↓↓↓ Element ↓↓↓
+render(
+  <>
+    <Element
+      vertical
+      gap={16}
+      content={Content}
+      css={styles}
+      contentAlignY="top"
+      afterContentAlignX="center"
+      contentAlignX="center"
+      beforeContent={Before}
+      afterContent={After}
+      contentCss={beforeAfterStyles}
+    />
+
+    <Element
+      vertical
+      gap={16}
+      content={Content}
+      css={styles}
+      contentAlignY="center"
+      afterContentAlignX="center"
+      contentAlignX="center"
+      beforeContent={Before}
+      afterContent={After}
+      contentCss={beforeAfterStyles}
+    />
+
+    <Element
+      vertical
+      gap={16}
+      content={Content}
+      css={styles}
+      contentAlignY="bottom"
+      afterContentAlignX="center"
+      contentAlignX="center"
+      beforeContent={Before}
+      afterContent={After}
+      contentCss={beforeAfterStyles}
+    />
+  </>
+)
+```
+
+```tsx editor=false preview=inline
+// import { Element } from '@vitus-labs/elements'
+
+const Before = () => <Element css={beforeContentStyles} />
+
+const After = () => <Element css={afterContentStyles} />
+
+const Content = () => <Element css={contentStyles} />
+
+const beforeAfterStyles = `
+  width: 100%;
+  height: 60px;
+`
+
+const beforeContentStyles = `
+  width: 100%;
+  height: 20px;
+  background: rgba(84, 214, 255, 0.4);
+  border: 1px solid #54D6FF;
+`
+
+const afterContentStyles = `
+  width: 100%;
+  height: 20px;
+  background: #54D6FF;
+  border: 1px solid #54D6FF;
+`
+
+const contentStyles = `
+  width: 100%;
+  height: 100%;
+  background: rgba(84, 214, 255, 0.4);
+  border: 1px solid #54D6FF;
+`
+
+const styles = `
+  width: 100%;
+  min-width: 60px;
+  height: 240px;
+  padding: 8px;
+  margin-left: 8px;
+  margin-right: 8px;
+  background: rgba(84, 214, 255, 0.4);
+  border: 1px solid #54D6FF;
+  margin-bottom: 12px;
+`
+
+// ↓↓↓ Element ↓↓↓
+render(
+  <>
+    <Element
+      vertical
+      gap={16}
+      content={Content}
+      css={styles}
+      afterContentAlignY="top"
+      afterContentAlignX="center"
+      contentAlignX="center"
+      beforeContent={Before}
+      afterContent={After}
+      afterContentCss={beforeAfterStyles}
+    />
+
+    <Element
+      vertical
+      gap={16}
+      content={Content}
+      css={styles}
+      afterContentAlignY="center"
+      afterContentAlignX="center"
+      contentAlignX="center"
+      beforeContent={Before}
+      afterContent={After}
+      afterContentCss={beforeAfterStyles}
+    />
+
+    <Element
+      vertical
+      gap={16}
+      content={Content}
+      css={styles}
+      afterContentAlignY="bottom"
+      afterContentAlignX="center"
+      contentAlignX="center"
+      beforeContent={Before}
+      afterContent={After}
+      afterContentCss={beforeAfterStyles}
+    />
+  </>
+)
+```
 
 ## Props
 
@@ -887,26 +1405,26 @@ These are props to which can be passed to **Element**
 | children               | **ReactNode**                                                                           |               | Simply children                                                                                                                              |
 | content                | **ReactNode**                                                                           |               | A prop which can be used instead of **children**                                                                                             |
 | label                  | **ReactNode**                                                                           |               | A prop which can be used instead of **children**                                                                                             |
-| block                  | **boolean**                                                                             |     false     | Whether should behave as **inline** or **block** element                                                                                     |
-| equalCols              | **boolean**                                                                             |     false     | Whether should all inner elements have the same width / height                                                                               |
-| gap                    | **number**                                                                              |       0       | Defines space between beforeContent, content and afterContent                                                                                |
-| vertical               | **boolean**                                                                             |     false     | Defines if element should render vertically                                                                                                  |
-| direction              | **inline** \| **rows**                                                                  |               | Define whether element should render horizontally or vertically. Does the same job as **vertical** prop and takes a precedenc over that prop |
-| alignX                 | **left** \| **center** \| **right** \| **spaceBetween** \| **spaceAround** \| **block** |     left      | Define alignment of **beforeContent**, **content**, and **afterContent** with respect to root element.                                       |
-| alignY                 | **top** \| **center** \| **bottom**                                                     |     left      | Define alignment of **beforeContent**, **content**, and **afterContent** with respect to root element.                                       |
 | beforeContent          | **ReactNode**                                                                           |               | A **children** to be rendered inside **beforeContent** wrapper.                                                                              |
 | afterContent           | **ReactNode**                                                                           |               | A **children** to be rendered inside **afterContent** wrapper.                                                                               |
-| css                    | **string** \| **function** \| **css**                                                   |               | If you need to add an additional styling to the root element, you can do so by injecting styles using this property.                         |
-| contentCss             | **string** \| **function** \| **css**                                                   |               | If you need to add an additional styling to the content element, you can do so by injecting styles using this property.                      |
-| beforeContentCss       | **string** \| **function** \| **css**                                                   |               | If you need to add an additional styling to the beforeContent element, you can do so by injecting styles using this property                 |
-| afterContentCss        | **string** \| **function** \| **css**                                                   |               | If you need to add an additional styling to the afterContent element, you can do so by injecting styles using this property                  |
-| contentDirection       | **inline** \| **rows**                                                                  |    inline     | Define whether children in content wrapper should be rendered in line or in rows                                                             |
+| block                  | **boolean** \| **object** \| **array**                                                  |     false     | Whether should behave as **inline** or **block** element                                                                                     |
+| equalCols              | **boolean** \| **object** \| **array**                                                  |     false     | Whether should all inner elements have the same width / height                                                                               |
+| gap                    | **number** \| **string** \| **object** \| **array**                                     |       0       | Defines space between beforeContent, content and afterContent                                                                                |
+| vertical               | **boolean** \| **object** \| **array**                                                  |     false     | Defines if element should render vertically                                                                                                  |
+| direction              | **inline** \| **rows** \| **reverseInline** \| **reverseRows**                          |               | Define whether element should render horizontally or vertically. Does the same job as **vertical** prop and takes a precedenc over that prop |
+| alignX                 | **left** \| **center** \| **right** \| **spaceBetween** \| **spaceAround** \| **block** |     left      | Define alignment of **beforeContent**, **content**, and **afterContent** with respect to root element.                                       |
+| alignY                 | **top** \| **center** \| **bottom** \| **spaceBetween** \| **spaceAround** \| **block** |     left      | Define alignment of **beforeContent**, **content**, and **afterContent** with respect to root element.                                       |
+| css                    | **string** \| **callback** \| **css** \| **object** \| **array** \|                     |               | If you need to add an additional styling to the root element, you can do so by injecting styles using this property.                         |
+| contentCss             | **string** \| **callback** \| **css** \| **object** \| **array** \|                     |               | If you need to add an additional styling to the content element, you can do so by injecting styles using this property.                      |
+| beforeContentCss       | **string** \| **callback** \| **css** \| **object** \| **array** \|                     |               | If you need to add an additional styling to the beforeContent element, you can do so by injecting styles using this property                 |
+| afterContentCss        | **string** \| **callback** \| **css** \| **object** \| **array** \|                     |               | If you need to add an additional styling to the afterContent element, you can do so by injecting styles using this property                  |
+| contentDirection       | **inline** \| **rows** \| **reverseInline** \| **reverseRows**                          |    inline     | Define whether children in content wrapper should be rendered in line or in rows                                                             |
 | contentAlignX          | **left** \| **center** \| **right** \| **spaceBetween** \| **spaceAround** \| **block** |     left      | Define how children in content wrapper should be aligned                                                                                     |
 | contentAlignY          | **top** \| **center** \| **bottom** \| **spaceBetween** \| **spaceAround** \| **block** |    center     | Define how children in content wrapper should be aligned                                                                                     |
-| beforeContentDirection | **inline** \| **rows**                                                                  |    inline     | Define whether children in beforeContent wrapper should be rendered in line or in rows                                                       |
+| beforeContentDirection | **inline** \| **rows** \| **reverseInline** \| **reverseRows**                          |    inline     | Define whether children in beforeContent wrapper should be rendered in line or in rows                                                       |
 | beforeContentAlignX    | **left** \| **center** \| **right** \| **spaceBetween** \| **spaceAround** \| **block** |     left      | Define how children in beforeContent wrapper should be aligned                                                                               |
 | beforeContentAlignY    | **top** \| **center** \| **bottom** \| **spaceBetween** \| **spaceAround** \| **block** |    center     | Define how children in beforeContent wrapper should be aligned                                                                               |
-| afterContentDirection  | **inline** \| **rows**                                                                  |    inline     | Define whether children in afterContent wrapper should be rendered in line or in rows                                                        |
+| afterContentDirection  | **inline** \| **rows** \| **reverseInline** \| **reverseRows**                          |    inline     | Define whether children in afterContent wrapper should be rendered in line or in rows                                                        |
 | afterContentAlignX     | **left** \| **center** \| **right** \| **spaceBetween** \| **spaceAround** \| **block** |     left      | Define how children in afterContent wrapper should be aligned                                                                                |
 | afterContentAlignY     | **top** \| **center** \| **bottom** \| **spaceBetween** \| **spaceAround** \| **block** |    center     | Define how children in afterContent wrapper should be aligned                                                                                |
 | ref                    | **React ref**                                                                           |               | It uses **forwardRef** on background so you can use **ref** normally                                                                         |

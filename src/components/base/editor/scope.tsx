@@ -4,11 +4,13 @@ import { Provider, Container, Row, Col, theme } from '@vitus-labs/coolgrid'
 const defaultCss = `
   background: rgba(84, 214, 255, 0.4);
   border: 1px solid #54d6ff;
+  color: #fff;
 `
 
 const activeCss = `
-  background: rgba(84, 214, 255, 0.4);
+  background: #54d6ff;
   border: 1px solid #54d6ff;
+  color: #fff;
 `
 
 export default {

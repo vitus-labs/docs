@@ -17,6 +17,7 @@ const component: VFC<Props> = ({
   editor = true,
   live = true,
   view,
+  preview,
 }) => {
   const language = className.replace(/language-/, '')
 
@@ -33,10 +34,16 @@ const component: VFC<Props> = ({
         code={children}
         scope={scope}
       >
-        <Container gap={48} gutter={12} columns={2} size={1}>
+        <Container
+          gap={48}
+          gutter={12}
+          columns={12}
+          size={8}
+          contentAlignX="center"
+        >
           <Row>
             <Col>
-              <Preview />
+              <Preview view={preview} />
             </Col>
           </Row>
           <Row>
@@ -63,7 +70,7 @@ const component: VFC<Props> = ({
               <Editor />
             </Col>
             <Col>
-              <Preview />
+              <Preview view={preview} />
             </Col>
           </Row>
           {/* <Row>
