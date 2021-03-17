@@ -1,12 +1,7 @@
 import { FC } from 'react'
 import { Root } from '~/components/base/layout'
-import { Container } from '~/components/base/grid'
 
-const component: FC = ({ children }) => (
-  <Root>
-    <Container>{children}</Container>
-  </Root>
-)
+const component: FC = ({ children }) => <Root>{children}</Root>
 
 component.displayName = 'layouts/Base'
 

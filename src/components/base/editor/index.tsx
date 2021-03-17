@@ -1,19 +1,29 @@
+import { VFC } from 'react'
 import Highlight, { defaultProps } from 'prism-react-renderer'
 import { LiveProvider } from 'react-live'
-import { Element, List, Text, Overlay, Portal } from '@vitus-labs/elements'
 import { Container, Row, Col } from '../grid'
 import Editor from './Editor'
 import Preview from './Preview'
 import Error from './Error'
+import scope from './scope'
 
-export { LiveProvider as Provider, Editor, Error, Preview }
+type Props = {
+  children: string
+}
 
-export default ({ children, className, editor = true, live = true }) => {
+const component: VFC<Props> = ({
+  children,
+  className,
+  editor = true,
+  live = true,
+  view,
+}) => {
   const language = className.replace(/language-/, '')
 
   // mdx returns flase value as string, therefore the check below
   const showEditor = editor === true
   const showPreview = live === true
+  const isVertical = view === 'vertical'
 
   if (showPreview && !showEditor) {
     return (
@@ -21,10 +31,20 @@ export default ({ children, className, editor = true, live = true }) => {
         language={language}
         noInline={true}
         code={children}
-        scope={{ Element, List, Text, Overlay, Portal }}
+        scope={scope}
       >
-        <Preview />
-        <Error />
+        <Container gap={48} gutter={12} columns={2} size={1}>
+          <Row>
+            <Col>
+              <Preview />
+            </Col>
+          </Row>
+          <Row>
+            <Col>
+              <Error />
+            </Col>
+          </Row>
+        </Container>
       </LiveProvider>
     )
   }
@@ -35,9 +55,9 @@ export default ({ children, className, editor = true, live = true }) => {
         language={language}
         noInline={showEditor}
         code={children}
-        scope={{ Element, List, Text, Overlay, Portal }}
+        scope={scope}
       >
-        <Container gap={48} gutter={12} columns={2} size={1}>
+        <Container gap={48} gutter={12} columns={2} size={isVertical ? 2 : 1}>
           <Row>
             <Col>
               <Editor />
@@ -56,6 +76,28 @@ export default ({ children, className, editor = true, live = true }) => {
     )
   }
 
+  // return (
+  //   <LiveProvider
+  //     language={language}
+  //     noInline={false}
+  //     code={children}
+  //     scope={scope}
+  //   >
+  //     <Container gap={48} gutter={12} columns={2} size={1}>
+  //       <Row>
+  //         <Col>
+  //           <Editor />
+  //         </Col>
+  //       </Row>
+  //       <Row>
+  //         <Col>
+  //           <Error />
+  //         </Col>
+  //       </Row>
+  //     </Container>
+  //   </LiveProvider>
+  // )
+
   return (
     <Highlight {...defaultProps} code={children} language={language}>
       {({ className, style, tokens, getLineProps, getTokenProps }) => (
@@ -72,3 +114,5 @@ export default ({ children, className, editor = true, live = true }) => {
     </Highlight>
   )
 }
+
+export default component

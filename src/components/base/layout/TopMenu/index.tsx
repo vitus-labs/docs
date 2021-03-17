@@ -41,6 +41,7 @@ const Inner = element
 
 const component = (props) => (
   <Wrapper>
+    <Wrapper />
     <Inner {...props} />
   </Wrapper>
 )

@@ -13,13 +13,7 @@ Property **columns** can be set either on **Container** or **Row** component.
 
 render(
   <Provider theme={theme}>
-    <Container
-      colCss={(css) => css`
-        background-color: #e0e0eb;
-        border: 1px solid #b3b3cc;
-        padding: 20px;
-      `}
-    >
+    <Container padding={40} gap={2} colCss={defaultCss}>
       <Row>
         <Col size={1} />
         <Col size={1} />
@@ -66,13 +60,7 @@ The default behavior is that all `Col`s in `Row` have the same width.
 
 render(
   <Provider theme={theme}>
-    <Container
-      colCss={(css) => css`
-        background-color: #e0e0eb;
-        border: 1px solid #b3b3cc;
-        padding: 20px;
-      `}
-    >
+    <Container padding={40} gap={2} colCss={defaultCss}>
       <Row>
         <Col />
         <Col />
@@ -109,12 +97,12 @@ render(
   <Provider theme={theme}>
     <Container
       size={4}
-      colCss={(css) => css`
-        background-color: #e0e0eb;
-        border: 1px solid #b3b3cc;
-        padding: 20px;
-        white-space: pre-wrap;
-      `}
+      gap={2}
+      padding={20}
+      colCss={`
+       ${defaultCss};
+       white-space: pre-wrap;
+       `}
     >
       <Row>
         <Col>
@@ -144,13 +132,7 @@ Columns and Rows can be also nested.
 // components also reuse padding defined in Container
 render(
   <Provider theme={theme}>
-    <Container
-      padding={20}
-      colCss={(css) => css`
-        background-color: #e0e0eb;
-        border: 1px solid #b3b3cc;
-      `}
-    >
+    <Container padding={20} gap={2} colCss={defaultCss}>
       <Row>
         <Col size={8}>
           <Row>
@@ -175,13 +157,7 @@ The other columns will fit into the rest width.
 
 render(
   <Provider theme={theme}>
-    <Container
-      colCss={(css) => css`
-        background-color: #e0e0eb;
-        border: 1px solid #b3b3cc;
-        padding: 20px;
-      `}
-    >
+    <Container padding={40} gap={2} colCss={defaultCss}>
       <Row>
         <Col />
         <Col size={5}>size 5</Col>
@@ -199,13 +175,7 @@ render(
 
 render(
   <Provider theme={theme}>
-    <Container
-      padding={20}
-      colCss={(css) => css`
-        background-color: #e0e0eb;
-        border: 1px solid #b3b3cc;
-      `}
-    >
+    <Container padding={20} gap={2} colCss={defaultCss}>
       <Row gap={10}>
         <Col size={6}>gap-10</Col>
         <Col size={6}>gap-10</Col>
@@ -242,14 +212,7 @@ render(
 
 render(
   <Provider theme={theme}>
-    <Container
-      width="100%"
-      padding={40}
-      colCss={(css) => css`
-        background-color: #e0e0eb;
-        border: 1px solid #b3b3cc;
-      `}
-    >
+    <Container padding={40} gap={2} colCss={defaultCss}>
       <Row>
         <Col size={8} />
         <Col size={4} />

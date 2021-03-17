@@ -26,9 +26,9 @@ const InnerWrapper = element
     contentAlignY: 'top',
   })
   .theme((t) => ({
-    position: 'fixed',
-    left: 0,
-    top: t.layout.topMenu.height,
+    // position: 'fixed',
+    // left: 0,
+    // top: t.layout.topMenu.height,
     width: t.layout.sideMenu.width,
     height: t.layout.sideMenu.height,
     zIndex: t.layout.sideMenu.zIndex,

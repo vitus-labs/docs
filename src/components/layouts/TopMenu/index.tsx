@@ -1,6 +1,7 @@
 import { TopMenu } from '~/components/base/layout'
 import { Container } from '~/components/base/grid'
 import Base from '~/components/base/Base'
+import Icon from '~/components/base/Icon'
 import Logo from './Logo'
 import Menu from './Menu'
 
@@ -11,7 +12,9 @@ const component = ({ transparent = false }) => (
         gap={16}
         beforeContent={Logo}
         content={Menu}
-        afterContent="github"
+        afterContent={
+          <Icon name="github" href="https://github.com/vitus-labs" />
+        }
         contentAlignX="right"
       />
     </Container>

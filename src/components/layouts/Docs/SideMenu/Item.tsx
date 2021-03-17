@@ -1,28 +1,18 @@
-import React, { useContext, forwardRef } from 'react'
+import React, { forwardRef } from 'react'
 import { useRouter } from 'next/router'
-import { Context } from '../context'
 import MenuItem from '~/components/base/menu/SideMenu/Item'
 import SideSubMenu from '~/components/base/menu/SideSubMenu'
 
-const NewItem = forwardRef((props, ref) => {
-  const { route } = useRouter()
-  const { links } = useContext(Context)
+const NewItem = forwardRef(({ data, ...props }, ref) => {
+  const { asPath } = useRouter()
   const { href } = props
 
-  const hasSubmenu = route === href
-
-  const renderSubmenu = () => {
-    if (!hasSubmenu || !links) return null
-
-    const data = links.map((item) => ({ label: item.title, href: item.link }))
-
-    return <SideSubMenu data={data} />
-  }
+  const isActive = asPath === href
 
   return (
     <>
-      <MenuItem ref={ref} {...props} />
-      {renderSubmenu()}
+      <MenuItem {...props} active={isActive} ref={ref} />
+      {isActive && <SideSubMenu data={data} />}
     </>
   )
 })

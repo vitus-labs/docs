@@ -27,12 +27,7 @@ const PLUGINS = [
       },
     },
   ],
-  [
-    withMDX,
-    {
-      pageExtensions: ['js', 'jsx', 'ts', 'tsx', 'md', 'mdx'],
-    },
-  ],
+  [withMDX, ,],
 ]
 
 module.exports = withPlugins(PLUGINS, {

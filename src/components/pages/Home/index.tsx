@@ -8,8 +8,8 @@ import Background from '~/components/base/Background'
 
 const component = () => (
   <Layout>
+    <TopMenu />
     <Background primary>
-      <TopMenu />
       <Intro />
       <UiSystems />
     </Background>
