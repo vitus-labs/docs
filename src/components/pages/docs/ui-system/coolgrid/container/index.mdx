@@ -9,7 +9,7 @@ name: Coolgrid / Container
 For enabling responsivity, wrap it up by **Provider** with configured
 [theme](/docs/ui-system/coolgrid/theme)
 
-```jsx
+```tsx live=false
 import { Provider, Container, Row, Col, theme } from '@vitus-labs/coolgrid'
 
 export default () => (
@@ -25,7 +25,7 @@ export default () => (
 Container doesn't have to be used with other **coolgrid** components only.
 Feel free to use **Container** even for wrapping other content.
 
-```jsx
+```tsx live=false
 import { Provider, Container, Row, Col, theme } from '@vitus-labs/coolgrid'
 
 export default () => (
@@ -41,7 +41,7 @@ You can even override cofiguration for a specific **Container**
 and its children. Container component accepts **columns**
 and **width** props.
 
-```tsx
+```tsx live=false
 import { Provider, Container, Row, Col, theme } from '@vitus-labs/coolgrid'
 
 // defined breakpoints in Provider
@@ -78,7 +78,7 @@ export default () => (
 You can be even more specific and define **columns** for each breakpoint
 independently or use `callback` for defining Container width.
 
-```tsx
+```tsx live=false
 import { Provider, Container, Row, Col, theme } from '@vitus-labs/coolgrid'
 
 // defined breakpoints in Provider
@@ -129,6 +129,86 @@ export default () => (
 | component     | **string** \| **ComponentType**        |               | valid HTML tag / component to be rendered instead of default component (renders `div` by default)                           |
 | colComponent  | **string** \| **ComponentType**        | -             | valid HTML tag / component to be rendered instead of default component for all `Col`s inside `Container` (`div` by default) |
 | rowComponent  | **string** \| **ComponentType**        | -             | valid HTML tag / component to be rendered instead of default component for all `Row`s inside `Container` (`div` by default) |
+
+## Using props example
+
+### Simple value props
+
+In the following example you can see how to simply use **Container** props.
+
+```tsx live=false
+import { Container } from '@vitus-labs/coolgrid'
+
+export default () => (
+  <Container
+    columns={12}
+    width={{ xs: '100%', sm: 540, md: 720, lg: 960, xl: 1140 }}
+    size={4}
+    gap={8}
+    padding={8}
+    gutter={0}
+    contentAlignX="center"
+    css={`
+      text-align: center;
+    `}
+    colCss={`
+      background-color: white;
+    `}
+    rowCss={`
+      background-color: white;
+    `}
+    component="div"
+    colComponent="div"
+    rowComponent="div"
+  >
+    {/* ...some content */}
+  </Container>
+)
+```
+
+## Responsive object type props
+
+```tsx live=false
+import { Container } from '@vitus-labs/coolgrid'
+
+export default () => (
+  <Container
+    columns={{ xs: 12, sm: 6, md: 12 }}
+    size={{ xs: 12, sm: 3, md: 3 }}
+    gap={{ xs: 12, sm: 16, md: 24, lg: 32 }}
+    padding={{ xs: 12, sm: 16, md: 24, lg: 32 }}
+    gutter={{ xs: 0, sm: 16 }}
+    contentAlignX={{ xs: 'center', md: 'left' }}
+    css={{
+      xs: `
+      text-align: center;
+    `,
+      sm: `text-align: left;`,
+    }}
+  >
+    {/* ...some content */}
+  </Container>
+)
+```
+
+## Responsive array type props
+
+```tsx live=false
+import { Container } from '@vitus-labs/coolgrid'
+
+export default () => (
+  <Container
+    columns={[12, 6, 12]} {/* as [xs, sm, md] */}
+    size={[12, 3, 3]}
+    gap={[12, 16, 24, 32]}
+    padding={[12, 16, 24, 32]}
+    gutter={[0, 16]}
+    contentAlignX={['center', 'left']}
+  >
+    {/* ...some content */}
+  </Container>
+)
+```
 
 ## Props passed via Context
 

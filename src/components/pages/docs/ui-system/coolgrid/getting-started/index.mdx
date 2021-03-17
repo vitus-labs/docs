@@ -104,9 +104,10 @@ would like to set it up being responsive, read the following chapter.
 
 By default **coolgrid** doesn't require using **Provider** but
 will not support responsivity at all. If you want to make it
-responsive, don't forget to add **theme** config into **Provider**.
+responsive, don't forget to add **theme** config into **Provider**
+and define breakpoints.
 
-```tsx
+```tsx live=false
 import { Provider, theme } from '@vitus-labs/coolgrid'
 
 // you can import default theme settings or create new ones
@@ -125,7 +126,7 @@ export default () => (
 
 Alternatively you can make your own configuration like following:
 
-```tsx
+```tsx live=false
 // you can import default bootstrap theme settings or create yours.
 import { Provider } from '@vitus-labs/coolgrid'
 
@@ -166,14 +167,13 @@ Now, let's take a look at some simple examples of usage.
 The following example shows how you can define each column
 size separately.
 
-```tsx
-import React from 'react'
+```tsx live=false
 import { Container, Row, Col } from '@vitus-labs/coolgrid'
 
 // expects to use a Provider for responsive configuration
 // size keys are defined in theme breakpoints
 // you can define size of each column separately
-const Element = () => (
+export default () => (
   <Container>
     <Row>
       <Col size={3}>Column 1</Col>
@@ -189,8 +189,7 @@ You can define **Col** properties in **Container** or **Row**
 component. It uses context in the background. It means
 you can even write less code.
 
-```tsx
-import React from 'react'
+```tsx live=false
 import { Container, Row, Col } from '@vitus-labs/coolgrid'
 
 // size keys are defined in theme breakpoints

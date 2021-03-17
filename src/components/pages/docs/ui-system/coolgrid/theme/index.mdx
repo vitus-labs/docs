@@ -12,7 +12,7 @@ this in mind.
 
 Provider implementation looks like this:
 
-```tsx
+```tsx live=false
 import { createContext } from 'react'
 import { ThemeProvider } from 'styled-components'
 
@@ -31,7 +31,7 @@ Below is how default grid theme looks like. It is **important**
 to implement **container widths** it into your provider under
 **grid** or **coolgrid** key.
 
-```tsx
+```tsx live=false
 import { theme } from '@vitus-labs/coolgrid'
 
 const theme = {
@@ -74,7 +74,7 @@ it will fallback to pixels.
 
 Below, you can see customized breakpoints.
 
-```tsx
+```tsx live=false
 const theme = {
   breakpoints: {
     phone: 320,
@@ -98,7 +98,7 @@ You can also use units in `viewport` or `container` key. When value
 is a number it fallbacks to `px`, or when rootSize is set it will
 be calculated to `em`s, for example:
 
-```tsx
+```tsx live=false
 const theme = {
   breakpoints: {
     phone: '320px',
@@ -123,7 +123,7 @@ Container component accepts **columns** and **width** props.
 
 See more configuration options in [Container section](/docs/ui-system/coolgrid/container).
 
-```tsx
+```tsx live=false
 import { Provider, Container, Row, Col, theme } from '@vitus-labs/coolgrid'
 
 // defined breakpoints in Provider
@@ -157,7 +157,7 @@ For Rows you can define different cound of **columns** only.
 
 See more configuration options in [Row section](/docs/ui-system/coolgrid/row).
 
-```tsx
+```tsx live=false
 import { Provider, Container, Row, Col, theme } from '@vitus-labs/coolgrid'
 
 export default () => (

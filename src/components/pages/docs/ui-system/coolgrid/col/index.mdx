@@ -1,0 +1,106 @@
+---
+name: Coolgrid / Col
+menuOrder: 4
+---
+
+# Col
+
+## Usage example
+
+`Col`s must be inside Row. These are not standalone components.
+There is no requirement to use also `Container`as you can
+see in the examples below.
+
+```tsx live=false
+import { Provider, Container, Row, Col, theme } from '@vitus-labs/coolgrid'
+
+<Provider theme={theme}>
+  <Container>
+    <Row columns={7}>
+      <Col>{/* ...your components */}</Col>
+      <Col>{/* ...your components */}</Col>
+      <Col>{/* ...your components */}</Col>
+    </Row>
+  </Container>
+</Provider>
+
+// example without using Container
+<Provider theme={theme}>
+  <Row columns={7}>
+    <Col>{/* ...your components */}</Col>
+    <Col>{/* ...your components */}</Col>
+    <Col>{/* ...your components */}</Col>
+  </Row>
+</Provider>
+
+```
+
+## Properties
+
+| Name      | Type                                  | Default value | Description                                                                                                 |
+| --------- | ------------------------------------- | ------------- | ----------------------------------------------------------------------------------------------------------- |
+| children  | **ReactNode**                         | -             | children to be rendered                                                                                     |
+| size      | **number** \| **object** \| **array** | -             | size of `Col`s inside `Container`                                                                           |
+| padding   | **number** \| **object** \| **array** | -             | padding in all `Col`s inside `Container`                                                                    |
+| gutter    | **number** \| **object** \| **array** | -             | horizontal spacing of all `Row`s inside `Container`                                                         |
+| css       | **string** \| **func**                | -             | property for extending `Container` styles (be careful, it override default styles like margins or paddings) |
+| component | **string** \| **ComponentType**       |               | valid HTML tag / component to be rendered instead of default component (renders `div` by default)           |
+
+## Using props example
+
+### Simple value props
+
+In the following example you can see how to simply use **Col** props.
+
+```tsx live=false
+import { Col } from '@vitus-labs/coolgrid'
+
+export default () => (
+  <Col
+    size={4}
+    padding={8}
+    css={`
+      text-align: center;
+    `}
+    component="div"
+  >
+    {/* ...some content */}
+  </Col>
+)
+```
+
+## Responsive object type props
+
+```tsx live=false
+import { Col } from '@vitus-labs/coolgrid'
+
+export default () => (
+  <Col
+    size={{ xs: 12, sm: 3, md: 3 }}
+    padding={{ xs: 12, sm: 16, md: 24, lg: 32 }}
+    css={{
+      xs: `
+      text-align: center;
+    `,
+      sm: `text-align: left;`,
+    }}
+  >
+    {/* ...some content */}
+  </Col>
+)
+```
+
+## Responsive array type props
+
+```tsx live=false
+import { Col } from '@vitus-labs/coolgrid'
+
+export default () => (
+  <Col
+    size={[12, 3, 3]} {/* as [xs, sm, md] */}
+    padding={[12, 16, 24, 32]}
+  >
+    {/* ...some content */}
+  </Col>
+)
+```

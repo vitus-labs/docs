@@ -1,0 +1,272 @@
+---
+name: Coolgrid / Examples
+---
+
+# Examples
+
+## Custom columns grid
+
+Property **columns** can be set either on **Container** or **Row** component.
+
+```tsx view=vertical
+// import { Container, Row, Col, Provider, theme } from '@vitus-labs/coolgrid'
+
+render(
+  <Provider theme={theme}>
+    <Container
+      colCss={(css) => css`
+        background-color: #e0e0eb;
+        border: 1px solid #b3b3cc;
+        padding: 20px;
+      `}
+    >
+      <Row>
+        <Col size={1} />
+        <Col size={1} />
+        <Col size={1} />
+        <Col size={1} />
+        <Col size={1} />
+        <Col size={1} />
+        <Col size={1} />
+        <Col size={1} />
+        <Col size={1} />
+        <Col size={1} />
+        <Col size={1} />
+        <Col size={1} />
+      </Row>
+      {/* changes total count of columnson row */}
+      <Row columns={7}>
+        <Col size={1} />
+        <Col size={1} />
+        <Col size={1} />
+        <Col size={1} />
+        <Col size={1} />
+        <Col size={1} />
+        <Col size={1} />
+      </Row>
+      {/* changes total count of columnson row */}
+      <Row columns={5}>
+        <Col size={1} />
+        <Col size={1} />
+        <Col size={1} />
+        <Col size={1} />
+        <Col size={1} />
+      </Row>
+    </Container>
+  </Provider>
+)
+```
+
+## Equal columns
+
+The default behavior is that all `Col`s in `Row` have the same width.
+
+```tsx view=vertical
+// import { Container, Row, Col, Provider, theme } from '@vitus-labs/coolgrid'
+
+render(
+  <Provider theme={theme}>
+    <Container
+      colCss={(css) => css`
+        background-color: #e0e0eb;
+        border: 1px solid #b3b3cc;
+        padding: 20px;
+      `}
+    >
+      <Row>
+        <Col />
+        <Col />
+      </Row>
+      <Row>
+        <Col />
+        <Col />
+        <Col />
+        <Col />
+      </Row>
+      <Row>
+        <Col />
+        <Col />
+        <Col />
+        <Col />
+        <Col />
+        <Col />
+        <Col />
+        <Col />
+      </Row>
+    </Container>
+  </Provider>
+)
+```
+
+## Equal column height
+
+By default, all columns in a Row has equal height.
+
+```tsx view=vertical
+// import { Container, Row, Col, Provider, theme } from '@vitus-labs/coolgrid'
+
+render(
+  <Provider theme={theme}>
+    <Container
+      size={4}
+      colCss={(css) => css`
+        background-color: #e0e0eb;
+        border: 1px solid #b3b3cc;
+        padding: 20px;
+        white-space: pre-wrap;
+      `}
+    >
+      <Row>
+        <Col>
+          <p>
+            Lorem ipsum dolor sit amet, cibo sensibus interesset no sit. Et
+            dolor possim volutpat qui. No malis tollit iriure eam, et vel tale
+            zril blandit, rebum vidisse nostrum qui eu. No nostrud dolorem
+            legendos mea, ea eum mucius oporteat platonem.Eam an case
+            scribentur, ei clita causae cum, alia debet eu vel.
+          </p>
+        </Col>
+        <Col />
+        <Col />
+      </Row>
+    </Container>
+  </Provider>
+)
+```
+
+## Nested columns
+
+Columns and Rows can be also nested.
+
+```tsx view=vertical
+// import { Container, Row, Col, Provider, theme } from '@vitus-labs/coolgrid'
+
+// components also reuse padding defined in Container
+render(
+  <Provider theme={theme}>
+    <Container
+      padding={20}
+      colCss={(css) => css`
+        background-color: #e0e0eb;
+        border: 1px solid #b3b3cc;
+      `}
+    >
+      <Row>
+        <Col size={8}>
+          <Row>
+            <Col size={6}>col-6</Col>
+            <Col size={6}>col-6</Col>
+          </Row>
+        </Col>
+        <Col size={4} />
+      </Row>
+    </Container>
+  </Provider>
+)
+```
+
+## One column with set size
+
+We can define `size` only on some columns.
+The other columns will fit into the rest width.
+
+```tsx view=vertical
+// import { Container, Row, Col, Provider, theme } from '@vitus-labs/coolgrid'
+
+render(
+  <Provider theme={theme}>
+    <Container
+      colCss={(css) => css`
+        background-color: #e0e0eb;
+        border: 1px solid #b3b3cc;
+        padding: 20px;
+      `}
+    >
+      <Row>
+        <Col />
+        <Col size={5}>size 5</Col>
+        <Col />
+      </Row>
+    </Container>
+  </Provider>
+)
+```
+
+## Spacing example
+
+```tsx view=vertical
+// import { Container, Row, Col, Provider, theme } from '@vitus-labs/coolgrid'
+
+render(
+  <Provider theme={theme}>
+    <Container
+      padding={20}
+      colCss={(css) => css`
+        background-color: #e0e0eb;
+        border: 1px solid #b3b3cc;
+      `}
+    >
+      <Row gap={10}>
+        <Col size={6}>gap-10</Col>
+        <Col size={6}>gap-10</Col>
+        <Col size={6}>gap-10</Col>
+        <Col size={6}>gap-10</Col>
+      </Row>
+      <Row gap={20}>
+        <Col size={6}>gap-20</Col>
+        <Col size={6}>gap-20</Col>
+        <Col size={6}>gap-20</Col>
+        <Col size={6}>gap-20</Col>
+      </Row>
+      <Row gap={30}>
+        <Col size={6}>gap-30</Col>
+        <Col size={6}>gap-30</Col>
+        <Col size={6}>gap-30</Col>
+        <Col size={6}>gap-30</Col>
+      </Row>
+      <Row gap={40}>
+        <Col size={6}>gap-40</Col>
+        <Col size={6}>gap-40</Col>
+        <Col size={6}>gap-40</Col>
+        <Col size={6}>gap-40</Col>
+      </Row>
+    </Container>
+  </Provider>
+)
+```
+
+## Unequal columns
+
+```tsx view=vertical
+// import { Container, Row, Col, Provider, theme } from '@vitus-labs/coolgrid'
+
+render(
+  <Provider theme={theme}>
+    <Container
+      width="100%"
+      padding={40}
+      colCss={(css) => css`
+        background-color: #e0e0eb;
+        border: 1px solid #b3b3cc;
+      `}
+    >
+      <Row>
+        <Col size={8} />
+        <Col size={4} />
+      </Row>
+      <Row>
+        <Col size={2} />
+        <Col size={2} />
+        <Col size={2} />
+        <Col size={6} />
+      </Row>
+      <Row>
+        <Col size={4} />
+        <Col size={6} />
+        <Col />
+        <Col />
+      </Row>
+    </Container>
+  </Provider>
+)
+```

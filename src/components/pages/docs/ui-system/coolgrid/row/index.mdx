@@ -8,7 +8,7 @@ Rows are wrappers for **Cols**
 
 ## Usage example
 
-```tsx
+```tsx live=false
 import { Provider, Container, Row, Col, theme } from '@vitus-labs/coolgrid'
 
 const result = () => (
@@ -41,7 +41,7 @@ const alternative = () => (
 You can even override cofiguration for a specific **Row**
 and its children. Row component accepts **columns** only prop.
 
-```tsx
+```tsx live=false
 import { Provider, Container, Row, Col, theme } from '@vitus-labs/coolgrid'
 
 export default () => (
@@ -92,6 +92,81 @@ export default () => (
 | colCss        | **string** \| **func**                 | -             | property for extending `Col`s styles within `Container` (be careful, it override default styles like margins or paddings)   |
 | component     | **string** \| **ComponentType**        |               | valid HTML tag / component to be rendered instead of default component (renders `div` by default)                           |
 | colComponent  | **string** \| **ComponentType**        | -             | valid HTML tag / component to be rendered instead of default component for all `Col`s inside `Container` (`div` by default) |
+
+## Using props example
+
+### Simple value props
+
+In the following example you can see how to simply use **Row** props.
+
+```tsx live=false
+import { Row } from '@vitus-labs/coolgrid'
+
+export default () => (
+  <Row
+    columns={12}
+    size={4}
+    gap={8}
+    padding={8}
+    gutter={0}
+    contentAlignX="center"
+    css={`
+      text-align: center;
+    `}
+    colCss={`
+      background-color: white;
+    `}
+    component="div"
+    colComponent="div"
+  >
+    {/* ...some content */}
+  </Row>
+)
+```
+
+## Responsive object type props
+
+```tsx live=false
+import { Row } from '@vitus-labs/coolgrid'
+
+export default () => (
+  <Row
+    columns={{ xs: 12, sm: 6, md: 12 }}
+    size={{ xs: 12, sm: 3, md: 3 }}
+    gap={{ xs: 12, sm: 16, md: 24, lg: 32 }}
+    padding={{ xs: 12, sm: 16, md: 24, lg: 32 }}
+    gutter={{ xs: 0, sm: 16 }}
+    contentAlignX={{ xs: 'center', md: 'left' }}
+    css={{
+      xs: `
+      text-align: center;
+    `,
+      sm: `text-align: left;`,
+    }}
+  >
+    {/* ...some content */}
+  </Row>
+)
+```
+
+## Responsive array type props
+
+```tsx live=false
+import { Row } from '@vitus-labs/coolgrid'
+
+export default () => (
+  <Row
+    columns={[12, 6, 12]} {/* as [xs, sm, md] */}
+    size={[12, 3, 3]}
+    gap={[12, 16, 24, 32]}
+    padding={[12, 16, 24, 32]}
+    gutter={[0, 16]}
+    contentAlignX={['center', 'left']}
+  >
+    {/* ...some content */}
+  </Row>
+)
+```
 
 ## Props passed via Context
 
