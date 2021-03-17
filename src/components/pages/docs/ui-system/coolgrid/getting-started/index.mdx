@@ -1,0 +1,210 @@
+---
+name: Coolgrid / Getting Started
+---
+
+# Getting Started
+
+Coolgrid is an ultra-flexible and extensible grid system for **React**
+based on **styled-components** and heavily inspired by Bootstrap grid system.
+
+## Motivation
+
+There are several solutions but most of theme require some trade offs
+or are not flexible enough. With **coolgrid** you can configure it the way
+you want while writing less code and have fewer DOM elements
+in your application.
+
+### What are the advantages of using coolgrid?
+
+1. **Breakpoint keys**
+   There is no strict policy about it. Feel free to define as many
+   breakpoints as you like and name them the way you like. Do you prefer
+   Bootstrap like naming xs, sm, md, lg, and xl? Or do you rather
+   prefer more descriptive names like phone, tablet, desktop (or xsmall,
+   small, medium, large, xlarge)? It's definitely up to you how you
+   define them.
+
+2. **Breakpoint values**
+   For defining the size of viewports, you can use any value.
+   Just a number, you can use pixels,
+   percentages, whatever you like. You should just know that
+   number automatically converts to em units calculated from
+   rootSize defined in theme (and fallbacks to the value of 16).
+   The same applies to pixels.
+
+3. **Container width**
+   Here applies the same rules as for breakpoints. There is just
+   one more requirement. The keys defined for Container must have
+   the same names as breakpoints.
+
+4. **Context**
+   Define behavior on Container or Row component for all
+   **Col**s inside. Coolgrid uses context in the background
+   so you can change the whole grid by changing just one
+   line prop.
+
+5. **A configurable number of columns**
+   Bootstrap grid uses by default `12 columns`. With Coolgrid you can
+   configure **columns** on **Container** for whole grid system inside
+   **Container** component or you can define different count of columns
+   for each **Row**. Do you need 5 or 7 column grid? No problem!
+
+6. **Customizable gaps between columns**
+   Feel free to customize the size of gaps between columns for your
+   grid. Do you need large gaps between columns? Define whatever you
+   need. You can define them even responsively! Do you need different
+   **gutter** spacing between rows? You can customize it too!
+
+7. **Customizable paddings inside Cols**
+   The same applies here as for `gaps`. You can define inner columns
+   paddings. Globaly on **Container** or **Row** component or locally
+   for each **Col** separately.
+
+8. **Customizable rendered component**
+   Each ov available components accept a prop **component** which
+   accepts a valid `HTML tag` or a custom `react component` and do
+   much more magic. This may helps you having a valid HTML document
+   with using less elements.
+
+9. **Customizable CSS**
+   Each component also have a prop for **extending** styles. So
+   you can directly change how it will look like. Do you want
+   to add a `background` or define `text-color`. You can do so.
+
+## Installation
+
+You can install it with your preferred tool (`yarn` or `npm`).
+
+```shell
+# with yarn
+yarn add @vitus-labs/coolgrid
+
+# or with npm
+npm install @vitus-labs/coolgrid --save
+```
+
+## Dependencies
+
+Coolgrid depends on the following packages which need to be installed
+as well.
+
+| Package              | Version      |
+| -------------------- | ------------ |
+| react                | >= 16.7      |
+| styled-components    | >= 5.0       |
+| @vitus-labs/core     | same version |
+| @vitus-labs/unistyle | same version |
+
+Styled-components are a peer dependency of **@vitus-labs/core**.
+
+Now, you are good to go! You can start using **Coolgrid**. If you
+would like to set it up being responsive, read the following chapter.
+
+## Responsivity
+
+By default **coolgrid** doesn't require using **Provider** but
+will not support responsivity at all. If you want to make it
+responsive, don't forget to add **theme** config into **Provider**.
+
+```tsx
+import { Provider, theme } from '@vitus-labs/coolgrid'
+
+// you can import default theme settings or create new ones
+// defaults are the same as Bootstrap uses
+export default () => (
+  <Provider
+    theme={{
+      ...theme,
+      /* ...your theme */
+    }}
+  >
+    {/* ...your components */}
+  </Provider>
+)
+```
+
+Alternatively you can make your own configuration like following:
+
+```tsx
+// you can import default bootstrap theme settings or create yours.
+import { Provider } from '@vitus-labs/coolgrid'
+
+export default () => (
+  <Provider
+    theme={{
+      // default bootstrap configuration example
+      rootSize: 16, // it's being used to convert viewport px to em units
+      columns: 12,
+      breakpoints: {
+        xs: 0,
+        sm: 576,
+        md: 768,
+        lg: 992,
+        xl: 1200,
+      },
+      grid: {
+        container: {
+          xs: '100%',
+          sm: 540,
+          md: 720,
+          lg: 960,
+          xl: 1140,
+        },
+      },
+      /* ...your theme */
+    }}
+  >
+    {/* ...your components */}
+  </Provider>
+)
+```
+
+## Code examples
+
+Now, let's take a look at some simple examples of usage.
+
+The following example shows how you can define each column
+size separately.
+
+```tsx
+import React from 'react'
+import { Container, Row, Col } from '@vitus-labs/coolgrid'
+
+// expects to use a Provider for responsive configuration
+// size keys are defined in theme breakpoints
+// you can define size of each column separately
+const Element = () => (
+  <Container>
+    <Row>
+      <Col size={3}>Column 1</Col>
+      <Col size={{ xs: 12, sm: 6, md: 3 }}>Column 2</Col>
+      <Col size={{ xs: 9, md: 3 }}>Column 3</Col>
+      <Col size={3}>Column 4</Col>
+    </Row>
+  </Container>
+)
+```
+
+You can define **Col** properties in **Container** or **Row**
+component. It uses context in the background. It means
+you can even write less code.
+
+```tsx
+import React from 'react'
+import { Container, Row, Col } from '@vitus-labs/coolgrid'
+
+// size keys are defined in theme breakpoints
+export default () => (
+  <Container>
+    <Row size={{ xs: 12, sm: 6, md: 3 }}>
+      <Col>Column 1</Col>
+      <Col>Column 2</Col>
+      <Col>Column 3</Col>
+      <Col>Column 4</Col>
+    </Row>
+  </Container>
+)
+```
+
+It's pretty cool, right? So, check out more examples
+and happy coding!

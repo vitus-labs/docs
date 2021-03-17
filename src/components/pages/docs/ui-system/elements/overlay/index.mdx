@@ -1,0 +1,207 @@
+---
+title: Overlay
+slug: overlay
+---
+
+<!-- // import Example from './examples/example.mdx'
+// import UsageDropdown from './examples/usage-dropdown.mdx'
+// import UsageTooltip from './examples/usage-tooltip.mdx'
+// import Props from './props.mdx' -->
+
+# Overlay
+
+Overlay is a component to be used for **dropdowns**,
+**popovers**, **tooltips**, or even **modal windows**
+with triggers.
+
+```tsx
+// import { Overlay, Element } from '@vitus-labs/elements'
+
+const Button = (props) => {
+  const { active } = props
+
+  return (
+    <Element
+      {...props}
+      label="Click on me"
+      tag="button"
+      style={{
+        background: active ? '#54D6FF' : 'rgba(84, 214, 255, 0.4)',
+        border: '1px solid #54D6FF',
+        padding: '8px 16px',
+        color: '#fff',
+        borderRadius: 4,
+        outline: 'none',
+      }}
+    />
+  )
+}
+
+const Content = (props) => (
+  <Element
+    style={{
+      backgroundColor: '#fff',
+      color: '#000',
+      padding: 8,
+      borderRadius: 8,
+    }}
+    {...props}
+  >
+    Some content here
+  </Element>
+)
+
+// ↓↓↓ Overlay ↓↓↓
+render(
+  <Overlay trigger={Button} refName="innerRef" offsetY={8}>
+    <Content />
+  </Overlay>
+)
+```
+
+## Using Overlay
+
+There are several ways of rendering text within **Text** component. So
+let's take a look at them.
+
+### Creating a dropdown
+
+First of all, you can use **Text** and pass children.
+
+```tsx
+// import { Overlay, Element } from '@vitus-labs/elements'
+
+const Button = (props) => {
+  const { active } = props
+
+  return (
+    <Element
+      {...props}
+      label="Click on me"
+      tag="button"
+      style={{
+        background: active ? '#54D6FF' : 'rgba(84, 214, 255, 0.4)',
+        border: '1px solid #54D6FF',
+        padding: '8px 16px',
+        color: '#fff',
+        borderRadius: 4,
+        outline: 'none',
+      }}
+    />
+  )
+}
+
+const Content = (props) => (
+  <Element
+    contentDirection="rows"
+    style={{
+      backgroundColor: '#fff',
+      color: '#000',
+      padding: 8,
+      borderRadius: 8,
+    }}
+    {...props}
+  />
+)
+
+const Item = ({ label }) => (
+  <Element
+    label={label}
+    style={{
+      width: 200,
+      height: 40,
+      borderBottom: '1px solid rgba(84, 214, 255, 0.4)',
+    }}
+  />
+)
+
+// ↓↓↓ Overlay ↓↓↓
+render(
+  <Overlay trigger={Button} refName="innerRef" offsetY={8}>
+    <Content>
+      <Item label="Item A" />
+      <Item label="Item B" />
+      <Item label="Item C" />
+      <Item label="Item D" />
+    </Content>
+  </Overlay>
+)
+```
+
+### Creating a tooltips
+
+For shorter texts, or inline texts sometimes it's nicer to write
+inline prop. If you prefer using it this way, then **label** prop
+could be used. In case of passing both **children** and **label**,
+then **children** will have a priority and **label** will be ignored.
+
+```tsx
+// import { Overlay, Element } from '@vitus-labs/elements'
+
+const Button = (props) => (
+  <Element
+    {...props}
+    label="Hover on me"
+    tag="button"
+    style={{
+      background: 'rgba(84, 214, 255, 0.4)',
+      border: '1px solid #54D6FF',
+      padding: '8px 16px',
+      color: '#fff',
+      borderRadius: 4,
+      outline: 'none',
+    }}
+  />
+)
+
+const Content = (props) => (
+  <Element
+    style={{
+      backgroundColor: '#fff',
+      color: '#000',
+      padding: 8,
+      borderRadius: 8,
+    }}
+    {...props}
+  >
+    Some content here
+  </Element>
+)
+
+// ↓↓↓ Overlay ↓↓↓
+render(
+  <Overlay
+    trigger={Button}
+    refName="innerRef"
+    openOn="hover"
+    closeOn="hover"
+    align="top"
+    alignX="center"
+    offsetY={8}
+  >
+    <Content />
+  </Overlay>
+)
+```
+
+## Overlay Properties
+
+These are props to which can be passed to **Overlay**
+
+| Name          | Type                               | Default value | Description                                                                                                                                                                                                                                         |
+| ------------- | ---------------------------------- | :-----------: | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| children      | ReactNode                          |               | A content to be rendered when Overlay is open.                                                                                                                                                                                                      |
+| trigger       | ComponentType                      |               | An element to be used to trigger opening an overlay element.                                                                                                                                                                                        |
+| DOMLocation   | HTMLElement                        |               | It uses in the background **React Portal**, so you can define where in the DOM the **Overlay** content should be attached                                                                                                                           |
+| isOpen        | boolean                            |     false     | Defines whether it should be open by default or not                                                                                                                                                                                                 |
+| openOn        | click, hover, manual               |     click     | Defines on which action it should get opened                                                                                                                                                                                                        |
+| closeOn       | click, triggerClick, hover, manual |     click     | Defines on which action it should get closed                                                                                                                                                                                                        |
+| type          | dropdown, tooltip, popover, modal  |   dropdown    | Defines type of your overlay window and based on it it defines its behavior                                                                                                                                                                         |
+| refName       | string                             |      ref      | Overlay component access **ref** to directly mutate styles when calculation position to prevent re-renders. It's being used for both **trigger**, and **children** element at the same time. Your components must accept refs with the same naming. |
+| position      | fixed, absolute, relative, static  |     fixed     | Just a CSS property to be used for styling overlay element. You can change it's behavior when necessary. Accepts all available CSS position values.                                                                                                 |
+| align         | top, left, right, bottom           |    bottom     | On which side it should be aligned to **trigger**                                                                                                                                                                                                   |
+| alignX        | left, center, right                |     left      | It will calculate it's position horizontally based on **align** value. This will take an effect only when **align** is set to either **top**, or **bottom**                                                                                         |
+| alignY        | top, center, bottom                |    bottom     | It will calculate it's position horizontally based on **align** value. This will take an effect only when **align** is set to either **left**, or **right**                                                                                         |
+| offsetX       | number                             |       0       | Horizontal offset value from **trigger** element                                                                                                                                                                                                    |
+| offsetY       | number                             |       0       | Vertical offset value from **trigger** element                                                                                                                                                                                                      |
+| throttleDelay | number                             |      200      | An optimization value, being used for calculations.                                                                                                                                                                                                 |

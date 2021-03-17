@@ -1,0 +1,37 @@
+---
+title: Portal
+slug: portal
+---
+
+<!-- // import Example from './examples/example.mdx'
+// import Props from './props.mdx' -->
+
+# Portal
+
+Portal is just a normal [React Portal](https://reactjs.org/docs/portals.html)
+component with some prop extensions.
+
+## Examples
+
+```tsx
+// import { Text, Portal } from '@vitus-labs/elements'
+
+// ↓↓↓ Portal ↓↓↓
+render(
+  {typeof window && (
+    <Portal>
+      <Text label="This is a content appended at the end of the DOM." />
+    </Portal>
+  }
+)
+```
+
+## Properties
+
+These are props to which can be passed to **Portal**
+
+| Name     | Type            | Default value | Description                                                              |
+| -------- | --------------- | :-----------: | :----------------------------------------------------------------------- |
+| children | ReactNode       |               | A content to be rendered.                                                |
+| position | HTMLElement     |               | Define where in the DOM the **Portal** will be appended                  |
+| tag      | HTMLElement tag |               | Define tag to be rendered as a wrapping element for **children** content |

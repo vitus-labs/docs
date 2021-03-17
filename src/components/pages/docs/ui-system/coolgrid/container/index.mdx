@@ -1,0 +1,162 @@
+---
+name: Coolgrid / Container
+---
+
+# Container
+
+## Usage example
+
+For enabling responsivity, wrap it up by **Provider** with configured
+[theme](/docs/ui-system/coolgrid/theme)
+
+```jsx
+import { Provider, Container, Row, Col, theme } from '@vitus-labs/coolgrid'
+
+export default () => (
+  <Provider theme={theme}>
+    <Container>
+      <Row>...</Row>
+      <Row>...</Row>
+    </Container>
+  </Provider>
+)
+```
+
+Container doesn't have to be used with other **coolgrid** components only.
+Feel free to use **Container** even for wrapping other content.
+
+```jsx
+import { Provider, Container, Row, Col, theme } from '@vitus-labs/coolgrid'
+
+export default () => (
+  <Provider theme={theme}>
+    <Container>{/* some random components here */}</Container>
+  </Provider>
+)
+```
+
+## Overriding defaults
+
+You can even override cofiguration for a specific **Container**
+and its children. Container component accepts **columns**
+and **width** props.
+
+```tsx
+import { Provider, Container, Row, Col, theme } from '@vitus-labs/coolgrid'
+
+// defined breakpoints in Provider
+const breakpoints = {
+  xs: 320,
+  sm: 768,
+  md: 1366,
+}
+
+// uses the same keys!
+const customWidth = {
+  xs: 300,
+  sm: 740,
+  md: 1200,
+}
+
+export default () => (
+  <Provider theme={theme}>
+    {/* this container has default configuration */}
+    <Container>
+      <Row>...</Row>
+      <Row>...</Row>
+    </Container>
+
+    {/* this container has overriden number of columns and its width */}
+    <Container columns={7} width={customWidth}>
+      <Row>...</Row>
+      <Row>...</Row>
+    </Container>
+  </Provider>
+)
+```
+
+You can be even more specific and define **columns** for each breakpoint
+independently or use `callback` for defining Container width.
+
+```tsx
+import { Provider, Container, Row, Col, theme } from '@vitus-labs/coolgrid'
+
+// defined breakpoints in Provider
+const breakpoints = {
+  xs: 320,
+  sm: 768,
+  md: 1366,
+}
+
+const customColumns = {
+  xs: 4,
+  sm: 6,
+  md: 12,
+}
+
+// uses the same keys!
+const customWidth = (defaultWidth) => ({
+  ...defaultWidth,
+  md: 1400,
+})
+
+export default () => (
+  <Provider theme={theme}>
+    {/* this container has overriden number of columns and its width */}
+    <Container columns={customColumns} width={customWidth}>
+      <Row>...</Row>
+      <Row>...</Row>
+    </Container>
+  </Provider>
+)
+```
+
+## Properties
+
+| Name          | Type                                   | Default value | Description                                                                                                                 |
+| ------------- | -------------------------------------- | ------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| children      | **ReactNode**                          | -             | children to be rendered                                                                                                     |
+| width         | **object** \| **callback**             | -             | defines container width for all breakpoints                                                                                 |
+| columns       | **number** \| **object** \| **array**  | -             | total number of possible columns in a row                                                                                   |
+| size          | **number** \| **object** \| **array**  | -             | size of `Col`s inside `Container`                                                                                           |
+| gap           | **number** \| **object** \| **array**  | -             | spacing between `Col`s inside `Container`                                                                                   |
+| padding       | **number** \| **object** \| **array**  | -             | padding in all `Col`s inside `Container`                                                                                    |
+| gutter        | **number** \| **object** \| **array**  | -             | horizontal spacing of all `Row`s inside `Container`                                                                         |
+| contentAlignX | **string** \| **object** \| **arrray** | -             | defines how should be `Col`s aligned inside `Row` on axis X                                                                 |
+| css           | **string** \| **func**                 | -             | property for extending `Container` styles (be careful, it override default styles like margins or paddings)                 |
+| colCss        | **string** \| **func**                 | -             | property for extending `Col`s styles within `Container` (be careful, it override default styles like margins or paddings)   |
+| rowCss        | **string** \| **func**                 | -             | property for extending `Row`s styles within `Container` (be careful, it override default styles like margins or paddings)   |
+| component     | **string** \| **ComponentType**        |               | valid HTML tag / component to be rendered instead of default component (renders `div` by default)                           |
+| colComponent  | **string** \| **ComponentType**        | -             | valid HTML tag / component to be rendered instead of default component for all `Col`s inside `Container` (`div` by default) |
+| rowComponent  | **string** \| **ComponentType**        | -             | valid HTML tag / component to be rendered instead of default component for all `Row`s inside `Container` (`div` by default) |
+
+## Props passed via Context
+
+It's important to know what properties are passed to children
+components.
+
+### Props passed to Row
+
+Following properties are the ones which are being used by **Row**
+component under the hood when defined globally on **Container**
+component.
+
+- gap
+- gutter
+- contentAlignX
+- rowComponent
+- rowCss
+
+### Props passed to Col
+
+Following properties are the ones which are being used by **Col**
+component under the hood when defined globally on **Container**
+component.
+
+- columns
+- size
+- gap
+- gutter
+- padding
+- colComponent
+- colCss

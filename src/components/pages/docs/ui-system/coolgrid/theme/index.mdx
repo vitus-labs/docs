@@ -1,0 +1,171 @@
+---
+name: Theme
+---
+
+# Theme
+
+## Provider
+
+As this library is built on **styled-components**, the **Provider** component
+implements **ThemeProvider** from styled-components under the hood, so please bear
+this in mind.
+
+Provider implementation looks like this:
+
+```tsx
+import { createContext } from 'react'
+import { ThemeProvider } from 'styled-components'
+
+const Context = createContext({})
+
+export default ({ children, theme }) => (
+  <Context.Provider value={theme}>
+    <ThemeProvider theme={theme}>{children}</ThemeProvider>
+  </Context.Provider>
+)
+```
+
+## Default theme
+
+Below is how default grid theme looks like. It is **important**
+to implement **container widths** it into your provider under
+**grid** or **coolgrid** key.
+
+```tsx
+import { theme } from '@vitus-labs/coolgrid'
+
+const theme = {
+  rootSize: 16, // is being used to convert viewport px to em units
+  columns: 12, // default bootstrap column grid example
+  breakpoints: {
+    // default bootstrap configuration example
+    xs: 0,
+    sm: 576,
+    md: 768,
+    lg: 992,
+    xl: 1200,
+  },
+  grid: {
+    container: {
+      xs: '100%',
+      sm: 540,
+      md: 720,
+      lg: 960,
+      xl: 1140,
+    },
+  },
+  /* ...rest of your theme */
+}
+```
+
+## Create own theme
+
+You can change the default count of `columns`, or define
+your own `breakpoints`.
+
+### Customize breakpoints
+
+For the **smallest screen**, you must set viewport to **0**.
+For the other viewport properties you can set `viewport`
+and `container` width in pixels (without using unit). If you
+set `rootSize`, your defined sizes od viewports will be
+recalculated to `em` units. If you do not specify rootSize,
+it will fallback to pixels.
+
+Below, you can see customized breakpoints.
+
+```tsx
+const theme = {
+  breakpoints: {
+    phone: 320,
+    tablet: 768,
+    notebook: 1366,
+  },
+  // you can use either `grid` or `coolgrid`
+  coolgrid: {
+    container: {
+      // must use the same keys as breakpoints
+      phone: 300,
+      tablet: 740,
+      notebook: 1200,
+    },
+  },
+  // ...rest of theme
+}
+```
+
+You can also use units in `viewport` or `container` key. When value
+is a number it fallbacks to `px`, or when rootSize is set it will
+be calculated to `em`s, for example:
+
+```tsx
+const theme = {
+  breakpoints: {
+    phone: '320px',
+    tablet: '768px',
+    notebook: '1366px',
+  },
+  grid: {
+    container: {
+      phone: '100%',
+      tablet: 740,
+      notebook: '1200px',
+    },
+  },
+  // ...rest
+}
+```
+
+### Override settings in Container
+
+You can even override cofiguration for only one **Container**.
+Container component accepts **columns** and **width** props.
+
+See more configuration options in [Container section](/docs/ui-system/coolgrid/container).
+
+```tsx
+import { Provider, Container, Row, Col, theme } from '@vitus-labs/coolgrid'
+
+// defined breakpoints in Provider
+const breakpoints = {
+  phone: 320,
+  tablet: 768,
+  notebook: 1366,
+}
+
+// uses the same keys!
+const width = {
+  phone: 300,
+  tablet: 740,
+  notebook: 1200,
+}
+
+export default () => (
+  <Provider theme={theme}>
+    <Container columns={7} width={width}>
+      <Row>...</Row>
+      <Row>...</Row>
+    </Container>
+  </Provider>
+)
+```
+
+### Override settings in Row
+
+You can even override cofiguration for each **Row** separately.
+For Rows you can define different cound of **columns** only.
+
+See more configuration options in [Row section](/docs/ui-system/coolgrid/row).
+
+```tsx
+import { Provider, Container, Row, Col, theme } from '@vitus-labs/coolgrid'
+
+export default () => (
+  <Provider theme={theme}>
+    <Container>
+      <Row columns={7}>...</Row>
+      <Row columns={5}>...</Row>
+    </Container>
+  </Provider>
+)
+```
