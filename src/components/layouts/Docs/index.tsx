@@ -16,8 +16,8 @@ const component: FC<Props> = ({ children, menu }) => {
     label: item.title,
     href: item.slug,
     data: item.submenu.map((item) => ({
-      label: item,
-      href: item,
+      label: item.title,
+      href: item.anchor,
     })),
   }))
 
@@ -28,7 +28,9 @@ const component: FC<Props> = ({ children, menu }) => {
         <Base
           contentDirection="inline"
           beforeContentAlignY="top"
-          beforeContent={<SideMenu content={<Menu data={transformedData} />} />}
+          beforeContent={
+            menu && <SideMenu content={<Menu data={transformedData} />} />
+          }
         >
           <Content light>
             <Markdown>{children}</Markdown>

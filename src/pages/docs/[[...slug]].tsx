@@ -1,7 +1,9 @@
+import type { GetStaticProps, GetStaticPaths } from 'next'
 import hydrate from 'next-mdx-remote/hydrate'
 import renderToString from 'next-mdx-remote/render-to-string'
 import Head from 'next/head'
 import Layout from '~/components/layouts/Docs'
+import Meta from '~/components/meta/Meta'
 import {
   getSlugs,
   getFileBySlug,
@@ -18,21 +20,30 @@ const Docs = ({ meta = {}, content, menu }: any) => {
   return (
     <>
       <Head>
-        <title>[{meta.title}] Vitus Labs Docs</title>
+        <Meta {...meta} />
       </Head>
       <Layout menu={menu}>{mdx}</Layout>
     </>
   )
 }
 
-export const getStaticProps = async ({ params }) => {
+export const getStaticProps: GetStaticProps = async ({ params }) => {
   const { slug } = params
-  const file = await getFileBySlug(DIR_PATH, slug)
-  const menu = await generateMenu(DIR_PATH, slug)
-  const meta = await getMetaDataFromFile(file)
-  const { content } = splitMetadataAndContentFromFile(file)
 
-  const mdxSource = await renderToString(content as string)
+  // [1] load a stati maarkdown file
+  const file = await getFileBySlug(DIR_PATH, slug)
+
+  // [2] generate side menu for docs
+  const menu = await generateMenu(DIR_PATH, slug)
+
+  // [3] separate meta data and content
+  const parsedFile = await splitMetadataAndContentFromFile(file)
+
+  // [4] complete meta data
+  const meta = await getMetaDataFromFile(parsedFile)
+
+  // [5] stringify markdown content
+  const mdxSource = await renderToString(parsedFile.content as string)
 
   return {
     props: {
@@ -43,7 +54,7 @@ export const getStaticProps = async ({ params }) => {
   }
 }
 
-export const getStaticPaths = async () => {
+export const getStaticPaths: GetStaticPaths = async () => {
   const slugs = getSlugs(DIR_PATH)
 
   return {

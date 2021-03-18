@@ -3,6 +3,7 @@ import { join } from 'path'
 import matter from 'gray-matter'
 import remark from 'remark'
 import mdx from 'remark-mdx'
+import { get } from '@vitus-labs/core'
 
 const ROOT_DIRECTORY = join(process.cwd(), '/src/components/pages')
 
@@ -12,15 +13,25 @@ const ROOT_DIRECTORY = join(process.cwd(), '/src/components/pages')
 export const getSlugsMap = (dir = 'docs') => {
   const dirPath = join(ROOT_DIRECTORY, dir)
   const directories = fs.readdirSync(dirPath)
-  const hasDirectories = !directories.some((item) => item.endsWith('mdx'))
 
-  const result: Record<string, any> = {}
+  const result: Record<string, unknown> = {}
 
-  if (hasDirectories) {
-    directories.forEach((item) => {
+  directories.forEach((item) => {
+    if (item.endsWith('.mdx')) {
+      const finalName = item.replace('.mdx', '').split('-')
+
+      let helper = finalName.length > 0 ? finalName.join('-') : finalName[0]
+
+      if (!isNaN(finalName[0])) {
+        const [_, ...rest] = finalName
+        helper = rest.join('-')
+      }
+
+      result[helper] = item
+    } else {
       result[item] = getSlugsMap(join(dir, item))
-    })
-  }
+    }
+  })
 
   return result
 }
@@ -75,7 +86,14 @@ type GetFileBySlug = (
 ) => Promise<ReturnType<typeof fs.readFileSync>>
 
 export const getFileBySlug: GetFileBySlug = async (dir, slug) => {
-  const fullPath = join(...[ROOT_DIRECTORY, dir, ...slug, `index.mdx`])
+  const _slug = [...slug]
+  const slugMap = getSlugsMap(dir)
+  const fileName = get(slugMap, _slug)
+
+  _slug.pop()
+
+  const fullPath = join(...[ROOT_DIRECTORY, dir, ..._slug, fileName])
+
   const file = fs.readFileSync(fullPath, 'utf8')
 
   return file
@@ -102,7 +120,7 @@ export const parseMarkdownFromFile: ParseMarkdownFromFile = async (file) => {
 // --------------------------------------------------------
 // Parse markdown file
 // --------------------------------------------------------
-export const splitMetadataAndContentFromFile = (file) => {
+export const splitMetadataAndContentFromFile = async (file) => {
   const { data, content } = matter(file)
 
   return { data, content }
@@ -143,31 +161,34 @@ export const filterMenu: FilterMenu = (obj) => {
 type Link = {
   title?: string
   slug?: string
-  submenu?: string[]
+  submenu?: Array<{ title: string; anchor: string }>
 }
 
 type GenerateMainMenu = (dir: string, slug: string[]) => Promise<Link[]>
 
 export const generateMenu: GenerateMainMenu = async (dir, slug) => {
   // remove last item from slug to load group of files in the same section
-  const categorySlug: string[] = slug.splice(0, slug.length - 1)
+  const _slug: string[] = [...slug].splice(0, slug.length - 1)
   // get slug map of keys of the same group
-  const slugMap = getSlugsMap(join(...[dir, ...categorySlug]))
+  const slugMap = getSlugsMap(join(...[dir, ..._slug]))
   // slug map keys
   const slugsMapKeys = Object.keys(slugMap)
 
   const result = slugsMapKeys.reduce(async (acc, item) => {
     const prevValue = await acc
-    const file = await getFileBySlug(dir, [...categorySlug, item])
+    const file = await getFileBySlug(dir, [..._slug, item])
     const { content } = await splitMetadataAndContentFromFile(file)
     const parsedFile = await parseMarkdownFromFile(content)
     const menu = await filterMenu(parsedFile as any)
-    const itemLink = `/${[dir, ...categorySlug, item].join('/')}`
+    const itemLink = `/${[dir, ..._slug, item].join('/')}`
 
     prevValue.push({
       title: menu.mainHeading,
       slug: itemLink,
-      submenu: menu.subHeadings,
+      submenu: menu.subHeadings?.map((item) => ({
+        title: item,
+        anchor: `${itemLink}#${item.replace(/ /g, '-').toLowerCase()}`,
+      })),
     })
 
     return prevValue
@@ -176,8 +197,17 @@ export const generateMenu: GenerateMainMenu = async (dir, slug) => {
   return result as Link[]
 }
 
-export const getMetaDataFromFile = async (file) => {
-  const meta = await splitMetadataAndContentFromFile(file).data
+// const findTitleFromMarkdown = (content) => {
+//   return content.children.find((item) => {
+//     if (item.type === 'heading' && item.depth === 1) {
+//       const value = item.children[0].value
+//       return value
+//     }
+//   })
+// }
+
+export const getMetaDataFromFile = async ({ data, content }) => {
+  const meta = data
 
   if (!meta.title) {
     const title = '' // find heading

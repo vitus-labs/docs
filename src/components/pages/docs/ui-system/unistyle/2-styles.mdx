@@ -1,3 +1,200 @@
+import Usage from './examples/usage.mdx'
+import UsageExample from './examples/usage-example.mdx'
+import ValuePriorities from './examples/value-priorities.mdx'
+import ExtendingStyles from './examples/extending-styles.mdx'
+
+# Styles
+
+This is a helper which helps to transform **JSON** styles into valid **CSS
+properties** following the best / latest conventions and also
+automatically **transforms** value **units** to the most convenient ones.
+
+## Motivation
+
+The goal is to cover many repeatable use-cases of writing code and make
+banch of components which would solve this. You shouldn&apos;t focus on
+some specifics of CSS or thinking about HTML validation or so. The goal
+is to make configurable components so you can focus on your goals and
+business value.
+
+## Usage
+
+Import the function from **@vitus-labs/unistyle** package and pass
+required arguments. The function will return
+[styled-components](https://styled-components.com/)
+**css** function with styles.
+
+```tsx
+// import { styles } from '@vitus-labs/unistyle'
+import { css } from 'styled-components'
+
+// https://snook.ca/archives/html_and_css/font-size-with-rem
+const css = styles({
+  theme: {},
+  css,
+  rootSize: 16, // default size for REM calculation
+})
+```
+
+So, for example, let's look at an example below:
+
+```tsx
+import { styles } from '@vitus-labs/unistyle'
+import { css } from 'styled-components'
+
+const css = styles({
+  theme: {
+    borderWidth: 1,
+    fontSize: 14,
+    paddingX: 8,
+    marginY: 4,
+    hideEmpty: true,
+  },
+  css,
+  rootSize: 16,
+})
+
+// the output will be
+const output = `
+  font-size: 0.875rem; // 14px
+  padding-left: 0.5rem; // 8px
+  padding-right: 0.5rem; // 8px
+  margin-top: 0.25rem; // 4px
+  margin-bottom: 0.25rem; // 4px
+  border-width: 1px; // doesn't convert border value
+
+  &:empty {
+    display: none;
+  }
+`
+```
+
+This is **cool**, isn't it? :)
+
+## Value priorities
+
+As there are cases, that we have an ability to define a value more ways
+(**paddingLeft**, or **paddingRight** might be examples), the priorities
+are following in these cases: **padding** → **paddingX** →{' '}
+**padding(Left/Right)**
+
+In general, the more specific the value is, the higher priority it has.
+
+```tsx
+import { styles } from '@vitus-labs/unistyle'
+import { css } from 'styled-components'
+
+// padding example
+const css = styles({
+  theme: {
+    padding: 16,
+    paddingX: 8,
+    paddingLeft: 4,
+  },
+  css,
+  rootSize: 16,
+})
+
+// the output will be
+// priorities are (from highest):
+// paddingLeft → paddingX → padding
+const output = css`
+  padding: 1rem; // 16px
+  padding-right: 0.5rem; // 8px (paddingX is more specific than padding)
+  padding-left: 0.25rem; // 4px (paddingLeft is more specific than paddingX)
+`
+
+// border radius example
+const css = styles({
+  theme: {
+    borderRadiusTopLeft: 16,
+    borderRadiusLeft: 8,
+    borderRadiusTop: 4,
+  },
+  css,
+  rootSize: 16,
+})
+
+// the output will be
+// priorities are (from highest):
+// borderRadiusTopLeft → borderRadiusLeft → borderRadiusTop
+const output = css`
+  border-top-right-radius: 1rem; // 16px
+  border-bottom-left-radius: 0.5rem; // 8px
+  border-top-left-radius: 0.25rem; // 16 → 8 → 4px
+```
+
+### Paddings
+
+In case of paddings and margins can happen following example:{' '}
+**padding** → **paddingY** → **paddingBottom** where output will be{' '}
+**paddingBottom** value if more than one is defined. The same applies
+for margins.
+
+### Sizes
+
+In case of sizes like width, height, minWidth, minHeight, maxWidth and
+maxHeight can happen following example: **minSize** → **minWidth**
+where output will be **minWidth** value if more than one is defined.
+The same applies for margins.
+
+### Border radius
+
+You can use shorthands for border radius as well. Unfortunately, it's
+pretty tricky to prioritize them clearly as they are not related to
+sides but element corners. Therefore, there is also slightly different
+property naming. **borderRadiusTop** → **borderRadiusLeft** →
+**borderRadiusTop** where output will be **borderRadiusTop** value if
+more than one is defined. The same applies for others.
+
+As you can see from text above, higher preference have sides **left**,
+**right** over **top** and **bottom**.
+
+## Extending styles
+
+In case you need to use a property which is not supported yet or to
+overwrite some rules, you use **extendCss** property name. You can pass
+it either as **string**, or **css** styled-components (recommended)
+function with your styles.
+
+```tsx
+import { styles } from '@vitus-labs/unistyle'
+import { css } from 'styled-components'
+
+// padding example
+const css = styles({
+  theme: {
+    padding: 16,
+    paddingX: 8,
+    paddingLeft: 4,
+    // the magic happens here
+    extendCss: css`
+      padding-left: 32px;
+      margin-top: 12px;
+    `,
+  },
+  css,
+  rootSize: 16,
+})
+
+// the output will be following
+// extendCss is append to the end of styles so it guarantees
+// overriding previous properties
+const output = css`
+  padding: 1rem; // 16px
+  padding-right: 0.5rem; // 8px (paddingX is more specific than padding)
+  padding-left: 0.25rem; // 4px (paddingLeft is more specific than paddingX)
+  padding-left: 32px;
+  margin-top: 12px;
+`
+```
+
+## Properties
+
+These are props to which can be passed to **styles**. Most of them
+follow CSS standard values. Some new properties have been added for more
+comfortable development, like **margin(X/Y)** etc.
+
 | Name                    | Type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        | Default value | Description                                                                |
 | ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :-----------: | :------------------------------------------------------------------------- |
 | hideEmpty               | **boolean**                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |               |                                                                            |
@@ -120,3 +317,7 @@
 | pointerEvents           | **auto** \| **none**                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |               |                                                                            |
 | writingDirection        | **ltr** \| **rtl**                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |               |                                                                            |
 | extendCss               | **string** \| **css**                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |               |                                                                            |
+
+```
+
+```

@@ -16,10 +16,15 @@ export const h1 = Heading.attrs({
   marginBottom: t.spacing.xxLarge,
 }))
 
-export const h2 = Heading.attrs({
-  tag: 'h2',
-  level3: true,
-}).theme((t) => ({
+export const h2 = Heading.attrs<{ name?: string; children?: string }>(
+  ({ children }) => ({
+    tag: 'h2',
+    level3: true,
+    name: children
+      ? `#${children.replace(/ /g, '-').toLowerCase()}`
+      : undefined,
+  })
+).theme((t) => ({
   marginTop: t.spacing.medium,
   marginBottom: t.spacing.xLarge,
 }))

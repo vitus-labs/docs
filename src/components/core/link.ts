@@ -9,11 +9,9 @@ export default element
     withLink,
   })
   .attrs<Props & { onClick?: MouseEvent | (() => void) }>(
-    ({ href, onClick }) => {
-      return {
-        tag: href ? 'a' : onClick ? 'button' : 'span',
-      }
-    }
+    ({ href, onClick }) => ({
+      tag: href ? 'a' : onClick ? 'button' : 'span',
+    })
   )
   .theme((t) => ({
     transition: t.transition.base,
