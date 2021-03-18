@@ -4,15 +4,18 @@ import MenuItem from '~/components/base/menu/SideMenu/Item'
 import SideSubMenu from '~/components/base/menu/SideSubMenu'
 
 const NewItem = forwardRef(({ data, ...props }, ref) => {
-  const { asPath } = useRouter()
+  const { asPath, query, ...rest } = useRouter()
   const { href } = props
 
-  const isActive = asPath === href
+  const slugs = ['docs', ...query.slug].join('/')
+  const currentLink = `/${slugs}`
+
+  const isActive = currentLink === href
 
   return (
     <>
       <MenuItem {...props} active={isActive} ref={ref} />
-      {isActive && <SideSubMenu data={data} />}
+      {isActive && data && <SideSubMenu data={data} />}
     </>
   )
 })

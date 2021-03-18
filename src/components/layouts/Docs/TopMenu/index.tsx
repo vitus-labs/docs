@@ -11,11 +11,19 @@ const Wrapper = base.theme((t) => ({
 
 const component = ({ transparent = false }) => (
   <TopMenu transparent={transparent}>
-    <Container>
+    <Container
+      width={{
+        xs: '100%',
+        sm: '100%',
+        md: '100%',
+        lg: '100%',
+        xxl: '100%',
+        xxxl: 1560,
+      }}
+    >
       <Wrapper
         gap={16}
         beforeContent={Logo}
-        content={Menu}
         afterContent={
           <Icon name="github" href="https://github.com/vitus-labs" />
         }

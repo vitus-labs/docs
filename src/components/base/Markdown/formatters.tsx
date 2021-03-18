@@ -20,9 +20,7 @@ export const h2 = Heading.attrs<{ name?: string; children?: string }>(
   ({ children }) => ({
     tag: 'h2',
     level3: true,
-    name: children
-      ? `#${children.replace(/ /g, '-').toLowerCase()}`
-      : undefined,
+    id: children ? `#${children.replace(/ /g, '-').toLowerCase()}` : undefined,
   })
 ).theme((t) => ({
   marginTop: t.spacing.medium,
@@ -39,6 +37,8 @@ export const h3 = Heading.attrs({
 
 export const p = Text.attrs({
   paragraph: true,
+}).theme({
+  maxWidth: 800,
 })
 
 export const em = Text.attrs({

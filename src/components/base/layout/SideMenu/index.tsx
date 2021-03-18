@@ -2,53 +2,47 @@ import { VFC } from 'react'
 import { ExtractProps } from '~/types'
 import { element } from '~/components/core'
 
-const Wrapper = element
+const base = element
+  .attrs({
+    block: true,
+    contentDirection: 'rows',
+    contentAlignY: 'top',
+  })
+  .theme({
+    overflow: 'hidden',
+  })
+
+const Wrapper = base
   .config({
     name: 'base/layout/SideMenu/Wrapper',
   })
-  .attrs({
-    block: true,
-    contentDirection: 'rows',
-    contentAlignY: 'top',
-  })
   .theme((t) => ({
-    // position: 'fixed',
     width: t.layout.sideMenu.width,
   }))
 
-const InnerWrapper = element
+const InnerWrapper = base
   .config({
     name: 'base/layout/SideMenu/Inner',
   })
-  .attrs({
-    block: true,
-    contentDirection: 'rows',
-    contentAlignY: 'top',
-  })
   .theme((t) => ({
-    // position: 'fixed',
+    position: 'fixed',
     // left: 0,
-    // top: t.layout.topMenu.height,
+    top: t.layout.topMenu.height,
     width: t.layout.sideMenu.width,
     height: t.layout.sideMenu.height,
     zIndex: t.layout.sideMenu.zIndex,
     background: t.layout.sideMenu.background,
-    overflowY: 'auto',
-    overflowX: 'hidden',
   }))
 
-const Inner = element
+const Inner = base
   .config({
     name: 'base/layout/SideMenu/Inner',
   })
-  .attrs({
-    block: true,
-    contentDirection: 'rows',
-    contentAlignY: 'top',
-  })
   .theme((t) => ({
-    width: 'inherit',
+    width: 'calc(100% + 20px)',
     backgroundColor: t.layout.sideMenu.background,
+    overflowY: 'auto',
+    paddingY: 60,
   }))
 
 type Props = ExtractProps<typeof Inner>

@@ -1,11 +1,12 @@
 import { FC } from 'react'
 import Base from '~/components/base/Base'
 import { Container } from '~/components/base/grid'
-import { SideMenu, Content } from '~/components/base/layout'
+import { SideMenu } from '~/components/base/layout'
 import Markdown from '~/components/base/Markdown'
 import Layout from '../Base'
-import TopMenu from '../TopMenu'
+import TopMenu from './TopMenu'
 import Menu from './SideMenu'
+import Content from './Content'
 
 type Props = {
   menu: Array<Record<string, unknown>>
@@ -24,7 +25,16 @@ const component: FC<Props> = ({ children, menu }) => {
   return (
     <Layout>
       <TopMenu />
-      <Container>
+      <Container
+        width={{
+          xs: '100%',
+          sm: '100%',
+          md: '100%',
+          lg: '100%',
+          xxl: '100%',
+          xxxl: 1560,
+        }}
+      >
         <Base
           contentDirection="inline"
           beforeContentAlignY="top"

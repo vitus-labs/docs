@@ -29,7 +29,7 @@ const theme = {
   layout: {
     root: {
       height: '100vh',
-      background: '#071A2C',
+      background: '#020F1B',
     },
     topMenu: {
       height: 70,
@@ -42,6 +42,9 @@ const theme = {
       width: 320,
       background: '#112F4A',
       zIndex: 90,
+    },
+    content: {
+      background: '#071A2C',
     },
   },
   // ------------------------------------------------------

@@ -10,7 +10,6 @@ const Box = box
   })
   .theme((t) => ({
     maxHeight: 400,
-    overflowY: 'auto',
     padding: t.spacing.small,
     paddingY: t.spacing.small,
     borderRadius: 0,
@@ -24,16 +23,28 @@ const Box = box
     `
   )
 
+const Wrapper = Box.theme({
+  overflowX: 'hidden',
+})
+
+const Inner = Box.theme({
+  overflowY: 'auto',
+  width: `calc(100% + 20px)`,
+})
+
 const component = (props) => (
-  <Box>
-    <LiveEditor
-      {...props}
-      style={{
-        overflowY: 'auto',
-        width: '100%',
-      }}
-    />
-  </Box>
+  <Wrapper>
+    <Inner>
+      <LiveEditor
+        {...props}
+        style={{
+          overflow: 'auto',
+          width: '100%',
+          marginRight: -999,
+        }}
+      />
+    </Inner>
+  </Wrapper>
 )
 
 export default component

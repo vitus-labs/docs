@@ -11,6 +11,6 @@ export default element
     contentAlignX: 'block',
   })
   .theme((t) => ({
-    height: t.layout.root.height,
+    minHeight: t.layout.root.height,
     backgroundColor: t.layout.root.background,
   }))

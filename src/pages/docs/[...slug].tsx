@@ -45,6 +45,8 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
   // [5] stringify markdown content
   const mdxSource = await renderToString(parsedFile.content as string)
 
+  console.log(menu)
+
   return {
     props: {
       meta,
