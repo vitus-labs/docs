@@ -1,93 +1,137 @@
 import rocketstyle from '@vitus-labs/rocketstyle'
-import { styles } from '@vitus-labs/unistyle'
 import { List } from '@vitus-labs/elements'
+import { styles, makeItResponsive, value } from '@vitus-labs/unistyle'
+import type { Theme } from '~/theme'
 
-const createGap = (size) => ({
-  gapSize: size,
-})
+type ComponentTheme = Parameters<typeof styles>[0]['theme']
+type ComponentThemeDefinition = ComponentTheme
 
-export default rocketstyle()({
-  useBooleans: true,
-  dimensions: {
-    states: 'state',
-    sizes: 'size',
-    variants: 'variant',
-    multiple: { propName: 'multiple', multi: true },
-  } as const,
+type ListStyles = Parameters<typeof makeItResponsive>[0]['styles']
+const listStyles: ListStyles = ({ theme: t, css, rootSize }) => css`
+  ${t.gap && `margin: ${value(rootSize, [t.gap / 2])} !important;`};
+  ${t.indent && `padding: ${value(rootSize, [t.indent / 2])} !important;`};
+`
+
+export default rocketstyle<
+  Theme,
+  ComponentThemeDefinition & Partial<{ gap: number; indent: number }>
+>()({
+  dimensions: { indent: 'indent', gaps: 'gap', gapsY: 'gapY' } as const,
+  useBooleans: false,
 })({
-  name: 'core/List',
   component: List,
+  name: 'core/List',
 })
   .attrs({
+    rootElement: true,
     block: true,
+    contentAlignY: 'top',
     contentAlignX: 'block',
     contentDirection: 'rows',
   })
-  .multiple((t) => ({
-    gapXXs: createGap(t.spacing.xxs),
-    gapXs: createGap(t.spacing.xs),
-    gapSm: createGap(t.spacing.sm),
-    gapBase: createGap(t.spacing.base),
-    gapLg: createGap(t.spacing.lg),
-    gapXl: createGap(t.spacing.xl),
-    gapXxl: createGap(t.spacing.xxl),
-    gapXxxl: createGap(t.spacing.xxxl),
+  .theme((t) => ({
+    boxSizing: 'border-box',
+    margin: t.spacing.reset,
+    padding: t.spacing.reset,
+    listStyleType: 'none',
+  }))
+  .gaps((t) => ({
+    xxs: {
+      gap: t.spacing.xxSmall,
+    },
+    xs: {
+      gap: t.spacing.xSmall,
+    },
+    sm: {
+      gap: t.spacing.small,
+    },
+    medium: {
+      gap: t.spacing.medium,
+    },
+    lg: {
+      gap: t.spacing.large,
+    },
+    xl: {
+      gap: t.spacing.xLarge,
+    },
+    xxl: {
+      gap: t.spacing.xxLarge,
+    },
+    xxxl: {
+      gap: t.spacing.xxxLarge,
+    },
+  }))
+  .indent((t) => ({
+    small: {
+      indent: t.spacing.xSmall / 2,
+    },
+    medium: {
+      indent: t.spacing.medium / 2,
+    },
+    large: {
+      indent: t.spacing.large / 2,
+    },
+    xLarge: {
+      indent: t.spacing.xLarge / 2,
+    },
+    xxLarge: {
+      indent: t.spacing.xxLarge / 2,
+    },
+  }))
+  .gapsY((t) => ({
+    xSmall: {
+      margin: t.spacing.xSmall,
+    },
+    small: {
+      margin: t.spacing.small,
+    },
+    medium: {
+      margin: t.spacing.medium,
+    },
+    large: {
+      margin: t.spacing.large,
+    },
+    xLarge: {
+      margin: t.spacing.xLarge,
+    },
+    xxLarge: {
+      margin: t.spacing.xxLarge,
+    },
   }))
   .styles(
     (css) => css`
-      flex-wrap: nowrap;
+      ${({ $rocketstyle, rootElement }: any) => {
+        const { gap, indent, ...restStyles } = $rocketstyle
 
-      ${({ $rocketstyle, theme }) =>
-        styles({ theme: $rocketstyle, css, rootSize: theme.rootSize })};
+        const baseTheme = makeItResponsive({
+          theme:
+            {
+              ...restStyles,
+            } || {},
+          styles,
+          css,
+        })
 
-      /* TODO: make this styles more convenient and readable */
-      /* add spacing between children when used in list */
-      ${({ beforeContent, afterContent, contentDirection, $rocketstyle }) => {
-        const { gapSize } = $rocketstyle
-        if (!Number.isInteger(gapSize)) return null
+        const listTheme = makeItResponsive({
+          theme: { gap, indent },
+          styles: listStyles,
+          css,
+        })
 
-        // if list has before or afterContent propery then we need to style
-        // children inside content element picked by data attribute
-        if (beforeContent || afterContent) {
-          // spacing for children in vertical list
-          // or spacing for children in horizontal list
-          // contentDirection === 'rows' => vertical list
-          return contentDirection === 'rows'
-            ? css`
-                & > [data-element='content'] > * + * {
-                  margin-top: ${gapSize}px;
-                }
-              `
-            : css`
-                & > [data-element='content'] > * + * {
-                  margin-left: ${gapSize}px;
-                }
-              `
-        }
+        return css`
+          /* -------------------------------------------------------- */
+          /* BASE STATE */
+          /* -------------------------------------------------------- */
+          flex-wrap: wrap;
+          ${baseTheme};
 
-        // spacing for children in vertical list
-        // or spacing for children in horizontal list
-        // (without before or afterContent in list)
-        // contentDirection === 'rows' => vertical list
-        return contentDirection === 'rows'
-          ? css`
-              & > * + * {
-                margin-top: ${gapSize}px;
-              }
-            `
-          : css`
-              & > * + * {
-                margin-left: ${gapSize}px;
-              }
-            `
-      }}
-
-      ${({ contentDirection }) =>
-        contentDirection === 'rows' &&
-        css`
-          & > & {
-            width: 100%;
-          }
-        `};
+          ${rootElement &&
+          css`
+            & > * {
+              ${listTheme};
+            }
+          `};
+        `
+      }};
     `
   )

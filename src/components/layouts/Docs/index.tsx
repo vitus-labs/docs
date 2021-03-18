@@ -1,12 +1,8 @@
 import { FC } from 'react'
-import Base from '~/components/base/Base'
-import { Container } from '~/components/base/grid'
-import { SideMenu } from '~/components/base/layout'
+import SideMenu from '~/components/base/menu/SideMenu'
 import Markdown from '~/components/base/Markdown'
-import Layout from '../Base'
 import TopMenu from './TopMenu'
-import Menu from './SideMenu'
-import Content from './Content'
+import LeftSidePanel from '../LeftSidePanel'
 
 type Props = {
   menu: Array<Record<string, unknown>>
@@ -23,31 +19,12 @@ const component: FC<Props> = ({ children, menu }) => {
   }))
 
   return (
-    <Layout>
+    <>
       <TopMenu />
-      <Container
-        width={{
-          xs: '100%',
-          sm: '100%',
-          md: '100%',
-          lg: '100%',
-          xxl: '100%',
-          xxxl: 1560,
-        }}
-      >
-        <Base
-          contentDirection="inline"
-          beforeContentAlignY="top"
-          beforeContent={
-            menu && <SideMenu content={<Menu data={transformedData} />} />
-          }
-        >
-          <Content light>
-            <Markdown>{children}</Markdown>
-          </Content>
-        </Base>
-      </Container>
-    </Layout>
+      <LeftSidePanel sidePanel={<SideMenu data={transformedData} />}>
+        <Markdown>{children}</Markdown>
+      </LeftSidePanel>
+    </>
   )
 }
 

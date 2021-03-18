@@ -13,4 +13,5 @@ export default element
   .theme((t) => ({
     minHeight: t.layout.root.height,
     backgroundColor: t.layout.root.background,
+    overflowX: 'hidden',
   }))

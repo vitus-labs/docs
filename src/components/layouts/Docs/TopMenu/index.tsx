@@ -1,9 +1,8 @@
 import { TopMenu } from '~/components/base/layout'
 import { Container } from '~/components/base/grid'
 import base from '~/components/base/Base'
+import Logo from '~/components/base/Logo'
 import Icon from '~/components/base/Icon'
-import Logo from './Logo'
-import Menu from './Menu'
 
 const Wrapper = base.theme((t) => ({
   paddingX: { xs: t.spacing.large, xxxl: t.spacing.reset },

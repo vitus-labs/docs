@@ -43,8 +43,8 @@ export default rocketstyle<Theme, ComponentThemeDefinition>()()({
     (css) => css<any>`
       ${({ href, onClick, $rocketstyle, $rocketstate }) => {
         const isDynamic = onClick || href
-        const { disabled, active, pseudo = {} } = $rocketstate
-        const { hover, pressed, focus } = pseudo
+        const { disabled, pseudo = {} } = $rocketstate
+        const { hover, pressed, focus, active } = pseudo
 
         const {
           hover: hoverStyles = {},

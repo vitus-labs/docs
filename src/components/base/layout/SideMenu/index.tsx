@@ -7,6 +7,7 @@ const base = element
     block: true,
     contentDirection: 'rows',
     contentAlignY: 'top',
+    contentAlignX: 'block',
   })
   .theme({
     overflow: 'hidden',
@@ -37,6 +38,9 @@ const InnerWrapper = base
 const Inner = base
   .config({
     name: 'base/layout/SideMenu/Inner',
+  })
+  .attrs({
+    tag: 'nav',
   })
   .theme((t) => ({
     width: 'calc(100% + 20px)',

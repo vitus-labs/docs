@@ -1,3 +1,8 @@
 import { list } from '~/components/core'
+import Item from './Item'
 
-export default list.config({ name: 'base/List' })
+export { Item }
+
+export default list
+  .config({ name: 'base/List' })
+  .attrs({ rootElement: true, component: Item })

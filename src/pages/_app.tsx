@@ -1,5 +1,7 @@
 import Head from 'next/head'
 import { Provider } from '~/theme'
+import { Root } from '~/components/base/layout'
+
 import type { AppProps } from 'next/app'
 
 const component = ({ Component, pageProps }: AppProps) => (
@@ -12,7 +14,9 @@ const component = ({ Component, pageProps }: AppProps) => (
       />
     </Head>
     <Provider>
-      <Component {...pageProps} />
+      <Root>
+        <Component {...pageProps} />
+      </Root>
     </Provider>
   </>
 )

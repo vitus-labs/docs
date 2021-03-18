@@ -10,6 +10,8 @@ export default element
   })
   .theme((t) => ({
     padding: 40,
+    zIndex: 2,
+    width: '100%',
   }))
   .states((t) => ({
     light: {
