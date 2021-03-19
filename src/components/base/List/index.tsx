@@ -5,4 +5,4 @@ export { Item }
 
 export default list
   .config({ name: 'base/List' })
-  .attrs({ rootElement: true, component: Item })
+  .attrs({ tag: 'ul', component: Item })

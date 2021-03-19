@@ -10,6 +10,10 @@ export default link
   .theme((t) => ({
     size: 24,
     color: t.color.light.base,
+
+    hover: {
+      color: t.color.primary.base,
+    },
   }))
   // .sizes({
   //   large: {

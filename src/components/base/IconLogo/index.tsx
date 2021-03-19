@@ -10,13 +10,17 @@ export default element
     contentAlignX: 'center',
   })
   .sizes({
+    xSmall: {
+      size: 16,
+    },
+    small: {
+      size: 24,
+    },
     large: {
-      width: 64,
-      height: 64,
+      size: 64,
     },
     xLarge: {
-      width: 108,
-      height: 108,
+      size: 108,
     },
   })
   .variants((t) => ({
@@ -25,3 +29,15 @@ export default element
       borderRadius: t.borderRadius.extra,
     },
   }))
+  .styles(
+    (css) => css`
+      & > svg {
+        width: 100%;
+        height: auto;
+
+        & * {
+          fill: currentColor;
+        }
+      }
+    `
+  )

@@ -5,7 +5,14 @@ import TopMenu from './TopMenu'
 import LeftSidePanel from '../LeftSidePanel'
 
 type Props = {
-  menu: Array<Record<string, unknown>>
+  menu: Array<{
+    title: string
+    slug: string
+    submenu: Array<{
+      title: string
+      anchor: string
+    }>
+  }>
 }
 
 const component: FC<Props> = ({ children, menu }) => {

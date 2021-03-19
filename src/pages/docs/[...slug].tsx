@@ -1,10 +1,14 @@
 import type { GetStaticProps, GetStaticPaths } from 'next'
 import hydrate from 'next-mdx-remote/hydrate'
 import renderToString from 'next-mdx-remote/render-to-string'
+import { get } from '@vitus-labs/core'
 import Head from 'next/head'
 import Layout from '~/components/layouts/Docs'
 import Meta from '~/components/meta/Meta'
 import {
+  getSlugsMap,
+  extractFileRoute,
+  getFileGroupSlug,
   getSlugs,
   getFileBySlug,
   generateMenu,
@@ -29,23 +33,51 @@ const Docs = ({ meta = {}, content, menu }: any) => {
 
 export const getStaticProps: GetStaticProps = async ({ params }) => {
   const { slug } = params
+  const routeMap = getSlugsMap(DIR_PATH)
 
-  // [1] load a stati maarkdown file
-  const file = await getFileBySlug(DIR_PATH, slug)
+  const mapSlug = get(routeMap, slug)
+
+  // --------------------------------------------------------
+  // HANDLE REDIRECT FROM ROOT URLs
+  // --------------------------------------------------------
+  // if it's object it means it has subpages or sub urls, therefore we redirect
+  // it to the first available option
+  if (typeof mapSlug === 'object') {
+    const redirectUrl = extractFileRoute(mapSlug[Object.keys(mapSlug)[0]])
+
+    return {
+      redirect: {
+        destination: `/${[DIR_PATH, ...slug, redirectUrl].join('/')}`,
+        permanent: false,
+      },
+    }
+  }
+
+  // --------------------------------------------------------
+  // LOAD DATA FOR PAGE
+  // --------------------------------------------------------
+
+  const groupSlug = getFileGroupSlug(slug)
+  const fileDirPath = [DIR_PATH, ...groupSlug]
+
+  // [1] load a static markdown file
+  const file = await getFileBySlug(fileDirPath, mapSlug as string)
 
   // [2] generate side menu for docs
-  const menu = await generateMenu(DIR_PATH, slug)
+  const directoryMap = get(routeMap, groupSlug)
+  const menu = await generateMenu(fileDirPath, directoryMap as any)
 
-  // [3] separate meta data and content
+  // [3] generate side menu for docs
+  // const categories = await generateCategories(DIR_PATH, slug)
+
+  // [4] separate meta data and content
   const parsedFile = await splitMetadataAndContentFromFile(file)
 
-  // [4] complete meta data
+  // [5] complete meta data
   const meta = await getMetaDataFromFile(parsedFile)
 
-  // [5] stringify markdown content
+  // [6] stringify markdown content
   const mdxSource = await renderToString(parsedFile.content as string)
-
-  console.log(menu)
 
   return {
     props: {

@@ -1,9 +1,11 @@
+import { Overlay } from '@vitus-labs/elements'
 import element from './element'
 import link from './link'
 import list from './list'
 import text from './text'
 
 export {
+  Overlay,
   element,
   link,
   list,

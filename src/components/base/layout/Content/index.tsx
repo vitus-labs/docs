@@ -8,11 +8,11 @@ export default element
     contentAlignY: 'top',
     contentAlignX: 'block',
   })
-  .theme((t) => ({
+  .theme({
     padding: 40,
     zIndex: 2,
     width: '100%',
-  }))
+  })
   .states((t) => ({
     light: {
       background: t.layout.content.background,

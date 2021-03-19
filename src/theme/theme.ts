@@ -74,6 +74,7 @@ const theme = {
   },
   fontSize: {
     smaller: '80%',
+    xSmall: 8,
     small: 12,
     medium: 14,
     base: 16,
@@ -101,6 +102,7 @@ const theme = {
     medium: 1.4,
     base: 1.5,
     xLarge: 2,
+    xxLarge: 2.5,
   },
 
   // ------------------------------------------------------

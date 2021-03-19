@@ -1,4 +1,4 @@
-import element from './element'
+import element from '../element'
 import withLink, { Props } from './withLink'
 
 export default element

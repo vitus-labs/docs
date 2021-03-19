@@ -3,9 +3,37 @@ import { join } from 'path'
 import matter from 'gray-matter'
 import remark from 'remark'
 import mdx from 'remark-mdx'
-import { get } from '@vitus-labs/core'
 
 const ROOT_DIRECTORY = join(process.cwd(), '/src/components/pages')
+
+// --------------------------------------------------------
+// Extract file route name
+// --------------------------------------------------------
+type ExtractFileRoute = (fileName: string) => string
+export const extractFileRoute: ExtractFileRoute = (fileName) => {
+  const fileNameToArray = fileName.replace('.mdx', '').split('-')
+
+  let helper =
+    fileNameToArray.length > 0 ? fileNameToArray.join('-') : fileNameToArray[0]
+
+  if (!isNaN(fileNameToArray[0] as any)) {
+    const [_, ...rest] = fileNameToArray
+    helper = rest.join('-')
+  }
+
+  return helper
+}
+
+// --------------------------------------------------------
+//
+// --------------------------------------------------------
+export const getFileGroupSlug = (slug) => {
+  const _slug = [...slug]
+
+  _slug.pop()
+
+  return _slug
+}
 
 // --------------------------------------------------------
 // Get All Available slugs in a map
@@ -56,6 +84,7 @@ export const transformSlugs: TransformSlugs = (
       typeof value === 'object' &&
       Object.keys(value as {}).length > 0
     ) {
+      result.push([...keys, key]) // index route
       transformSlugs(value as {}, result, [...keys, key])
     } else {
       result.push([...keys, key])
@@ -81,19 +110,12 @@ export const getSlugs: GetSlugs = (dir) => {
 // Load a file by slug
 // --------------------------------------------------------
 type GetFileBySlug = (
-  dir: string,
-  slug: string[]
+  slug: string[],
+  filename: string
 ) => Promise<ReturnType<typeof fs.readFileSync>>
 
-export const getFileBySlug: GetFileBySlug = async (dir, slug) => {
-  const _slug = [...slug]
-  const slugMap = getSlugsMap(dir)
-  const fileName = get(slugMap, _slug)
-
-  _slug.pop()
-
-  const fullPath = join(...[ROOT_DIRECTORY, dir, ..._slug, fileName])
-
+export const getFileBySlug: GetFileBySlug = async (slug, fileName) => {
+  const fullPath = join(ROOT_DIRECTORY, ...slug, fileName)
   const file = fs.readFileSync(fullPath, 'utf8')
 
   return file
@@ -102,9 +124,9 @@ export const getFileBySlug: GetFileBySlug = async (dir, slug) => {
 // --------------------------------------------------------
 // Parse markdown file
 // --------------------------------------------------------
-type ParseMarkdownFromFile = (file: any) => Promise<ReturnType<typeof remark>>
+type ParseMarkdown = (file: any) => Promise<ReturnType<typeof remark>>
 
-export const parseMarkdownFromFile: ParseMarkdownFromFile = async (file) => {
+export const parseMarkdown: ParseMarkdown = async (file) => {
   let result
 
   await remark()
@@ -164,23 +186,20 @@ type Link = {
   submenu?: Array<{ title: string; anchor: string }>
 }
 
-type GenerateMainMenu = (dir: string, slug: string[]) => Promise<Link[]>
+type GenerateMainMenu = (
+  dir: string[],
+  folderMap: Record<string, string>
+) => Promise<Link[]>
 
-export const generateMenu: GenerateMainMenu = async (dir, slug) => {
-  // remove last item from slug to load group of files in the same section
-  const _slug: string[] = [...slug].splice(0, slug.length - 1)
-  // get slug map of keys of the same group
-  const slugMap = getSlugsMap(join(...[dir, ..._slug]))
-  // slug map keys
-  const slugsMapKeys = Object.keys(slugMap)
-
-  const result = slugsMapKeys.reduce(async (acc, item) => {
+export const generateMenu: GenerateMainMenu = async (dir, folderMap) => {
+  const result = Object.entries(folderMap).reduce(async (acc, [key, value]) => {
     const prevValue = await acc
-    const file = await getFileBySlug(dir, [..._slug, item])
+
+    const file = await getFileBySlug(dir, value)
     const { content } = await splitMetadataAndContentFromFile(file)
-    const parsedFile = await parseMarkdownFromFile(content)
+    const parsedFile = await parseMarkdown(content)
     const menu = await filterMenu(parsedFile as any)
-    const itemLink = `/${[dir, ..._slug, item].join('/')}`
+    const itemLink = `/${[...dir, key].join('/')}`
 
     prevValue.push({
       title: menu.mainHeading,
@@ -196,15 +215,6 @@ export const generateMenu: GenerateMainMenu = async (dir, slug) => {
 
   return result as Link[]
 }
-
-// const findTitleFromMarkdown = (content) => {
-//   return content.children.find((item) => {
-//     if (item.type === 'heading' && item.depth === 1) {
-//       const value = item.children[0].value
-//       return value
-//     }
-//   })
-// }
 
 export const getMetaDataFromFile = async ({ data, content }) => {
   const meta = data

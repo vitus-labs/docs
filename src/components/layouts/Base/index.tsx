@@ -1,7 +1,6 @@
 import { FC } from 'react'
-import { Root } from '~/components/base/layout'
 
-const component: FC = ({ children }) => <Root>{children}</Root>
+const component: FC = ({ children }) => <>{children}</>
 
 component.displayName = 'layouts/Base'
 

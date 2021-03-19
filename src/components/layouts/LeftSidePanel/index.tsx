@@ -1,9 +1,13 @@
-import { FC } from 'react'
+import { FC, ReactNode } from 'react'
 import { SideMenu, Content } from '~/components/base/layout'
 import { Container } from '~/components/base/grid'
 import Base from '~/components/base/Base'
 
-const component: FC = ({ children, sidePanel }) => (
+type Props = {
+  sidePanel: ReactNode
+}
+
+const component: FC<Props> = ({ children, sidePanel }) => (
   <Container
     width={({ xxxl }) => ({
       xs: '100%',
@@ -23,5 +27,7 @@ const component: FC = ({ children, sidePanel }) => (
     </Base>
   </Container>
 )
+
+component.displayName = 'layouts/LeftSidePanel'
 
 export default component

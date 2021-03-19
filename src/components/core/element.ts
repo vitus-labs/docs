@@ -6,21 +6,22 @@ import type { Theme } from '~/theme'
 type ResponsiveThemeDefinition = {
   [I in keyof StylesTheme]:
     | StylesTheme[I]
+    | null
     | Partial<{
-        xs: StylesTheme[I]
-        sm: StylesTheme[I]
-        md: StylesTheme[I]
-        lg: StylesTheme[I]
-        xl: StylesTheme[I]
-        xxl: StylesTheme[I]
+        xs: StylesTheme[I] | null
+        sm: StylesTheme[I] | null
+        md: StylesTheme[I] | null
+        lg: StylesTheme[I] | null
+        xl: StylesTheme[I] | null
+        xxl: StylesTheme[I] | null
       }>
     | [
-        xs?: StylesTheme[I],
-        sm?: StylesTheme[I],
-        md?: StylesTheme[I],
-        lg?: StylesTheme[I],
-        xl?: StylesTheme[I],
-        xxl?: StylesTheme[I]
+        xs?: StylesTheme[I] | null,
+        sm?: StylesTheme[I] | null,
+        md?: StylesTheme[I] | null,
+        lg?: StylesTheme[I] | null,
+        xl?: StylesTheme[I] | null,
+        xxl?: StylesTheme[I] | null
       ]
 }
 

@@ -25,6 +25,7 @@ export default rocketstyle<
   .attrs({
     rootElement: true,
     block: true,
+    direction: 'rows',
     contentAlignY: 'top',
     contentAlignX: 'block',
     contentDirection: 'rows',

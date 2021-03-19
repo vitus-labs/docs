@@ -1,15 +1,22 @@
+import { VFC } from 'react'
 import { TopMenu } from '~/components/base/layout'
 import { Container } from '~/components/base/grid'
 import base from '~/components/base/Base'
 import Logo from '~/components/base/Logo'
 import Icon from '~/components/base/Icon'
+import Line from '~/components/base/Line'
+import Dropdown from './Dropdown'
 
-const Wrapper = base.theme((t) => ({
-  paddingX: { xs: t.spacing.large, xxxl: t.spacing.reset },
-}))
+const Root = base
+  .attrs((_, t) => ({
+    gap: t.spacing.large,
+  }))
+  .theme((t) => ({
+    paddingX: { xs: t.spacing.large, xxxl: t.spacing.reset },
+  }))
 
-const component = ({ transparent = false }) => (
-  <TopMenu transparent={transparent}>
+const component: VFC = () => (
+  <TopMenu>
     <Container
       width={{
         xs: '100%',
@@ -20,16 +27,22 @@ const component = ({ transparent = false }) => (
         xxxl: 1560,
       }}
     >
-      <Wrapper
-        gap={16}
-        beforeContent={Logo}
+      <Root
+        beforeContent={
+          <>
+            <Logo />
+            <Line vertical />
+            <Dropdown />
+          </>
+        }
         afterContent={
           <Icon name="github" href="https://github.com/vitus-labs" />
         }
-        contentAlignX="right"
       />
     </Container>
   </TopMenu>
 )
+
+component.displayName = 'layouts/Docs/TopMenu'
 
 export default component
