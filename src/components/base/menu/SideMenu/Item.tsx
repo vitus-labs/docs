@@ -33,7 +33,7 @@ const component = forwardRef(({ data, ...props }, ref) => {
   return (
     <>
       <Link {...props} ref={ref} active={isActive} />
-      <SubMenu data={data} />
+      {isActive && data && <SubMenu data={data} />}
     </>
   )
 })

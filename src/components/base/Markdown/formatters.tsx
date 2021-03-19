@@ -20,7 +20,7 @@ export const h2 = Heading.attrs<{ name?: string; children?: string }>(
   ({ children }) => ({
     tag: 'h2',
     level3: true,
-    id: children ? `#${children.replace(/ /g, '-').toLowerCase()}` : undefined,
+    id: children ? children.replace(/ /g, '-').toLowerCase() : undefined,
   })
 ).theme((t) => ({
   marginTop: t.spacing.medium,
