@@ -9,9 +9,9 @@ export default element
   })
   .states({
     primary: {
-      background: 'linear-gradient(180deg, #112f4a 0%, #071a2c 100%)',
+      backgroundColor: '#61892F',
     },
     secondary: {
-      background: 'linear-gradient(180deg, #762a2a 0%, #661818 100%)',
+      backgroundColor: '#474B4F',
     },
   })

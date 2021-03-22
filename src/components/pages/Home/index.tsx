@@ -1,4 +1,3 @@
-import React from 'react'
 import Layout from '~/components/layouts/Base'
 import TopMenu from '~/components/layouts/TopMenu'
 import Intro from '~/components/sections/home/Intro'
@@ -9,8 +8,8 @@ import Background from '~/components/base/Background'
 const component = () => (
   <Layout>
     <TopMenu />
+    <Intro />
     <Background primary>
-      <Intro />
       <UiSystems />
     </Background>
     <Background secondary>

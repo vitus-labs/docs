@@ -8,6 +8,13 @@ export default text
   .theme({
     fontSize: 'inherit',
   })
+  .states((t) => ({
+    primary: {
+      color: t.color.primary.base,
+    },
+    light: { color: t.color.light.base },
+    dark: { color: t.color.dark.base },
+  }))
   .variants((t) => ({
     paragraph: {
       marginBottom: t.spacing.large,
