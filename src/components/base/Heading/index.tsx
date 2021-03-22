@@ -14,13 +14,13 @@ export default text
       fontSize: t.fontSize.extraXxLarge,
     },
     level2: {
-      fontSize: t.fontSize.extraXLarge,
+      fontSize: 64,
     },
     level3: {
-      fontSize: t.fontSize.extraLarge,
+      fontSize: 40,
     },
     level4: {
-      fontSize: t.fontSize.xxxLarge,
+      fontSize: 28,
     },
     level5: {
       fontSize: t.fontSize.xxLarge,

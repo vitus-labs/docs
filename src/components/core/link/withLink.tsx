@@ -23,7 +23,7 @@ const component = (
     shallow,
     ...props
   }) => {
-    const { route } = useRouter()
+    const { asPath } = useRouter()
 
     if (!href) return <WrappedComponent {...props} />
 
@@ -51,7 +51,7 @@ const component = (
         prefetch={prefetch}
       >
         <WrappedComponent
-          active={route === destination}
+          active={asPath === destination}
           href={destination}
           {...props}
           {...externalProps}

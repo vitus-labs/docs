@@ -5,7 +5,7 @@ export default element
   .theme((t) => ({
     color: t.color.light.base,
     fontSize: t.fontSize.medium,
-    paddingY: t.spacing.small,
+    paddingY: t.spacing.medium,
     paddingX: t.spacing.small,
   }))
   .styles(

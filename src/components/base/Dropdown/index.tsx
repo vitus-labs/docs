@@ -26,8 +26,6 @@ const Inner = base.config({ name: 'base/Dropdown/Inner' }).theme((t) => ({
   paddingY: t.spacing.medium,
 }))
 
-type RenderType = { innerRef: any; align: 'top' | 'bottom' }
-
 const Trigger = element
   .attrs<{ icon?: string }>(({ icon = 'elements' }) => ({
     label: 'Elements',
@@ -45,16 +43,14 @@ type Props = ExtractProps<typeof Overlay>
 const component: VFC<Props> = ({ trigger = Trigger, children, ...props }) => (
   <Overlay
     type="dropdown"
-    refName="innerRef"
+    // refName="innerRef"
     trigger={trigger}
     offsetY={16}
     {...props}
   >
-    {(props: RenderType) => (
-      <Content {...props}>
-        <Inner>{children}</Inner>
-      </Content>
-    )}
+    <Content>
+      <Inner>{children}</Inner>
+    </Content>
   </Overlay>
 )
 

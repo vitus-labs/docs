@@ -15,16 +15,19 @@ export default link
       color: t.color.primary.base,
     },
   }))
-  // .sizes({
-  //   large: {
-  //     width: 64,
-  //     height: 64,
-  //   },
-  //   xLarge: {
-  //     width: 108,
-  //     height: 108,
-  //   },
-  // })
+  .sizes({
+    xSmall: {
+      size: 12,
+    },
+    // large: {
+    //   width: 64,
+    //   height: 64,
+    // },
+    // xLarge: {
+    //   width: 108,
+    //   height: 108,
+    // },
+  })
   .styles(
     (css) => css`
       & > svg {

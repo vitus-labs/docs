@@ -1,5 +1,3 @@
-import { forwardRef } from 'react'
-import { useRouter } from 'next/router'
 import link from '~/components/base/Link'
 import SubMenu from './SubMenu'
 
@@ -8,34 +6,28 @@ const Link = link
     block: true,
   })
   .theme((t) => ({
-    height: 50,
-    paddingX: 16,
+    height: 64,
+    paddingX: t.spacing.large,
     backgroundColor: 'transparent',
-    color: '#fff',
+    color: t.color.light.base,
     fontWeight: 600,
+    fontSize: 18,
 
     hover: {
       backgroundColor: t.color.primary.base,
+      textDecoration: 'none',
     },
 
     active: {
-      fontSize: 18,
       backgroundColor: t.color.primary.base,
     },
   }))
 
-const component = forwardRef(({ data, ...props }, ref) => {
-  const { query } = useRouter()
-  const { href } = props
-
-  const isActive = href.endsWith(query.slug.join('/'))
-
-  return (
-    <>
-      <Link {...props} ref={ref} active={isActive} />
-      {isActive && data && <SubMenu data={data} />}
-    </>
-  )
-})
+const component = ({ data, ...props }) => (
+  <>
+    <Link {...props} />
+    {data && <SubMenu data={data} />}
+  </>
+)
 
 export default component

@@ -17,4 +17,3 @@ export default link
       },
     },
   })
-  .multiple({ active: true })

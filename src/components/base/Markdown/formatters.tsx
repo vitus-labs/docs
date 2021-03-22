@@ -1,4 +1,4 @@
-import Editor from '~/components/base/editor'
+import Editor from '~/components/base/Editor'
 import Badge from '~/components/base/Badge'
 import List from '~/components/base/List'
 import Heading from '~/components/base/Heading'

@@ -29,22 +29,22 @@ const theme = {
   layout: {
     root: {
       height: '100vh',
-      background: '#222829',
+      background: '#020F1B',
     },
     topMenu: {
       height: 70,
-      background: '#2A3034',
-      borderColor: '#2A3034',
+      background: '#081B2C',
+      borderColor: '#4F6579',
       zIndex: 100,
     },
     sideMenu: {
       height: 'calc(100vh - 70px)',
       width: 320,
-      background: '#474B4F',
+      background: '#112F4A',
       zIndex: 90,
     },
     content: {
-      background: '#222829',
+      background: '#071A2C',
     },
   },
   // ------------------------------------------------------
@@ -111,8 +111,6 @@ const theme = {
   color: {
     light: {
       base: '#fff',
-      100: 'rgba(255,255,255, 0.1)',
-      200: 'rgba(255,255,255, 0.2)',
     },
     dark: {
       base: '#000',
@@ -125,11 +123,11 @@ const theme = {
       base: '#fff',
     },
     primary: {
-      base: '#86C232',
+      base: '#E96B6B',
     },
   },
 
-  borderRadius: { xs: 2, sm: 4, md: 8, base: 14, circle: '50%', extra: 160 },
+  borderRadius: { xs: 2, sm: 4, md: 7, base: 14, circle: '50%', extra: 160 },
   transition: {
     base: '0.2s ease-in-out',
   },

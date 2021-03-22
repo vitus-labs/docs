@@ -5,7 +5,7 @@ export default element
   .config({ name: 'base/IconLogo' })
   .compose({ loadIcon })
   .attrs<{ name: string; role?: string }>({
-    tag: 'span',
+    tag: 'img',
     role: 'img',
     contentAlignX: 'center',
   })
@@ -29,15 +29,3 @@ export default element
       borderRadius: t.borderRadius.extra,
     },
   }))
-  .styles(
-    (css) => css`
-      & > svg {
-        width: 100%;
-        height: auto;
-
-        & * {
-          fill: currentColor;
-        }
-      }
-    `
-  )

@@ -3,6 +3,7 @@ import { element } from '~/components/core'
 import Link from '~/components/base/Link'
 
 const Logo = element.attrs({
+  tag: 'span',
   contentAlignX: 'left',
   contentAlignY: 'center',
   dangerouslySetInnerHTML: {

@@ -3,13 +3,14 @@ const component = (WrappedComponent) => {
     return (
       <WrappedComponent
         {...props}
-        dangerouslySetInnerHTML={
-          name
-            ? {
-                __html: require(`~/assets/images/logo-${name}.svg?include`),
-              }
-            : undefined
-        }
+        src={require(`~/assets/images/logo-${name}.svg`)}
+        // dangerouslySetInnerHTML={
+        //   name
+        //     ? {
+        //         __html: require(`~/assets/images/logo-${name}.svg`),
+        //       }
+        //     : undefined
+        // }
         aria-label={name}
       />
     )
