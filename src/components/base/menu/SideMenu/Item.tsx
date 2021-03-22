@@ -1,3 +1,4 @@
+import isCurrentRoute from '~/hooks/isCurrentRoute'
 import link from '~/components/base/Link'
 import SubMenu from './SubMenu'
 
@@ -23,11 +24,15 @@ const Link = link
     },
   }))
 
-const component = ({ data, ...props }) => (
-  <>
-    <Link {...props} />
-    {data && <SubMenu data={data} />}
-  </>
-)
+const component = ({ data, ...props }) => {
+  const isActive = isCurrentRoute(props.href)
+
+  return (
+    <>
+      <Link {...props} />
+      {isActive && data && <SubMenu data={data} />}
+    </>
+  )
+}
 
 export default component

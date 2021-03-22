@@ -43,7 +43,7 @@ type Props = ExtractProps<typeof Overlay>
 const component: VFC<Props> = ({ trigger = Trigger, children, ...props }) => (
   <Overlay
     type="dropdown"
-    // refName="innerRef"
+    refName="innerRef"
     trigger={trigger}
     offsetY={16}
     {...props}
