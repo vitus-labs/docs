@@ -4,7 +4,7 @@ export default element
   .config({ name: 'base/Line' })
   .theme((t) => ({
     border: 'none',
-    borderColor: '#4F6579',
+    borderColor: t.color.light[100],
   }))
   .variants((t) => ({
     vertical: {

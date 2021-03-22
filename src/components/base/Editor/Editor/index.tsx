@@ -10,9 +10,9 @@ const component: VFC<Props> = (props) => (
     <LiveEditor
       {...props}
       style={{
-        overflow: 'auto',
+        overflow: 'visible',
         width: '100%',
-        marginRight: -999,
+        // marginRight: -999,
       }}
     />
   </ContentBox>

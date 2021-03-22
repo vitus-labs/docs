@@ -5,6 +5,6 @@ export default element
   .styles(
     (css) =>
       css`
-        border-collapse: collapse;
+        border-spacing: 0;
       `
   )

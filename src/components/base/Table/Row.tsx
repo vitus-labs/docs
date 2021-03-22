@@ -7,7 +7,7 @@ export default element
       background-color: rgba(255, 255, 255, 0.1);
 
       &:nth-child(even) {
-        background-color: rgba(255, 255, 255, 0.05);
+        background-color: rgba(255, 255, 255, 0.2);
       }
     `
   )

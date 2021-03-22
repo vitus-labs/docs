@@ -9,7 +9,7 @@ When you import **breakpoints**, you just get a default set of defined
 breakpoints as a JSON object so you can pass it to **ThemeProvider** fo
 example.
 
-```tsx
+```tsx live=false editor=false
 import { breakpoints } from '@vitus-labs/unistyle'
 
 // output
@@ -31,7 +31,7 @@ There are differences between using **flex** align properties on web and
 React Native, therefore aim of this function is to synchronize naming
 and generate expected css styles.
 
-```tsx
+```tsx live=false editor=false
 // import { alignContent } from '@vitus-labs/unistyle'
 
 // usage
@@ -54,7 +54,7 @@ const output = `
 This might be usefull when you would like to use **css** from
 styled-components as a param in a callback.
 
-```tsx
+```tsx live=false editor=false
 // import { extendCss } from '@vitus-labs/unistyle'
 import { css } from 'styled-components'
 

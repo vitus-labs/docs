@@ -1,4 +1,5 @@
 import { FC } from 'react'
+import { ExtractProps } from '~/types'
 import box from '../../Box'
 
 const Box = box
@@ -14,24 +15,32 @@ const Box = box
   }))
 
 const Wrapper = Box.theme((t) => ({
-  maxHeight: 400,
+  height: 400,
   overflowX: 'hidden',
   backgroundColor: 'transparent',
-}))
+})).variants({
+  compact: {
+    height: '',
+    maxHeight: 400,
+  },
+})
 
-const Inner = Box.theme({
-  overflowY: 'auto',
-  width: `calc(100% + 30px)`,
-}).theme((t) => ({
-  paddingY: t.spacing.small,
-  paddingX: t.spacing.small,
+const Inner = Box.theme((t) => ({
+  height: 'inherit',
+  paddingY: t.spacing.large,
+  paddingLeft: t.spacing.large,
+  paddingRight: t.spacing.large + 20,
   fontSize: t.fontSize.medium,
   borderRadius: t.borderRadius.md,
+  overflowY: 'auto',
+  width: `calc(100% + 20px)`,
 }))
 
-const component: FC = ({ children }) => (
-  <Wrapper>
-    <Inner>{children}</Inner>
+type Props = ExtractProps<typeof Inner> & { compact?: boolean }
+
+const component: FC<Props> = ({ compact, ...props }) => (
+  <Wrapper compact={compact}>
+    <Inner {...props} />
   </Wrapper>
 )
 

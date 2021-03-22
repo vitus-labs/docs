@@ -10,7 +10,7 @@ export default element
     marginX: 0,
     marginY: 0,
     lineHeight: 2,
-    color: t.color.black.base,
+    color: t.color.light.base,
   }))
   .multiple({
     centered: {

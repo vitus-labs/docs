@@ -6,12 +6,16 @@ export default element
     color: t.color.light.base,
     fontSize: t.fontSize.medium,
     paddingY: t.spacing.medium,
-    paddingX: t.spacing.small,
+    paddingX: t.spacing.medium,
   }))
   .styles(
     (css) => css`
       &:first-of-type {
         font-weight: bold;
+      }
+
+      &:nth-child(2) {
+        max-width: 200px;
       }
 
       &:nth-child(3) {

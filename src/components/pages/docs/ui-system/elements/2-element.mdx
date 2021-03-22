@@ -415,6 +415,10 @@ const styles = `
   height: 48px;
   padding: 16px;
   margin-bottom: 12px;
+
+  &:last-of-type {
+    margin: 0;
+  }
 `
 
 // ↓↓↓ Element ↓↓↓
@@ -486,6 +490,10 @@ const styles = `
   height: 48px;
   padding: 16px;
   margin-bottom: 12px;
+
+  &:last-of-type {
+    margin: 0;
+  }
 `
 
 // ↓↓↓ Element ↓↓↓
@@ -565,6 +573,10 @@ const styles = `
   height: 48px;
   padding: 16px;
   margin-bottom: 12px;
+
+  &:last-of-type {
+    margin: 0;
+  }
 `
 
 // ↓↓↓ Element ↓↓↓
@@ -648,6 +660,10 @@ const styles = `
   height: 80px;
   padding: 16px;
   margin-bottom: 12px;
+
+  &:last-of-type {
+    margin: 0;
+  }
 `
 
 // ↓↓↓ Element ↓↓↓
@@ -729,6 +745,10 @@ const styles = `
   height: 80px;
   padding: 16px;
   margin-bottom: 12px;
+
+  &:last-of-type {
+    margin: 0;
+  }
 `
 
 // ↓↓↓ Element ↓↓↓
@@ -810,6 +830,10 @@ const styles = `
   height: 80px;
   padding: 16px;
   margin-bottom: 12px;
+
+  &:last-of-type {
+    margin: 0;
+  }
 `
 
 // ↓↓↓ Element ↓↓↓
@@ -901,7 +925,6 @@ const styles = `
   padding: 8px;
   margin-left: 8px;
   margin-right: 8px;
-  margin-bottom: 12px;
 `
 
 // ↓↓↓ Element ↓↓↓
@@ -989,7 +1012,6 @@ const styles = `
   padding: 8px;
   margin-left: 8px;
   margin-right: 8px;
-  margin-bottom: 12px;
 `
 
 // ↓↓↓ Element ↓↓↓
@@ -1077,7 +1099,6 @@ const styles = `
   padding: 8px;
   margin-left: 8px;
   margin-right: 8px;
-  margin-bottom: 12px;
 `
 
 // ↓↓↓ Element ↓↓↓
@@ -1167,7 +1188,6 @@ const styles = `
   padding: 8px;
   margin-left: 8px;
   margin-right: 8px;
-  margin-bottom: 12px;
 `
 
 // ↓↓↓ Element ↓↓↓
@@ -1255,7 +1275,6 @@ const styles = `
   padding: 8px;
   margin-left: 8px;
   margin-right: 8px;
-  margin-bottom: 12px;
 `
 
 // ↓↓↓ Element ↓↓↓
@@ -1318,36 +1337,31 @@ const beforeAfterStyles = `
 `
 
 const beforeContentStyles = `
+  ${defaultCss};
   width: 100%;
   height: 20px;
-  background: rgba(84, 214, 255, 0.4);
-  border: 1px solid #54D6FF;
 `
 
 const afterContentStyles = `
+  ${activeCss};
   width: 100%;
   height: 20px;
-  background: #54D6FF;
-  border: 1px solid #54D6FF;
 `
 
 const contentStyles = `
+  ${defaultCss};
   width: 100%;
   height: 100%;
-  background: rgba(84, 214, 255, 0.4);
-  border: 1px solid #54D6FF;
 `
 
 const styles = `
+  ${defaultCss};
   width: 100%;
   min-width: 60px;
   height: 240px;
   padding: 8px;
   margin-left: 8px;
   margin-right: 8px;
-  background: rgba(84, 214, 255, 0.4);
-  border: 1px solid #54D6FF;
-  margin-bottom: 12px;
 `
 
 // ↓↓↓ Element ↓↓↓
@@ -1399,33 +1413,33 @@ render(
 
 These are props to which can be passed to **Element**
 
-| Name                   | Type                                                                                    | Default value | Description                                                                                                                                  |
-| ---------------------- | --------------------------------------------------------------------------------------- | :-----------: | :------------------------------------------------------------------------------------------------------------------------------------------- |
-| tag                    | **HTMLElement tag**                                                                     |      div      | A prop which will change HTML tag of the element                                                                                             |
-| children               | **ReactNode**                                                                           |               | Simply children                                                                                                                              |
-| content                | **ReactNode**                                                                           |               | A prop which can be used instead of **children**                                                                                             |
-| label                  | **ReactNode**                                                                           |               | A prop which can be used instead of **children**                                                                                             |
-| beforeContent          | **ReactNode**                                                                           |               | A **children** to be rendered inside **beforeContent** wrapper.                                                                              |
-| afterContent           | **ReactNode**                                                                           |               | A **children** to be rendered inside **afterContent** wrapper.                                                                               |
-| block                  | **boolean** \| **object** \| **array**                                                  |     false     | Whether should behave as **inline** or **block** element                                                                                     |
-| equalCols              | **boolean** \| **object** \| **array**                                                  |     false     | Whether should all inner elements have the same width / height                                                                               |
-| gap                    | **number** \| **string** \| **object** \| **array**                                     |       0       | Defines space between beforeContent, content and afterContent                                                                                |
-| vertical               | **boolean** \| **object** \| **array**                                                  |     false     | Defines if element should render vertically                                                                                                  |
-| direction              | **inline** \| **rows** \| **reverseInline** \| **reverseRows**                          |               | Define whether element should render horizontally or vertically. Does the same job as **vertical** prop and takes a precedenc over that prop |
-| alignX                 | **left** \| **center** \| **right** \| **spaceBetween** \| **spaceAround** \| **block** |     left      | Define alignment of **beforeContent**, **content**, and **afterContent** with respect to root element.                                       |
-| alignY                 | **top** \| **center** \| **bottom** \| **spaceBetween** \| **spaceAround** \| **block** |     left      | Define alignment of **beforeContent**, **content**, and **afterContent** with respect to root element.                                       |
-| css                    | **string** \| **callback** \| **css** \| **object** \| **array** \|                     |               | If you need to add an additional styling to the root element, you can do so by injecting styles using this property.                         |
-| contentCss             | **string** \| **callback** \| **css** \| **object** \| **array** \|                     |               | If you need to add an additional styling to the content element, you can do so by injecting styles using this property.                      |
-| beforeContentCss       | **string** \| **callback** \| **css** \| **object** \| **array** \|                     |               | If you need to add an additional styling to the beforeContent element, you can do so by injecting styles using this property                 |
-| afterContentCss        | **string** \| **callback** \| **css** \| **object** \| **array** \|                     |               | If you need to add an additional styling to the afterContent element, you can do so by injecting styles using this property                  |
-| contentDirection       | **inline** \| **rows** \| **reverseInline** \| **reverseRows**                          |    inline     | Define whether children in content wrapper should be rendered in line or in rows                                                             |
-| contentAlignX          | **left** \| **center** \| **right** \| **spaceBetween** \| **spaceAround** \| **block** |     left      | Define how children in content wrapper should be aligned                                                                                     |
-| contentAlignY          | **top** \| **center** \| **bottom** \| **spaceBetween** \| **spaceAround** \| **block** |    center     | Define how children in content wrapper should be aligned                                                                                     |
-| beforeContentDirection | **inline** \| **rows** \| **reverseInline** \| **reverseRows**                          |    inline     | Define whether children in beforeContent wrapper should be rendered in line or in rows                                                       |
-| beforeContentAlignX    | **left** \| **center** \| **right** \| **spaceBetween** \| **spaceAround** \| **block** |     left      | Define how children in beforeContent wrapper should be aligned                                                                               |
-| beforeContentAlignY    | **top** \| **center** \| **bottom** \| **spaceBetween** \| **spaceAround** \| **block** |    center     | Define how children in beforeContent wrapper should be aligned                                                                               |
-| afterContentDirection  | **inline** \| **rows** \| **reverseInline** \| **reverseRows**                          |    inline     | Define whether children in afterContent wrapper should be rendered in line or in rows                                                        |
-| afterContentAlignX     | **left** \| **center** \| **right** \| **spaceBetween** \| **spaceAround** \| **block** |     left      | Define how children in afterContent wrapper should be aligned                                                                                |
-| afterContentAlignY     | **top** \| **center** \| **bottom** \| **spaceBetween** \| **spaceAround** \| **block** |    center     | Define how children in afterContent wrapper should be aligned                                                                                |
-| ref                    | **React ref**                                                                           |               | It uses **forwardRef** on background so you can use **ref** normally                                                                         |
-| innerRef               | **React ref**                                                                           |               | This is just a fallback for **ref** in case you cannot pass ref                                                                              |
+| Name                   | Type                                                                     | Default value | Description                                                                                                                                  |
+| ---------------------- | ------------------------------------------------------------------------ | :-----------: | :------------------------------------------------------------------------------------------------------------------------------------------- |
+| tag                    | **HTMLElement tag**                                                      |      div      | A prop which will change HTML tag of the element                                                                                             |
+| children               | **ReactNode**                                                            |               | Simply children                                                                                                                              |
+| content                | **ReactNode**                                                            |               | A prop which can be used instead of **children**                                                                                             |
+| label                  | **ReactNode**                                                            |               | A prop which can be used instead of **children**                                                                                             |
+| beforeContent          | **ReactNode**                                                            |               | A **children** to be rendered inside **beforeContent** wrapper.                                                                              |
+| afterContent           | **ReactNode**                                                            |               | A **children** to be rendered inside **afterContent** wrapper.                                                                               |
+| block                  | **boolean** **object** **array**                                         |     false     | Whether should behave as **inline** or **block** element                                                                                     |
+| equalCols              | **boolean** **object** **array**                                         |     false     | Whether should all inner elements have the same width / height                                                                               |
+| gap                    | **number** **string** **object** **array**                               |       0       | Defines space between beforeContent, content and afterContent                                                                                |
+| vertical               | **boolean** **object** **array**                                         |     false     | Defines if element should render vertically                                                                                                  |
+| direction              | **inline** **rows** **reverseInline** **reverseRows**                    |               | Define whether element should render horizontally or vertically. Does the same job as **vertical** prop and takes a precedenc over that prop |
+| alignX                 | **left** **center** **right** **spaceBetween** **spaceAround** **block** |     left      | Define alignment of **beforeContent**, **content**, and **afterContent** with respect to root element.                                       |
+| alignY                 | **top** **center** **bottom** **spaceBetween** **spaceAround** **block** |     left      | Define alignment of **beforeContent**, **content**, and **afterContent** with respect to root element.                                       |
+| css                    | **string** **callback** **css** **object** **array**                     |               | If you need to add an additional styling to the root element, you can do so by injecting styles using this property.                         |
+| contentCss             | **string** **callback** **css** **object** **array**                     |               | If you need to add an additional styling to the content element, you can do so by injecting styles using this property.                      |
+| beforeContentCss       | **string** **callback** **css** **object** **array**                     |               | If you need to add an additional styling to the beforeContent element, you can do so by injecting styles using this property                 |
+| afterContentCss        | **string** **callback** **css** **object** **array**                     |               | If you need to add an additional styling to the afterContent element, you can do so by injecting styles using this property                  |
+| contentDirection       | **inline** **rows** **reverseInline** **reverseRows**                    |    inline     | Define whether children in content wrapper should be rendered in line or in rows                                                             |
+| contentAlignX          | **left** **center** **right** **spaceBetween** **spaceAround** **block** |     left      | Define how children in content wrapper should be aligned                                                                                     |
+| contentAlignY          | **top** **center** **bottom** **spaceBetween** **spaceAround** **block** |    center     | Define how children in content wrapper should be aligned                                                                                     |
+| beforeContentDirection | **inline** **rows** **reverseInline** **reverseRows**                    |    inline     | Define whether children in beforeContent wrapper should be rendered in line or in rows                                                       |
+| beforeContentAlignX    | **left** **center** **right** **spaceBetween** **spaceAround** **block** |     left      | Define how children in beforeContent wrapper should be aligned                                                                               |
+| beforeContentAlignY    | **top** **center** **bottom** **spaceBetween** **spaceAround** **block** |    center     | Define how children in beforeContent wrapper should be aligned                                                                               |
+| afterContentDirection  | **inline** **rows** **reverseInline** **reverseRows**                    |    inline     | Define whether children in afterContent wrapper should be rendered in line or in rows                                                        |
+| afterContentAlignX     | **left** **center** **right** **spaceBetween** **spaceAround** **block** |     left      | Define how children in afterContent wrapper should be aligned                                                                                |
+| afterContentAlignY     | **top** **center** **bottom** **spaceBetween** **spaceAround** **block** |    center     | Define how children in afterContent wrapper should be aligned                                                                                |
+| ref                    | **React ref**                                                            |               | It uses **forwardRef** on background so you can use **ref** normally                                                                         |
+| innerRef               | **React ref**                                                            |               | This is just a fallback for **ref** in case you cannot pass ref                                                                              |

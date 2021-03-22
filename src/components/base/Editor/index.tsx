@@ -35,7 +35,7 @@ const component: VFC<Props> = ({
         scope={scope}
       >
         <Container
-          gap={48}
+          gap={32}
           gutter={12}
           columns={12}
           size={8}
@@ -43,7 +43,7 @@ const component: VFC<Props> = ({
         >
           <Row>
             <Col>
-              <Preview view={preview} />
+              <Preview view={preview} compact />
             </Col>
           </Row>
           <Row>
@@ -64,7 +64,7 @@ const component: VFC<Props> = ({
         code={children}
         scope={scope}
       >
-        <Container gap={48} gutter={12} columns={2} size={isVertical ? 2 : 1}>
+        <Container gap={32} gutter={12} columns={2} size={isVertical ? 2 : 1}>
           <Row>
             <Col>
               <Editor />

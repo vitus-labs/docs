@@ -25,7 +25,7 @@ export default element
   })
   .variants((t) => ({
     circle: {
-      backgroundColor: t.color.white.base,
+      backgroundColor: t.color.light.base,
       borderRadius: t.borderRadius.extra,
     },
   }))

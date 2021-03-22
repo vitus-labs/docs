@@ -494,14 +494,14 @@ render(<Users />)
 List accepts all [Element properties](/docs/ui-system/elements/element)
 (except `label` and `content`) and the following props.
 
-| Name          | Type                       | Default value | Description                                                                                           |
-| ------------- | -------------------------- | :-----------: | :---------------------------------------------------------------------------------------------------- |
-| rootElement   | **boolean**                |     false     | Whether a root element should be rendered or the output should be just a type of React **Fragment**   |
-| children      | **ReactNode**              |               | Children to List can be passed manually by using **children** prop.                                   |
-| data          | **Array**                  |               | An array of item values to be passed to item component                                                |
-| component     | **ComponentType**          |               | A component to be rendered per item                                                                   |
-| wrapComponent | **ComponentType**          |               | A component to be used as a wrapper component for item component                                      |
-| valueName     |                            |               | Can be used when **data** consists of **strings** or **numbers** to name value being passed as a prop |
-| itemKey       | **string** \| **callback** |               | Prop for defining item key name / value if default behavior doesn't work out                          |
-| itemProps     | **object** \| **callback** |               | A custobizable hook for dynamically render props for each item                                        |
-| wrapProps     | **object** \| **callback** |               | A custobizable hook for dynamically render props for each item                                        |
+| Name          | Type                    | Default value | Description                                                                                           |
+| ------------- | ----------------------- | :-----------: | :---------------------------------------------------------------------------------------------------- |
+| rootElement   | **boolean**             |     false     | Whether a root element should be rendered or the output should be just a type of React **Fragment**   |
+| children      | **ReactNode**           |               | Children to List can be passed manually by using **children** prop.                                   |
+| data          | **Array**               |               | An array of item values to be passed to item component                                                |
+| component     | **ComponentType**       |               | A component to be rendered per item                                                                   |
+| wrapComponent | **ComponentType**       |               | A component to be used as a wrapper component for item component                                      |
+| valueName     |                         |               | Can be used when **data** consists of **strings** or **numbers** to name value being passed as a prop |
+| itemKey       | **string** **callback** |               | Prop for defining item key name / value if default behavior doesn't work out                          |
+| itemProps     | **object** **callback** |               | A custobizable hook for dynamically render props for each item                                        |
+| wrapProps     | **object** **callback** |               | A custobizable hook for dynamically render props for each item                                        |
