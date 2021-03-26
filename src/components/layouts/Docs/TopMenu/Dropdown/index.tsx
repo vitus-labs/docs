@@ -23,8 +23,6 @@ const Trigger = element
 const component = () => {
   const { asPath } = useRouter()
 
-  console.log(asPath)
-
   const activeItem = data
     .reduce((acc, item) => {
       return acc.concat(item.data)

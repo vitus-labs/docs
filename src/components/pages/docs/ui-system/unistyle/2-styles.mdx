@@ -1,33 +1,110 @@
 # Styles
 
-This is a helper which helps to transform **JSON** styles into valid **CSS
-properties** following the best / latest conventions and also
-automatically **transforms** value **units** to the most convenient ones.
+## Flex alignment
 
-## Motivation
+First of utils is **alignContent**, which helps you set correct flex properties.
+Helps to swap between css properties **align-items** and **justify-content**.
 
-The goal is to cover many repeatable use-cases of writing code and make
-banch of components which would solve this. You shouldn&apos;t focus on
-some specifics of CSS or thinking about HTML validation or so. The goal
-is to make configurable components so you can focus on your goals and
-business value.
+```tsx editor=false live=false
+import { alignContent } from '@vitus-labs/unistyle'
 
-## Usage
+// output will be
+// css`
+//   flex-direction: row;
+//   align-items: flex-start;
+//   justify-content: center;
+// `
+const result = alignContent({
+  direction: 'inline',
+  alignX: 'center',
+  alignY: 'top',
+})
+
+// output will be
+// css`
+//   flex-direction: row;
+//   align-items: center;
+//   justify-content: flex-start;
+// `
+const result = alignContent({
+  direction: 'rows',
+  alignX: 'center',
+  alignY: 'top',
+})
+```
+
+| Name      | Type                                                                                   | Default value | Description                 |
+| --------- | -------------------------------------------------------------------------------------- | ------------- | --------------------------- |
+| direction | **inline** \| **reverseInline** \| **rows** \| **reverseRows**                         |               | defines flow of the content |
+| alignX    | **left** \| **center** \| **right** \| **block** \| **spaceBetween**\| **spaceAround** |               | defines alignment of axis X |
+| alignY    | **top** \| **center** \| **bottom** \| **block** \| **spaceBetween**\| **spaceAround** |               | defines alignment of axis Y |
+
+## Extend Css
+
+`extendCss` is an utility function which can be used for providing
+an extension of current styles and possibility to pass a `css` callback
+via props (for example).
+
+```tsx editor=false live=false
+import { extendCss } from '@vitus-labs/unistyle'
+
+// usage
+const styles = (css) => css`
+  text-align: center;
+`
+
+const result = extendCss(styles)
+```
+
+You can even pass a plain `string` as `css`.
+
+```tsx editor=false live=false
+import { extendCss } from '@vitus-labs/unistyle'
+
+// usage
+const styles = `
+  text-align: center;
+`
+
+const result = extendCss(styles)
+```
+
+| Name   | Type                       | Default value | Description |
+| ------ | -------------------------- | ------------- | ----------- |
+| styles | **string** \| **callback** |               |             |
+
+## Styles
+
+`Styles` transforms JSON properties into valid `css` properties, adds several
+opinionated properties on top of that and automatically `converts units`
+according to current best practices.
+
+### Usage example
 
 Import the function from **@vitus-labs/unistyle** package and pass
 required arguments. The function will return
 [styled-components](https://styled-components.com/)
 **css** function with styles.
 
+For all [supported CSS properties](#properties) scroll down.
+
 ```tsx live=false editor=false
 // import { styles } from '@vitus-labs/unistyle'
 import { css } from 'styled-components'
 
+const theme = {
+  padding: 16,
+  backgroundColor: '#fff',
+  marginTop: 8,
+  marginLeft: 16,
+  textAlign: 'center',
+}
+
 // https://snook.ca/archives/html_and_css/font-size-with-rem
 const css = styles({
-  theme: {},
+  theme,
   css,
-  rootSize: 16, // default size for REM calculation
+  rootSize: 16, // default value for REM calculation
 })
 ```
 
@@ -64,16 +141,225 @@ const output = `
 `
 ```
 
-This is **cool**, isn't it? :)
+This is pretty cool, isn't it? :)
 
-## Value priorities
+### Opinionated properties
+
+Apart from typical CSS properties, `styles` supports also some
+opinionated non-standard ones, for example axis spacing like **paddingX**,
+**paddingY**, **size** shorthand and so on.
+
+Below is the list of all of them:
+
+#### hideEmpty
+
+**boolean** Property allows to hide empty elements via `:empty {}` selector.
+
+```css live=false editor=false
+&:empty {
+  display: none;
+}
+```
+
+#### clearFix
+
+**boolean** Sets well known `clear fix` CSS pattern.
+
+```css live=false editor=false
+&::after: {
+  clear: both;
+  content: '';
+  display: table;
+}
+```
+
+#### fullScreen
+
+**boolean** Sets element position to **fixed** full-screen. Can be used
+as a shorthand even if you don't exactly need all properties set to default.
+By passing props **position**, **top** etc. you can override current default
+values.
+
+```css live=false editor=false
+position: fixed;
+top: 0;
+left: 0;
+right: 0;
+bottom: 0;
+```
+
+### Positioning
+
+By using one of **positionX** or **positionY** you can set **top** + **bottom**
+property at same time, or **left** + **right** respectively.
+
+```css live=false editor=false
+/* positionX */
+left: 0;
+right: 0;
+
+/* positionY */
+top: 0;
+bottom: 0;
+```
+
+### Sizes
+
+Shorthand properties **size**, **maxSize** and **minSize** for setting
+**width** + **height**, or `min` and `max` values of `width` and `height`.
+
+```css live=false editor=false
+/* size */
+width: 0;
+height: 0;
+
+/* minSize */
+min-width: 0;
+min-height: 0;
+
+/* maxSize */
+max-width: 0;
+max-height: 0;
+```
+
+### Spacing
+
+Spacing shorthand properties **paddingX**, **paddingY**, **marginX**
+and **marginY** named according to axes for spacing configuration.
+
+```css live=false editor=false
+/* paddingX */
+padding-left: 0;
+padding-right: 0;
+
+/* paddingY */
+padding-top: 0;
+padding-bottom: 0;
+
+/* marginX */
+margin-left: 0;
+margin-right: 0;
+
+/* marginY */
+margin-top: 0;
+margin-bottom: 0;
+```
+
+### Border color, style & width
+
+Color properties **borderColorX** + **borderColorY**, style properties
+**borderStyleX** + **borderStyleY**, and for width **borderWidthX**
+and **borderWidthX** named according to axes.
+
+```css live=false editor=false
+/* borderColorX */
+border-left-color: #fff;
+border-right-color: #fff;
+
+/* borderColorY */
+border-top-color: #fff;
+border-bottom-color: #fff;
+
+/* borderStyleX */
+border-left-style: #fff;
+border-right-style: #fff;
+
+/* borderStyleY */
+border-top-style: #fff;
+border-bottom-style: #fff;
+
+/* borderWidthX */
+border-left-width: 1px;
+border-right-width: 1px;
+
+/* borderWidthY */
+border-top-width: 1px;
+border-bottom-width: 1px;
+```
+
+### Border radius
+
+Border radius is a little bit more complicated as there is no option
+to follow axis naming, therefore supported shorthand properties are
+**borderRadiusRight**, **borderRadiusLeft**, **borderRadiusTop**, and
+**borderRadiusBottom**.
+
+```css live=false editor=false
+/* borderRadiusLeft */
+border-top-left-radius: 4px;
+border-bottom-left-radius: 4px;
+
+/* borderRadiusRight */
+border-top-right-radius: 4px;
+border-bottom-right-radius: 4px;
+
+/* borderRadiusTop */
+border-top-left-radius: 4px;
+border-top-right-radius: 4px;
+
+/* borderRadiusBottom */
+border-bottom-left-radius: 4px;
+border-bottom-right-radius: 4px;
+```
+
+### Extend CSS
+
+Styles doesn't support all CSS properties, especially `vendor` prefixes.
+So, in case you need to use a property which is not supported yet or to
+overwrite some rules, you use **extendCss** property name. You can pass
+it either as **string**, or **css** [styled-components](https://styled-components.com/)
+(recommended) function with your styles.
+
+```tsx live=false editor=false
+import { styles } from '@vitus-labs/unistyle'
+import { css } from 'styled-components'
+
+// padding example
+const css = styles({
+  theme: {
+    padding: 16,
+    paddingX: 8,
+    paddingLeft: 4,
+    // the magic happens here
+    extendCss: css`
+      padding-left: 32px;
+      margin-top: 12px;
+    `,
+  },
+  css,
+  rootSize: 16,
+})
+
+// the output will be
+// priorities are (from highest):
+// borderRadiusTopLeft → borderRadiusLeft → borderRadiusTop
+const output = css`
+  border-top-right-radius: 1rem; // 16px
+  border-bottom-left-radius: 0.5rem; // 8px
+  border-top-left-radius: 0.25rem; // 16 → 8 → 4px
+```
+
+### Value prioritization
 
 As there are cases, that we have an ability to define a value more ways
-(**paddingLeft**, or **paddingRight** might be examples), the priorities
-are following in these cases: **padding** → **paddingX** →
-**padding(Left/Right)**
+(**paddingLeft** / **paddingRight** might be examples), the priorities
+are following in these cases: **padding(Left/Right)** → **paddingX** →
+**padding**.
 
 In general, the more specific the value is, the higher priority it has.
+
+#### Examples
+
+1. **padding** - `paddingLeft` → `paddingX` → `padding`
+2. **margin** - `marginLeft` → `marginX` → `margin`
+3. **width** - `width` → `size`
+4. **height** - `height` → `size`
+5. **borderRadius** - `borderRadiusTopLeft` → `borderRadiusLeft` → `borderRadiusTop`
+6. **borderColor** - `borderColorTop` → `borderColorY`
+7. **borderStyle** - `borderStyleTop` → `borderStyleY`
+8. **borderWidth** - `borderWidthTop` → `borderWidthY`
+
+See the following example:
 
 ```tsx live=false editor=false
 import { styles } from '@vitus-labs/unistyle'
@@ -119,72 +405,7 @@ const output = css`
   border-top-left-radius: 0.25rem; // 16 → 8 → 4px
 ```
 
-### Paddings
-
-In case of paddings and margins can happen following example:
-**padding** → **paddingY** → **paddingBottom** where output will be
-**paddingBottom** value if more than one is defined. The same applies
-for margins.
-
-### Sizes
-
-In case of sizes like width, height, minWidth, minHeight, maxWidth and
-maxHeight can happen following example: **minSize** → **minWidth**
-where output will be **minWidth** value if more than one is defined.
-The same applies for margins.
-
-### Border radius
-
-You can use shorthands for border radius as well. Unfortunately, it's
-pretty tricky to prioritize them clearly as they are not related to
-sides but element corners. Therefore, there is also slightly different
-property naming. **borderRadiusTop** → **borderRadiusLeft** →
-**borderRadiusTop** where output will be **borderRadiusTop** value if
-more than one is defined. The same applies for others.
-
-As you can see from text above, higher preference have sides **left**,
-**right** over **top** and **bottom**.
-
-## Extending styles
-
-In case you need to use a property which is not supported yet or to
-overwrite some rules, you use **extendCss** property name. You can pass
-it either as **string**, or **css** styled-components (recommended)
-function with your styles.
-
-```tsx live=false editor=false
-import { styles } from '@vitus-labs/unistyle'
-import { css } from 'styled-components'
-
-// padding example
-const css = styles({
-  theme: {
-    padding: 16,
-    paddingX: 8,
-    paddingLeft: 4,
-    // the magic happens here
-    extendCss: css`
-      padding-left: 32px;
-      margin-top: 12px;
-    `,
-  },
-  css,
-  rootSize: 16,
-})
-
-// the output will be following
-// extendCss is append to the end of styles so it guarantees
-// overriding previous properties
-const output = css`
-  padding: 1rem; // 16px
-  padding-right: 0.5rem; // 8px (paddingX is more specific than padding)
-  padding-left: 0.25rem; // 4px (paddingLeft is more specific than paddingX)
-  padding-left: 32px;
-  margin-top: 12px;
-`
-```
-
-## Properties
+### Properties
 
 These are props to which can be passed to **styles**. Most of them
 follow CSS standard values. Some new properties have been added for more
@@ -253,7 +474,7 @@ comfortable development, like **margin(X/Y)** etc.
 | listStylePosition       | **string**                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |               |                                                                            |
 | color                   | **string**                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |               |                                                                            |
 | backgroundColor         | **transparent** **string**                                                                                                                                                                                                                                                                                                                                                                                                                                                      |               |                                                                            |
-| backgroundImg           | **none** **string**                                                                                                                                                                                                                                                                                                                                                                                                                                                             |               |                                                                            |
+| backgroundImage         | **none** **string**                                                                                                                                                                                                                                                                                                                                                                                                                                                             |               |                                                                            |
 | backgroundClip          | **border-box** **padding-box** **content-box**                                                                                                                                                                                                                                                                                                                                                                                                                                  |               |                                                                            |
 | backgroundOrigin        | **padding-box** **border-box** **content-box**                                                                                                                                                                                                                                                                                                                                                                                                                                  |               |                                                                            |
 | backgroundPosition      | **string**                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |               |                                                                            |

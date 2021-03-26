@@ -1,0 +1,115 @@
+# Units
+
+A bunch of simple functions which play well when it comes to CSS
+units.
+
+## Strip unit
+
+`stripUnit` takes a value and remove unit from it and returns `number`. Eventually,
+it returns a `unit` together with `value` in an array when forced.
+
+```tsx editor=false live=false
+import { stripUnit } from '@vitus-labs/unistyle'
+
+// returns value only
+const result = stripUnit('18px') // output 18
+
+// returns also unit
+const withUnit = stripUnit('18px', true) // returns [18, 'px']
+```
+
+### Properties
+
+| Name   | Type                     | Default value | Description                                         |
+| ------ | ------------------------ | ------------- | --------------------------------------------------- |
+| arg[0] | **string** \| **number** | -             | a value to be stripped out value                    |
+| arg[1] | **boolean**              | false         | dforces whether a `unit` should be returned as well |
+
+## Normalize unit
+
+`normalizeUnit` converts the `param` value to appropriate unit based on
+defined **rootSize** value. Uses `stripUnit` under the hood.
+
+By default it converts `numbers` or `px` units into `rem` values
+
+```tsx editor=false live=false
+import { normalizeUnit } from '@vitus-labs/unistyle'
+
+// output will be `2rem`
+const example = normalizeUnit({
+  param: '32px',
+  rootSize: 16,
+})
+```
+
+You can define optional `outputUnit` param to define an output unit.
+
+```tsx editor=false live=false
+import { normalizeUnit } from '@vitus-labs/unistyle'
+
+// output will be `2rem`
+const exampleA = normalizeUnit({
+  param: 32,
+  rootSize: 16,
+  outputUnit: 'rem',
+})
+
+// output will be `32px`
+const exampleB = normalizeUnit({
+  param: 32,
+  rootSize: 16,
+  outputUnit: 'px',
+})
+```
+
+If value is `0` or any other `string` it returns back `0` without unit
+or `string` which was passed as an input.
+
+```tsx editor=false live=false
+import { normalizeUnit } from '@vitus-labs/unistyle'
+
+// output will be `0`
+const exampleA = normalizeUnit({
+  param: 0,
+  rootSize: 16,
+  outputUnit: 'px',
+})
+
+// output will be `something`
+const exampleB = normalizeUnit({
+  param: 'something',
+  rootSize: 16,
+  outputUnit: 'px',
+})
+```
+
+### Properties
+
+| Name       | Type                                    | Default value | Description                 |
+| ---------- | --------------------------------------- | ------------- | --------------------------- |
+| param      | **any**                                 | -             | a value to be converted     |
+| rootSize   | **number**                              | 16            | default app root size value |
+| outputUnit | **px** \| **rem** \|**%** \| **string** | rem           | expected output value unit  |
+
+## Value
+
+`Value` takes an array of values and converts them to appropriate units.
+It uses `normalizeUnit` under the hood, but accepts as a param an array.
+
+```tsx editor=false live=false
+import { value } from '@vitus-labs/unistyle'
+
+// output will be `0`
+const example = value(16, [0, 16, 32, 64], 'rem')
+
+// output will be `[0, '0.75rem', '1.5rem']`
+const exampleArray = value(16, [[0, 12, 24], 16, 32, 64], 'rem')
+```
+
+### Properties
+
+| Name                  | Type                                    | Default value | Description                                        |
+| --------------------- | --------------------------------------- | ------------- | -------------------------------------------------- |
+| values `(arg[0])`     | **Array[any]**                          |               | forces whether a `unit` should be returned as well |
+| rootSize `(arg[1])`   | **number**                              | 16            | a value to be stripped out value                   |
+| outputUnit `(arg[2])` | **px** \| **rem** \|**%** \| **string** | rem           | a value to be stripped out value                   |

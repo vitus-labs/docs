@@ -35,6 +35,14 @@ export const h3 = Heading.attrs({
   marginBottom: t.spacing.medium,
 }))
 
+export const h4 = Heading.attrs({
+  tag: 'h4',
+  level5: true,
+}).theme((t) => ({
+  marginTop: t.spacing.small,
+  marginBottom: t.spacing.medium,
+}))
+
 export const p = Text.attrs({
   paragraph: true,
 }).theme({
@@ -66,6 +74,7 @@ export default {
   h1,
   h2,
   h3,
+  h4,
   p,
   em,
   strong,

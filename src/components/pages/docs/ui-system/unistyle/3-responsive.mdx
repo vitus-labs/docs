@@ -1,0 +1,134 @@
+# Responsive
+
+## Create media queries
+
+`createMediaQueries` helps automatically generate CSS `media queries`
+based on defined **breakpoints** and **rootSize**. As this is not related
+directly on `styled-components`, you need to pass a `css` function
+as well.
+
+```tsx editor=false live=false
+import { createMediaQueries } from '@vitus-labs/unistyle'
+import { css } from 'styled-components'
+
+const breakpoints = {
+  xs: 0,
+  sm: 576,
+  md: 768,
+  lg: 992,
+  xl: 1200,
+}
+
+// output will be
+// {
+//   xs: `css function`,
+//   sm: `css function`,
+//   md: `css function`,
+//   lg: `css function`,
+//   xl: `css function`,
+// }
+const media = createMediaQueries({ rootSize: 16, css, breakpoints })
+
+// usage
+const styles = css`
+  // you can or you don't have to use a breakpoint with value `0` as
+  // it returns plain css, not any media query
+  // for better readability you may want to use it
+  ${media.xs`
+    {/* ...some css */}
+  `};
+
+  ${media.md`
+    {/* ...some css */}
+  `};
+`
+```
+
+## Make it responsive
+
+`makeItResponsive` helps you convert object of CSS properties and convert it into CSS
+including media queries.
+
+```tsx editor=false live=false
+import { makeItResponsive } from '@vitus-labs/unistyle'
+import { css } from 'styled-components'
+
+const breakpoints = {
+  xs: 0,
+  sm: 576,
+  md: 768,
+  lg: 992,
+  xl: 1200,
+}
+
+// output will be
+// {
+//   xs: `css function`,
+//   sm: `css function`,
+//   md: `css function`,
+//   lg: `css function`,
+//   xl: `css function`,
+// }
+const media = createMediaQueries({ rootSize: 16, css, breakpoints })
+
+// usage
+const styles = css`
+  // you can or you don't have to use a breakpoint with value `0` as
+  // it returns plain css, not any media query
+  // for better readability you may want to use it
+  ${media.xs`
+    {/* ...some css */}
+  `};
+
+  ${media.md`
+    {/* ...some css */}
+  `};
+`
+```
+
+## Normalize theme
+
+## Sort breakpoints
+
+`sortBreakpoints` helps sort breakpoints from the smallest one to
+the biggest one. It might be useful in case your order of breakpoints
+is not sorted automatically and returns sorted array of breakpoint keys
+from the smallest breakboint.
+
+```tsx editor=false live=false
+import { sortBreakpoints } from '@vitus-labs/unistyle'
+
+// not sorted by default
+const breakpoints = {
+  xl: 1200,
+  sm: 576,
+  md: 768,
+  xs: 0,
+  lg: 992,
+}
+
+// output will be ['xs', 'sm', 'md', 'lg', 'xl']
+const result = sortBreakpoints(breakpoints)
+```
+
+## Breakpoints
+
+Default predefined breakpoints in JSON to be ready to use
+with all other responsive functions within this package.
+
+```tsx editor=false live=false
+import { breakpoints } from '@vitus-labs/unistyle'
+
+// this is what you get
+const result = {
+  rootSize: 16,
+  breakpoints: {
+    xs: 0,
+    sm: 576,
+    md: 768,
+    lg: 992,
+    xl: 1200,
+    xxl: 1440,
+  },
+}
+```

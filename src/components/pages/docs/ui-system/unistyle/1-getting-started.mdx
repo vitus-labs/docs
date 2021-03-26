@@ -1,18 +1,16 @@
-# Basics
+# Getting started
 
-Elements are a package of patterns which should cover very common and
-frequent use-cases, so you don&apos;t have to repeat yourself again and
-again. Elements are a package of patterns which should cover very common
-and frequent use-cases, so you don&apos;t have to repeat yourself again
-and again.
+Unistyle is a collection of styling utilities with a goal to simplify
+a daily struggles with styling from parsng JSON styling object into valid
+CSS styles, automatically converted units following best practices
+or creating responsive styles with less pain.
 
 ## Motivation
 
 The goal is to cover many repeatable use-cases of writing code and make
-banch of components which would solve this. You shouldn&apos;t focus on
-some specifics of CSS or thinking about HTML validation or so. The goal
-is to make configurable components so you can focus on your goals and
-business value.
+banch of functions which would solve this. For a better day, you don't
+have to focus on such a things with low impact on your business. Instead,
+you can simply let a computer do it for you.
 
 ## Installation
 
@@ -27,12 +25,264 @@ You can install it with your preferred tool (**yarn** or **npm**).
 Elements depends on the following packages which need to be installed as
 well.
 
-## Available helpers
+| Package           | Version      |
+| ----------------- | ------------ |
+| react             | >= 16.7      |
+| styled-components | >= 5.0       |
+| @vitus-labs/core  | same version |
 
-### Style properties
+Styled-components are a peer dependency of **@vitus-labs/core**.
+
+Package is split into four logical parts:
+
+- hooks
+- responsive
+- styles
+- units
+
+Now let's take a look at a brief description of all of them.
+
+## Hooks
+
+The package has only one hook at this moment called `useWindowResize` which is
+a React hook listening to window changes and returns client `width` and `height`.
+
+```tsx editor=false live=false
+import { useWindowResize } from '@vitus-labs/unistyle'
+
+// usage
+const component = () => {
+  const { width, height } = useWindowResize()
+
+  return null
+}
+```
+
+## Responsive
 
 ### Make it responsive
 
+`makeItResponsive` converts large **object** styling configurations into
+single `css` output with automatically generated **media queries**.
+
+```tsx editor=false live=false
+import { makeItResponsive } from '@vitus-labs/unistyle'
+
+// breakpoint keys
+// xs, sm, md, lg, xl, xxl
+
+const styles = {
+  fontSize: 16,
+  backgroundColor: '#fff',
+  // passing object example
+  marginX: {
+    xs: 8,
+    md: 16,
+    xl: 32,
+  },
+  // passing an array example
+  marginY: [4, 8, 16], // [xs, sm, md]
+}
+
+const result = makeItResponsive({
+  /*
+    theme: to be trasnformed
+    key: a key under which can be found theme in props
+    css: css function
+    styles: a callback of styles
+    normalize: whether the output should be normalized
+  */
+})({
+  /*
+    theme: global app theme passed via context
+  */
+})
+```
+
 ### Optimize theme
 
-### Align content
+// this might be useful when you would like to pass styles as props
+// without importing `css` function each time
+const result = extendStyles(styles)
+
+````
+
+### Breakpoints
+
+Default predefined breakpoints in JSON to be ready to use
+with all other responsive functions within this package.
+
+```tsx editor=false live=false
+import { breakpoints } from '@vitus-labs/unistyle'
+
+// this is what you get
+const result = {
+  rootSize: 16,
+  breakpoints: {
+    xs: 0,
+    sm: 576,
+    md: 768,
+    lg: 992,
+    xl: 1200,
+  },
+}
+````
+
+### Sort breakpoints
+
+Just sorts breakpoints from the smallest one to the biggest one.
+It might be useful in case your order of breakpoints is not sorted
+automatically and returns array of breakpoint keys
+
+```tsx editor=false live=false
+import { sortBreakpoints } from '@vitus-labs/unistyle'
+
+// not sorted by default
+const breakpoints = {
+  xl: 1200,
+  sm: 576,
+  md: 768,
+  xs: 0,
+  lg: 992,
+}
+
+// output will be ['xs', 'sm', 'md', 'lg', 'xl']
+const result = sortBreakpoints(breakpoints)
+```
+
+## Units
+
+### Strip unit
+
+`stripUnit` takes a value and remove unit from it and returns `number`. Eventually,
+it returns a `unit` together with `value` in an array when forced.
+
+```tsx editor=false live=false
+import { stripUnit } from '@vitus-labs/unistyle'
+
+// returns value only
+const result = stripUnit('18px') // output 18
+
+// returns also unit
+const withUnit = stripUnit('18px', true) // returns [18, 'px']
+```
+
+### Normalize unit
+
+`normalizeUnit` converts the `param` value to appropriate unit based on
+defined **rootSize**
+
+```tsx editor=false live=false
+import { normalizeUnit } from '@vitus-labs/unistyle'
+
+// output will be `2rem`
+const example = normalizeUnit({
+  param: '32px',
+  rootSize: 16,
+  outputUnit: 'rem',
+})
+```
+
+<!-- ### Get value of
+
+```tsx editor=false live=false
+import { getValueOf } from '@vitus-labs/unistyle'
+
+// output will be `16px`
+const example = getValueOf(null, undefined, '16px', 32)
+
+// output will be `0`
+const withZero = getValueOf(null, 0, '16px', 32)
+``` -->
+
+### Value
+
+`Value` takes an array of values and converts them to appropriate units.
+
+```tsx editor=false live=false
+import { value } from '@vitus-labs/unistyle'
+
+// output will be `0`
+const example = value(16, [0, 16, 32, 64], 'rem')
+
+// output will be `[0, '0.75rem', '1.5rem']`
+const exampleArray = value(16, [[0, 12, 24], 16, 32, 64], 'rem')
+```
+
+## Style utilities
+
+### Styles
+
+`Styles` transforms JSON properties into valid `css` properties, adds several
+opinionated properties on top of that and automatically `converts units`
+according to current best practices.
+
+```tsx editor=false live=false
+import { styles } from '@vitus-labs/unistyle'
+import { css } from 'styled-components'
+
+const theme = {
+  width: 320,
+  backgroundColor: '#fff',
+  paddingX: 16,
+  textAlign: 'center',
+}
+
+// output will be
+// css`
+//  width: 20rem;
+//  background-color: #fff;
+//  padding-left: 1rem;
+//  padding-right: 1rem;
+//  text-align: center;
+// `
+const result = styles({ theme, rootSize: 16, css })
+```
+
+### Flex alignment
+
+First of utils is **alignContent**, which helps you set correct flex properties.
+Helps to swap between css properties **align-items** and **justify-content**.
+
+```tsx editor=false live=false
+import { alignContent } from '@vitus-labs/unistyle'
+
+// output will be
+// css`
+//   flex-direction: row;
+//   align-items: flex-start;
+//   justify-content: center;
+// `
+const result = alignContent({
+  direction: 'inline',
+  alignX: 'center',
+  alignY: 'top',
+})
+
+// output will be
+// css`
+//   flex-direction: row;
+//   align-items: center;
+//   justify-content: flex-start;
+// `
+const result = alignContent({
+  direction: 'rows',
+  alignX: 'center',
+  alignY: 'top',
+})
+```
+
+### Extend Css
+
+`extendCss` is an utility function which can be used for providing
+an extension of current styles and possibility to pass a `css` callback
+via props (for example).
+
+```tsx editor=false live=false
+import { extendCss } from '@vitus-labs/unistyle'
+
+// usage
+const styles = (css) => css`
+  text-align: center;
+`
+```
