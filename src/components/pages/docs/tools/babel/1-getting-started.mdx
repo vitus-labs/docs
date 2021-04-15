@@ -1,0 +1,59 @@
+---
+name: Babel / Getting Started
+---
+
+# Babel
+
+A predefined [Babel](https://babeljs.io/) configuration to build your libraries.
+
+## What is packed inside
+
+1. **Preset Env**
+   Most known Babel [preset](https://babeljs.io/docs/en/babel-preset-env).
+
+2. **React**
+   Preset to transpile [React](https://babeljs.io/docs/en/babel-preset-react) components
+   and `jsx`.
+
+3. **Typescript**
+   Built in TypeScript support out of the box.
+
+## Installation
+
+You can install it with your preferred tool (`yarn` or `npm`).
+
+```powershell editor=false live=false
+# with yarn
+yarn add @vitus-labs/tools-babel
+
+# or with npm
+npm install @vitus-labs/tools-babel --save
+```
+
+There is no need to install any other dependencies. Everything what this package needs
+is installed as direct `dependencies` of this package. This makes it also comfortable
+and helps prevent conflicts between packages versions.
+
+## Dependencies
+
+Lint depends on the following packages which doesn't have to be installed
+separately at all.
+
+| Package                                   |
+| ----------------------------------------- |
+| @babel/core                               |
+| @babel/plugin-proposal-class-properties   |
+| @babel/plugin-proposal-object-rest-spread |
+| @babel/plugin-transform-react-jsx         |
+| @babel/preset-env                         |
+| @babel/preset-react                       |
+| @babel/preset-typescript                  |
+
+## Usage
+
+For using `Babel` configuration, create an `.babel.js` file in the root of your
+library and import configuration.
+
+```jsx editor=false live=false
+module.exports = require('@vitus-labs/tools-babel/lib')
+```
