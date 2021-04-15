@@ -21,7 +21,7 @@ export default [
         icon: 'babel',
         href: '/docs/tools/babel',
       },
-      { label: 'ESLint', icon: 'eslint', href: '/docs/tools/eslint' },
+      { label: 'Lint', icon: 'eslint', href: '/docs/tools/lint' },
       {
         label: 'Storybook',
         icon: 'storybook',

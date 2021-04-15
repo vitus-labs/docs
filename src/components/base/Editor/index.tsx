@@ -19,7 +19,7 @@ const component: VFC<Props> = ({
   view,
   preview,
 }) => {
-  const language = className.replace(/language-/, '')
+  const language = className ? className.replace(/language-/, '') : ''
 
   // mdx returns flase value as string, therefore the check below
   const showEditor = editor === true

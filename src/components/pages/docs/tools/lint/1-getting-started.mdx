@@ -1,0 +1,105 @@
+---
+name: Lint / Getting Started
+---
+
+# Lint your code
+
+Lint is an opinionated preconfigured set of `eslint` and `stylelint` plugins
+ready to use. The package is based on `airbnb` rules and extends them.
+
+## Motivation
+
+Project without `linting` is a project slowly diving to hell. Repeatable
+configuration is not funny at all, therefore this is why this package exists.
+This package eliminates repeating eslint configuration for each new starting
+project and handles conflict rules at one place so you don't have to.
+
+## What is packed inside
+
+1. **ESLint basics**
+   Contains the most basic JavaScript/TypeScript rules.
+
+2. **Imports**
+   Contains an [import plugin](https://github.com/benmosher/eslint-plugin-import)
+   for import/export syntax, and prevent issues with misspelling of file paths
+   and import names. Imports works with `absolute` paths as well!
+
+3. **Typescript**
+   Built in support for [TypeScript](https://www.typescriptlang.org/) and even
+   for using TypeScript in monorepositories. Each package can have its own
+   `tsconfig.json` file with predefined paths used for `absolute imports`.
+   It will work out of the box.
+
+4. **React**
+   Package has support for `React` ecosystem including `accessibility` and `hooks`.
+
+5. **StyleLint**
+   `Lint` package contains `styling` linter as well with support for `styled-components`.
+
+6. **Prettier**
+   Linting works nicely even with `prettier`.
+
+## Installation
+
+You can install it with your preferred tool (`yarn` or `npm`).
+
+```powershell editor=false live=false
+# with yarn
+yarn add @vitus-labs/tools-lint
+
+# or with npm
+npm install @vitus-labs/tools-lint --save
+```
+
+There is no need to install any other dependencies. Everything what this package needs
+is installed as direct `dependencies` of this package. This makes it also comfortable
+and helps prevent conflicts between packages versions.
+
+## Dependencies
+
+Lint depends on the following packages which doesn't have to be installed
+separately at all.
+
+| Package                               |
+| ------------------------------------- |
+| @typescript-eslint/eslint-plugin      |
+| @typescript-eslint/parser             |
+| eslint                                |
+| eslint-config-airbnb                  |
+| eslint-config-prettier                |
+| eslint-import-resolver-typescript     |
+| eslint-plugin-import                  |
+| eslint-plugin-jsx-a11y                |
+| eslint-plugin-markdown                |
+| eslint-plugin-prettier                |
+| eslint-plugin-react                   |
+| eslint-plugin-react-hooks             |
+| stylelint                             |
+| stylelint-config-prettier             |
+| stylelint-config-recommended          |
+| stylelint-config-styled-components    |
+| stylelint-processor-styled-components |
+
+## Usage
+
+### ESLint
+
+For using `ESLint` rules, create an `.eslint.js` file in the root of your
+project (a signle app or monorepo) and add rules.
+
+```jsx editor=false live=false
+module.exports = require('@vitus-labs/tools-lint/eslint')
+```
+
+### Stylelint
+
+Basically, the same approach as in case of `ESLint` applies here.
+Create a file `stylelint.config.js` and import rules.
+
+```jsx editor=false live=false
+module.exports = require('@vitus-labs/tools-lint/styles')
+```
+
+Now you are ready to lint your code.
+
+Happy linting!
