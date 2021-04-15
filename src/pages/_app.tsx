@@ -1,8 +1,11 @@
 import Head from 'next/head'
+import styled, { css, ThemeProvider as context } from 'styled-components'
+import { init } from '@vitus-labs/core'
 import { Provider } from '~/theme'
-import { Root } from '~/components/base/layout'
 
 import type { AppProps } from 'next/app'
+
+init({ styled, css, context })
 
 const component = ({ Component, pageProps }: AppProps) => (
   <>
@@ -14,9 +17,7 @@ const component = ({ Component, pageProps }: AppProps) => (
       />
     </Head>
     <Provider>
-      <Root>
-        <Component {...pageProps} />
-      </Root>
+      <Component {...pageProps} />
     </Provider>
   </>
 )
