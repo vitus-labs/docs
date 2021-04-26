@@ -1,0 +1,114 @@
+---
+name: Rocketstyle \ Initialization
+---
+
+# Initialization
+
+Let's start with component initialization to start building
+your UI components.
+
+## Bootstrap your rocket component
+
+First of all, you need to initialize `rocketstyle` and
+pass default `component`. Optionally, you can define even
+component `name`.
+
+```tsx editor=false live=false
+import rocketstyle from '@vitus-labs/rocketstyle'
+import MyDefaultComponent from './somewhere'
+
+/*
+  first call does not accept any arguments,
+  it's being used to define Typescript types
+
+  second call allows you define styling dimensions
+  the way you like, the eample below uses default
+  ones
+*/
+const MyComponent = rocketstyle()()({
+  component: MyDefaultComponent,
+  name: '@myUiSystem/MyComponent',
+})
+```
+
+Now you are ready to start building your components.
+
+As `Rocketstyles` tries to provide as much freedom as possible,
+it's definitely up to you how you configure it.
+
+## Defining styling dimensions
+
+Firs of all, you can set up dimensions you would like to use
+for defining styles and its priorities.
+
+```tsx editor=false live=false
+import rocketstyle from '@vitus-labs/rocketstyle'
+import MyDefaultComponent from './somewhere'
+
+const MyComponent = rocketstyle()({
+  dimensions: {
+    states: 'state',
+    sizes: 'size',
+    variants: 'variant',
+    multiple: {
+      propName: 'multiple',
+      multi: true,
+    },
+  },
+  useBooleans: true,
+})({
+  component: MyDefaultComponent,
+  name: '@myUiSystem/MyComponent',
+})
+```
+
+## Defining valid CSS styles
+
+It has no default `css` valid properties, so it's completely
+up to you how you would like to define it.
+
+```tsx editor=false live=false
+import rocketstyle from '@vitus-labs/rocketstyle'
+import MyDefaultComponent from './somewhere'
+
+const MyComponent = rocketstyle()()({
+  component: MyDefaultComponent,
+  name: '@myUiSystem/MyComponent',
+}).styles(
+  (css) => css`
+    ${({ $rocketstyle: t, $rocketstate: s }) => css`
+      text-align: ${t.textAlign};
+      line-height: ${t.lineHeight};
+      color: ${t.color};
+
+      /* default browser hover event styles */
+      &:hover {
+        color: ${t.hover.color};
+      }
+
+      /* styles when hover prop is passed to rocket component lately */
+      ${s.hover &&
+      css`
+        color: ${t.hover.color};
+      `}
+    `};
+  `
+)
+```
+
+Now, from the configuration above we defined what styles it can accept,
+and `JSON` keys to be used within `theme` callback.
+
+```tsx editor=false live=false
+// reused component from previous example
+const AnotherComponent = MyComponent.theme({
+  textAlign: 'center',
+  lineHeight: 1.5,
+  color: '#000',
+  hover: {
+    color: '#fff',
+  },
+  // other theme values will be ignored as they are not transformed
+  // to valid css styles
+})
+```

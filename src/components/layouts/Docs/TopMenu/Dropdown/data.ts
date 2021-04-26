@@ -15,7 +15,7 @@ export default [
   {
     title: 'Tools',
     data: [
-      { label: 'Rollup', icon: 'rollup', href: '/docs/ui-system/rollup' },
+      { label: 'Rollup', icon: 'rollup', href: '/docs/tools/rollup' },
       {
         label: 'Babel',
         icon: 'babel',
