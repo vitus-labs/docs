@@ -1,0 +1,58 @@
+---
+name: Rocketstyle \ Compose
+---
+
+# Compose
+
+A callback called `compose` is meant to be used to combine **HOC(s)**
+to wrap rocketstyle component. By default, `rocketstyle` has one
+default `HOC` for calculating default `attrs`. That is because
+they need to be calculated based on props passed directly to component,
+so you can access final calculated props even in your `HOCs`,
+and access **ref** correctly. Therefore, when you attach any
+own `HOC` component, it will be added between default `HOC` for `attrs`
+and `rocketstyle` component itself.
+
+HOCs can be passed as a **plain object only** under any key name you
+prefer.
+
+## An example of using compose
+
+```tsx editor=false live=false
+import RocketComponent from './ourPath'
+import someHoc from './someHocPath'
+
+const Component = RocketComponent.compose({
+  myHoc: someHoc,
+})
+```
+
+The plain object pattern is being used for one simple reason - having
+a possibility to override it in any specific case you need.
+
+So now, we have a `rocketstyle` component defined HOC. Now, we can
+add even more HOCs and compose them together:
+
+```tsx editor=false live=false
+import anotherHoc from './anotherHocPath'
+
+// component from previous example
+const NewComponent = Component.compose({
+  yetAnotherHoc: anotherHoc,
+})
+```
+
+We can even remove them for some specific cases or override them:
+
+```tsx editor=false live=false
+import anotherHoc from './anotherHocPath'
+
+// component from previous example
+const NewComponent = Component.compose({
+  myHoc: anotherHoc,
+  yetAnotherHoc: undefined,
+})
+```
+
+In the example above, only `myHoc` will be used and `yetAnotherHoc`
+will be ignored.

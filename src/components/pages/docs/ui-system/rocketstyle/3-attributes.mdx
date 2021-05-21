@@ -1,0 +1,80 @@
+---
+name: Rocketstyle \ Attributes
+---
+
+# Attributes
+
+Rocketstyle allows you to define default component props,
+or even allows you to override them later the way you need.
+So by default, there is a callback called `attrs` where you
+can define your default props.
+
+For defining default `attrs` there are two possible choices
+
+1. use plain `object`, or
+2. use a `callback`.
+
+Attributes are being calculated each time before component render
+based on props passed directly to your component in the following
+steps.
+
+1. pick props passed directly to the component
+2. calculate predefined `attrs` callbacks to have correct props
+   when used a callback
+3. shallow merged default attrs and props as following
+   `{...attrs, ...props}` and passed to the component
+
+## Attrs as a plain object
+
+Defining default attrs using a **plain object** looks following:
+
+```tsx editor=false live=false
+import RocketComponent from './ourPath'
+
+const Component = RocketComponent.attrs({
+  propA: 'something here',
+  propB: 'something else',
+  disabled: false,
+  // ...etc.
+})
+```
+
+## Attrs as a callback
+
+Defining default attrs using a **callback** looks following:
+
+```tsx editor=false live=false
+import RocketComponent from './ourPath'
+
+const Component = RocketComponent.attrs((props, theme, utils) => ({
+  propA: props.disabled ? 'Disabled' : 'Enabled',
+  propB: 'something else',
+  style: {
+    color: theme.color.primary,
+  },
+  // ...etc.
+}))
+```
+
+where `utils` is bunch of helpers and contains following:
+
+1. `mode` - a current theme mode `light` / `dark` (when `Provider`
+   is not used, the default value is `light`)
+2. `isDark` - if `dark` mode is being used
+3. `isLight` - if `light` mode is being used
+4. `renderContent` - an utility function to render valid React components.
+   This function combines `createElement` and `cloneElement` (and does an internal
+   check which one should be used)
+
+```tsx editor=false live=false
+const Component = RocketComponent.attrs(
+  (props, theme, { mode, isDark, isLight, renderContent }) => ({
+    propA: props.disabled ? 'Disabled' : 'Enabled',
+    propB: 'something else',
+    children: renderContent(someComponent, {
+      /* ... some props */
+    }),
+    // ...etc.
+  })
+)
+```

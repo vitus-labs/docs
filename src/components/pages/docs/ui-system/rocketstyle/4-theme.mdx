@@ -1,0 +1,61 @@
+---
+name: Rocketstyle \ Theme
+---
+
+# Theme
+
+To define default theme, there is a `theme` option to do so,
+or even allows you to override it later the way you need.
+By default, there is a callback called `theme` where you can
+configure default component theme.
+
+For defining default `theme` there are two possible choices:
+
+1. use plain `object`, or
+2. use a `callback`.
+
+Theme is being used as the **base** for visual identity of your
+component. Which can be even extended by **dimension(s)** themes like
+`states`, `sizes` etc. to separate the logic of component final
+visualisation.
+
+Theme properties depend on your styles definition. Therefore they
+do not follow any strict naming policy. All theme properties are
+merged into one `object` which is passed to `styled` component
+under **$rocketstyle** key name.
+
+## Theme as a plain object
+
+You can define default `theme` by using plain object
+
+```tsx editor=false live=false
+import RocketComponent from './ourPath'
+
+const Component = RocketComponent.theme({
+  fontSize: 'something here',
+  color: 'something else',
+  border: false,
+  someOtherPropertyValue: 'something here',
+  // ...etc.
+})
+```
+
+## Theme as a callback
+
+When using the callback option, you can access `theme` passed
+via `ThemeProvider`, `mode` and `css` functions to build scalable
+UI. You can do so like following:
+
+```tsx editor=false live=false
+import RocketComponent from './ourPath'
+
+const Component = RocketComponent.theme((theme, mode, css) => ({
+  fontFamily: t.fontFamily.base,
+  color: mode(theme.color.light, theme.color.dark),
+  extendCss: css`
+    font-size: ${t.fontSize.medium};
+  `,
+  anotherProperty: mode('white', 'black'),
+  // ...etc.
+}))
+```
