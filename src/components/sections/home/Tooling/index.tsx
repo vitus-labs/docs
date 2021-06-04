@@ -1,4 +1,4 @@
-import { Container, Row, Col } from '~/components/base/grid'
+import { Container, Row, Col } from '~/components/grid'
 import Section from '../components/Section'
 import BoxList from '../components/BoxList'
 
@@ -7,25 +7,25 @@ const data = [
     title: 'Rollup',
     icon: 'rollup',
     label: 'Tool',
-    link: (r) => r.tooling.rollup.base,
+    link: (r: any) => r.tooling.rollup.base,
   },
   {
     title: 'Babel',
     icon: 'babel',
     label: 'Tool',
-    link: (r) => r.tooling.babel.base,
+    link: (r: any) => r.tooling.babel.base,
   },
   {
     title: 'Storybook',
     icon: 'storybook',
     label: 'Tool',
-    link: (r) => r.tooling.storybook.base,
+    link: (r: any) => r.tooling.storybook.base,
   },
   {
     title: 'ESLint',
     icon: 'eslint',
     label: 'Tool',
-    link: (r) => r.tooling.eslint.base,
+    link: (r: any) => r.tooling.eslint.base,
   },
 ]
 

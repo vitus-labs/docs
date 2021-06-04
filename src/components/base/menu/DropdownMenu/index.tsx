@@ -24,8 +24,8 @@ const Heading = text.theme((t) => ({
 }))
 
 const Link = link
-  .attrs(({ icon }) => ({
-    beforeContent: <IconLogo xSmall name={icon} />,
+  .attrs<{ icon: string }>(({ icon }) => ({
+    beforeContent: icon ? <IconLogo xSmall name={icon} /> : undefined,
     gap: 16,
   }))
   .theme((t) => ({

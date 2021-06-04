@@ -1,3 +1,4 @@
+// @ts-nocheck
 import fs from 'fs'
 import { join } from 'path'
 import matter from 'gray-matter'
@@ -151,9 +152,7 @@ export const splitMetadataAndContentFromFile = async (file) => {
 // --------------------------------------------------------
 // Load a file by slug
 // --------------------------------------------------------
-type FilterMenu = (
-  obj: { children: any[] } & Record<string, unknown>
-) => {
+type FilterMenu = (obj: { children: any[] } & Record<string, unknown>) => {
   mainHeading?: string
   subHeadings?: string[]
 }

@@ -7,12 +7,12 @@ type Props = ExtractProps<typeof LiveEditor>
 
 const component: VFC<Props> = (props) => (
   <ContentBox>
+    {/* @ts-ignore */}
     <LiveEditor
       {...props}
       style={{
         overflow: 'visible',
         width: '100%',
-        // marginRight: -999,
       }}
     />
   </ContentBox>

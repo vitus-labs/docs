@@ -5,6 +5,7 @@ import { get } from '@vitus-labs/core'
 import Head from 'next/head'
 import Layout from '~/components/layouts/Docs'
 import Meta from '~/components/meta/Meta'
+import Markdown from '~/markdown'
 import {
   getSlugsMap,
   extractFileRoute,
@@ -26,13 +27,15 @@ const Docs = ({ meta = {}, content, menu }: any) => {
       <Head>
         <Meta {...meta} />
       </Head>
-      <Layout menu={menu}>{mdx}</Layout>
+      <Layout menu={menu}>
+        <Markdown>{mdx}</Markdown>
+      </Layout>
     </>
   )
 }
 
 export const getStaticProps: GetStaticProps = async ({ params }) => {
-  const { slug } = params
+  const { slug } = params as any
   const routeMap = getSlugsMap(DIR_PATH)
 
   const mapSlug = get(routeMap, slug)
@@ -43,6 +46,7 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
   // if it's object it means it has subpages or sub urls, therefore we redirect
   // it to the first available option
   if (typeof mapSlug === 'object') {
+    // @ts-ignore
     const redirectUrl = extractFileRoute(mapSlug[Object.keys(mapSlug)[0]])
 
     return {

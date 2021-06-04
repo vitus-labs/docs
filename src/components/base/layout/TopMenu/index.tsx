@@ -1,5 +1,5 @@
+import { FC } from 'react'
 import { element } from '~/components/core'
-import { Container } from '../../grid'
 
 const Wrapper = element
   .config({
@@ -32,14 +32,18 @@ const Inner = element
     borderStyleBottom: 'solid',
     borderColorBottom: t.layout.topMenu.borderColor,
   }))
-  .variants((t) => ({
+  .variants({
     transparent: {
       backgroundColor: 'transparent',
       borderBottom: 'none',
     },
-  }))
+  })
 
-const component = (props) => (
+type Props = {
+  transparent?: boolean
+}
+
+const component: FC<Props> = (props) => (
   <Wrapper>
     <Wrapper />
     <Inner {...props} />

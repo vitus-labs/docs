@@ -1,6 +1,6 @@
 import { FC, ReactNode } from 'react'
 import { SideMenu, Content } from '~/components/base/layout'
-import { Container } from '~/components/base/grid'
+import { Container } from '~/components/grid'
 import Base from '~/components/base/Base'
 
 type Props = {

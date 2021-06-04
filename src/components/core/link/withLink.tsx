@@ -29,7 +29,7 @@ const component = (
 
     const goTo = () => {
       if (typeof href === 'string') return href
-      if (typeof href === 'function') return href<typeof routes>(routes)
+      if (typeof href === 'function') return href(routes)
 
       return ''
     }

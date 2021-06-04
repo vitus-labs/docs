@@ -14,9 +14,9 @@ export default element
     paddingY: t.spacing.xxLarge * t.ratio.large,
     borderRadius: t.borderRadius.base,
     transition: t.transition.base,
-    backgroundColor: t.color.light[100],
+    backgroundColor: t.color.dark[100],
 
     hover: {
-      backgroundColor: t.color.light[200],
+      backgroundColor: t.color.dark[200],
     },
   }))

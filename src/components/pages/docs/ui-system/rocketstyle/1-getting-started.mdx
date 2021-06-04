@@ -4,8 +4,8 @@ name: Rocketstyle \ Getting started
 
 # Getting started
 
-Rocketstyle is ultra powerful and extensible styling system for building
-React components blazingly fast, easily and make them easily extensible
+Rocketstyle is **ultra powerful** and extensible **styling system** for building
+React components effectively, blazingly fast, and make them easily extensible
 and reusable.
 
 ## Motivation
@@ -17,12 +17,20 @@ and have less hassle in styles in your application.
 
 ### Advantages
 
-One of the advantages is that you do not need to import `React` or
-`styled-components` in each file where you want to style your
-components. You can just import a simple `rocketstyle` component
-and extend it as you need in your other components. The composability
-is in many cases quite unlimited and you code will be much cleaner.
-**Less code, less hassle, huge impact on reuasability and consistency.**
+One of the advantages is that you do not need to import
+[React](https://reactjs.org/) or [styled-components](https://styled-components.com/)
+in each file where you want to style your components. You can
+just import a simple **rocketstyle** component and extend it as you need
+in your other components. The composability is in many cases quite
+unlimited and you code will be much cleaner.
+
+Here are some of all those benefits you can feel right after you start using
+Rocketstyle:
+
+1. less imports,
+2. less code,
+3. less hassle,
+4. huge impact in **reusability** and **consistency**.
 
 Sounds cool, right? So, let's go through the basics and see how powerful
 it can be.
@@ -43,7 +51,7 @@ npm install rocketstyle --save
 
 Rocketstyle depends on the following packages which need to be installed as well.
 
-|                   |         |
+| Package name      | Version |
 | ----------------- | ------- |
 | react             | >= 16.7 |
 | styled-components | >= 5.0  |
@@ -51,14 +59,19 @@ Rocketstyle depends on the following packages which need to be installed as well
 ## Getting started
 
 Rocketstyle uses styled-components in the background and basically works
-as a wrapper which will generate a `theme` object which will be passed
+as a wrapper which will generate a **theme** object which will be passed
 to a valid styled component.
 
-When you pass any css styles it automatically wraps your component by `styled`
-from styled-components and passes all the styles there so it becomes
-a regular styled component with its own local `theme` passed as a prop.
+When you pass any css styles it automatically wraps your component by **styled**
+from [styled-components](https://styled-components.com/) and passes all
+the styles there so it becomes a regular styled component with its own local
+**theme** passed as am object prop under **$rocketstyle** key name.
 
 ## Create your first component
+
+See the example below to see Rocketstyle in practice. The example
+below uses default initialization configuration. For more advance
+usage follow other chapters of this documentation.
 
 ```tsx editor=false live=false
 import rocketstyle from '@vitus-labs/rocketstyle'
@@ -133,7 +146,8 @@ export const NewElement = element
 
 ## Responsive styling
 
-If you want to use theming, don't forget to add `theme` into `Provider`.
+If you want to use theming, don't forget to add **theme**
+into **Provider**.
 
 ```tsx editor=false live=false
 import { Provider } from '@vitus-labs/rocketstyle'
@@ -153,9 +167,9 @@ const component = () => (
 
 ## Light / dark mode
 
-`Rocketstyle` also has a built-in support for creating `ligth` / `dark` mode
-styling. By default there is set `mode` to `light`. You may want to change it
-by passing a `mode` value into `Provider`.
+Rocketstyle also has a built-in support for creating **light** / **dark** mode
+styling. By default there is set **mode** to `light`. You may want to change it
+by passing a mode value into **Provider**.
 
 ```tsx editor=false live=false
 import { Provider } from '@vitus-labs/rocketstyle'

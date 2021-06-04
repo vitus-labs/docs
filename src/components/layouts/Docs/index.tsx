@@ -1,6 +1,5 @@
 import { FC } from 'react'
 import SideMenu from '~/components/base/menu/SideMenu'
-import Markdown from '~/components/base/Markdown'
 import TopMenu from './TopMenu'
 import LeftSidePanel from '../LeftSidePanel'
 
@@ -29,7 +28,7 @@ const component: FC<Props> = ({ children, menu }) => {
     <>
       <TopMenu />
       <LeftSidePanel sidePanel={<SideMenu data={transformedData} />}>
-        <Markdown>{children}</Markdown>
+        {children}
       </LeftSidePanel>
     </>
   )

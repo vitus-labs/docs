@@ -14,11 +14,11 @@ const Box = box
     hover: {},
   }))
 
-const Wrapper = Box.theme((t) => ({
+const Wrapper = Box.theme({
   height: 400,
   overflowX: 'hidden',
   backgroundColor: 'transparent',
-})).variants({
+}).variants({
   compact: {
     height: '',
     maxHeight: 400,

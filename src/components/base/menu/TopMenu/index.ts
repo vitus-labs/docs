@@ -7,4 +7,4 @@ export default list
   .attrs({
     contentDirection: 'inline',
   })
-  .theme({ heigth: 'inherit' })
+  .theme({ height: 'inherit' })

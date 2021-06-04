@@ -33,14 +33,14 @@ const theme = {
     },
     topMenu: {
       height: 70,
-      background: '#2A3034',
-      borderColor: '#2A3034',
+      background: '#0F1111',
+      borderColor: '#0F1111',
       zIndex: 100,
     },
     sideMenu: {
       height: 'calc(100vh - 70px)',
       width: 320,
-      background: '#474B4F',
+      background: '#1B1F20',
       zIndex: 90,
     },
     content: {
@@ -71,6 +71,7 @@ const theme = {
   fontFamily: {
     base: "'Montserrat', sans-serif",
     headings: "'Varela Round', sans-serif",
+    mono: 'source-code-pro, Menlo, Monaco, Consolas, "Courier New", monospace',
   },
   fontSize: {
     smaller: '80%',
@@ -116,6 +117,8 @@ const theme = {
     },
     dark: {
       base: '#000',
+      100: '#1D2122',
+      200: '#000',
     },
     // deprecated
     black: {

@@ -23,6 +23,14 @@ export default text
       fontWeight: t.fontWeight.semibold,
       fontStyle: 'italic',
     },
+    code: {
+      fontFamily: t.fontFamily.mono,
+      paddingX: t.spacing.xSmall,
+      paddingY: t.spacing.xxSmall,
+      borderRadius: t.borderRadius.sm,
+      backgroundColor: 'rgba(97, 137, 47, 0.32)',
+      fontSize: t.fontSize.smaller,
+    },
     caption: {
       marginBottom: t.spacing.reset,
       fontSize: t.fontSize.small,

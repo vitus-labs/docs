@@ -1,5 +1,5 @@
 import { TopMenu } from '~/components/base/layout'
-import { Container } from '~/components/base/grid'
+import { Container } from '~/components/grid'
 import base from '~/components/base/Base'
 import Icon from '~/components/base/Icon'
 import Logo from './Logo'

@@ -1,4 +1,6 @@
+// @ts-ignore
 const component = (WrappedComponent) => {
+  // @ts-ignore
   const Enhanced = ({ name, ...props }) => {
     return (
       <WrappedComponent

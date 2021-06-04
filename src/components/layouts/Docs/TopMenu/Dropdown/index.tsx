@@ -24,18 +24,16 @@ const component = () => {
   const { asPath } = useRouter()
 
   const activeItem = data
-    .reduce((acc, item) => {
-      return acc.concat(item.data)
-    }, [])
+    .reduce((acc, item) => acc.concat(item.data), [] as any[])
     .find((item) => asPath.includes(item.href))
 
   return (
     <Dropdown
-      trigger={(props) => (
+      trigger={(props: any) => (
         <Trigger {...props} label={activeItem.label} icon={activeItem.icon} />
       )}
     >
-      <List rootElement={false} data={data} component={DropdownMenu} />
+      <List rootElement={false} data={data as any} component={DropdownMenu} />
     </Dropdown>
   )
 }

@@ -1,7 +1,7 @@
 import { VFC } from 'react'
 import Highlight, { defaultProps } from 'prism-react-renderer'
 import { LiveProvider } from 'react-live'
-import { Container, Row, Col } from '../grid'
+import { Container, Row, Col } from '~/components/grid'
 import Editor from './Editor'
 import Preview from './Preview'
 import Error from './Error'
@@ -9,6 +9,11 @@ import scope from './scope'
 
 type Props = {
   children: string
+  className?: string
+  editor?: boolean
+  live?: boolean
+  view?: 'horizontal' | 'vertical'
+  preview?: string
 }
 
 const component: VFC<Props> = ({
@@ -19,7 +24,7 @@ const component: VFC<Props> = ({
   view,
   preview,
 }) => {
-  const language = className ? className.replace(/language-/, '') : ''
+  const language: any = className ? className.replace(/language-/, '') : ''
 
   // mdx returns flase value as string, therefore the check below
   const showEditor = editor === true

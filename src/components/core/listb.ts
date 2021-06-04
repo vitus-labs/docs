@@ -1,3 +1,4 @@
+// @ts-nocheck
 import rocketstyle from '@vitus-labs/rocketstyle'
 import { styles } from '@vitus-labs/unistyle'
 import { List } from '@vitus-labs/elements'

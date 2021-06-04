@@ -1,6 +1,6 @@
 import { useRouter } from 'next/router'
 
-export default (route) => {
+export default (route: string) => {
   const { asPath } = useRouter()
 
   if (route === asPath) return true
