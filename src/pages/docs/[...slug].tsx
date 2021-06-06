@@ -1,6 +1,5 @@
 import type { GetStaticProps, GetStaticPaths } from 'next'
-import hydrate from 'next-mdx-remote/hydrate'
-import renderToString from 'next-mdx-remote/render-to-string'
+import { serialize } from 'next-mdx-remote/serialize'
 import { get } from '@vitus-labs/core'
 import Head from 'next/head'
 import Layout from '~/components/layouts/Docs'
@@ -20,15 +19,13 @@ import {
 const DIR_PATH = 'docs'
 
 const Docs = ({ meta = {}, content, menu }: any) => {
-  const mdx = hydrate(content)
-
   return (
     <>
       <Head>
         <Meta {...meta} />
       </Head>
       <Layout menu={menu}>
-        <Markdown>{mdx}</Markdown>
+        <Markdown {...content} />
       </Layout>
     </>
   )
@@ -81,7 +78,7 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
   const meta = await getMetaDataFromFile(parsedFile)
 
   // [6] stringify markdown content
-  const mdxSource = await renderToString(parsedFile.content as string)
+  const mdxSource = await serialize(parsedFile.content as string)
 
   return {
     props: {

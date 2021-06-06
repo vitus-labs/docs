@@ -1,14 +1,14 @@
-import { FC } from 'react'
-// @ts-ignore
-import { MDXProvider } from '@mdx-js/react'
+import { VFC } from 'react'
+import { MDXRemote } from 'next-mdx-remote'
 import defaultFormatters from './formatters'
 
 type Props = {
   formatters?: typeof defaultFormatters
 }
 
-const component: FC<Props> = ({ children, formatters = defaultFormatters }) => (
-  <MDXProvider components={formatters}>{children}</MDXProvider>
-)
+const component: VFC<Props> = ({
+  formatters = defaultFormatters,
+  ...props
+}) => <MDXRemote {...(props as any)} components={formatters} />
 
 export default component
