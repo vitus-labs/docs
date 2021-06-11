@@ -37,6 +37,22 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
 
   const mapSlug = get(routeMap, slug)
 
+  const isSubcategory = Object.values(mapSlug as any).every(
+    (item) => typeof item === 'object'
+  )
+
+  if (isSubcategory) {
+    return {
+      props: {},
+    }
+    // return {
+    //   redirect: {
+    //     destination: `/`,
+    //     permanent: false,
+    //   },
+    // }
+  }
+
   // --------------------------------------------------------
   // HANDLE REDIRECT FROM ROOT URLs
   // --------------------------------------------------------
@@ -47,11 +63,15 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
     const redirectUrl = extractFileRoute(mapSlug[Object.keys(mapSlug)[0]])
 
     return {
-      redirect: {
-        destination: `/${[DIR_PATH, ...slug, redirectUrl].join('/')}`,
-        permanent: false,
-      },
+      props: {},
     }
+
+    // return {
+    //   redirect: {
+    //     destination: `/${[DIR_PATH, ...slug, redirectUrl].join('/')}`,
+    //     permanent: false,
+    //   },
+    // }
   }
 
   // --------------------------------------------------------

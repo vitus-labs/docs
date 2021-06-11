@@ -15,6 +15,8 @@ type Props = {
 }
 
 const component: FC<Props> = ({ children, menu }) => {
+  if (!children || !menu) return null
+
   const transformedData = menu.map((item) => ({
     label: item.title,
     href: item.slug,
