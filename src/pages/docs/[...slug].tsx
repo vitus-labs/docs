@@ -1,4 +1,6 @@
+import { useEffect } from 'react'
 import type { GetStaticProps, GetStaticPaths } from 'next'
+import router from 'next/router'
 import { serialize } from 'next-mdx-remote/serialize'
 import { get } from '@vitus-labs/core'
 import Head from 'next/head'
@@ -18,7 +20,15 @@ import {
 
 const DIR_PATH = 'docs'
 
-const Docs = ({ meta = {}, content, menu }: any) => {
+const Docs = ({ meta = {}, content, menu, redirectUrl }: any) => {
+  useEffect(() => {
+    if (redirectUrl) {
+      router.replace(redirectUrl)
+    }
+  }, [redirectUrl])
+
+  if (redirectUrl || !menu) return null
+
   return (
     <>
       <Head>
@@ -43,14 +53,8 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
 
   if (isSubcategory) {
     return {
-      props: {},
+      props: { redirectUrl: '/' },
     }
-    // return {
-    //   redirect: {
-    //     destination: `/`,
-    //     permanent: false,
-    //   },
-    // }
   }
 
   // --------------------------------------------------------
@@ -63,15 +67,10 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
     const redirectUrl = extractFileRoute(mapSlug[Object.keys(mapSlug)[0]])
 
     return {
-      props: {},
+      props: {
+        redirectUrl: `/${[DIR_PATH, ...slug, redirectUrl].join('/')}`,
+      },
     }
-
-    // return {
-    //   redirect: {
-    //     destination: `/${[DIR_PATH, ...slug, redirectUrl].join('/')}`,
-    //     permanent: false,
-    //   },
-    // }
   }
 
   // --------------------------------------------------------
