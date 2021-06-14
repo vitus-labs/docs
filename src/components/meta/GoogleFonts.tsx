@@ -1,18 +1,18 @@
-import config from '~/config'
+const component = () => (
+  <>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,400;0,600;1,400&family=Varela+Round&display=swap"
+    />
 
-const component = () => {
-  if (!config.googleFonts) return null
-
-  return (
-    <>
-      <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
-      <link rel="stylesheet" href={config.googleFonts} />
-
-      <noscript>
-        <link rel="stylesheet" href={config.googleFonts} />
-      </noscript>
-    </>
-  )
-}
+    <noscript>
+      <link
+        rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,400;0,600;1,400&family=Varela+Round&display=swap"
+      />
+    </noscript>
+  </>
+)
 
 export default component
