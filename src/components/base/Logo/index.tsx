@@ -8,7 +8,7 @@ const Logo = element
     contentAlignX: 'left',
     contentAlignY: 'center',
     dangerouslySetInnerHTML: {
-      __html: require(`~/assets/logo/vitus-labs.svg?include`),
+      __html: require(`~/assets/logo/logo.svg?include`),
     },
   })
   .theme((t) => ({
