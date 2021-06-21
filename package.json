@@ -13,7 +13,7 @@
     "export": "next export",
     "pkgs": "rm -rf node_modules/ package-lock.json yarn.lock && yarn",
     "release": "rm -rf node_modules/.cache && next build && next export && touch out/.nojekyll && cp CNAME out/CNAME  && git add -f out/ && git commit -m \"Release new version\" && git subtree push --prefix out origin release",
-    "make:favicon": "node scripts/favicon"
+    "make:favicon": "yarn vl_favicon"
   },
   "dependencies": {
     "@vitus-labs/coolgrid": "^0.14.8",
@@ -34,6 +34,7 @@
     "@types/react": "^17.0.9",
     "@types/styled-components": "^5.1.7",
     "@vitus-labs/tools-babel": "^0.9.4",
+    "@vitus-labs/tools-favicon": "^0.9.9",
     "@vitus-labs/tools-lint": "^0.9.4",
     "@vitus-labs/tools-typescript": "^0.9.4",
     "favicons": "^6.2.2",
