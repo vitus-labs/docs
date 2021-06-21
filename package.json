@@ -37,7 +37,6 @@
     "@vitus-labs/tools-favicon": "^0.9.9",
     "@vitus-labs/tools-lint": "^0.9.4",
     "@vitus-labs/tools-typescript": "^0.9.4",
-    "favicons": "^6.2.2",
     "gray-matter": "^4.0.3",
     "image-trace-loader": "^1.0.2",
     "imagemin-mozjpeg": "^9.0.0",
