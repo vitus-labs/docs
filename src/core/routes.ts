@@ -21,6 +21,6 @@ export default {
     babel: { base: '/docs/tooling/babel' },
     rollup: { base: '/docs/tooling/rollup' },
     storybook: { base: '/docs/tooling/storybook' },
-    eslint: { base: '/docs/tooling/eslint' },
+    lint: { base: '/docs/tooling/lint' },
   },
 } as const

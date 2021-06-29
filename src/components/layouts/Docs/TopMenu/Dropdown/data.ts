@@ -1,31 +1,45 @@
+import routes from '~/core/routes'
+
 export default [
   {
     title: 'UI System',
     data: [
-      { label: 'Elements', icon: 'elements', href: '/docs/ui-system/elements' },
+      {
+        label: 'Elements',
+        icon: 'elements',
+        href: routes.uiSystem.elements.base,
+      },
       {
         label: 'Rocketstyle',
         icon: 'rocketstyle',
-        href: '/docs/ui-system/rocketstyle',
+        href: routes.uiSystem.rocketstyle.base,
       },
-      { label: 'Unistyle', icon: 'unistyle', href: '/docs/ui-system/unistyle' },
-      { label: 'Coolgrid', icon: 'coolgrid', href: '/docs/ui-system/coolgrid' },
+      {
+        label: 'Unistyle',
+        icon: 'unistyle',
+        href: routes.uiSystem.unistyle.base,
+      },
+      {
+        label: 'Coolgrid',
+        icon: 'coolgrid',
+        href: routes.uiSystem.coolgrid.base,
+      },
     ],
   },
   {
     title: 'Tools',
     data: [
-      { label: 'Rollup', icon: 'rollup', href: '/docs/tools/rollup' },
+      { label: 'Rollup', icon: 'rollup', href: routes.tooling.rollup.base },
       {
         label: 'Babel',
         icon: 'babel',
-        href: '/docs/tools/babel',
+        href: routes.tooling.babel.base,
       },
-      { label: 'Lint', icon: 'eslint', href: '/docs/tools/lint' },
+      { label: 'Lint', icon: 'lint', href: routes.tooling.lint.base },
       {
         label: 'Storybook',
         icon: 'storybook',
-        href: '/docs/tools/storybook',
+        href: routes.tooling.storybook.base,
       },
     ],
   },
