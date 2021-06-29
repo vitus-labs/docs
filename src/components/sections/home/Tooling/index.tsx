@@ -6,26 +6,26 @@ const data = [
   {
     title: 'Rollup',
     icon: 'rollup',
-    label: 'Tool',
+    label: 'Tooling',
     link: (r: any) => r.tooling.rollup.base,
   },
   {
     title: 'Babel',
     icon: 'babel',
-    label: 'Tool',
+    label: 'Tooling',
     link: (r: any) => r.tooling.babel.base,
   },
   {
     title: 'Storybook',
     icon: 'storybook',
-    label: 'Tool',
+    label: 'Tooling',
     link: (r: any) => r.tooling.storybook.base,
   },
   {
-    title: 'ESLint',
-    icon: 'eslint',
-    label: 'Tool',
-    link: (r: any) => r.tooling.eslint.base,
+    title: 'Lint',
+    icon: 'lint',
+    label: 'Tooling',
+    link: (r: any) => r.tooling.lint.base,
   },
 ]
 
@@ -39,7 +39,7 @@ const component = () => (
         <BoxList
           data={data}
           wrapComponent={Col}
-          itemProps={{ variant: 'secondary' }}
+          itemProps={{ variant: 'secondary', state: 'primary' }}
         ></BoxList>
       </Row>
     </Container>

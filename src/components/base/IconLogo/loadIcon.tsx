@@ -2,10 +2,12 @@
 const component = (WrappedComponent) => {
   // @ts-ignore
   const Enhanced = ({ name, ...props }) => {
+    const icon = name ? require(`~/assets/images/logo-${name}.svg`) : ''
+
     return (
       <WrappedComponent
         {...props}
-        src={require(`~/assets/images/logo-${name}.svg`)}
+        src={icon}
         // dangerouslySetInnerHTML={
         //   name
         //     ? {

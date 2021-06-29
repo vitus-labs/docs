@@ -20,3 +20,12 @@ export default element
       backgroundColor: t.color.dark[200],
     },
   }))
+  .states((t) => ({
+    primary: {
+      backgroundColor: t.color.light[100],
+
+      hover: {
+        backgroundColor: t.color.light[200],
+      },
+    },
+  }))
