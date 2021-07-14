@@ -36,7 +36,10 @@ const component: VFC = () => (
           </>
         }
         afterContent={
-          <Icon name="github" href="https://github.com/vitus-labs" />
+          <>
+            <Icon name="github" href="https://github.com/vitus-labs" />
+            <Icon name="twitter" href="https://github.com/vitus-labs" />
+          </>
         }
       />
     </Container>

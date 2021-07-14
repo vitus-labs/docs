@@ -7,6 +7,7 @@ import Dropdown from './Dropdown'
 import Editor from './Editor'
 import Heading from './Heading'
 import Icon from './Icon'
+import IconList from './IconList'
 import IconLogo from './IconLogo'
 import Line from './Line'
 import Link from './Link'
@@ -26,6 +27,7 @@ export {
   Editor,
   Heading,
   Icon,
+  IconList,
   IconLogo,
   Line,
   Link,

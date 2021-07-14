@@ -1,5 +1,6 @@
 import { VFC } from 'react'
 import Highlight, { defaultProps } from 'prism-react-renderer'
+import codeTheme from 'prism-react-renderer/themes/palenight'
 import { LiveProvider } from 'react-live'
 import { Container, Row, Col } from '~/components/grid'
 import ContentBox from './ContentBox'
@@ -39,6 +40,7 @@ const component: VFC<Props> = ({
         noInline={true}
         code={children}
         scope={scope}
+        theme={codeTheme}
       >
         <Container
           gap={32}
@@ -69,6 +71,7 @@ const component: VFC<Props> = ({
         noInline={showEditor}
         code={children}
         scope={scope}
+        theme={codeTheme}
       >
         <Container gap={32} gutter={12} columns={2} size={isVertical ? 2 : 1}>
           <Row>
@@ -113,7 +116,12 @@ const component: VFC<Props> = ({
 
   return (
     <ContentBox>
-      <Highlight {...defaultProps} code={children} language={language}>
+      <Highlight
+        {...defaultProps}
+        theme={codeTheme}
+        code={children}
+        language={language}
+      >
         {({ className, tokens, getLineProps, getTokenProps }) => (
           <pre className={className}>
             {tokens.map((line, i) => (

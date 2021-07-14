@@ -13,6 +13,8 @@ const component: VFC<Props> = (props) => (
       style={{
         overflow: 'visible',
         width: '100%',
+        background: 'transparent',
+        outline: 'none',
       }}
     />
   </ContentBox>

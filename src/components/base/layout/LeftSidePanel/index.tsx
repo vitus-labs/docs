@@ -28,6 +28,6 @@ const component: FC<Props> = ({ children, sidePanel }) => (
   </Container>
 )
 
-component.displayName = 'layouts/LeftSidePanel'
+component.displayName = 'base/layout/LeftSidePanel'
 
 export default component
