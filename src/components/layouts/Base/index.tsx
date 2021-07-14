@@ -1,5 +1,5 @@
 import { FC } from 'react'
-import { Root } from '~/components/base/layout'
+import { Root } from '~/components/layout'
 import TopMenu from './TopMenu'
 
 const component: FC = ({ children }) => (

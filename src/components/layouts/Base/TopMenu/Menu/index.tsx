@@ -1,11 +1,11 @@
 import React from 'react'
-import TopMenu, { Item } from '~/components/base/menu/TopMenu'
+import TopMenuLinks, { Item } from '~/components/layout/TopMenuLinks'
 
 const component = () => (
-  <TopMenu>
+  <TopMenuLinks>
     <Item href="/#ui-systems">UI Systems</Item>
     <Item href="/#tooling">Tooling</Item>
-  </TopMenu>
+  </TopMenuLinks>
 )
 
 export default component

@@ -1,6 +1,6 @@
 import { FC } from 'react'
+import { SidePanelLayout } from '~/components/layout'
 import SideMenu from '~/components/base/menu/SideMenu'
-import SidePanelLayout from '~/components/base/layout/SidePanelLayout'
 import TopMenu from './TopMenu'
 
 type Props = {

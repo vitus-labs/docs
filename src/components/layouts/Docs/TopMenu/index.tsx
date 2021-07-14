@@ -1,5 +1,5 @@
 import { VFC } from 'react'
-import { TopMenu } from '~/components/base/layout'
+import { TopMenu } from '~/components/layout'
 import { Container } from '~/components/grid'
 import base from '~/components/base/Base'
 import Logo from '~/components/base/Logo'

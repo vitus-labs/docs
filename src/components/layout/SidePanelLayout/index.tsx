@@ -1,5 +1,5 @@
 import { FC, ReactNode } from 'react'
-import { SideMenu, Content } from '~/components/base/layout'
+import { SideMenu, Content } from '~/components/layout'
 import { Container } from '~/components/grid'
 import Base from '~/components/base/Base'
 

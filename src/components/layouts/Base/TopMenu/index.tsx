@@ -1,8 +1,8 @@
-import { TopMenu } from '~/components/base/layout'
+import { TopMenu, Logo } from '~/components/layout'
 import { Container } from '~/components/grid'
 import base from '~/components/base/Base'
 import IconList from '~/components/base/IconList'
-import Logo from '~/components/base/layout/Logo'
+
 import Menu from './Menu'
 
 const Wrapper = base

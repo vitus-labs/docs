@@ -3,13 +3,13 @@ import { element, List } from '~/components/core'
 import Dropdown from '~/components/base/Dropdown'
 import IconLogo from '~/components/base/IconLogo'
 import Icon from '~/components/base/Icon'
-import DropdownMenu from '~/components/base/menu/DropdownMenu'
+import DropdownMenu from '~/components/layout/TopMenuDropdown'
 import data from './data'
 
 const Trigger = element
   .attrs<{ icon?: string }>(({ icon }) => ({
     gap: 16,
-    beforeContent: icon && <IconLogo small name={icon} />,
+    beforeContent: icon && <IconLogo small name={icon} label={icon} />,
     afterContent: <Icon xSmall name="arrow" />,
   }))
   .theme((t) => ({
