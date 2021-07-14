@@ -6,25 +6,25 @@ const data = [
   {
     title: 'Rollup',
     icon: 'rollup',
-    label: 'Tooling',
+    label: 'Ready to use and optimized Rollup.js configuration',
     link: (r: any) => r.tooling.rollup.base,
   },
   {
     title: 'Babel',
     icon: 'babel',
-    label: 'Tooling',
+    label: 'Babel.js preset for creating and building NPM packages',
     link: (r: any) => r.tooling.babel.base,
   },
   {
     title: 'Storybook',
     icon: 'storybook',
-    label: 'Tooling',
+    label: 'Start writing stories right away',
     link: (r: any) => r.tooling.storybook.base,
   },
   {
     title: 'Lint',
     icon: 'lint',
-    label: 'Tooling',
+    label: 'ESLint and Stylelint configurations',
     link: (r: any) => r.tooling.lint.base,
   },
 ]

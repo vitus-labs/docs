@@ -2,6 +2,7 @@ import { VFC } from 'react'
 import Highlight, { defaultProps } from 'prism-react-renderer'
 import { LiveProvider } from 'react-live'
 import { Container, Row, Col } from '~/components/grid'
+import ContentBox from './ContentBox'
 import Editor from './Editor'
 import Preview from './Preview'
 import Error from './Error'
@@ -111,19 +112,21 @@ const component: VFC<Props> = ({
   // )
 
   return (
-    <Highlight {...defaultProps} code={children} language={language}>
-      {({ className, style, tokens, getLineProps, getTokenProps }) => (
-        <pre className={className} style={{ ...style, padding: '20px' }}>
-          {tokens.map((line, i) => (
-            <div key={i} {...getLineProps({ line, key: i })}>
-              {line.map((token, key) => (
-                <span key={key} {...getTokenProps({ token, key })} />
-              ))}
-            </div>
-          ))}
-        </pre>
-      )}
-    </Highlight>
+    <ContentBox>
+      <Highlight {...defaultProps} code={children} language={language}>
+        {({ className, tokens, getLineProps, getTokenProps }) => (
+          <pre className={className}>
+            {tokens.map((line, i) => (
+              <div key={i} {...getLineProps({ line, key: i })}>
+                {line.map((token, key) => (
+                  <span key={key} {...getTokenProps({ token, key })} />
+                ))}
+              </div>
+            ))}
+          </pre>
+        )}
+      </Highlight>
+    </ContentBox>
   )
 }
 

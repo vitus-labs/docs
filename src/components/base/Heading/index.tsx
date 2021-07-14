@@ -34,6 +34,10 @@ export default text
     lineHeight: t.lineHeight.medium,
   }))
   .sizes((t) => ({
+    jumbo: {
+      fontSize: 96,
+      lineHeight: t.lineHeight.small,
+    },
     level1: {
       fontSize: t.fontSize.extraXxLarge,
     },

@@ -20,8 +20,8 @@ const Button = (props) => {
       label="Click on me"
       tag="button"
       style={{
-        background: active ? '#54D6FF' : 'rgba(84, 214, 255, 0.4)',
-        border: '1px solid #54D6FF',
+        background: active ? '#86C232' : 'rgba(134, 194, 50, 0.4)',
+        border: '1px solid #86C232',
         padding: '8px 16px',
         color: '#fff',
         borderRadius: 4,
@@ -38,6 +38,7 @@ const Content = (props) => (
       color: '#000',
       padding: 8,
       borderRadius: 8,
+      zIndex: 2,
     }}
     {...props}
   >
@@ -74,8 +75,8 @@ const Button = (props) => {
       label="Click on me"
       tag="button"
       style={{
-        background: active ? '#54D6FF' : 'rgba(84, 214, 255, 0.4)',
-        border: '1px solid #54D6FF',
+        background: active ? '#86C232' : 'rgba(134, 194, 50, 0.4)',
+        border: '1px solid #86C232',
         padding: '8px 16px',
         color: '#fff',
         borderRadius: 4,
@@ -93,6 +94,7 @@ const Content = (props) => (
       color: '#000',
       padding: 8,
       borderRadius: 8,
+      zIndex: 2,
     }}
     {...props}
   />
@@ -104,7 +106,7 @@ const Item = ({ label }) => (
     style={{
       width: 200,
       height: 40,
-      borderBottom: '1px solid rgba(84, 214, 255, 0.4)',
+      borderBottom: '1px solid rgba(134, 194, 50, 0.4)',
     }}
   />
 )
@@ -138,8 +140,8 @@ const Button = (props) => (
     label="Hover on me"
     tag="button"
     style={{
-      background: 'rgba(84, 214, 255, 0.4)',
-      border: '1px solid #54D6FF',
+      background: 'rgba(134, 194, 50, 0.4)',
+      border: '1px solid #86C232',
       padding: '8px 16px',
       color: '#fff',
       borderRadius: 4,
@@ -155,6 +157,7 @@ const Content = (props) => (
       color: '#000',
       padding: 8,
       borderRadius: 8,
+      zIndex: 2,
     }}
     {...props}
   >
@@ -169,7 +172,7 @@ render(
     refName="innerRef"
     openOn="hover"
     closeOn="hover"
-    align="top"
+    align="bottom"
     alignX="center"
     offsetY={8}
   >

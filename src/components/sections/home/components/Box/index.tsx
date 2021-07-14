@@ -7,13 +7,23 @@ import IconLogo from '~/components/base/IconLogo'
 
 const Link = link.config({ provider: true })
 
-const Box = box.config({
-  consumer: (ctx) =>
-    ctx(({ pseudo }) => ({
-      pseudo,
-    })),
-})
-const Heading = heading.theme({ marginTop: 16 })
+const Box = box
+  .attrs({
+    contentAlignY: 'top',
+  })
+  .theme({
+    height: 280,
+  })
+  .config({
+    consumer: (ctx) =>
+      ctx(({ pseudo }) => ({
+        pseudo,
+      })),
+  })
+const Heading = heading.theme((t) => ({
+  marginTop: t.spacing.large,
+  marginBottom: t.spacing.small,
+}))
 
 type Props = {
   variant?: 'primary' | 'secondary'
@@ -35,7 +45,9 @@ const component: VFC<Props> = ({
     <Box {...props}>
       <IconLogo xLarge name={icon} circle={variant === 'secondary'} />
       <Heading level5 label={title} />
-      <Text>{label}</Text>
+      <Text inline centered>
+        {label}
+      </Text>
     </Box>
   </Link>
 )

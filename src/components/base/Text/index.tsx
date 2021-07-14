@@ -15,6 +15,17 @@ export default text
     light: { color: t.color.light.base },
     dark: { color: t.color.dark.base },
   }))
+  .sizes((t) => ({
+    small: {
+      fontSize: t.fontSize.small,
+    },
+    medium: {
+      fontSize: t.fontSize.medium,
+    },
+    xLarge: {
+      fontSize: t.fontSize.xxLarge,
+    },
+  }))
   .variants((t) => ({
     paragraph: {
       marginBottom: t.spacing.large,
@@ -39,6 +50,9 @@ export default text
     },
   }))
   .multiple((t) => ({
+    inline: {
+      lineHeight: 'inherit',
+    },
     semibold: {
       fontWeight: t.fontWeight.semibold,
     },

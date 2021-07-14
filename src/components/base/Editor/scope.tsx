@@ -2,14 +2,14 @@ import { Element, List, Text, Overlay, Portal } from '@vitus-labs/elements'
 import { Provider, Container, Row, Col, theme } from '@vitus-labs/coolgrid'
 
 const defaultCss = `
-  background: rgba(84, 214, 255, 0.4);
-  border: 1px solid #54d6ff;
+  background: rgba(134, 194, 50, 0.4);
+  border: 1px solid #86C232;
   color: #fff;
 `
 
 const activeCss = `
-  background: #54d6ff;
-  border: 1px solid #54d6ff;
+  background: #86C232;
+  border: 1px solid #86C232;
   color: #fff;
 `
 

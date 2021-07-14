@@ -1,24 +1,13 @@
-// @ts-ignore
-const component = (WrappedComponent) => {
-  // @ts-ignore
-  const Enhanced = ({ name, ...props }) => {
-    const icon = name ? require(`~/assets/images/logo-${name}.svg`) : ''
+// @ts-nocheck
 
-    return (
-      <WrappedComponent
-        {...props}
-        src={icon}
-        // dangerouslySetInnerHTML={
-        //   name
-        //     ? {
-        //         __html: require(`~/assets/images/logo-${name}.svg`),
-        //       }
-        //     : undefined
-        // }
-        aria-label={name}
-      />
-    )
-  }
+const component = (WrappedComponent) => {
+  const Enhanced = ({ label, name, ...props }) => (
+    <WrappedComponent
+      src={require(`~/assets/images/logo-${name}.svg`)}
+      aria-label={label || name}
+      {...props}
+    />
+  )
 
   return Enhanced
 }

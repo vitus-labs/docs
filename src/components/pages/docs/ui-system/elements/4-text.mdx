@@ -22,8 +22,8 @@ has reseted some styling.
 // ↓↓↓ Text ↓↓↓
 render(
   <>
-    <Text label="This is a label" />
-    <Text>This is a children content</Text>
+    <Text label="This is a label" style={{ color: '#fff' }} />
+    <Text style={{ color: '#fff' }}>This is a children content</Text>
   </>
 )
 ```
@@ -41,7 +41,7 @@ First of all, you can use **Text** and pass children.
 // import { Text } from '@vitus-labs/elements'
 
 // ↓↓↓ Text ↓↓↓
-render(<Text>This is a children content</Text>)
+render(<Text style={{ color: '#fff' }}>This is a children content</Text>)
 ```
 
 ### Label property
@@ -55,7 +55,7 @@ then **children** will have a priority and **label** will be ignored.
 // import { Text } from '@vitus-labs/elements'
 
 // ↓↓↓ Text ↓↓↓
-render(<Text label="This is a label" />)
+render(<Text label="This is a label" style={{ color: '#fff' }} />)
 ```
 
 ## Text types
@@ -71,7 +71,7 @@ If you would like to use it as a **paragraph**, you can set prop
 
 // ↓↓↓ Text ↓↓↓
 render(
-  <Text paragraph>
+  <Text paragraph style={{ color: '#fff' }}>
     This is a block text which can have as children another
     <Text tag="strong">text component</Text>.
   </Text>
