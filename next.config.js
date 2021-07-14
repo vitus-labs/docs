@@ -29,9 +29,6 @@ const PLUGINS = [
 module.exports = withPlugins(PLUGINS, {
   dir: 'src',
   poweredByHeader: false,
-  future: {
-    webpack5: true,
-  },
   // reactStrictMode: true,
   pageExtensions: ['js', 'jsx', 'ts', 'tsx', 'md', 'mdx'],
 })
