@@ -7,10 +7,10 @@ import Background from '~/components/base/Background'
 const component = () => (
   <Layout>
     <Intro />
-    <Background primary>
+    <Background id="ui-systems" primary>
       <UiSystems />
     </Background>
-    <Background secondary>
+    <Background id="tooling" secondary>
       <Tooling />
     </Background>
   </Layout>

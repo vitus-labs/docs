@@ -115,7 +115,7 @@ const component: VFC<Props> = ({
   // )
 
   return (
-    <ContentBox>
+    <ContentBox compact>
       <Highlight
         {...defaultProps}
         theme={codeTheme}

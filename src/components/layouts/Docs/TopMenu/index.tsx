@@ -3,7 +3,7 @@ import { TopMenu } from '~/components/layout'
 import { Container } from '~/components/grid'
 import base from '~/components/base/Base'
 import Logo from '~/components/base/Logo'
-import Icon from '~/components/base/Icon'
+import IconList from '~/components/base/IconList'
 import Line from '~/components/base/Line'
 import Dropdown from './Dropdown'
 
@@ -36,10 +36,13 @@ const component: VFC = () => (
           </>
         }
         afterContent={
-          <>
-            <Icon name="github" href="https://github.com/vitus-labs" />
-            <Icon name="twitter" href="https://github.com/vitus-labs" />
-          </>
+          <IconList
+            gap="xl"
+            data={[
+              { name: 'github', href: 'https://github.com/vitus-labs' },
+              { name: 'twitter', href: 'https://twitter.com/VitusLabs' },
+            ]}
+          />
         }
       />
     </Container>

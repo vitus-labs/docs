@@ -2,7 +2,7 @@ import { element } from '~/components/core'
 
 export default element
   .config({ name: 'base/Background' })
-  .attrs({
+  .attrs<{ id?: string }>({
     tag: 'section',
     contentDirection: 'rows',
     contentAlignX: 'block',
