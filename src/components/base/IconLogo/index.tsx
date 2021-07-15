@@ -1,3 +1,4 @@
+import { VFC } from 'react'
 import element from '~/components/core/element'
 import loadIcon from './loadIcon'
 
@@ -35,7 +36,16 @@ const Logo = element
   })
   .theme({ width: '100%', height: 'auto' })
 
-const component = ({ label, name, ...props }) => (
+type Props = {
+  label?: string
+  name: string
+  xSmall?: boolean
+  small?: boolean
+  xLarge?: boolean
+  circle?: boolean
+}
+
+const component: VFC<Props> = ({ label, name, ...props }) => (
   <LogoWrapper {...props}>
     <Logo label={label} name={name} />
   </LogoWrapper>

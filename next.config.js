@@ -31,4 +31,9 @@ module.exports = withPlugins(PLUGINS, {
   poweredByHeader: false,
   // reactStrictMode: true,
   pageExtensions: ['js', 'jsx', 'ts', 'tsx', 'md', 'mdx'],
+  eslint: {
+    // Warning: Dangerously allow production builds to successfully complete even if
+    // your project has ESLint errors.
+    ignoreDuringBuilds: true,
+  },
 })

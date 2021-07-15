@@ -30,7 +30,7 @@ const Trigger = element
   .attrs<{ icon?: string }>(({ icon = 'elements' }) => ({
     label: 'Elements',
     gap: 8,
-    beforeContent: icon && <IconLogo small name={icon} />,
+    beforeContent: icon && <IconLogo small name={icon} label={icon} />,
   }))
   .theme((t) => ({
     width: 180,
