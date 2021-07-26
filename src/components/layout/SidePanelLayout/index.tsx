@@ -1,7 +1,7 @@
 import { FC, ReactNode } from 'react'
 import { SideMenu, Content } from '~/components/layout'
 import { Container } from '~/components/grid'
-import Base from '~/components/base/Base'
+import { Element } from '~/components/core'
 
 type Props = {
   sidePanel: ReactNode
@@ -31,9 +31,9 @@ const component: FC<Props> = ({ children, side = 'left', sidePanel }) => {
         xxxl,
       })}
     >
-      <Base contentDirection="inline" {...layoutProps()}>
+      <Element contentDirection="inline" {...layoutProps()}>
         <Content light>{children}</Content>
-      </Base>
+      </Element>
     </Container>
   )
 }

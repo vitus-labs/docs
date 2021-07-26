@@ -1,8 +1,6 @@
 import { useRouter } from 'next/router'
 import { element, List } from '~/components/core'
-import Dropdown from '~/components/base/Dropdown'
-import IconLogo from '~/components/base/IconLogo'
-import Icon from '~/components/base/Icon'
+import { Icon, IconLogo, Dropdown } from '~/components/base'
 import DropdownMenu from '~/components/layout/TopMenuDropdown'
 import data from './data'
 

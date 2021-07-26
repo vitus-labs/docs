@@ -1,13 +1,11 @@
 import { VFC } from 'react'
 import { TopMenu } from '~/components/layout'
 import { Container } from '~/components/grid'
-import base from '~/components/base/Base'
-import Logo from '~/components/base/Logo'
-import IconList from '~/components/base/IconList'
-import Line from '~/components/base/Line'
+import { Logo, IconList, Line } from '~/components/base'
+import { element } from '~/components/core'
 import Dropdown from './Dropdown'
 
-const Root = base
+const Root = element
   .attrs((_, t) => ({
     gap: t.spacing.large,
   }))

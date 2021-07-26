@@ -1,11 +1,11 @@
-import { TopMenu, Logo } from '~/components/layout'
+import { TopMenu } from '~/components/layout'
 import { Container } from '~/components/grid'
-import base from '~/components/base/Base'
-import IconList from '~/components/base/IconList'
+import { IconList, Logo } from '~/components/base'
+import { element } from '~/components/core'
 
 import Menu from './Menu'
 
-const Wrapper = base
+const Wrapper = element
   .attrs((_, t) => ({
     gap: t.spacing.large,
   }))
