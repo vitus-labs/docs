@@ -11,15 +11,18 @@ const Box = box
   .attrs({
     contentAlignY: 'top',
   })
-  .theme({
+  .theme((t) => ({
     height: 280,
-  })
+    fontSize: t.fontSize.large,
+    lineHeight: t.lineHeight.medium,
+  }))
   .config({
     consumer: (ctx) =>
       ctx<typeof Link>(({ pseudo }) => ({
         pseudo,
       })),
   })
+
 const Heading = heading.theme((t) => ({
   marginTop: t.spacing.large,
   marginBottom: t.spacing.small,
