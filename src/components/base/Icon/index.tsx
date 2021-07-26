@@ -1,9 +1,9 @@
 import { link } from '~/components/core'
-import loadIcon from './loadIcon'
+import loadAsset from './loadAsset'
 
 export default link
   .config({ name: 'base/Icon' })
-  .compose({ loadIcon })
+  .compose({ loadAsset })
   .attrs<{ name: string }>({
     contentAlignX: 'center',
   })

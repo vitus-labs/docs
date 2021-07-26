@@ -1,6 +1,6 @@
 import { VFC } from 'react'
 import element from '~/components/core/element'
-import loadIcon from './loadIcon'
+import loadAsset from './loadAsset'
 
 const LogoWrapper = element
   .sizes({
@@ -30,7 +30,7 @@ const LogoWrapper = element
 
 const Logo = element
   .config({ name: 'base/IconLogo' })
-  .compose({ loadIcon })
+  .compose({ loadAsset })
   .attrs<{ name: string; role?: string }>({
     tag: 'img',
   })
