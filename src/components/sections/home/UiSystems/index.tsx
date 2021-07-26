@@ -1,4 +1,5 @@
 import { Container, Row, Col } from '~/components/grid'
+import { Background } from '~/components/base'
 import Section from '../components/Section'
 import BoxList from '../components/BoxList'
 
@@ -30,20 +31,22 @@ const data = [
 ]
 
 const component = () => (
-  <Section
-    heading="Build better universal UI Systems"
-    label="Set of preconfigured tools ready to be used"
-  >
-    <Container gap={36} size={{ xs: 1, md: 6, lg: 3 }}>
-      <Row>
-        <BoxList
-          data={data}
-          wrapComponent={Col}
-          itemProps={{ state: 'light' }}
-        />
-      </Row>
-    </Container>
-  </Section>
+  <Background id="ui-systems" primary>
+    <Section
+      heading="Build better universal UI Systems"
+      label="Set of preconfigured tools ready to be used"
+    >
+      <Container gap={36} size={{ xs: 1, md: 6, lg: 3 }}>
+        <Row>
+          <BoxList
+            data={data}
+            wrapComponent={Col}
+            itemProps={{ state: 'light' }}
+          />
+        </Row>
+      </Container>
+    </Section>
+  </Background>
 )
 
 export default component

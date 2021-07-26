@@ -16,7 +16,7 @@ const Box = box
   })
   .config({
     consumer: (ctx) =>
-      ctx(({ pseudo }) => ({
+      ctx<typeof Link>(({ pseudo }) => ({
         pseudo,
       })),
   })
