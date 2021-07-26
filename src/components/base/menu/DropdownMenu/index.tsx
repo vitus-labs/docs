@@ -24,11 +24,11 @@ const Heading = text.theme((t) => ({
 }))
 
 const Link = link
-  .attrs<{ icon: string }>(({ icon }) => ({
+  .attrs<{ icon: string }>(({ icon }, t) => ({
     beforeContent: icon ? (
       <IconLogo xSmall name={icon} label={icon} />
     ) : undefined,
-    gap: 16,
+    gap: t.spacing.large,
   }))
   .theme((t) => ({
     fontSize: t.fontSize.medium,

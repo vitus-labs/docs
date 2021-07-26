@@ -1,14 +1,14 @@
 import { element } from '~/components/core'
 
 export default element
-  .variants({
+  .variants((t) => ({
     gapMd: {
-      paddingY: 40,
+      paddingY: t.spacing.xLarge * t.ratio.xLarge,
     },
     gapLg: {
-      paddingY: 80,
+      paddingY: t.spacing.xLarge * t.ratio.xxxLarge,
     },
-  })
+  }))
   .multiple({
     centered: true,
   })

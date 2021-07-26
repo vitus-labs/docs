@@ -8,14 +8,14 @@ export default element
   }))
   .variants((t) => ({
     vertical: {
-      height: '100%',
-      borderStyleLeft: 'solid',
-      borderWidthLeft: 1,
+      height: t.size.fill,
+      borderStyleLeft: t.borderStyle,
+      borderWidthLeft: t.borderWidth,
       marginX: t.spacing.xLarge,
     },
     horizontal: {
-      width: '100%',
-      borderStyleBottom: 'solid',
-      borderWidthBottom: 1,
+      width: t.size.fill,
+      borderStyleBottom: t.borderStyle,
+      borderWidthBottom: t.borderWidth,
     },
   }))

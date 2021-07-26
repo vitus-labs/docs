@@ -34,7 +34,7 @@ const Inner = Box.theme((t) => ({
   fontSize: t.fontSize.medium,
   borderRadius: t.borderRadius.medium,
   overflowY: 'auto',
-  width: `calc(100% + 20px)`,
+  width: t.size.hideScrollBar,
 }))
 
 type Props = ExtractProps<typeof Inner> & { compact?: boolean }

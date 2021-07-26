@@ -27,7 +27,6 @@ const InnerWrapper = base
   })
   .theme((t) => ({
     position: 'fixed',
-    // left: 0,
     top: t.layout.topMenu.height,
     width: t.layout.sideMenu.width,
     height: t.layout.sideMenu.height,
@@ -43,7 +42,7 @@ const Inner = base
     tag: 'nav',
   })
   .theme((t) => ({
-    width: 'calc(100% + 20px)',
+    width: t.size.hideScrollBar,
     backgroundColor: t.layout.sideMenu.background,
     overflowY: 'auto',
     paddingY: 60,

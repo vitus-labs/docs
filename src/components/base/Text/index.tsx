@@ -37,7 +37,7 @@ export default text
       paddingX: t.spacing.xSmall,
       paddingY: t.spacing.xxSmall,
       borderRadius: t.borderRadius.small,
-      backgroundColor: 'rgba(97, 137, 47, 0.32)',
+      backgroundColor: t.color.primary[300],
       fontSize: t.fontSize.smaller,
     },
     caption: {

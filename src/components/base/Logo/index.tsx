@@ -3,6 +3,9 @@ import { element } from '~/components/core'
 import Link from '~/components/base/Link'
 
 const Logo = element
+  .config({
+    name: 'base/Logo',
+  })
   .attrs({
     tag: 'span',
     contentAlignX: 'left',
@@ -11,9 +14,6 @@ const Logo = element
       __html: require(`~/assets/logo/logo.svg?include`),
     },
   })
-  .theme((t) => ({
-    color: t.color.primary.base,
-  }))
 
 const component: VFC = () => (
   <Link href="/">
