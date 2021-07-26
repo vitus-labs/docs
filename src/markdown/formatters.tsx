@@ -1,21 +1,20 @@
 import Editor from '~/components/base/Editor'
 import Heading from '~/components/base/Heading'
 import Text from '~/components/base/Text'
-import TextList, { Item } from '~/components/base/TextList'
+import TextList, { Item as TextListItem } from '~/components/base/TextList'
 import Link from '~/components/base/Link'
 import { Table, Head, HeadCol, Row, Col } from '~/components/base/Table'
 
 // --------------------------------------------------------
 // TYPOGRAPHY
 // --------------------------------------------------------
-export const h1 = Heading.attrs({
-  tag: 'h1',
-  level2: true,
+const h1 = Heading.attrs({
+  level1: true,
 }).theme((t) => ({
   marginBottom: t.spacing.xxxLarge,
 }))
 
-export const h2 = Heading.attrs<{ name?: string; children?: string }>(
+const h2 = Heading.attrs<{ name?: string; children?: string }>(
   ({ children }) => ({
     tag: 'h2',
     level3: true,
@@ -26,14 +25,14 @@ export const h2 = Heading.attrs<{ name?: string; children?: string }>(
   marginY: t.spacing.xLarge,
 }))
 
-export const h3 = Heading.attrs({
+const h3 = Heading.attrs({
   tag: 'h3',
   level4: true,
 }).theme((t) => ({
   marginY: t.spacing.medium,
 }))
 
-export const h4 = Heading.attrs({
+const h4 = Heading.attrs({
   tag: 'h4',
   level5: true,
 }).theme((t) => ({
@@ -41,35 +40,32 @@ export const h4 = Heading.attrs({
   marginBottom: t.spacing.medium,
 }))
 
-export const p = Text.attrs({
+const p = Text.attrs({
   paragraph: true,
 }).theme((t) => ({
   maxWidth: 800,
   marginTop: t.spacing.xLarge,
 }))
 
-export const em = Text.attrs({
+const em = Text.attrs({
   caption: true,
 })
 
-export const strong = Text.theme({ fontWeight: 'bold' })
+const strong = Text.theme((t) => ({ fontWeight: t.fontWeight.bold }))
 
-export const inlineCode = Text.attrs({ code: true, tag: 'code' })
+const inlineCode = Text.attrs({ code: true, tag: 'code' })
 
-export const a = Link
-
-export const ul = TextList.theme((t) => ({
+const ul = TextList.theme((t) => ({
   marginLeft: t.spacing.large,
 }))
 
-export const ol = ul.attrs({ tag: 'ol' })
+const ol = ul.attrs({ tag: 'ol' })
 
-const li = Item.theme((t) => ({
+const li = TextListItem.theme((t) => ({
   marginBottom: t.spacing.small,
-  // color: t.color.light.base,
 }))
 
-export const table = Table.theme((t) => ({
+const table = Table.theme((t) => ({
   marginBottom: t.spacing.xLarge,
 }))
 
@@ -82,7 +78,7 @@ export default {
   inlineCode,
   em,
   strong,
-  a,
+  a: Link,
   ul,
   ol,
   li,
