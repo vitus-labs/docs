@@ -7,6 +7,7 @@ const Box = box
     tag: 'div',
     contentAlignX: 'left',
     contentAlignY: 'top',
+    state: 'dark',
   })
   .theme((t) => ({
     paddingX: t.spacing.reset,
@@ -31,7 +32,7 @@ const Inner = Box.theme((t) => ({
   paddingLeft: t.spacing.large,
   paddingRight: t.spacing.large + 20,
   fontSize: t.fontSize.medium,
-  borderRadius: t.borderRadius.md,
+  borderRadius: t.borderRadius.medium,
   overflowY: 'auto',
   width: `calc(100% + 20px)`,
 }))

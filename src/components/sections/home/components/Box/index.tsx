@@ -45,9 +45,7 @@ const component: VFC<Props> = ({
     <Box {...props}>
       <IconLogo xLarge name={icon} circle={variant === 'secondary'} />
       <Heading level5 label={title} />
-      <Text inline centered>
-        {label}
-      </Text>
+      <Text centered>{label}</Text>
     </Box>
   </Link>
 )

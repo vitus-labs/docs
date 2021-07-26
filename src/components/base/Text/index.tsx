@@ -5,9 +5,6 @@ export default text
   .attrs(({ paragraph }) => ({
     tag: paragraph ? 'p' : 'span',
   }))
-  .theme({
-    fontSize: 'inherit',
-  })
   .states((t) => ({
     primary: {
       color: t.color.primary.base,
@@ -28,6 +25,7 @@ export default text
   }))
   .variants((t) => ({
     paragraph: {
+      lineHeight: t.lineHeight.xLarge,
       marginBottom: t.spacing.large,
     },
     highlight: {
@@ -38,7 +36,7 @@ export default text
       fontFamily: t.fontFamily.mono,
       paddingX: t.spacing.xSmall,
       paddingY: t.spacing.xxSmall,
-      borderRadius: t.borderRadius.sm,
+      borderRadius: t.borderRadius.small,
       backgroundColor: 'rgba(97, 137, 47, 0.32)',
       fontSize: t.fontSize.smaller,
     },
@@ -50,9 +48,6 @@ export default text
     },
   }))
   .multiple((t) => ({
-    inline: {
-      lineHeight: 'inherit',
-    },
     semibold: {
       fontWeight: t.fontWeight.semibold,
     },

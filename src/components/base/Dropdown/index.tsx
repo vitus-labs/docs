@@ -15,7 +15,7 @@ const Content = base.config({ name: 'base/Dropdown/Content' }).theme((t) => ({
   zIndex: 1000,
   overflow: 'hidden',
   backgroundColor: t.color.dark.base,
-  borderRadius: t.borderRadius.md,
+  borderRadius: t.borderRadius.medium,
 }))
 
 const Inner = base.config({ name: 'base/Dropdown/Inner' }).theme((t) => ({

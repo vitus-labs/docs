@@ -11,21 +11,23 @@ export default element
   .theme((t) => ({
     width: '100%',
     paddingX: t.spacing.xxLarge,
-    paddingY: t.spacing.xxLarge * t.ratio.large,
+    paddingY: t.spacing.xxLarge * t.ratio.medium,
     borderRadius: t.borderRadius.base,
     transition: t.transition.base,
-    backgroundColor: t.color.dark[100],
-
-    hover: {
-      backgroundColor: t.color.dark[200],
-    },
   }))
   .states((t) => ({
-    primary: {
+    light: {
       backgroundColor: t.color.light[100],
 
       hover: {
         backgroundColor: t.color.light[200],
+      },
+    },
+    dark: {
+      backgroundColor: t.color.dark[200],
+
+      hover: {
+        backgroundColor: t.color.dark[300],
       },
     },
   }))

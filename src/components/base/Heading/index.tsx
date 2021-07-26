@@ -35,23 +35,23 @@ export default text
   }))
   .sizes((t) => ({
     jumbo: {
-      fontSize: 96,
+      fontSize: t.headingSize.jumbo,
       lineHeight: t.lineHeight.small,
     },
     level1: {
-      fontSize: t.fontSize.extraXxLarge,
+      fontSize: t.headingSize.level1,
     },
     level2: {
-      fontSize: 64,
+      fontSize: t.headingSize.level2,
     },
     level3: {
-      fontSize: 40,
+      fontSize: t.headingSize.level3,
     },
     level4: {
-      fontSize: 28,
+      fontSize: t.headingSize.level4,
     },
     level5: {
-      fontSize: t.fontSize.xxLarge,
+      fontSize: t.headingSize.level5,
       fontWeight: t.fontWeight.semibold,
       fontFamily: t.fontFamily.base,
     },

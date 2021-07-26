@@ -14,15 +14,8 @@ const Heading = heading.theme((t) => ({
 const component = () => (
   <Section centered gapLg>
     <Heading jumbo centered>
-      A{' '}
-      <Text primary inline>
-        developer
-      </Text>{' '}
-      experience
-      <br /> you will{' '}
-      <Text primary inline>
-        love
-      </Text>
+      A <Text primary>developer</Text> experience
+      <br /> you will <Text primary>love</Text>
     </Heading>
     <Text xLarge centered>
       Group of libraries to build your UI design systems with less headaches

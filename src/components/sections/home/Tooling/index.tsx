@@ -39,7 +39,7 @@ const component = () => (
         <BoxList
           data={data}
           wrapComponent={Col}
-          itemProps={{ variant: 'secondary', state: 'primary' }}
+          itemProps={{ variant: 'secondary', state: 'light' }}
         ></BoxList>
       </Row>
     </Container>

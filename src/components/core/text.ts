@@ -9,8 +9,10 @@ export default element
   .theme((t) => ({
     marginX: 0,
     marginY: 0,
-    lineHeight: 2,
     color: t.color.light.base,
+    fontSize: 'inherit',
+    lineHeight: 'inherit',
+    fontFamily: 'inherit',
   }))
   .multiple({
     centered: {

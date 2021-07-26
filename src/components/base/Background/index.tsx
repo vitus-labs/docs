@@ -3,15 +3,14 @@ import { element } from '~/components/core'
 export default element
   .config({ name: 'base/Background' })
   .attrs<{ id?: string }>({
-    tag: 'section',
     contentDirection: 'rows',
     contentAlignX: 'block',
   })
-  .states({
+  .states((t) => ({
     primary: {
-      backgroundColor: '#61892F',
+      backgroundColor: t.color.primary[900],
     },
     secondary: {
-      backgroundColor: '#474B4F',
+      backgroundColor: t.color.light[100],
     },
-  })
+  }))

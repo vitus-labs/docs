@@ -11,6 +11,7 @@ export default createGlobalStyle<{ theme: Theme }>`
       font-size: ${t.rootSize}px;
       margin: ${t.spacing.reset};
       padding: ${t.spacing.reset};
+      background-color: ${t.color.dark.base};
 
       -webkit-font-smoothing: antialiased;
       -moz-osx-font-smoothing: grayscale;
