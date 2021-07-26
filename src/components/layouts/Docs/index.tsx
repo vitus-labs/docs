@@ -1,6 +1,6 @@
 import { FC } from 'react'
 import { SidePanelLayout } from '~/components/layout'
-import SideMenu from '~/components/base/menu/SideMenu'
+import SideMenuLinks from '~/components/layout/SideMenuLinks'
 import TopMenu from './TopMenu'
 
 type Props = {
@@ -27,7 +27,7 @@ const component: FC<Props> = ({ children, menu }) => {
   return (
     <>
       <TopMenu />
-      <SidePanelLayout sidePanel={<SideMenu data={transformedData} />}>
+      <SidePanelLayout sidePanel={<SideMenuLinks data={transformedData} />}>
         {children}
       </SidePanelLayout>
     </>
