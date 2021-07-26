@@ -1,8 +1,5 @@
-import Editor from '~/components/base/Editor'
-import Heading from '~/components/base/Heading'
-import Text from '~/components/base/Text'
+import { Heading, Text, Link, Editor } from '~/components/base'
 import TextList, { Item as TextListItem } from '~/components/base/TextList'
-import Link from '~/components/base/Link'
 import { Table, Head, HeadCol, Row, Col } from '~/components/base/Table'
 
 // --------------------------------------------------------
