@@ -6,8 +6,14 @@ type Props = { title?: string }
 const component: VFC<Props> = ({ title = 'Vitus Labs' }) => (
   <Head>
     <title>{title}</title>
-    <meta name="description" content="" />
-    <meta name="keywords" content="" />
+    <meta
+      name="description"
+      content="A developer experience you will love. Group of libraries to build your UI design systems with less headaches and enjoying all that stuff"
+    />
+    <meta
+      name="keywords"
+      content="react, styled-components, elements, rocketstyle, coolgrid, unistyle, frontend, typescript, development, web, application, performance"
+    />
   </Head>
 )
 

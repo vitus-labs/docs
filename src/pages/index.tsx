@@ -1,3 +1,11 @@
 import Page from '~/components/pages/Home'
+import Seo from '~/components/meta/Seo'
 
-export default Page
+const component = () => (
+  <>
+    <Seo />
+    <Page />
+  </>
+)
+
+export default component
