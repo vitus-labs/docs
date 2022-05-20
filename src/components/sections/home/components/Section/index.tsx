@@ -1,9 +1,10 @@
-import React, { FC } from 'react'
+import React, { FC, ReactNode } from 'react'
 import Section from '~/components/base/Section'
 import Heading from '~/components/base/Heading'
 import Text from '~/components/base/Text'
 
 type Props = {
+  children: ReactNode
   heading: string
   label: string
 }

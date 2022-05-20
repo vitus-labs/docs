@@ -5,7 +5,7 @@ export default element
   .attrs({
     tag: 'main',
     block: true,
-    vertical: true,
+    direction: 'rows',
     contentDirection: 'rows',
     contentAlignY: 'top',
     contentAlignX: 'block',

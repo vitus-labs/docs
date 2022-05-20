@@ -1,4 +1,4 @@
-import React, { VFC } from 'react'
+import React, { FC } from 'react'
 import { LiveError } from 'react-live'
 import box from '../../Box'
 
@@ -7,16 +7,17 @@ const Box = box
     tag: 'div',
     contentAlignX: 'left',
   })
+  // @ts-ignore
   .theme((t) => ({
     hideEmpty: true,
     paddingX: t.spacing.small,
     paddingY: t.spacing.small,
     borderRadius: 0,
-    hover: undefined,
+    hover: null,
     backgroundColor: 'red',
   }))
 
-const component: VFC = (props) => (
+const component: FC = (props) => (
   <Box>
     <LiveError {...props} />
   </Box>

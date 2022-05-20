@@ -1,4 +1,4 @@
-import { VFC } from 'react'
+import { FC } from 'react'
 import isCurrentRoute from '~/hooks/isCurrentRoute'
 import link from '~/components/base/Link'
 import SubMenu from './SubMenu'
@@ -30,7 +30,7 @@ interface Props {
   href: string
 }
 
-const component: VFC<Props> = ({ data, ...props }) => {
+const component: FC<Props> = ({ data, ...props }) => {
   const isActive = isCurrentRoute(props.href)
 
   return (

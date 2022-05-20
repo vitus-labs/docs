@@ -1,4 +1,4 @@
-import { VFC } from 'react'
+import { FC } from 'react'
 import { element } from '~/components/core'
 import list, { Item as wrapComponent } from '~/components/base/List'
 import link from '~/components/base/Link'
@@ -52,7 +52,7 @@ type Props = {
   data: Array<any>
 }
 
-const component: VFC<Props> = ({ title, data, component = Link }) => (
+const component: FC<Props> = ({ title, data, component = Link }) => (
   <Wrapper beforeContent={title ? <Heading label={title} /> : null}>
     <List data={data} component={component} />
   </Wrapper>

@@ -1,28 +1,24 @@
 import rocketstyle from '@vitus-labs/rocketstyle'
 import { List } from '@vitus-labs/elements'
 import { styles, makeItResponsive, value } from '@vitus-labs/unistyle'
-import type { Theme } from '~/theme'
-
-type ComponentTheme = Parameters<typeof styles>[0]['theme']
-type ComponentThemeDefinition = ComponentTheme
 
 type ListStyles = Parameters<typeof makeItResponsive>[0]['styles']
 
-const listStyles: ListStyles = ({ theme: t, css, rootSize }) => css`
+const listItemGaps: ListStyles = ({ theme: t, css, rootSize }) => css`
   ${t.gap &&
   css`
-    margin: ${value([t.gap / 2], rootSize)} !important;
-  `};
+    gap: ${value([t.gap], rootSize)};
 
-  ${t.indent &&
-  css`
-    padding: ${value([t.indent / 2], rootSize)} !important;
+    & > * {
+      margin: 0 !important;
+    }
   `};
 `
 
-//<Theme, ComponentThemeDefinition & Partial<{ gap: number; indent: number }>>
+const dimensions = { indent: 'indent', gaps: 'gap', gapsY: 'gapY' } as const
+
 export default rocketstyle({
-  dimensions: { indent: 'indent', gaps: 'gap', gapsY: 'gapY' } as const,
+  dimensions,
   useBooleans: false,
 })({
   component: List,
@@ -68,23 +64,6 @@ export default rocketstyle({
       gap: t.spacing.xxxLarge,
     },
   }))
-  .indent((t) => ({
-    small: {
-      indent: t.spacing.xSmall / 2,
-    },
-    medium: {
-      indent: t.spacing.medium / 2,
-    },
-    large: {
-      indent: t.spacing.large / 2,
-    },
-    xLarge: {
-      indent: t.spacing.xLarge / 2,
-    },
-    xxLarge: {
-      indent: t.spacing.xxLarge / 2,
-    },
-  }))
   .gapsY((t) => ({
     xSmall: {
       margin: t.spacing.xSmall,
@@ -106,7 +85,7 @@ export default rocketstyle({
     },
   }))
   .styles(
-    (css) => css`
+    (css: any) => css`
       ${({ $rocketstyle, rootElement }: any) => {
         const { gap, indent, ...restStyles } = $rocketstyle
 
@@ -121,7 +100,7 @@ export default rocketstyle({
 
         const listTheme = makeItResponsive({
           theme: { gap, indent },
-          styles: listStyles,
+          styles: listItemGaps,
           css,
         })
 

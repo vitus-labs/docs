@@ -1,4 +1,4 @@
-import { FC } from 'react'
+import { FC, ReactNode } from 'react'
 import { element } from '~/components/core'
 
 const Wrapper = element
@@ -40,6 +40,7 @@ const Inner = element
   })
 
 type Props = {
+  children: ReactNode
   transparent?: boolean
 }
 

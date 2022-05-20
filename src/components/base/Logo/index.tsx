@@ -1,4 +1,4 @@
-import { VFC } from 'react'
+import { FC } from 'react'
 import { element } from '~/components/core'
 import Link from '~/components/base/Link'
 
@@ -15,7 +15,7 @@ const Logo = element
     },
   })
 
-const component: VFC = () => (
+const component: FC = () => (
   <Link href="/">
     <Logo />
   </Link>

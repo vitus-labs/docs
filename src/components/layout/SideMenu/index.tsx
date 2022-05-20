@@ -1,4 +1,4 @@
-import { VFC } from 'react'
+import { FC } from 'react'
 import { ExtractProps } from '~/types'
 import { element } from '~/components/core'
 
@@ -29,7 +29,7 @@ const InnerWrapper = base
     position: 'fixed',
     top: t.layout.topMenu.height,
     width: t.layout.sideMenu.width,
-    height: t.layout.sideMenu.height,
+    // height: t.layout.sideMenu.height,
     zIndex: t.layout.sideMenu.zIndex,
     background: t.layout.sideMenu.background,
   }))
@@ -42,7 +42,7 @@ const Inner = base
     tag: 'nav',
   })
   .theme((t) => ({
-    width: t.size.hideScrollBar,
+    // width: t.size.hideScrollBar,
     backgroundColor: t.layout.sideMenu.background,
     overflowY: 'auto',
     paddingY: 60,
@@ -50,7 +50,7 @@ const Inner = base
 
 type Props = ExtractProps<typeof Inner>
 
-const component: VFC<Props> = (props) => (
+const component: FC<Props> = (props) => (
   <Wrapper>
     <InnerWrapper>
       <Inner {...props} />

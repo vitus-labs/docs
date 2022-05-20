@@ -1,8 +1,12 @@
-import { FC } from 'react'
+import { FC, ReactNode } from 'react'
 import { Root } from '~/components/layout'
 import TopMenu from './TopMenu'
 
-const component: FC = ({ children }) => (
+type Props = {
+  children: ReactNode
+}
+
+const component: FC<Props> = ({ children }) => (
   <Root>
     <TopMenu />
     {children}

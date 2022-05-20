@@ -13,7 +13,9 @@ export type Props = Partial<{
 }>
 
 const component = (
-  WrappedComponent: ComponentType<Partial<{ active: boolean; href: string }>>
+  WrappedComponent: ComponentType<
+    Partial<{ active: boolean; href: string; external?: boolean }>
+  >
 ) => {
   const Enhance: FC<Props> = ({
     href,
@@ -49,10 +51,11 @@ const component = (
         scroll={scroll}
         shallow={shallow}
         prefetch={prefetch}
+        passHref
       >
         <WrappedComponent
           active={asPath === destination}
-          href={destination}
+          // href={destination}
           {...props}
           {...externalProps}
         />
