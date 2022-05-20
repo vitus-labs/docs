@@ -26,7 +26,6 @@ const Wrapper = Box.theme({
   },
 })
 
-// @ts-ignore
 const Inner = Box.theme((t) => ({
   height: 'inherit',
   paddingY: t.spacing.large,

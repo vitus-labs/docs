@@ -7,7 +7,6 @@ const Box = box
     tag: 'div',
     contentAlignX: 'left',
   })
-  // @ts-ignore
   .theme((t) => ({
     hideEmpty: true,
     paddingX: t.spacing.small,
