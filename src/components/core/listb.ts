@@ -7,7 +7,7 @@ const createGap = (size) => ({
   gapSize: size,
 })
 
-export default rocketstyle()({
+export default rocketstyle({
   useBooleans: true,
   dimensions: {
     states: 'state',

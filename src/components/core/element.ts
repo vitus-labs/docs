@@ -33,7 +33,8 @@ type ComponentThemeDefinition = ResponsiveThemeDefinition & {
   focus: ResponsiveThemeDefinition
 }
 
-export default rocketstyle<Theme, ComponentThemeDefinition>()()({
+// <Theme, ComponentThemeDefinition>
+export default rocketstyle()({
   component: Element,
   name: 'core/Element',
 })

@@ -20,10 +20,8 @@ const listStyles: ListStyles = ({ theme: t, css, rootSize }) => css`
   `};
 `
 
-export default rocketstyle<
-  Theme,
-  ComponentThemeDefinition & Partial<{ gap: number; indent: number }>
->()({
+//<Theme, ComponentThemeDefinition & Partial<{ gap: number; indent: number }>>
+export default rocketstyle({
   dimensions: { indent: 'indent', gaps: 'gap', gapsY: 'gapY' } as const,
   useBooleans: false,
 })({
