@@ -1,4 +1,4 @@
-import { VFC } from 'react'
+import { FC } from 'react'
 import { TopMenu } from '~/components/layout'
 import { Container } from '~/components/grid'
 import { Logo, IconList, Line } from '~/components/base'
@@ -13,7 +13,7 @@ const Root = element
     paddingX: { xs: t.spacing.large, xxxl: t.spacing.reset },
   }))
 
-const component: VFC = () => (
+const component: FC = () => (
   <TopMenu>
     <Container
       width={{

@@ -1,6 +1,6 @@
-import { ComponentType, VFC } from 'react'
+import { ComponentType, FC } from 'react'
 
-type EnhancedType = VFC<{ name: string; label?: string }>
+type EnhancedType = FC<{ name: string; label?: string }>
 type LoadAsset = (
   WrappedComponent: ComponentType<{ src: string }>
 ) => EnhancedType

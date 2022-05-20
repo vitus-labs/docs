@@ -1,4 +1,4 @@
-import React, { VFC } from 'react'
+import React, { FC } from 'react'
 import box from '~/components/base/Box'
 import link from '~/components/base/Link'
 import heading from '~/components/base/Heading'
@@ -36,7 +36,7 @@ type Props = {
   link: string
 }
 
-const component: VFC<Props> = ({
+const component: FC<Props> = ({
   variant = 'primary',
   title,
   label,

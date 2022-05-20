@@ -21,11 +21,12 @@ const Wrapper = Box.theme({
   backgroundColor: 'transparent',
 }).variants({
   compact: {
-    height: '',
+    height: null,
     maxHeight: 400,
   },
 })
 
+// @ts-ignore
 const Inner = Box.theme((t) => ({
   height: 'inherit',
   paddingY: t.spacing.large,

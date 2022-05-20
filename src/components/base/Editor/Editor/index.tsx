@@ -1,11 +1,11 @@
-import { VFC } from 'react'
+import { FC } from 'react'
 import { LiveEditor } from 'react-live'
 import { ExtractProps } from '~/types'
 import ContentBox from '../ContentBox'
 
 type Props = ExtractProps<typeof LiveEditor>
 
-const component: VFC<Props> = (props) => (
+const component: FC<Props> = (props) => (
   <ContentBox>
     {/* @ts-ignore */}
     <LiveEditor

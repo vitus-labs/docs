@@ -4,6 +4,7 @@ import { Container } from '~/components/grid'
 import { Element } from '~/components/core'
 
 type Props = {
+  children: ReactNode
   sidePanel: ReactNode
   side?: 'left' | 'right'
 }

@@ -1,9 +1,10 @@
-import { FC } from 'react'
+import { FC, ReactNode } from 'react'
 import { SidePanelLayout } from '~/components/layout'
 import SideMenuLinks from '~/components/layout/SideMenuLinks'
 import TopMenu from './TopMenu'
 
 type Props = {
+  children: ReactNode
   menu: Array<{
     title: string
     slug: string

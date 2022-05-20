@@ -12,11 +12,13 @@
       ],
       "components/*": [
         "./components/*"
-      ],
+      ]
     },
+    "incremental": true
   },
   "include": [
     "next-env.d.ts",
+    "typings.d.ts",
     "**/*.ts",
     "**/*.tsx",
     "**/*.md",

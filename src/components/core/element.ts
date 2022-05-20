@@ -1,39 +1,8 @@
 import rocketstyle from '@vitus-labs/rocketstyle'
 import { Element } from '@vitus-labs/elements'
-import { styles, StylesTheme, makeItResponsive } from '@vitus-labs/unistyle'
-import type { Theme } from '~/theme'
+import { styles, makeItResponsive } from '@vitus-labs/unistyle'
 
-type ResponsiveThemeDefinition = {
-  [I in keyof StylesTheme]:
-    | StylesTheme[I]
-    | null
-    | Partial<{
-        xs: StylesTheme[I] | null
-        sm: StylesTheme[I] | null
-        md: StylesTheme[I] | null
-        lg: StylesTheme[I] | null
-        xl: StylesTheme[I] | null
-        xxl: StylesTheme[I] | null
-      }>
-    | [
-        xs?: StylesTheme[I] | null,
-        sm?: StylesTheme[I] | null,
-        md?: StylesTheme[I] | null,
-        lg?: StylesTheme[I] | null,
-        xl?: StylesTheme[I] | null,
-        xxl?: StylesTheme[I] | null
-      ]
-}
-
-type ComponentThemeDefinition = ResponsiveThemeDefinition & {
-  hover: ResponsiveThemeDefinition
-} & {
-  active: ResponsiveThemeDefinition
-} & {
-  focus: ResponsiveThemeDefinition
-}
-
-export default rocketstyle<Theme, ComponentThemeDefinition>()()({
+export default rocketstyle()({
   component: Element,
   name: 'core/Element',
 })

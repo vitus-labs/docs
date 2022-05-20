@@ -1,4 +1,4 @@
-import { VFC } from 'react'
+import { FC } from 'react'
 import element from '~/components/core/element'
 import loadAsset from './loadAsset'
 
@@ -45,7 +45,7 @@ type Props = {
   circle?: boolean
 }
 
-const component: VFC<Props> = ({ label, name, ...props }) => (
+const component: FC<Props> = ({ label, name, ...props }) => (
   <LogoWrapper {...props}>
     <Logo label={label} name={name} />
   </LogoWrapper>

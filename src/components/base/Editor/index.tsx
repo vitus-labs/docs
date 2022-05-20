@@ -1,4 +1,4 @@
-import { VFC } from 'react'
+import { FC } from 'react'
 import Highlight, { defaultProps } from 'prism-react-renderer'
 import codeTheme from 'prism-react-renderer/themes/palenight'
 import { LiveProvider } from 'react-live'
@@ -18,7 +18,7 @@ type Props = {
   preview?: string
 }
 
-const component: VFC<Props> = ({
+const component: FC<Props> = ({
   children,
   className,
   editor = true,

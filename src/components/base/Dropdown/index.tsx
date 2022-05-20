@@ -1,4 +1,4 @@
-import { VFC } from 'react'
+import { FC } from 'react'
 import { Overlay, element } from '~/components/core'
 import IconLogo from '../IconLogo'
 import type { ExtractProps } from '~/types'
@@ -38,12 +38,15 @@ const Trigger = element
     color: t.color.light.base,
   }))
 
-type Props = ExtractProps<typeof Overlay>
+type Props = Omit<ExtractProps<typeof Overlay>, 'children'> & {
+  children: typeof Inner['$$allProps']['children']
+}
 
-const component: VFC<Props> = ({ trigger = Trigger, children, ...props }) => (
+const component: FC<Props> = ({ trigger = Trigger, children, ...props }) => (
   <Overlay
     type="dropdown"
-    refName="innerRef"
+    contentRefName="innerRef"
+    triggerRefName="innerRef"
     trigger={trigger}
     offsetY={16}
     {...props}
