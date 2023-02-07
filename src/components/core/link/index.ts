@@ -1,6 +1,12 @@
 import element from '../element'
 import withLink, { Props } from './withLink'
 
+const getTag = ({ href, onClick }: any) => {
+  if (href) return 'a'
+  if (onClick) return 'button'
+  return 'span'
+}
+
 export default element
   .config({
     name: 'core/link',
@@ -10,7 +16,7 @@ export default element
   })
   .attrs<Props & { onClick?: MouseEvent | (() => void) }>(
     ({ href, onClick }) => ({
-      tag: href ? 'a' : onClick ? 'button' : 'span',
+      tag: getTag({ href, onClick }),
     })
   )
   .theme((t) => ({

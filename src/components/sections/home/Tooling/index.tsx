@@ -42,7 +42,7 @@ const component = () => (
             data={data}
             wrapComponent={Col}
             itemProps={{ variant: 'secondary', state: 'light' }}
-          ></BoxList>
+          />
         </Row>
       </Container>
     </Section>

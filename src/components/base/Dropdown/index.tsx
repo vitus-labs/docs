@@ -1,7 +1,7 @@
 import { FC } from 'react'
+import type { ExtractProps } from '~/types'
 import { Overlay, element } from '~/components/core'
 import IconLogo from '../IconLogo'
-import type { ExtractProps } from '~/types'
 
 const base = element.config({ name: 'base/Dropdown/Content/Base' }).attrs({
   contentDirection: 'rows',
@@ -39,7 +39,7 @@ const Trigger = element
   }))
 
 type Props = Omit<ExtractProps<typeof Overlay>, 'children'> & {
-  children: typeof Inner['$$allProps']['children']
+  children: (typeof Inner)['$$types']['children']
 }
 
 const component: FC<Props> = ({ trigger = Trigger, children, ...props }) => (

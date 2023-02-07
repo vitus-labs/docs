@@ -17,7 +17,7 @@ export const extractFileRoute: ExtractFileRoute = (fileName) => {
   let helper =
     fileNameToArray.length > 0 ? fileNameToArray.join('-') : fileNameToArray[0]
 
-  if (!isNaN(fileNameToArray[0] as any)) {
+  if (!Number.isNaN(fileNameToArray[0] as any)) {
     const [_, ...rest] = fileNameToArray
     helper = rest.join('-')
   }
@@ -29,11 +29,11 @@ export const extractFileRoute: ExtractFileRoute = (fileName) => {
 //
 // --------------------------------------------------------
 export const getFileGroupSlug = (slug) => {
-  const _slug = [...slug]
+  const newSlug = [...slug]
 
-  _slug.pop()
+  newSlug.pop()
 
-  return _slug
+  return newSlug
 }
 
 // --------------------------------------------------------
@@ -51,7 +51,7 @@ export const getSlugsMap = (dir = 'docs') => {
 
       let helper = finalName.length > 0 ? finalName.join('-') : finalName[0]
 
-      if (!isNaN(finalName[0])) {
+      if (!Number.isNaN(finalName[0])) {
         const [_, ...rest] = finalName
         helper = rest.join('-')
       }
@@ -81,12 +81,12 @@ export const transformSlugs: TransformSlugs = (
 ) => {
   Object.entries(data).forEach(([key, value]) => {
     if (
-      typeof value !== null &&
+      value !== null &&
       typeof value === 'object' &&
-      Object.keys(value as {}).length > 0
+      Object.keys(value as Record<string, any>).length > 0
     ) {
       result.push([...keys, key]) // index route
-      transformSlugs(value as {}, result, [...keys, key])
+      transformSlugs(value as Record<string, any>, result, [...keys, key])
     } else {
       result.push([...keys, key])
     }
@@ -163,12 +163,12 @@ export const filterMenu: FilterMenu = (obj) => {
 
   obj.children.forEach((item) => {
     if (item.type === 'heading' && item.depth === 1) {
-      const value = item.children[0].value
+      const { value } = item.children[0]
       mainHeading = value
     }
 
     if (item.type === 'heading' && item.depth === 2) {
-      const value = item.children[0].value
+      const { value } = item.children[0]
       subHeadings.push(value)
     }
   })

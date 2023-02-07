@@ -1,7 +1,8 @@
 import { FC, ReactNode } from 'react'
-import { SideMenu, Content } from '~/components/layout'
 import { Container } from '~/components/grid'
 import { Element } from '~/components/core'
+import SideMenu from '../SideMenu'
+import Content from '../Content'
 
 type Props = {
   children: ReactNode
@@ -9,7 +10,7 @@ type Props = {
   side?: 'left' | 'right'
 }
 
-const component: FC<Props> = ({ children, side = 'left', sidePanel }) => {
+const Component: FC<Props> = ({ children, side = 'left', sidePanel }) => {
   const layoutProps = () =>
     side === 'left'
       ? {
@@ -39,6 +40,6 @@ const component: FC<Props> = ({ children, side = 'left', sidePanel }) => {
   )
 }
 
-component.displayName = 'base/layout/SidePanelLayout'
+Component.displayName = 'base/layout/SidePanelLayout'
 
-export default component
+export default Component

@@ -1,3 +1,4 @@
+import { FC } from 'react'
 import { useRouter } from 'next/router'
 import { element, List } from '~/components/core'
 import { Icon, IconLogo, Dropdown } from '~/components/base'
@@ -18,7 +19,11 @@ const Trigger = element
     userSelect: 'none',
   }))
 
-const component = () => {
+const DefaultTrigger: FC<any> = ({ label, icon, ...props }) => (
+  <Trigger {...props} label={label} icon={icon} />
+)
+
+const Component = () => {
   const { asPath } = useRouter()
 
   const activeItem = data
@@ -27,13 +32,13 @@ const component = () => {
 
   return (
     <Dropdown
-      trigger={(props: any) => (
-        <Trigger {...props} label={activeItem.label} icon={activeItem.icon} />
-      )}
+      trigger={
+        <DefaultTrigger label={activeItem.label} icon={activeItem.icon} />
+      }
     >
       <List rootElement={false} data={data as any} component={DropdownMenu} />
     </Dropdown>
   )
 }
 
-export default component
+export default Component

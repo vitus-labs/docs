@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-var-requires */
+/* eslint-disable global-require */
+/* eslint-disable import/no-dynamic-require */
 import { ComponentType, FC } from 'react'
 
 type EnhancedType = FC<{ name: string }>
@@ -12,7 +15,7 @@ const loadAsset: LoadAsset = (WrappedComponent) => {
       dangerouslySetInnerHTML={
         name
           ? {
-              __html: require(`~/assets/icons/${name}.svg?include`),
+              __html: require(`~/assets/icons/${name}.svg?include`).default,
             }
           : undefined
       }

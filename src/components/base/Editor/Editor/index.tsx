@@ -5,7 +5,7 @@ import ContentBox from '../ContentBox'
 
 type Props = ExtractProps<typeof LiveEditor>
 
-const component: FC<Props> = (props) => (
+const Component: FC<Props> = (props) => (
   <ContentBox>
     {/* @ts-ignore */}
     <LiveEditor
@@ -20,4 +20,4 @@ const component: FC<Props> = (props) => (
   </ContentBox>
 )
 
-export default component
+export default Component

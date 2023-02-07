@@ -37,7 +37,7 @@ const component: FC<Props> = ({
     return (
       <LiveProvider
         language={language}
-        noInline={true}
+        noInline
         code={children}
         scope={scope}
         theme={codeTheme}
