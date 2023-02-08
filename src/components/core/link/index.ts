@@ -14,18 +14,15 @@ export default element
   .compose({
     withLink,
   })
-  .attrs<Props & { onClick?: MouseEvent | (() => void) }>(
-    ({ href, onClick }) => ({
-      tag: getTag({ href, onClick }),
-    })
-  )
+  .attrs<Props>(({ href, onClick }) => ({
+    tag: getTag({ href, onClick }),
+  }))
   .theme((t) => ({
     transition: t.transition.base,
     border: 'none',
-    // backgroundColor: t.color.transparent,
     textDecoration: 'none',
     outline: 'none',
-    padding: 0,
-    margin: 0,
+    padding: t.spacing.reset,
+    margin: t.spacing.reset,
     userSelect: 'none',
   }))

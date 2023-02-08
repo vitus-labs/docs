@@ -2,7 +2,7 @@ import { useEffect, ComponentType, MouseEventHandler } from 'react'
 import { useRouter } from 'next/router'
 import routes from '~/core/routes'
 
-type Props = Partial<{
+export type Props = Partial<{
   href: string | (<T>(routes: T) => keyof T)
   onClick?: MouseEventHandler
   external: boolean

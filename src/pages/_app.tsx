@@ -1,11 +1,12 @@
 import '~/config/init'
+import { FC } from 'react'
 import Head from 'next/head'
 import { Provider } from '~/theme'
 import type { AppProps } from 'next/app'
 import Meta from '~/components/meta/Meta'
 import Favicons from '~/components/meta/Favicons'
 
-const component = ({ Component, pageProps }: AppProps) => (
+const Component: FC<AppProps> = ({ Component, pageProps }) => (
   <>
     <Head>
       <Meta />
@@ -17,4 +18,4 @@ const component = ({ Component, pageProps }: AppProps) => (
   </>
 )
 
-export default component
+export default Component
