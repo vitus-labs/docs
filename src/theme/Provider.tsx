@@ -10,7 +10,6 @@ type Props = {
 
 const component: FC<Props> = ({ children }) => (
   <Provider theme={theme} provider={provider}>
-    {/* @ts-ignore */}
     <GlobalStyle theme={theme} />
     {children}
   </Provider>

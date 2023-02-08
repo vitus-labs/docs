@@ -16,17 +16,22 @@
     "make:favicon": "yarn vl_favicon"
   },
   "dependencies": {
+    "@next/font": "^13.1.6",
     "@vitus-labs/coolgrid": "^0.79.0",
     "@vitus-labs/core": "^0.79.0",
     "@vitus-labs/elements": "^0.79.0",
     "@vitus-labs/rocketstyle": "^0.79.0",
     "@vitus-labs/unistyle": "^0.79.0",
+    "gray-matter": "^4.0.3",
     "next": "^13.1.6",
+    "next-mdx-remote": "^4.3.0",
     "prism-react-renderer": "^1.3.5",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-live": "^3.1.1",
     "react-markdown": "^8.0.5",
+    "remark": "^14.0.2",
+    "remark-mdx": "^2.2.1",
     "styled-components": "^5.3.6"
   },
   "devDependencies": {
@@ -37,17 +42,13 @@
     "@vitus-labs/tools-favicon": "^0.45.0",
     "@vitus-labs/tools-lint": "^0.45.0",
     "@vitus-labs/tools-typescript": "^0.45.0",
-    "gray-matter": "^4.0.3",
     "image-trace-loader": "^1.0.2",
     "imagemin-mozjpeg": "^10.0.0",
     "imagemin-optipng": "^8.0.0",
     "imagemin-svgo": "^10.0.1",
     "next-compose-plugins": "^2.2.1",
-    "next-mdx-remote": "^4.3.0",
     "next-optimized-images": "^2.6.2",
     "next-optimized-images-2": "^1.0.1",
-    "remark": "^14.0.2",
-    "remark-mdx": "^2.2.1",
     "typescript": "^4.9.5"
   },
   "packageManager": "yarn@3.2.1"

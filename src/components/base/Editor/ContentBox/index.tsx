@@ -12,7 +12,7 @@ const Box = box
   .theme((t) => ({
     paddingX: t.spacing.reset,
     paddingY: t.spacing.reset,
-    hover: {},
+    hover: null,
   }))
 
 const Wrapper = Box.theme({
@@ -31,6 +31,7 @@ const Inner = Box.theme((t) => ({
   paddingY: t.spacing.large,
   paddingLeft: t.spacing.large,
   paddingRight: t.spacing.large + 20,
+  fontFamily: t.fontFamily.mono,
   fontSize: t.fontSize.medium,
   borderRadius: t.borderRadius.medium,
   overflowY: 'auto',

@@ -1,3 +1,23 @@
+import { Montserrat, Varela_Round, Source_Code_Pro } from '@next/font/google'
+
+const baseFont = Montserrat({
+  weight: ['400', '600'],
+  subsets: ['latin'],
+  style: ['italic', 'normal'],
+})
+
+const headingsFont = Varela_Round({
+  weight: ['400'],
+  subsets: ['latin'],
+  style: ['normal'],
+})
+
+const sourceCode = Source_Code_Pro({
+  weight: ['400'],
+  subsets: ['latin'],
+  style: ['normal', 'italic'],
+})
+
 const theme = {
   rootSize: 16,
   breakpoints: {
@@ -82,9 +102,9 @@ const theme = {
   // TYPOGRAPHY OPTIONS
   // ------------------------------------------------------
   fontFamily: {
-    base: "'Montserrat', sans-serif",
-    headings: "'Varela Round', sans-serif",
-    mono: 'source-code-pro, Menlo, Monaco, Consolas, "Courier New", monospace',
+    base: baseFont.style.fontFamily,
+    headings: headingsFont.style.fontFamily,
+    mono: sourceCode.style.fontFamily,
   },
   fontSize: {
     smaller: '80%',

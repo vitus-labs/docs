@@ -7,6 +7,7 @@ type Props = ExtractProps<typeof LiveEditor>
 
 const Component: FC<Props> = (props) => (
   <ContentBox>
+    {/* eslint-disable-next-line @typescript-eslint/ban-ts-comment */}
     {/* @ts-ignore */}
     <LiveEditor
       {...props}
