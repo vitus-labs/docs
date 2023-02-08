@@ -43,7 +43,7 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
   } = await import('~/core/markdown')
 
   const slug = params?.slug as string[]
-  const routesMap = getAllRoutesFromDir(DIR_PATH)
+  const routesMap = await getAllRoutesFromDir(DIR_PATH)
 
   const slugRoute = get(routesMap, slug) as Record<string, any> | string
 
@@ -85,11 +85,11 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
 
   // [2] generate side menu for docs
   const directoryMap = get(routesMap, groupSlug) as Record<string, any>
-
   const menu = await generateMenu(fileDirPath, directoryMap)
 
   // [3] separate meta data and content
   const parsedFile = await splitMetadataAndContentFromFile(file)
+  // console.log('3')
 
   // [4] complete meta data
   const meta = await getMetaDataFromFile(parsedFile.data)

@@ -1,8 +1,8 @@
 import fs from 'fs'
 import { join } from 'path'
 import matter from 'gray-matter'
-import remark from 'remark'
-import mdx from 'remark-mdx'
+import { remark } from 'remark'
+import remarkMdx from 'remark-mdx'
 
 const ROOT_DIRECTORY = join(process.cwd(), '/src/components/pages')
 
@@ -17,6 +17,7 @@ export const extractFileRoute: ExtractFileRoute = (fileName) => {
     fileNameToArray.length > 0 ? fileNameToArray.join('-') : fileNameToArray[0]
 
   if (!Number.isNaN(fileNameToArray[0])) {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [_, ...rest] = fileNameToArray
     helper = rest.join('-')
   }
@@ -51,6 +52,7 @@ export const getAllRoutesFromDir = (dir = 'docs') => {
       let helper = finalName.length > 0 ? finalName.join('-') : finalName[0]
 
       if (!Number.isNaN(finalName[0])) {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const [_, ...rest] = finalName
         helper = rest.join('-')
       }
@@ -126,7 +128,7 @@ export const parseMarkdown = async (file: string) => {
   let result
 
   await remark()
-    .use(mdx)
+    .use(remarkMdx)
     .use(() => (tree) => {
       result = tree
     })
@@ -177,34 +179,39 @@ type Link = {
   submenu?: Array<{ title: string; anchor: string }>
 }
 
+type GetMenuItem = (dir: string[], key: string, value: string) => Promise<Link>
+
+const getMenuItem: GetMenuItem = async (dir, key, value) => {
+  const file = await getFileBySlug(dir, value)
+  const { content } = await splitMetadataAndContentFromFile(file)
+  const parsedFile = await parseMarkdown(content)
+  const menu = await filterMenu(parsedFile as any)
+  const itemLink = `/${[...dir, key].join('/')}`
+
+  return {
+    title: menu.mainHeading,
+    slug: itemLink,
+    submenu: menu.subHeadings?.map((item) => ({
+      title: item,
+      anchor: `${itemLink}#${item.replace(/ /g, '-').toLowerCase()}`,
+    })),
+  }
+}
+
 type GenerateMainMenu = (
   dir: string[],
   folderMap: Record<string, string>
 ) => Promise<Link[]>
 
-export const generateMenu: GenerateMainMenu = async (dir, folderMap) =>
-  Object.entries(folderMap).reduce(async (acc: any, [key, value]) => {
-    const accum = await acc
-    const file = await getFileBySlug(dir, value)
-    const { content } = await splitMetadataAndContentFromFile(file)
-    const parsedFile = await parseMarkdown(content)
-    const menu = await filterMenu(parsedFile as any)
-    const itemLink = `/${[...dir, key].join('/')}`
+export const generateMenu: GenerateMainMenu = async (dir, folderMap) => {
+  const RESULT = Object.entries(folderMap).map(([key, value]) =>
+    getMenuItem(dir, key, value)
+  )
 
-    return [
-      ...accum,
-      {
-        title: menu.mainHeading,
-        slug: itemLink,
-        submenu: menu.subHeadings?.map((item) => ({
-          title: item,
-          anchor: `${itemLink}#${item.replace(/ /g, '-').toLowerCase()}`,
-        })),
-      },
-    ]
-  }, [] as Link[])
+  return Promise.all(RESULT)
+}
 
-export const getMetaDataFromFile = (data) => {
+export const getMetaDataFromFile = (data: Record<string, any>) => {
   const meta = { ...data }
 
   if (!meta.title) {
