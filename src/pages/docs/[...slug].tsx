@@ -1,26 +1,13 @@
 import { useEffect } from 'react'
 import type { GetStaticProps, GetStaticPaths } from 'next'
 import router from 'next/router'
-import { serialize } from 'next-mdx-remote/serialize'
-import { get } from '@vitus-labs/core'
 import Head from 'next/head'
+import { get } from '@vitus-labs/core'
 import Layout from '~/components/layouts/Docs'
 import Meta from '~/components/meta/Meta'
 import Markdown from '~/markdown'
-import {
-  getSlugsMap,
-  extractFileRoute,
-  getFileGroupSlug,
-  getSlugs,
-  getFileBySlug,
-  generateMenu,
-  getMetaDataFromFile,
-  splitMetadataAndContentFromFile,
-} from '~/core/markdown'
 
-const DIR_PATH = 'docs'
-
-const Docs = ({ meta = {}, content, menu, redirectUrl }: any) => {
+const Component = ({ meta = {}, content, menu, redirectUrl }: any) => {
   useEffect(() => {
     if (redirectUrl) {
       router.replace(redirectUrl)
@@ -41,30 +28,44 @@ const Docs = ({ meta = {}, content, menu, redirectUrl }: any) => {
   )
 }
 
+const DIR_PATH = 'docs'
+
 export const getStaticProps: GetStaticProps = async ({ params }) => {
-  const { slug } = params as any
-  const routeMap = getSlugsMap(DIR_PATH)
+  const { serialize } = await import('next-mdx-remote/serialize')
+  const {
+    getAllRoutesFromDir,
+    extractFileRoute,
+    getFileGroupSlug,
+    getFileBySlug,
+    generateMenu,
+    getMetaDataFromFile,
+    splitMetadataAndContentFromFile,
+  } = await import('~/core/markdown')
 
-  const mapSlug = get(routeMap, slug)
+  const slug = params?.slug as string[]
+  const routesMap = getAllRoutesFromDir(DIR_PATH)
 
-  const isSubcategory = Object.values(mapSlug as any).every(
-    (item) => typeof item === 'object'
-  )
+  const slugRoute = get(routesMap, slug) as Record<string, any> | string
 
-  if (isSubcategory) {
-    return {
-      props: { redirectUrl: '/' },
+  if (typeof slugRoute === 'object' && slugRoute !== null) {
+    const isSubcategory = Object.values(slugRoute).every(
+      (item) => typeof item === 'object'
+    )
+
+    if (isSubcategory) {
+      return {
+        props: { redirectUrl: '/' },
+      }
     }
-  }
 
-  // --------------------------------------------------------
-  // HANDLE REDIRECT FROM ROOT URLs
-  // --------------------------------------------------------
-  // if it's object it means it has subpages or sub urls, therefore we redirect
-  // it to the first available option
-  if (typeof mapSlug === 'object') {
-    // @ts-ignore
-    const redirectUrl = extractFileRoute(mapSlug[Object.keys(mapSlug)[0]])
+    // --------------------------------------------------------
+    // HANDLE REDIRECT FROM ROOT URLs
+    // --------------------------------------------------------
+    // if it's object it means it has subpages or sub urls, therefore we redirect
+    // it to the first available option
+
+    const firstRoute = Object.keys(slugRoute)[0]
+    const redirectUrl = extractFileRoute(slugRoute[firstRoute])
 
     return {
       props: {
@@ -76,28 +77,25 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
   // --------------------------------------------------------
   // LOAD DATA FOR PAGE
   // --------------------------------------------------------
-
   const groupSlug = getFileGroupSlug(slug)
   const fileDirPath = [DIR_PATH, ...groupSlug]
 
   // [1] load a static markdown file
-  const file = await getFileBySlug(fileDirPath, mapSlug as string)
+  const file = await getFileBySlug(fileDirPath, slugRoute)
 
   // [2] generate side menu for docs
-  const directoryMap = get(routeMap, groupSlug)
-  const menu = await generateMenu(fileDirPath, directoryMap as any)
+  const directoryMap = get(routesMap, groupSlug) as Record<string, any>
 
-  // [3] generate side menu for docs
-  // const categories = await generateCategories(DIR_PATH, slug)
+  const menu = await generateMenu(fileDirPath, directoryMap)
 
-  // [4] separate meta data and content
+  // [3] separate meta data and content
   const parsedFile = await splitMetadataAndContentFromFile(file)
 
-  // [5] complete meta data
-  const meta = await getMetaDataFromFile(parsedFile)
+  // [4] complete meta data
+  const meta = await getMetaDataFromFile(parsedFile.data)
 
-  // [6] stringify markdown content
-  const mdxSource = await serialize(parsedFile.content as string)
+  // [5] stringify markdown content
+  const mdxSource = await serialize(parsedFile.content)
 
   return {
     props: {
@@ -109,6 +107,8 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
 }
 
 export const getStaticPaths: GetStaticPaths = async () => {
+  const { getSlugs } = await import('~/core/markdown')
+
   const slugs = getSlugs(DIR_PATH)
 
   return {
@@ -121,4 +121,4 @@ export const getStaticPaths: GetStaticPaths = async () => {
   }
 }
 
-export default Docs
+export default Component

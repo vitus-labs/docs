@@ -1,4 +1,3 @@
-// @ts-nocheck
 import fs from 'fs'
 import { join } from 'path'
 import matter from 'gray-matter'
@@ -17,7 +16,7 @@ export const extractFileRoute: ExtractFileRoute = (fileName) => {
   let helper =
     fileNameToArray.length > 0 ? fileNameToArray.join('-') : fileNameToArray[0]
 
-  if (!Number.isNaN(fileNameToArray[0] as any)) {
+  if (!Number.isNaN(fileNameToArray[0])) {
     const [_, ...rest] = fileNameToArray
     helper = rest.join('-')
   }
@@ -28,7 +27,7 @@ export const extractFileRoute: ExtractFileRoute = (fileName) => {
 // --------------------------------------------------------
 //
 // --------------------------------------------------------
-export const getFileGroupSlug = (slug) => {
+export const getFileGroupSlug = (slug: string[]): string[] => {
   const newSlug = [...slug]
 
   newSlug.pop()
@@ -39,7 +38,7 @@ export const getFileGroupSlug = (slug) => {
 // --------------------------------------------------------
 // Get All Available slugs in a map
 // --------------------------------------------------------
-export const getSlugsMap = (dir = 'docs') => {
+export const getAllRoutesFromDir = (dir = 'docs') => {
   const dirPath = join(ROOT_DIRECTORY, dir)
   const directories = fs.readdirSync(dirPath)
 
@@ -58,7 +57,7 @@ export const getSlugsMap = (dir = 'docs') => {
 
       result[helper] = item
     } else {
-      result[item] = getSlugsMap(join(dir, item))
+      result[item] = getAllRoutesFromDir(join(dir, item))
     }
   })
 
@@ -99,7 +98,7 @@ export const transformSlugs: TransformSlugs = (
 type GetSlugs = (dir: string) => Array<string[]>
 
 export const getSlugs: GetSlugs = (dir) => {
-  const map = getSlugsMap(dir)
+  const map = getAllRoutesFromDir(dir)
   const result: Array<string[]> = []
 
   transformSlugs(map, result, [])
@@ -110,10 +109,7 @@ export const getSlugs: GetSlugs = (dir) => {
 // --------------------------------------------------------
 // Load a file by slug
 // --------------------------------------------------------
-type GetFileBySlug = (
-  slug: string[],
-  filename: string
-) => Promise<ReturnType<typeof fs.readFileSync>>
+type GetFileBySlug = (slug: string[], filename: string) => Promise<string>
 
 export const getFileBySlug: GetFileBySlug = async (slug, fileName) => {
   const fullPath = join(ROOT_DIRECTORY, ...slug, fileName)
@@ -125,9 +121,8 @@ export const getFileBySlug: GetFileBySlug = async (slug, fileName) => {
 // --------------------------------------------------------
 // Parse markdown file
 // --------------------------------------------------------
-type ParseMarkdown = (file: any) => Promise<ReturnType<typeof remark>>
-
-export const parseMarkdown: ParseMarkdown = async (file) => {
+// type ParseMarkdown = (file:string) =>
+export const parseMarkdown = async (file: string) => {
   let result
 
   await remark()
@@ -143,11 +138,8 @@ export const parseMarkdown: ParseMarkdown = async (file) => {
 // --------------------------------------------------------
 // Parse markdown file
 // --------------------------------------------------------
-export const splitMetadataAndContentFromFile = async (file) => {
-  const { data, content } = matter(file)
-
-  return { data, content }
-}
+export const splitMetadataAndContentFromFile = async (file: string) =>
+  matter(file)
 
 // --------------------------------------------------------
 // Load a file by slug
@@ -190,33 +182,30 @@ type GenerateMainMenu = (
   folderMap: Record<string, string>
 ) => Promise<Link[]>
 
-export const generateMenu: GenerateMainMenu = async (dir, folderMap) => {
-  const result = Object.entries(folderMap).reduce(async (acc, [key, value]) => {
-    const prevValue = await acc
-
+export const generateMenu: GenerateMainMenu = async (dir, folderMap) =>
+  Object.entries(folderMap).reduce(async (acc: any, [key, value]) => {
+    const accum = await acc
     const file = await getFileBySlug(dir, value)
     const { content } = await splitMetadataAndContentFromFile(file)
     const parsedFile = await parseMarkdown(content)
     const menu = await filterMenu(parsedFile as any)
     const itemLink = `/${[...dir, key].join('/')}`
 
-    prevValue.push({
-      title: menu.mainHeading,
-      slug: itemLink,
-      submenu: menu.subHeadings?.map((item) => ({
-        title: item,
-        anchor: `${itemLink}#${item.replace(/ /g, '-').toLowerCase()}`,
-      })),
-    })
+    return [
+      ...accum,
+      {
+        title: menu.mainHeading,
+        slug: itemLink,
+        submenu: menu.subHeadings?.map((item) => ({
+          title: item,
+          anchor: `${itemLink}#${item.replace(/ /g, '-').toLowerCase()}`,
+        })),
+      },
+    ]
+  }, [] as Link[])
 
-    return prevValue
-  }, [] as Link[]) as unknown
-
-  return result as Link[]
-}
-
-export const getMetaDataFromFile = async ({ data, content }) => {
-  const meta = data
+export const getMetaDataFromFile = (data) => {
+  const meta = { ...data }
 
   if (!meta.title) {
     const title = '' // find heading

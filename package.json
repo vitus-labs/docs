@@ -21,7 +21,7 @@
     "@vitus-labs/elements": "^0.79.0",
     "@vitus-labs/rocketstyle": "^0.79.0",
     "@vitus-labs/unistyle": "^0.79.0",
-    "next": "^12.3.4",
+    "next": "^13.1.6",
     "prism-react-renderer": "^1.3.5",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
