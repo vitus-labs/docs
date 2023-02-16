@@ -3368,7 +3368,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/react@npm:*, @types/react@npm:>=16, @types/react@npm:^18.0.27":
+"@types/react@npm:*, @types/react@npm:>=16":
   version: 18.0.27
   resolution: "@types/react@npm:18.0.27"
   dependencies:
@@ -3376,6 +3376,17 @@ __metadata:
     "@types/scheduler": "*"
     csstype: ^3.0.2
   checksum: 600fdbc39a92ea4a77047db3e12f05f67776a710f5918248c0189a59ac2a38900c9db5a5d2e433a16df528a3ecab1aa114b322cacea573bb1ca2fc0b094c52d1
+  languageName: node
+  linkType: hard
+
+"@types/react@npm:^18.0.28":
+  version: 18.0.28
+  resolution: "@types/react@npm:18.0.28"
+  dependencies:
+    "@types/prop-types": "*"
+    "@types/scheduler": "*"
+    csstype: ^3.0.2
+  checksum: e752df961105e5127652460504785897ca6e77259e0da8f233f694f9e8f451cde7fa0709d4456ade0ff600c8ce909cfe29f9b08b9c247fa9b734e126ec53edd7
   languageName: node
   linkType: hard
 
@@ -3738,7 +3749,7 @@ __metadata:
   dependencies:
     "@next/font": ^13.1.6
     "@types/node": ^18.13.0
-    "@types/react": ^18.0.27
+    "@types/react": ^18.0.28
     "@types/styled-components": ^5.1.26
     "@vitus-labs/coolgrid": ^0.79.0
     "@vitus-labs/core": ^0.79.0
@@ -3765,7 +3776,7 @@ __metadata:
     react-live: ^3.1.1
     react-markdown: ^8.0.5
     remark: ^14.0.2
-    remark-mdx: ^2.2.1
+    remark-mdx: ^2.3.0
     styled-components: ^5.3.6
     typescript: ^4.9.5
   languageName: unknown
@@ -12452,13 +12463,23 @@ __metadata:
   languageName: node
   linkType: hard
 
-"remark-mdx@npm:^2.0.0, remark-mdx@npm:^2.2.1":
+"remark-mdx@npm:^2.0.0":
   version: 2.2.1
   resolution: "remark-mdx@npm:2.2.1"
   dependencies:
     mdast-util-mdx: ^2.0.0
     micromark-extension-mdxjs: ^1.0.0
   checksum: 2e4488cd81fc2186dc0b079455c03b4e50cfd32d7a2a3f8f59d7ccb5d77ce9cab595f83f105fbf9e9a7e20a63a95ac2ef8e29c75d4c79bd78b1ace79e88b4c45
+  languageName: node
+  linkType: hard
+
+"remark-mdx@npm:^2.3.0":
+  version: 2.3.0
+  resolution: "remark-mdx@npm:2.3.0"
+  dependencies:
+    mdast-util-mdx: ^2.0.0
+    micromark-extension-mdxjs: ^1.0.0
+  checksum: 98486986c5b6f6a8321eb2f3b13c70fcd5644821428c77b7bfeb5ee5d4605b9761b322b2f6b531e83883cd2d5bc7bc4623427149aee00e1eba012f538b3d5627
   languageName: node
   linkType: hard
 

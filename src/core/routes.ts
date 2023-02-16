@@ -16,6 +16,9 @@ export default {
       base: '/docs/ui-system/unistyle',
     },
     coolgrid: { base: '/docs/ui-system/coolgrid' },
+    hooks: {
+      base: '/docs/ui-system/hooks',
+    },
   },
   tooling: {
     babel: { base: '/docs/tooling/babel' },

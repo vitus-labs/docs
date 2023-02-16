@@ -31,12 +31,12 @@
     "react-live": "^3.1.1",
     "react-markdown": "^8.0.5",
     "remark": "^14.0.2",
-    "remark-mdx": "^2.2.1",
+    "remark-mdx": "^2.3.0",
     "styled-components": "^5.3.6"
   },
   "devDependencies": {
     "@types/node": "^18.13.0",
-    "@types/react": "^18.0.27",
+    "@types/react": "^18.0.28",
     "@types/styled-components": "^5.1.26",
     "@vitus-labs/tools-babel": "^0.45.0",
     "@vitus-labs/tools-favicon": "^0.45.0",

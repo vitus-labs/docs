@@ -1,0 +1,39 @@
+---
+title: Hooks / Getting tarted
+---
+
+# Getting started
+
+Hooks is a collection of hooks.
+
+The package has only one hook at this moment called `useWindowResize` which is
+a React hook listening to window changes and returns client `width` and `height`.
+
+## Installation
+
+You can install it with your preferred tool (**yarn** or **npm**).
+
+```bash
+  yarn add @vitus-labs/hooks @vitus-labs/core
+```
+
+## Dependencies
+
+Elements depends on the following packages which need to be installed as
+well.
+
+| Package          | Version |
+| ---------------- | ------- |
+| react            | >= 16.7 |
+| @vitus-labs/core | latest  |
+
+```tsx editor=false live=false
+// import { useWindowResize } from '@vitus-labs/hooks'
+
+// usage
+const Component = () => {
+  const { width, height } = useWindowResize()
+
+  return null
+}
+```

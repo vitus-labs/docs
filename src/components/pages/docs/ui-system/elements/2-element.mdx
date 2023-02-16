@@ -308,9 +308,8 @@ render(
 
 ### Vertical variant
 
-For vertical aligning you can use prop **vertical** set to **true** or
-use **direction** prop which can be set to **rows** | **inline** |
-**reverseRows** | **reverseInline**.
+For vertical aligning you can use prop **direction** prop which can be set
+to **rows** | **inline** | **reverseRows** | **reverseInline**.
 
 ```tsx preview=inline
 // import { Element } from '@vitus-labs/elements'
@@ -342,27 +341,14 @@ const Content = () => <Element css={contentStyles} />
 
 // ↓↓↓ Element ↓↓↓
 render(
-  <>
-    {/* make it vertical by adding `vertical` prop */}
-    <Element
-      vertical
-      gap={16}
-      content={Content}
-      css={styles}
-      beforeContent={BeforeAfter}
-      afterContent={BeforeAfter}
-    />
-
-    {/* make it vertical by adding `direction` prop */}
-    <Element
-      direction="rows"
-      gap={16}
-      content={Content}
-      css={styles}
-      beforeContent={BeforeAfter}
-      afterContent={BeforeAfter}
-    />
-  </>
+  <Element
+    direction="rows"
+    gap={16}
+    content={Content}
+    css={styles}
+    beforeContent={BeforeAfter}
+    afterContent={BeforeAfter}
+  />
 )
 ```
 
@@ -931,7 +917,7 @@ const styles = `
 render(
   <>
     <Element
-      vertical
+      direction="rows"
       gap={16}
       content={Content} // used content here
       css={styles}
@@ -944,7 +930,7 @@ render(
     />
 
     <Element
-      vertical
+      direction="rows"
       gap={16}
       content={Content}
       css={styles}
@@ -957,7 +943,7 @@ render(
     />
 
     <Element
-      vertical
+      direction="rows"
       gap={16}
       content={Content}
       css={styles}
@@ -1018,7 +1004,7 @@ const styles = `
 render(
   <>
     <Element
-      vertical
+      direction="rows"
       gap={16}
       content={Content}
       css={styles}
@@ -1031,7 +1017,7 @@ render(
     />
 
     <Element
-      vertical
+      direction="rows"
       gap={16}
       content={Content}
       css={styles}
@@ -1044,7 +1030,7 @@ render(
     />
 
     <Element
-      vertical
+      direction="rows"
       gap={16}
       content={Content}
       css={styles}
@@ -1105,7 +1091,7 @@ const styles = `
 render(
   <>
     <Element
-      vertical
+      direction="rows"
       gap={16}
       content={Content}
       css={styles}
@@ -1118,7 +1104,7 @@ render(
     />
 
     <Element
-      vertical
+      direction="rows"
       gap={16}
       content={Content}
       css={styles}
@@ -1131,7 +1117,7 @@ render(
     />
 
     <Element
-      vertical
+      direction="rows"
       gap={16}
       content={Content}
       css={styles}
@@ -1194,7 +1180,7 @@ const styles = `
 render(
   <>
     <Element
-      vertical
+      direction="rows"
       gap={16}
       content={Content}
       css={styles}
@@ -1207,7 +1193,7 @@ render(
     />
 
     <Element
-      vertical
+      direction="rows"
       gap={16}
       content={Content}
       css={styles}
@@ -1220,7 +1206,7 @@ render(
     />
 
     <Element
-      vertical
+      direction="rows"
       gap={16}
       content={Content}
       css={styles}
@@ -1281,7 +1267,7 @@ const styles = `
 render(
   <>
     <Element
-      vertical
+      direction="rows"
       gap={16}
       content={Content}
       css={styles}
@@ -1294,7 +1280,7 @@ render(
     />
 
     <Element
-      vertical
+      direction="rows"
       gap={16}
       content={Content}
       css={styles}
@@ -1307,7 +1293,7 @@ render(
     />
 
     <Element
-      vertical
+      direction="rows"
       gap={16}
       content={Content}
       css={styles}
@@ -1368,7 +1354,7 @@ const styles = `
 render(
   <>
     <Element
-      vertical
+      direction="rows"
       gap={16}
       content={Content}
       css={styles}
@@ -1381,7 +1367,7 @@ render(
     />
 
     <Element
-      vertical
+      direction="rows"
       gap={16}
       content={Content}
       css={styles}
@@ -1394,7 +1380,7 @@ render(
     />
 
     <Element
-      vertical
+      direction="rows"
       gap={16}
       content={Content}
       css={styles}
@@ -1424,7 +1410,6 @@ These are props to which can be passed to **Element**
 | block                  | **boolean** **object** **array**                                         |     false     | Whether should behave as **inline** or **block** element                                                                                     |
 | equalCols              | **boolean** **object** **array**                                         |     false     | Whether should all inner elements have the same width / height                                                                               |
 | gap                    | **number** **string** **object** **array**                               |       0       | Defines space between beforeContent, content and afterContent                                                                                |
-| vertical               | **boolean** **object** **array**                                         |     false     | Defines if element should render vertically                                                                                                  |
 | direction              | **inline** **rows** **reverseInline** **reverseRows**                    |               | Define whether element should render horizontally or vertically. Does the same job as **vertical** prop and takes a precedenc over that prop |
 | alignX                 | **left** **center** **right** **spaceBetween** **spaceAround** **block** |     left      | Define alignment of **beforeContent**, **content**, and **afterContent** with respect to root element.                                       |
 | alignY                 | **top** **center** **bottom** **spaceBetween** **spaceAround** **block** |     left      | Define alignment of **beforeContent**, **content**, and **afterContent** with respect to root element.                                       |

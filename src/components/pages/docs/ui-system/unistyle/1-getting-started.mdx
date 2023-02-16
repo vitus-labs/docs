@@ -1,3 +1,7 @@
+---
+title: Unistyle \ Getting started
+---
+
 # Getting started
 
 Unistyle is a collection of styling utilities with a goal to simplify
@@ -35,28 +39,11 @@ Styled-components are a peer dependency of **@vitus-labs/core**.
 
 Package is split into four logical parts:
 
-- hooks
 - responsive
 - styles
 - units
 
 Now let's take a look at a brief description of all of them.
-
-## Hooks
-
-The package has only one hook at this moment called `useWindowResize` which is
-a React hook listening to window changes and returns client `width` and `height`.
-
-```tsx editor=false live=false
-import { useWindowResize } from '@vitus-labs/unistyle'
-
-// usage
-const component = () => {
-  const { width, height } = useWindowResize()
-
-  return null
-}
-```
 
 ## Responsive
 

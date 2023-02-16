@@ -1,3 +1,4 @@
+// eslint-disable-next-line camelcase
 import { Montserrat, Varela_Round, Source_Code_Pro } from '@next/font/google'
 
 const baseFont = Montserrat({
