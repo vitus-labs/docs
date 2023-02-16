@@ -11,7 +11,7 @@ type LoadAsset = (
 const loadAsset: LoadAsset = (WrappedComponent) => {
   const Enhanced: EnhancedType = ({ name, label, ...props }) => (
     <WrappedComponent
-      src={require(`~/assets/images/logo-${name}.svg`).default}
+      src={require(`~/assets/images/logo-${name}.svg?inline`)}
       aria-label={label || name}
       {...props}
     />

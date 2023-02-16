@@ -2,7 +2,7 @@
 import { Montserrat, Varela_Round, Source_Code_Pro } from '@next/font/google'
 
 const baseFont = Montserrat({
-  weight: ['400', '600'],
+  weight: ['400', '600', '700'],
   subsets: ['latin'],
   style: ['italic', 'normal'],
 })
