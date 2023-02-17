@@ -5,21 +5,22 @@ title: Elements / Element
 # Element
 
 Element is the smallest possible unit to be used for creating components.
-By default it renders **div**. You can render any valid HTML **tag** by
+By default it renders `div`. You can render any valid HTML **tag** by
 passsing it as a prop.
 
-Element is by default **inline-flex**. You can set **flex** by using
-boolean **block** value which will also stretch the element to width of
-**100%**.
+Element is by default `inline-flex`. You can set `flex` by using
+boolean **block** prop. This prop also stretches the element to `width`
+or `height` of **100%** based on Element `direction`.
 
-Element also checks by default if **tag** passed in is type of **inline**
-HTML tag like **button** or **span**. If so, other helper sub-elements
-rendered inside (**beforeContent** and **afterContent** wrappers) are by
-default converted to **span** element so it is HTML valid.
+By default, Element also checks if **tag** passed as a prop is type
+of **inline** HTML tag like **button** or **span**. If so,
+sub-elements helpers rendered inside (**beforeContent**, **content**
+and **afterContent** wrappers) are by default rendered as **span** element
+to make sure it renders valid HTML.
 
 ## Examples
 
-### Horizontal Element example
+### Horizontal example
 
 ```tsx
 // import { Element } from '@vitus-labs/elements'
@@ -60,7 +61,7 @@ render(
 )
 ```
 
-### Vertical Element example
+### Vertical example
 
 ```tsx
 // import { Element } from '@vitus-labs/elements'
@@ -92,7 +93,7 @@ const styles = `
 // ↓↓↓ Element ↓↓↓
 render(
   <Element
-    vertical
+    direction="rows"
     gap={16}
     content={Content}
     css={styles}
@@ -105,16 +106,19 @@ render(
 ## Render children
 
 To render children inside component you can pass content as
-**children**, **label**, or **content** prop. Label or content might be
-nicer or more comfortable for inline elements. If you pass more of them
-**children** will **have** the highest priority to be rendered and
-**label** or **content** will be ignored. Priorities are **children →
-content → label**. You can pick any of those prop names based on your
-prefeference.
+**children**, **content**, or **label** prop. `label` and `content`
+props are shorthands which might look nicer for inline elements. If
+more of those props are passed, `children` will **have** the highest
+priority to be rendered. `label` and/or `content` will be ignored.
+In other words, rendering priorities are **children → content → label**.
+Any of those prop names can be used based on your prefeference.
 
 ```tsx
 // import { Element } from '@vitus-labs/elements'
 
+// ------------------------------------
+// helper styles
+// ------------------------------------
 const beforeAfterStyles = `
   ${defaultCss};
   width: 40px;
@@ -136,6 +140,9 @@ const styles = `
   margin-bottom: 12px;
 `
 
+// ------------------------------------
+// helper elements
+// ------------------------------------
 const BeforeAfter = () => <Element css={beforeAfterStyles} />
 
 const Content = () => <Element css={contentStyles} />
@@ -143,7 +150,7 @@ const Content = () => <Element css={contentStyles} />
 // ↓↓↓ Element ↓↓↓
 render(
   <>
-    {/* used content here */}
+    {/* used content prop here */}
     <Element
       gap={16}
       content={Content}
@@ -152,7 +159,7 @@ render(
       afterContent={BeforeAfter}
     />
 
-    {/* used label here */}
+    {/* used label prop here */}
     <Element
       gap={16}
       label={Content}
@@ -161,7 +168,7 @@ render(
       afterContent={BeforeAfter}
     />
 
-    {/* used children here */}
+    {/* used children prop here */}
     <Element
       gap={16}
       content={Content}
@@ -177,11 +184,16 @@ render(
 
 ## Before & After content
 
-You can pass **beforeContent** or **afterContent**. This may be also
-kind of alternative to using **:before** or **:after** pseudo elements.
-This is useful especially in cases like buttons with loading icon or
-input wrappers with icons or anything similar. It supports more types to
-render before/after content, check out examples.
+For extending the Element component, **beforeContent** and/or **afterContent**
+can be passed. This may be also kind of alternative to using **:before** and/or
+**:after** pseudo elements.
+
+This might be useful especially in cases like `buttons` with loading icon or
+`input` wrappers with icons or anything similar.
+
+In the examples below can be found several examples of how `beforeContent` and/or
+`afterContent` can be passed as a prop. This applies to `label` and `content` props
+as well.
 
 ```tsx
 // import { Element } from '@vitus-labs/elements'
@@ -221,7 +233,7 @@ const Content = () => <Element css={contentStyles} />
 // ↓↓↓ Element ↓↓↓
 render(
   <>
-    {/* [1] Function as prop */}
+    {/* [1] Function component as prop */}
     <Element
       gap={16}
       content={Content}
@@ -253,14 +265,18 @@ render(
 
 ## Vertical & Horizontal alignment
 
-Element can be aligned horizontally or vertically. So you can have
-**beforeContent** on the left side of **children** or above. The same
-applies for **afterContent** (below children or on the right side).
-Check out the examples below to see more.
+Element can be either **horizontally** or **vertically**. Based on
+the alignment definition `beforeContent` on the left side or above
+the `children` content. Respectively, the same rule applies to
+**afterContent** (below `children` or on the right side). Check out
+the examples below to see more.
+
+For vertical aligning can be used prop `direction` prop which can be
+set to **rows** | **inline** | **reverseRows** | **reverseInline**.
 
 ### Horizontal variant
 
-Element aligns inner elements horizontally by default.
+Element aligns inner elements horizontally by `default`.
 
 ```tsx
 // import { Element } from '@vitus-labs/elements'
@@ -291,7 +307,7 @@ const BeforeAfter = () => <Element css={beforeAfterStyles} />
 const Content = () => <Element css={contentStyles} />
 
 {
-  /* Element is horizontal by default */
+  /* By default, Element is horizontal */
 }
 
 // ↓↓↓ Element ↓↓↓
@@ -308,8 +324,7 @@ render(
 
 ### Vertical variant
 
-For vertical aligning you can use prop **direction** prop which can be set
-to **rows** | **inline** | **reverseRows** | **reverseInline**.
+Below are examples of vertical alignment.
 
 ```tsx preview=inline
 // import { Element } from '@vitus-labs/elements'
@@ -354,13 +369,16 @@ render(
 
 ## Horizontal element
 
-Element can be aligned horizontally or vertically. So you can have
-**beforeContent** on the left side of **children** or above. The same
-applies for **afterContent** (below children or on the right side).
-Check out the examples below to see more. For vertical aligning you can
-use prop **vertical** set to **true**.
+Even inner `elements` can be aligned horizontally or vertically inside
+the `root` element as well.
 
-### Align content, beforeContent & afterContent horizontally
+See the examples below.
+
+### Align beforeContent horizontally
+
+Aligning `beforeContent` horizontally (on axis X) is configured via
+`beforeContentAlignX` prop with accepting values `left`, `center`, `right`,
+`spaceBetween`, `spaceAround` or `block`.
 
 ```tsx editor=false
 // import { Element } from '@vitus-labs/elements'
@@ -412,7 +430,7 @@ render(
   <>
     <Element
       gap={16}
-      content={Content} // used content here
+      content={Content}
       css={styles}
       beforeContentAlignX="left"
       beforeContent={Before}
@@ -422,7 +440,7 @@ render(
 
     <Element
       gap={16}
-      label={Content} // used label here
+      content={Content}
       css={styles}
       beforeContentAlignX="center"
       beforeContent={Before}
@@ -438,15 +456,18 @@ render(
       beforeContent={Before}
       afterContent={After}
       beforeContentCss={beforeAfterStyles}
-    >
-      {/* used children */}
-      <Content />
-    </Element>
+    />
   </>
 )
 ```
 
 _**beforeContent** aligned (left, center, right)_
+
+### Align content horizontally
+
+Aligning `content` horizontally (on axis X) is configured via
+`contentAlignX` prop with accepting values `left`, `center`, `right`,
+`spaceBetween`, `spaceAround` or `block`.
 
 ```tsx editor=false
 // import { Element } from '@vitus-labs/elements'
@@ -496,7 +517,7 @@ render(
 
     <Element
       gap={16}
-      label={Content} // used label here
+      content={Content} // used label here
       css={styles}
       contentAlignX="center"
       beforeContent={Before}
@@ -510,15 +531,18 @@ render(
       contentAlignX="right"
       beforeContent={Before}
       afterContent={After}
-    >
-      {/* used children */}
-      <Content />
-    </Element>
+    />
   </>
 )
 ```
 
 _**children / content / label** aligned (left, center, right)_
+
+### Align afterContent horizontally
+
+Aligning `afterContent` horizontally (on axis X) is configured via
+`afterContentAlignX` prop with accepting values `left`, `center`, `right`,
+`spaceBetween`, `spaceAround` or `block`.
 
 ```tsx editor=false
 // import { Element } from '@vitus-labs/elements'
@@ -570,19 +594,9 @@ render(
   <>
     <Element
       gap={16}
-      content={Content} // used content here
+      content={Content}
       css={styles}
-      afterContentAlignX="left"
-      beforeContent={Before}
-      afterContent={After}
-      afterContentCss={beforeAfterStyles}
-    />
-
-    <Element
-      gap={16}
-      label={Content} // used label here
-      css={styles}
-      afterContentAlignX="center"
+      afterContentAlignX="left" // aligned to the left
       beforeContent={Before}
       afterContent={After}
       afterContentCss={beforeAfterStyles}
@@ -592,21 +606,32 @@ render(
       gap={16}
       content={Content}
       css={styles}
-      afterContentAlignX="right"
+      afterContentAlignX="center" // centered
       beforeContent={Before}
       afterContent={After}
       afterContentCss={beforeAfterStyles}
-    >
-      {/* used children */}
-      <Content />
-    </Element>
+    />
+
+    <Element
+      gap={16}
+      content={Content}
+      css={styles}
+      afterContentAlignX="right" // aligned to the right
+      beforeContent={Before}
+      afterContent={After}
+      afterContentCss={beforeAfterStyles}
+    />
   </>
 )
 ```
 
 _**afterContent** aligned (left, center, right)_
 
-### Align content, beforeContent & afterContent vertically
+### Align beforeContent vertically
+
+Aligning `beforeContent` vertically (on axis Y) is configured via
+`beforeContentAlignY` prop with accepting values `top`, `center`, `bottom`,
+`spaceBetween`, `spaceAround` or `block`.
 
 ```tsx editor=false
 // import { Element } from '@vitus-labs/elements'
@@ -693,6 +718,12 @@ render(
 
 _**beforeContent** aligned (top, center, bottom)_
 
+### Align content vertically
+
+Aligning `content` vertically (on axis Y) is configured via
+`contentAlignY` prop with accepting values `top`, `center`, `bottom`,
+`spaceBetween`, `spaceAround` or `block`.
+
 ```tsx editor=false
 // import { Element } from '@vitus-labs/elements'
 
@@ -742,7 +773,7 @@ render(
   <>
     <Element
       gap={16}
-      content={Content} // used content here
+      content={Content}
       css={styles}
       contentAlignY="top"
       beforeContent={Before}
@@ -752,7 +783,7 @@ render(
 
     <Element
       gap={16}
-      label={Content} // used label here
+      content={Content}
       css={styles}
       contentAlignY="center"
       beforeContent={Before}
@@ -768,15 +799,18 @@ render(
       beforeContent={Before}
       afterContent={After}
       beforeContentCss={beforeAfterStyles}
-    >
-      {/* used children */}
-      <Content />
-    </Element>
+    />
   </>
 )
 ```
 
 _**children / content / label** aligned (top, center, bottom)_
+
+### Align afterContent vertically
+
+Aligning `afterContent` vertically (on axis Y) is configured via
+`afterContentAlignY` prop with accepting values `top`, `center`, `bottom`,
+`spaceBetween`, `spaceAround` or `block`.
 
 ```tsx editor=false
 // import { Element } from '@vitus-labs/elements'
@@ -869,7 +903,7 @@ Check out the examples below to see more. For vertical aligning you can
 use prop **vertical** set to **true** or use **direction** prop which
 can be set to **rows** or **inline**.
 
-### Align content, beforeContent and afterContent horizontally
+### Align beforeContent horizontally
 
 ```tsx editor=false preview=inline
 // import { Element } from '@vitus-labs/elements'
@@ -919,7 +953,7 @@ render(
     <Element
       direction="rows"
       gap={16}
-      content={Content} // used content here
+      content={Content}
       css={styles}
       beforeContentAlignX="left"
       afterContentAlignX="center"
@@ -957,6 +991,10 @@ render(
   </>
 )
 ```
+
+_**beforeContent** aligned (left, center, right)_
+
+### Align content horizontally
 
 ```tsx editor=false preview=inline
 // import { Element } from '@vitus-labs/elements'
@@ -1045,6 +1083,10 @@ render(
 )
 ```
 
+_**content** aligned (left, center, right)_
+
+### Align afterContent horizontally
+
 ```tsx editor=false preview=inline
 // import { Element } from '@vitus-labs/elements'
 
@@ -1132,7 +1174,9 @@ render(
 )
 ```
 
-### Align content, beforeContent and afterContent vertically
+_**afterContent** aligned (left, center, right)_
+
+### Align beforeContent vertically
 
 ```tsx editor=false preview=inline
 // import { Element } from '@vitus-labs/elements'
@@ -1221,6 +1265,10 @@ render(
 )
 ```
 
+_**beforeContent** aligned (top, center, bottom)_
+
+### Align content vertically
+
 ```tsx editor=false preview=inline
 // import { Element } from '@vitus-labs/elements'
 
@@ -1308,6 +1356,10 @@ render(
 )
 ```
 
+_**content** aligned (top, center, bottom)_
+
+### Align afterContent vertically
+
 ```tsx editor=false preview=inline
 // import { Element } from '@vitus-labs/elements'
 
@@ -1394,6 +1446,8 @@ render(
   </>
 )
 ```
+
+_**afterContent** aligned (top, center, bottom)_
 
 ## Props
 

@@ -27,6 +27,7 @@ const InnerWrapper = base
   })
   .theme((t) => ({
     position: 'fixed',
+    minHeight: '100%',
     top: t.layout.topMenu.height,
     width: t.layout.sideMenu.width,
     // height: t.layout.sideMenu.height,
@@ -36,7 +37,7 @@ const InnerWrapper = base
 
 const Inner = base
   .config({
-    name: 'base/layout/SideMenu/Inner',
+    name: 'base/layout/SideMenu/Inner/Nav',
   })
   .attrs({
     tag: 'nav',

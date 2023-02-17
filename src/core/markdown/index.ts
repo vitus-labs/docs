@@ -1,8 +1,9 @@
 import fs from 'fs'
 import { join } from 'path'
 import matter from 'gray-matter'
-import { remark } from 'remark'
+import remark from 'remark'
 import remarkMdx from 'remark-mdx'
+// import remarkGfm from 'remark-gfm'
 
 const ROOT_DIRECTORY = join(process.cwd(), '/src/components/pages')
 
@@ -128,6 +129,7 @@ export const parseMarkdown = async (file: string) => {
   let result
 
   await remark()
+    // .use(remarkGfm)
     .use(remarkMdx)
     .use(() => (tree) => {
       result = tree

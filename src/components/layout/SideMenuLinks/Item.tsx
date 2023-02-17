@@ -12,8 +12,8 @@ const Link = link
     paddingX: t.spacing.large,
     backgroundColor: 'transparent',
     color: t.color.light.base,
-    fontWeight: 600,
-    fontSize: 18,
+    fontWeight: t.fontWeight.semibold,
+    fontSize: t.fontSize.large,
 
     hover: {
       backgroundColor: t.color.primary.base,

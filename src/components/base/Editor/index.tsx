@@ -18,7 +18,7 @@ type Props = {
   preview?: string
 }
 
-const component: FC<Props> = ({
+const Component: FC<Props> = ({
   children,
   className,
   editor = true,
@@ -115,4 +115,4 @@ const component: FC<Props> = ({
   )
 }
 
-export default component
+export default Component

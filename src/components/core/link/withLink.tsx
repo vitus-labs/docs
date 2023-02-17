@@ -56,7 +56,7 @@ const component: HOC = (WrappedComponent) => {
 
     const finalHref = getFinalHref()
     const handleClick = replace ? router.replace : router.push
-    const isActive = router.route === finalHref
+    const isActive = router.asPath === finalHref
 
     return (
       <WrappedComponent

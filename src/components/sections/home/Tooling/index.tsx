@@ -36,7 +36,7 @@ const component = () => (
       heading="Tooling to bootstrap your productivity"
       label="Set of preconfigured tools ready to be used"
     >
-      <Container gap={36} size={{ xs: 1, md: 6, lg: 3 }}>
+      <Container gap={36} size={{ xs: 12, md: 6, lg: 3 }}>
         <Row>
           <BoxList
             data={data}

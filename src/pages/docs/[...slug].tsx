@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import type { GetStaticProps, GetStaticPaths } from 'next'
 import router from 'next/router'
 import Head from 'next/head'
+// import remarkGfm from 'remark-gfm'
 import { get } from '@vitus-labs/core'
 import Layout from '~/components/layouts/Docs'
 import Meta from '~/components/meta/Meta'
@@ -89,13 +90,17 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
 
   // [3] separate meta data and content
   const parsedFile = await splitMetadataAndContentFromFile(file)
-  // console.log('3')
 
   // [4] complete meta data
   const meta = await getMetaDataFromFile(parsedFile.data)
 
   // [5] stringify markdown content
-  const mdxSource = await serialize(parsedFile.content)
+  const mdxSource = await serialize(parsedFile.content, {
+    // parseFrontmatter: true,
+    // mdxOptions: {
+    //   remarkPlugins: [remarkGfm],
+    // },
+  })
 
   return {
     props: {
