@@ -1,4 +1,4 @@
-import { FC, ReactNode } from 'react'
+import { FC, ReactNode, useMemo } from 'react'
 import { Container } from '~/components/grid'
 import { Element } from '~/components/core'
 import SideMenu from '../SideMenu'
@@ -11,16 +11,19 @@ type Props = {
 }
 
 const Component: FC<Props> = ({ children, side = 'left', sidePanel }) => {
-  const layoutProps = () =>
-    side === 'left'
-      ? {
-          beforeContentAlignY: 'top' as const,
-          beforeContent: <SideMenu>{sidePanel}</SideMenu>,
-        }
-      : {
-          afterContentAlignY: 'top' as const,
-          afterContent: <SideMenu>{sidePanel}</SideMenu>,
-        }
+  const layoutProps = useMemo(
+    () =>
+      side === 'left'
+        ? {
+            beforeContentAlignY: 'top' as const,
+            beforeContent: <SideMenu>{sidePanel}</SideMenu>,
+          }
+        : {
+            afterContentAlignY: 'top' as const,
+            afterContent: <SideMenu>{sidePanel}</SideMenu>,
+          },
+    [side, sidePanel]
+  )
 
   return (
     <Container
@@ -33,7 +36,7 @@ const Component: FC<Props> = ({ children, side = 'left', sidePanel }) => {
         xxxl,
       })}
     >
-      <Element contentDirection="inline" {...layoutProps()}>
+      <Element contentDirection="inline" {...layoutProps}>
         <Content light>{children}</Content>
       </Element>
     </Container>

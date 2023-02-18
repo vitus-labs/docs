@@ -53,7 +53,7 @@ const theme = {
       background: '#222829',
     },
     topMenu: {
-      height: 70,
+      height: 72,
       background: '#0F1111',
       borderColor: '#0F1111',
       zIndex: 100,
