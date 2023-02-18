@@ -24,12 +24,13 @@ render(
 
 ## Using Text component
 
-There are several ways of rendering text within **Text** component. So
-let's take a look at them.
+There are several ways of rendering text within Text component.
+Let's take a look at the examples below.
 
 ### Children property
 
-First of all, you can use **Text** and pass children.
+First of all, **Text** can be used and pass `children` prop
+to render content.
 
 ```tsx
 // import { Text } from '@vitus-labs/elements'
@@ -40,10 +41,10 @@ render(<Text style={{ color: '#fff' }}>This is a children content</Text>)
 
 ### Label property
 
-For shorter texts, or inline texts sometimes it's nicer to write
-inline prop. If you prefer using it this way, then **label** prop
-could be used. In case of passing both **children** and **label**,
-then **children** will have a priority and **label** will be ignored.
+For shorter texts, or inline texts sometimes it could me more convenient
+to use inline prop. For such a way, `label` prop could be used. In case
+of passing both `children` and `label`, then **children** will have
+a priority and `label` will be ignored.
 
 ```tsx
 // import { Text } from '@vitus-labs/elements'
@@ -56,9 +57,12 @@ render(<Text label="This is a label" style={{ color: '#fff' }} />)
 
 ## Paragraph
 
-By default it renders **span** element as an **inline** text element.
-If you would like to use it as a **paragraph**, you can set prop
-**paragraph** to **true**, or just use property **tag='p'**.
+By default it renders `span` element as an **inline** text element.
+If you would like to render Text component as **block** element (paragraph),
+you can set prop `paragraph` to **true**, or alternatively set property `tag`.
+
+In case of using `paragraph` and `tag`, **tag** will have a priority over
+paragraph prop.
 
 ```tsx
 // import { Text } from '@vitus-labs/elements'
@@ -82,3 +86,4 @@ These are props to which can be passed to **Text**
 | label     | **ReactNode**      |               | Label can be used instead of children for inline syntax. But **children** prop takes a precedence |
 | paragraph | **boolean**        |               | Defines whether should behave as a block text element. Automatically adds **p** HTML tag          |
 | tag       | **HTML valid tag** |               | Defines what kind of HTML tag should be rendered                                                  |
+| css       | **ExtendCss**      |               | Defines what kind of HTML tag should be rendered                                                  |
