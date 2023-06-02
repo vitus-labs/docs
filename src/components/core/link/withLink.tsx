@@ -20,7 +20,7 @@ type WrapProps = Partial<{
 
 type HOC = (WrappedComponent: ComponentType<WrapProps>) => ComponentType<Props>
 
-const component: HOC = (WrappedComponent) => {
+const Component: HOC = (WrappedComponent) => {
   const Enhanced = ({
     href,
     prefetch = false,
@@ -76,4 +76,4 @@ const component: HOC = (WrappedComponent) => {
   return Enhanced
 }
 
-export default component
+export default Component

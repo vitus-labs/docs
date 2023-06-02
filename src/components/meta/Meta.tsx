@@ -1,4 +1,4 @@
-const component = () => (
+const Component = () => (
   <>
     <meta
       name="viewport"
@@ -15,5 +15,5 @@ const component = () => (
   </>
 )
 
-component.displayName = 'meta/Meta'
-export default component
+Component.displayName = 'meta/Meta'
+export default Component

@@ -18,12 +18,12 @@ const Logo = element
     },
   })
 
-const component: FC = () => (
+const Component: FC = () => (
   <Link href="/">
     <Logo />
   </Link>
 )
 
-component.displayName = 'base/Logo'
+Component.displayName = 'base/Logo'
 
-export default component
+export default Component

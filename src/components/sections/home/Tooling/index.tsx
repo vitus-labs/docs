@@ -30,7 +30,7 @@ const data = [
   },
 ]
 
-const component = () => (
+const Component = () => (
   <Background id="tooling" secondary>
     <Section
       heading="Tooling to bootstrap your productivity"
@@ -49,4 +49,4 @@ const component = () => (
   </Background>
 )
 
-export default component
+export default Component

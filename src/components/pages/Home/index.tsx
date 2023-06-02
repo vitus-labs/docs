@@ -3,7 +3,7 @@ import Intro from '~/components/sections/home/Intro'
 import UiSystems from '~/components/sections/home/UiSystems'
 import Tooling from '~/components/sections/home/Tooling'
 
-const component = () => (
+const Component = () => (
   <Layout>
     <Intro />
     <UiSystems />
@@ -11,4 +11,4 @@ const component = () => (
   </Layout>
 )
 
-export default component
+export default Component

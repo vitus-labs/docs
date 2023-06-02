@@ -40,12 +40,12 @@ const Inner = Box.theme((t) => ({
 
 type Props = ExtractProps<typeof Inner> & { compact?: boolean }
 
-const component: FC<Props> = ({ compact, ...props }) => (
+const Component: FC<Props> = ({ compact, ...props }) => (
   <Wrapper compact={compact}>
     <Inner {...props} />
   </Wrapper>
 )
 
-component.displayName = 'base/Editor/ContentBox'
+Component.displayName = 'base/Editor/ContentBox'
 
-export default component
+export default Component

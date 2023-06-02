@@ -1,4 +1,4 @@
-const component = ({ variant = 'dark' }) => (
+const Component = ({ variant = 'dark' }) => (
   <>
     <link rel="shortcut icon" href={`/favicon/${variant}/favicon.ico`} />
     <link
@@ -216,4 +216,4 @@ const component = ({ variant = 'dark' }) => (
   </>
 )
 
-export default component
+export default Component

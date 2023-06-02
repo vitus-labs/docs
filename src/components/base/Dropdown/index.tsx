@@ -42,7 +42,7 @@ type Props = Omit<ExtractProps<typeof Overlay>, 'children'> & {
   children: (typeof Inner)['$$types']['children']
 }
 
-const component: FC<Props> = ({ trigger = Trigger, children, ...props }) => (
+const Component: FC<Props> = ({ trigger = Trigger, children, ...props }) => (
   <Overlay
     type="dropdown"
     contentRefName="innerRef"
@@ -57,6 +57,6 @@ const component: FC<Props> = ({ trigger = Trigger, children, ...props }) => (
   </Overlay>
 )
 
-component.displayName = 'base/Dropdown'
+Component.displayName = 'base/Dropdown'
 
-export default component
+export default Component

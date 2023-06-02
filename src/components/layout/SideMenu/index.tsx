@@ -42,7 +42,7 @@ const Navigation = base
 
 type Props = ExtractProps<typeof Navigation>
 
-const component: FC<Props> = (props) => (
+const Component: FC<Props> = (props) => (
   <Wrapper>
     <Inner>
       <Navigation {...props} />
@@ -50,4 +50,4 @@ const component: FC<Props> = (props) => (
   </Wrapper>
 )
 
-export default component
+export default Component

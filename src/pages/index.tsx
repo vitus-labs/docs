@@ -1,11 +1,11 @@
 import Page from '~/components/pages/Home'
 import Seo from '~/components/meta/Seo'
 
-const component = () => (
+const Component = () => (
   <>
     <Seo />
     <Page />
   </>
 )
 
-export default component
+export default Component

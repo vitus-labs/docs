@@ -13,7 +13,7 @@ const Wrapper = element
     paddingX: { xs: t.spacing.large, md: t.spacing.reset },
   }))
 
-const component = ({ transparent = false }) => (
+const Component = ({ transparent = false }) => (
   <TopMenu transparent={transparent}>
     <Container>
       <Wrapper
@@ -34,4 +34,4 @@ const component = ({ transparent = false }) => (
   </TopMenu>
 )
 
-export default component
+export default Component

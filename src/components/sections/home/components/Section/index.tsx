@@ -9,7 +9,7 @@ type Props = {
   label: string
 }
 
-const component: FC<Props> = ({ heading, label, children }) => (
+const Component: FC<Props> = ({ heading, label, children }) => (
   <Section centered gapLg>
     <Heading level3 label={heading} />
     <Text label={label} />
@@ -17,4 +17,4 @@ const component: FC<Props> = ({ heading, label, children }) => (
   </Section>
 )
 
-export default component
+export default Component

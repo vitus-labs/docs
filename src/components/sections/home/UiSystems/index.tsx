@@ -36,7 +36,7 @@ const data = [
   },
 ]
 
-const component = () => (
+const Component = () => (
   <Background id="ui-systems" primary>
     <Section
       heading="Build better universal UI Systems"
@@ -59,4 +59,4 @@ const component = () => (
   </Background>
 )
 
-export default component
+export default Component
