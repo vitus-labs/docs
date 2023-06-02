@@ -3,7 +3,7 @@ import { useRouter } from 'next/router'
 const useIsCurrentRoute = (route: string) => {
   const { asPath } = useRouter()
 
-  if (route === asPath) return true
+  if (asPath.startsWith(route)) return true
 
   return false
 }
