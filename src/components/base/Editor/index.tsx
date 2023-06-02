@@ -1,6 +1,5 @@
 import { FC } from 'react'
-import Highlight, { defaultProps, Language } from 'prism-react-renderer'
-import codeTheme from 'prism-react-renderer/themes/palenight'
+import { Highlight, themes } from 'prism-react-renderer'
 import { LiveProvider } from 'react-live'
 import { Container, Row, Col } from '~/components/grid'
 import ContentBox from './ContentBox'
@@ -8,6 +7,8 @@ import Editor from './Editor'
 import Preview from './Preview'
 import Error from './Error'
 import scope from './scope'
+
+const codeTheme = themes.palenight
 
 type Props = {
   children: string
@@ -26,9 +27,7 @@ const Component: FC<Props> = ({
   view,
   preview,
 }) => {
-  const language = (
-    className ? className.replace(/language-/, '') : ''
-  ) as Language
+  const language = className ? className.replace(/language-/, '') : ''
 
   // mdx returns flase value as string, therefore the check below
   const showEditor = editor === true
@@ -91,12 +90,7 @@ const Component: FC<Props> = ({
 
   return (
     <ContentBox compact>
-      <Highlight
-        {...defaultProps}
-        theme={codeTheme}
-        code={children}
-        language={language}
-      >
+      <Highlight theme={codeTheme} code={children} language={language}>
         {({ className, tokens, getLineProps, getTokenProps }) => (
           <pre className={className}>
             {tokens.map((line, i) => (
