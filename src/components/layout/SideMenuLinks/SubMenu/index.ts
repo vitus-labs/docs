@@ -9,4 +9,8 @@ export default List.attrs({
   block: true,
   tag: 'ul',
   wrapComponent,
-}).theme({ width: '100%' })
+}).theme((t) => ({
+  width: '100%',
+  marginTop: t.spacing.large,
+  marginBottom: t.spacing.xSmall,
+}))

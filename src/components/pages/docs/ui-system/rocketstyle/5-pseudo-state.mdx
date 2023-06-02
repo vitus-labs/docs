@@ -156,10 +156,10 @@ Final generated styles are passed under `$rocketstyle` prop, therefore
 pseudo states and dimension states are passed under `$rocketstate` prop.
 
 ```tsx editor=false live=false
-import rocketstyle from '@vitus-labs/rocketstyle'
+import { rocketstyle } from '@vitus-labs/rocketstyle'
 import MyDefaultComponent from './somewhere'
 
-const MyComponent = rocketstyle()()({
+const MyComponent = rocketstyle()({
   component: MyDefaultComponent,
   name: '@myUiSystem/MyComponent',
 }).styles(
