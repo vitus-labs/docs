@@ -11,7 +11,7 @@ const Heading = heading.theme((t) => ({
   marginBottom: t.spacing.xxLarge * 4,
 }))
 
-const component = () => (
+const Component = () => (
   <Section centered gapLg>
     <Heading jumbo centered>
       A <Text primary>developer</Text> experience
@@ -24,4 +24,4 @@ const component = () => (
   </Section>
 )
 
-export default component
+export default Component

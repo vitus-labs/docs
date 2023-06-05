@@ -3,7 +3,7 @@ import Head from 'next/head'
 
 type Props = { title?: string }
 
-const component: FC<Props> = ({ title = 'Vitus Labs' }) => (
+const Component: FC<Props> = ({ title = 'Vitus Labs' }) => (
   <Head>
     <title>{title}</title>
     <meta
@@ -12,11 +12,11 @@ const component: FC<Props> = ({ title = 'Vitus Labs' }) => (
     />
     <meta
       name="keywords"
-      content="react, styled-components, elements, rocketstyle, coolgrid, unistyle, frontend, typescript, development, web, application, performance"
+      content="react, styled-Components, elements, rocketstyle, coolgrid, unistyle, frontend, typescript, development, web, application, performance"
     />
   </Head>
 )
 
-component.displayName = 'components/meta/Seo'
+Component.displayName = 'components/meta/Seo'
 
-export default component
+export default Component

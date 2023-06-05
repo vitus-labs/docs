@@ -6,8 +6,8 @@ type Props = {
   formatters?: typeof defaultFormatters
 }
 
-const component: FC<Props> = ({ formatters = defaultFormatters, ...props }) => (
+const Component: FC<Props> = ({ formatters = defaultFormatters, ...props }) => (
   <MDXRemote {...(props as any)} components={formatters} />
 )
 
-export default component
+export default Component

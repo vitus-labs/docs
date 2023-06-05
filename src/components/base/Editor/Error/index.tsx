@@ -16,10 +16,10 @@ const Box = box
     backgroundColor: 'red',
   }))
 
-const component: FC = (props) => (
+const Component: FC = (props) => (
   <Box>
     <LiveError {...props} />
   </Box>
 )
 
-export default component
+export default Component

@@ -1,0 +1,115 @@
+---
+name: Rocketstyle \ Context Provider
+---
+
+# Context Provider
+
+Context Provider provides a lot of flexibility building flexible UI
+design systems.
+
+Rocketstyle Provider integrates also `ThemeProvider` from `styled-components`
+out of the box.Therefore, there is no need to implement it manually. But
+that's not all. Let's dive into other options provided by Rocketstyle provider.
+
+## Usage
+
+Default usage is following:
+
+```tsx editor=false live=false
+import { Provider } from '@vitus-labs/rocketstyle'
+
+const theme = {}
+
+const App = () => <Provider theme={theme}>{/* components here */}</Provider>
+```
+
+## Dark / Light mode
+
+Via Provider can be also defined what mode your app works in (`light` or `dark`).
+
+```tsx editor=false live=false
+import { Provider } from '@vitus-labs/rocketstyle'
+
+const theme = {}
+
+// app UI works in dark mode
+const App = () => (
+  <Provider theme={theme} mode="dark">
+    {/* components here */}
+  </Provider>
+)
+```
+
+## Combined Providers
+
+Provider can be used also inside other `Providers`. This way provides
+an ability to use different UI modes for different parts of the app
+or to pass different themes.
+
+```tsx editor=false live=false
+import { Provider } from '@vitus-labs/rocketstyle'
+
+const theme = {}
+
+// whole app UI works in dark mode
+const App = () => (
+  <Provider theme={theme} mode="dark">
+    <div>hello world</div>
+    <Provider mode="light">
+      {/* components here, this part of the app will be in light mode */}
+    </Provider>
+  </Provider>
+)
+```
+
+## Inversed Mode
+
+In the example above is described, how can be statically changed UI mode.
+To have make it working dynamically without need to define
+any business logic, prop `inversed` is the way to go.
+
+This prop has an effect only if a `mode` is defined in any parent `Provider`,
+otherwise is being ignored.
+
+```tsx editor=false live=false
+import { Provider } from '@vitus-labs/rocketstyle'
+
+const theme = {}
+
+// whole app UI works in dark mode
+const App = () => (
+  <Provider theme={theme} mode="dark">
+    <div>hello world</div>
+    <Provider inversed>
+      {/* components here, this part of the app will be in light mode */}
+    </Provider>
+  </Provider>
+)
+```
+
+## Define custom provider
+
+Provider also accepts prop `provider` to have an ability to pass
+your custom [provider](https://react.dev/reference/react/createContext#provider).
+
+By defining custom Provider, you must take into account, that you need to implement
+`ThemeProvider` from `styled-components` and `VitusLabsProvider` manually, because
+`VitusLabsProvider` is set as the default value of the `provider` prop.
+
+```tsx editor=false live=false
+import { Provider } from '@vitus-labs/rocketstyle'
+import { Provider as VitusLabsProvider } from '@vitus-labs/core'
+import { ThemeProvider } from 'styled-components'
+import CustomProvider from './path-to-custom-provider'
+
+const theme = {}
+
+// whole app UI works in dark mode
+const App = () => (
+  <Provider provider={CustomProvider} theme={theme} mode="dark">
+    <VitusLabsProvider theme={theme}>
+      <ThemeProvider theme={theme}>{/* components here */}</ThemeProvider>
+    </VitusLabsProvider>
+  </Provider>
+)
+```

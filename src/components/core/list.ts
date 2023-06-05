@@ -1,4 +1,4 @@
-import rocketstyle from '@vitus-labs/rocketstyle'
+import { rocketstyle } from '@vitus-labs/rocketstyle'
 import { List } from '@vitus-labs/elements'
 import { styles, makeItResponsive, value } from '@vitus-labs/unistyle'
 
@@ -7,7 +7,7 @@ type ListStyles = Parameters<typeof makeItResponsive>[0]['styles']
 const listItemGaps: ListStyles = ({ theme: t, css, rootSize }) => css`
   ${t.gap &&
   css`
-    gap: ${value([t.gap], rootSize)};
+    gap: ${value(t.gap, rootSize)};
 
     & > * {
       margin: 0 !important;
@@ -113,9 +113,7 @@ export default rocketstyle({
 
           ${rootElement &&
           css`
-            & > * {
-              ${listTheme};
-            }
+            ${listTheme};
           `};
         `
       }};

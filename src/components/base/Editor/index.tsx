@@ -1,6 +1,5 @@
 import { FC } from 'react'
-import Highlight, { defaultProps } from 'prism-react-renderer'
-import codeTheme from 'prism-react-renderer/themes/palenight'
+import { Highlight, themes } from 'prism-react-renderer'
 import { LiveProvider } from 'react-live'
 import { Container, Row, Col } from '~/components/grid'
 import ContentBox from './ContentBox'
@@ -8,6 +7,8 @@ import Editor from './Editor'
 import Preview from './Preview'
 import Error from './Error'
 import scope from './scope'
+
+const codeTheme = themes.palenight
 
 type Props = {
   children: string
@@ -18,7 +19,7 @@ type Props = {
   preview?: string
 }
 
-const component: FC<Props> = ({
+const Component: FC<Props> = ({
   children,
   className,
   editor = true,
@@ -26,7 +27,7 @@ const component: FC<Props> = ({
   view,
   preview,
 }) => {
-  const language: any = className ? className.replace(/language-/, '') : ''
+  const language = className ? className.replace(/language-/, '') : ''
 
   // mdx returns flase value as string, therefore the check below
   const showEditor = editor === true
@@ -37,7 +38,7 @@ const component: FC<Props> = ({
     return (
       <LiveProvider
         language={language}
-        noInline={true}
+        noInline
         code={children}
         scope={scope}
         theme={codeTheme}
@@ -82,51 +83,21 @@ const component: FC<Props> = ({
               <Preview view={preview} />
             </Col>
           </Row>
-          {/* <Row>
-            <Col>
-              <Error />
-            </Col>
-          </Row> */}
         </Container>
       </LiveProvider>
     )
   }
 
-  // return (
-  //   <LiveProvider
-  //     language={language}
-  //     noInline={false}
-  //     code={children}
-  //     scope={scope}
-  //   >
-  //     <Container gap={48} gutter={12} columns={2} size={1}>
-  //       <Row>
-  //         <Col>
-  //           <Editor />
-  //         </Col>
-  //       </Row>
-  //       <Row>
-  //         <Col>
-  //           <Error />
-  //         </Col>
-  //       </Row>
-  //     </Container>
-  //   </LiveProvider>
-  // )
-
   return (
     <ContentBox compact>
-      <Highlight
-        {...defaultProps}
-        theme={codeTheme}
-        code={children}
-        language={language}
-      >
+      <Highlight theme={codeTheme} code={children} language={language}>
         {({ className, tokens, getLineProps, getTokenProps }) => (
           <pre className={className}>
             {tokens.map((line, i) => (
+              // eslint-disable-next-line react/no-array-index-key
               <div key={i} {...getLineProps({ line, key: i })}>
                 {line.map((token, key) => (
+                  // eslint-disable-next-line react/no-array-index-key
                   <span key={key} {...getTokenProps({ token, key })} />
                 ))}
               </div>
@@ -138,4 +109,4 @@ const component: FC<Props> = ({
   )
 }
 
-export default component
+export default Component

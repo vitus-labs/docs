@@ -1,3 +1,7 @@
+---
+title: Unistyle \ Getting started
+---
+
 # Getting started
 
 Unistyle is a collection of styling utilities with a goal to simplify
@@ -27,7 +31,7 @@ well.
 
 | Package           | Version      |
 | ----------------- | ------------ |
-| react             | >= 16.7      |
+| react             | >= 16.8      |
 | styled-components | >= 5.0       |
 | @vitus-labs/core  | same version |
 
@@ -35,28 +39,11 @@ Styled-components are a peer dependency of **@vitus-labs/core**.
 
 Package is split into four logical parts:
 
-- hooks
 - responsive
 - styles
 - units
 
 Now let's take a look at a brief description of all of them.
-
-## Hooks
-
-The package has only one hook at this moment called `useWindowResize` which is
-a React hook listening to window changes and returns client `width` and `height`.
-
-```tsx editor=false live=false
-import { useWindowResize } from '@vitus-labs/unistyle'
-
-// usage
-const component = () => {
-  const { width, height } = useWindowResize()
-
-  return null
-}
-```
 
 ## Responsive
 
@@ -176,18 +163,6 @@ const example = normalizeUnit({
   outputUnit: 'rem',
 })
 ```
-
-<!-- ### Get value of
-
-```tsx editor=false live=false
-import { getValueOf } from '@vitus-labs/unistyle'
-
-// output will be `16px`
-const example = getValueOf(null, undefined, '16px', 32)
-
-// output will be `0`
-const withZero = getValueOf(null, 0, '16px', 32)
-``` -->
 
 ### Value
 

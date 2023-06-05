@@ -28,15 +28,25 @@ const data = [
     icon: 'coolgrid',
     link: (r: any) => r.uiSystem.coolgrid.base,
   },
+  {
+    title: 'Hooks',
+    label: 'React hooks',
+    icon: 'coolgrid',
+    link: (r: any) => r.uiSystem.hooks.base,
+  },
 ]
 
-const component = () => (
+const Component = () => (
   <Background id="ui-systems" primary>
     <Section
       heading="Build better universal UI Systems"
       label="Set of preconfigured tools ready to be used"
     >
-      <Container gap={36} size={{ xs: 1, md: 6, lg: 3 }}>
+      <Container
+        gap={36}
+        size={{ xs: 12, md: 6, lg: 4 }}
+        contentAlignX="center"
+      >
         <Row>
           <BoxList
             data={data}
@@ -49,4 +59,4 @@ const component = () => (
   </Background>
 )
 
-export default component
+export default Component

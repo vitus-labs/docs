@@ -1,4 +1,4 @@
-import rocketstyle from '@vitus-labs/rocketstyle'
+import { rocketstyle } from '@vitus-labs/rocketstyle'
 import { Element } from '@vitus-labs/elements'
 import { styles, makeItResponsive } from '@vitus-labs/unistyle'
 

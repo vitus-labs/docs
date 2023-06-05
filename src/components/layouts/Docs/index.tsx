@@ -15,13 +15,13 @@ type Props = {
   }>
 }
 
-const component: FC<Props> = ({ children, menu }) => {
+const Component: FC<Props> = ({ children, menu = [] }) => {
   const transformedData = menu.map((item) => ({
     label: item.title,
     href: item.slug,
-    data: item.submenu.map((item) => ({
-      label: item.title,
-      href: item.anchor,
+    data: item.submenu?.map((item) => ({
+      label: item?.title,
+      href: item?.anchor,
     })),
   }))
 
@@ -35,6 +35,6 @@ const component: FC<Props> = ({ children, menu }) => {
   )
 }
 
-component.displayName = 'layouts/Docs'
+Component.displayName = 'layouts/Docs'
 
-export default component
+export default Component

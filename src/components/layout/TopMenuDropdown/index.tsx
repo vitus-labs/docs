@@ -52,12 +52,12 @@ type Props = {
   data: Array<any>
 }
 
-const component: FC<Props> = ({ title, data, component = Link }) => (
+const Component: FC<Props> = ({ title, data, component = Link }) => (
   <Wrapper beforeContent={title ? <Heading label={title} /> : null}>
     <List data={data} component={component} />
   </Wrapper>
 )
 
-component.displayName = 'base/menu/DropdownMenu'
+Component.displayName = 'base/menu/DropdownMenu'
 
-export default component
+export default Component

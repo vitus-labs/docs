@@ -172,6 +172,7 @@ const Button = (props) => {
         color: '#fff',
         borderRadius: 4,
         outline: 'none',
+        cursor: 'pointer',
       }}
     />
   )
@@ -193,7 +194,12 @@ const Content = (props) => (
 )
 
 render(
-  <Overlay refName="innerRef" trigger={Button}>
+  <Overlay
+    trigger={Button}
+    offsetY={8}
+    triggerRefName="innerRef"
+    contentRefName="innerRef"
+  >
     <Content />
   </Overlay>
 )
@@ -208,9 +214,9 @@ elements to DOM. [See the docs](/docs/ui-system/elements/portal)
 // import { Text, Portal } from '@vitus-labs/elements'
 
 // ↓↓↓ Portal ↓↓↓
-// render(
-//   <Portal>
-//     <Text label="This is a content appended at the end of the DOM." />
-//   </Portal>
-// )
+render(
+  <Portal>
+    {/* <Text label="This is a content appended at the end of the DOM." /> */}
+  </Portal>
+)
 ```

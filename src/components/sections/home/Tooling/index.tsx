@@ -30,23 +30,23 @@ const data = [
   },
 ]
 
-const component = () => (
+const Component = () => (
   <Background id="tooling" secondary>
     <Section
       heading="Tooling to bootstrap your productivity"
       label="Set of preconfigured tools ready to be used"
     >
-      <Container gap={36} size={{ xs: 1, md: 6, lg: 3 }}>
+      <Container gap={36} size={{ xs: 12, md: 6, lg: 3 }}>
         <Row>
           <BoxList
             data={data}
             wrapComponent={Col}
             itemProps={{ variant: 'secondary', state: 'light' }}
-          ></BoxList>
+          />
         </Row>
       </Container>
     </Section>
   </Background>
 )
 
-export default component
+export default Component

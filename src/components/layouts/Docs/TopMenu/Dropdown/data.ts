@@ -24,6 +24,11 @@ export default [
         icon: 'coolgrid',
         href: routes.uiSystem.coolgrid.base,
       },
+      {
+        label: 'Hooks',
+        icon: 'coolgrid',
+        href: routes.uiSystem.hooks.base,
+      },
     ],
   },
   {

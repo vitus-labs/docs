@@ -1,5 +1,5 @@
 import { FC } from 'react'
-import isCurrentRoute from '~/hooks/isCurrentRoute'
+import useIsCurrentRoute from '~/hooks/useIsCurrentRoute'
 import link from '~/components/base/Link'
 import SubMenu from './SubMenu'
 
@@ -12,8 +12,8 @@ const Link = link
     paddingX: t.spacing.large,
     backgroundColor: 'transparent',
     color: t.color.light.base,
-    fontWeight: 600,
-    fontSize: 18,
+    fontWeight: t.fontWeight.semibold,
+    fontSize: t.fontSize.large,
 
     hover: {
       backgroundColor: t.color.primary.base,
@@ -30,8 +30,8 @@ interface Props {
   href: string
 }
 
-const component: FC<Props> = ({ data, ...props }) => {
-  const isActive = isCurrentRoute(props.href)
+const Component: FC<Props> = ({ data, ...props }) => {
+  const isActive = useIsCurrentRoute(props.href)
 
   return (
     <>
@@ -41,4 +41,4 @@ const component: FC<Props> = ({ data, ...props }) => {
   )
 }
 
-export default component
+export default Component

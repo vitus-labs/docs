@@ -4,28 +4,24 @@ name: Rocketstyle \ Initialization
 
 # Initialization
 
-Let's start with component initialization to start building
-your UI components.
+Let's start with component initialization to start building UI components.
 
 ## Bootstrap your rocket component
 
 First of all, you need to initialize `rocketstyle` and
-pass default `component`. Optionally, you can define even
-component `name` for better debugging.
+pass a default `component` as an argument. Optionally,
+you can define component `name` for better debugging.
 
 ```tsx editor=false live=false
-import rocketstyle from '@vitus-labs/rocketstyle'
+import { rocketstyle } from '@vitus-labs/rocketstyle'
 import MyDefaultComponent from './somewhere'
 
 /*
-  first call does not accept any arguments,
-  it's being used to define Typescript types
-
-  second call allows you define styling dimensions
+  rocketstyle call allows you define styling dimensions
   the way you like, the example below uses default
-  ones
+  ones (see sections below)
 */
-const MyComponent = rocketstyle()()({
+const MyComponent = rocketstyle()({
   component: MyDefaultComponent,
   name: '@myUiSystem/MyComponent',
 })
@@ -42,10 +38,10 @@ Firs of all, you can set up dimensions you would like to use
 for defining styles and its priorities.
 
 ```tsx editor=false live=false
-import rocketstyle from '@vitus-labs/rocketstyle'
+import { rocketstyle } from '@vitus-labs/rocketstyle'
 import MyDefaultComponent from './somewhere'
 
-const MyComponent = rocketstyle()({
+const MyComponent = rocketstyle({
   dimensions: {
     states: 'state',
     sizes: 'size',
@@ -62,16 +58,33 @@ const MyComponent = rocketstyle()({
 })
 ```
 
+For more detailed explanation of **dimensions** configuration follow chapter
+[Dimensions](/docs/ui-system/rocketstyle/dimensions).
+
 ## Defining valid CSS styles
 
-It has no default `css` valid properties, so it's completely
-up to you how you would like to define it.
+Rocketstyle has no default `css` valid properties. Everything
+is completely up to you how you would like to define and use it.
+
+What basically **rocketstyle** does, it merges defined themes
+in your component and pass them as an object under `$rocketstyle` prop
+to your `styled` component. How you define the final output is completely
+up to you.
+
+For some useful best practices you can use [styles](/docs/ui-system/unistyle/styles#styles)
+and/or [makeItResponsive](http://localhost:3000/docs/ui-system/unistyle/responsive#make-it-responsive)
+helper from [Unistyle](/docs/ui-system/unistyle) package so you don't
+have to configure everything from scratch. See the implementation on
+[GitHub repository](https://github.com/vitus-labs/docs/blob/master/src/components/core/element.ts)
+of this documentation website.
+
+Below is an example of trivial configuration:
 
 ```tsx editor=false live=false
-import rocketstyle from '@vitus-labs/rocketstyle'
+import { rocketstyle } from '@vitus-labs/rocketstyle'
 import MyDefaultComponent from './somewhere'
 
-const MyComponent = rocketstyle()()({
+const MyComponent = rocketstyle()({
   component: MyDefaultComponent,
   name: '@myUiSystem/MyComponent',
 }).styles(
@@ -86,7 +99,7 @@ const MyComponent = rocketstyle()()({
         color: ${t.hover.color};
       }
 
-      /* styles when hover prop is passed to rocket component lately */
+      /* styles when hover prop is passed to rocket component */
       ${s.hover &&
       css`
         color: ${t.hover.color};
@@ -96,8 +109,8 @@ const MyComponent = rocketstyle()()({
 )
 ```
 
-Now, from the configuration above we defined what styles it can accept,
-and `JSON` keys to be used within `theme` callback.
+From the configuration above we can see what kind of defined styles
+can be accepted and used as `JSON` keys/values within `theme` callbacks.
 
 ```tsx editor=false live=false
 // reused component from previous example
@@ -109,6 +122,6 @@ const AnotherComponent = MyComponent.theme({
     color: '#fff',
   },
   // other theme values will be ignored as they are not transformed
-  // to valid css styles
+  // to valid css styles in the styles configuration above
 })
 ```

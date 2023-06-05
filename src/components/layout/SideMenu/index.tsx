@@ -2,16 +2,12 @@ import { FC } from 'react'
 import { ExtractProps } from '~/types'
 import { element } from '~/components/core'
 
-const base = element
-  .attrs({
-    block: true,
-    contentDirection: 'rows',
-    contentAlignY: 'top',
-    contentAlignX: 'block',
-  })
-  .theme({
-    overflow: 'hidden',
-  })
+const base = element.attrs({
+  block: true,
+  contentDirection: 'rows',
+  contentAlignY: 'top',
+  contentAlignX: 'block',
+})
 
 const Wrapper = base
   .config({
@@ -19,43 +15,39 @@ const Wrapper = base
   })
   .theme((t) => ({
     width: t.layout.sideMenu.width,
-  }))
-
-const InnerWrapper = base
-  .config({
-    name: 'base/layout/SideMenu/Inner',
-  })
-  .theme((t) => ({
-    position: 'fixed',
-    top: t.layout.topMenu.height,
-    width: t.layout.sideMenu.width,
-    // height: t.layout.sideMenu.height,
-    zIndex: t.layout.sideMenu.zIndex,
+    height: '100%',
     background: t.layout.sideMenu.background,
+    zIndex: t.layout.sideMenu.zIndex,
   }))
 
 const Inner = base
   .config({
     name: 'base/layout/SideMenu/Inner',
   })
+  .theme((t) => ({
+    position: 'fixed',
+    overflowY: 'scroll',
+    width: 'inherit',
+    height: 'inherit',
+    paddingY: t.spacing.xxLarge * 2,
+  }))
+
+const Navigation = base
+  .config({
+    name: 'base/layout/SideMenu/Inner/Nav',
+  })
   .attrs({
     tag: 'nav',
   })
-  .theme((t) => ({
-    // width: t.size.hideScrollBar,
-    backgroundColor: t.layout.sideMenu.background,
-    overflowY: 'auto',
-    paddingY: 60,
-  }))
 
-type Props = ExtractProps<typeof Inner>
+type Props = ExtractProps<typeof Navigation>
 
-const component: FC<Props> = (props) => (
+const Component: FC<Props> = (props) => (
   <Wrapper>
-    <InnerWrapper>
-      <Inner {...props} />
-    </InnerWrapper>
+    <Inner>
+      <Navigation {...props} />
+    </Inner>
   </Wrapper>
 )
 
-export default component
+export default Component

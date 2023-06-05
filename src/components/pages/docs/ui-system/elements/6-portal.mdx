@@ -1,15 +1,11 @@
 ---
 title: Portal
-slug: portal
 ---
-
-<!-- // import Example from './examples/example.mdx'
-// import Props from './props.mdx' -->
 
 # Portal
 
-Portal is just a normal [React Portal](https://reactjs.org/docs/portals.html)
-component with some prop extensions.
+Portal is just a general [React Portal](https://reactjs.org/docs/portals.html)
+component with some prop extensions options.
 
 ## Examples
 
@@ -18,11 +14,9 @@ component with some prop extensions.
 
 // ↓↓↓ Portal ↓↓↓
 render(
-  {typeof window && (
-    <Portal>
-      <Text label="This is a content appended at the end of the DOM." />
-    </Portal>
-  }
+  <Portal>
+    {/* <Text label="This is a content appended at the end of the DOM." /> */}
+  </Portal>
 )
 ```
 
@@ -30,8 +24,8 @@ render(
 
 These are props to which can be passed to **Portal**
 
-| Name     | Type                | Default value | Description                                                              |
-| -------- | ------------------- | :-----------: | :----------------------------------------------------------------------- |
-| children | **ReactNode**       |               | A content to be rendered.                                                |
-| position | **HTMLElement**     |               | Define where in the DOM the **Portal** will be appended                  |
-| tag      | **HTMLElement tag** |               | Define tag to be rendered as a wrapping element for **children** content |
+| Name        | Type                | Default value | Description                                                              |
+| ----------- | ------------------- | :-----------: | :----------------------------------------------------------------------- |
+| children    | **ReactNode**       |               | A content to be rendered.                                                |
+| DOMLocation | **HTMLElement**     |               | Define where in the DOM the **Portal** will be appended                  |
+| tag         | **HTMLElement tag** |               | Define tag to be rendered as a wrapping element for **children** content |

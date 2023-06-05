@@ -10,6 +10,7 @@ export default link.theme((t) => ({
     color: t.color.primary.base,
     textDecoration: 'none',
   },
+
   active: {
     color: t.color.primary.base,
   },

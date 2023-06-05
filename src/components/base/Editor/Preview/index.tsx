@@ -1,14 +1,18 @@
-import React from 'react'
+import React, { FC, useCallback } from 'react'
 import { LivePreview } from 'react-live'
 import ContentBox from '../ContentBox'
 
-const component = ({ view = 'rows', ...props }) => {
-  const Component = (props: any) => (
-    <ContentBox {...props} contentDirection={view} />
+const Component = ({ view = 'rows', ...props }) => {
+  const renderer: FC = useCallback(
+    (props: any) => <ContentBox {...props} contentDirection={view} />,
+    [view]
   )
 
+  // Seems to be missing correct Component type, but mentioned in documentation
+  // https://github.com/FormidableLabs/react-live#livepreview-
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
-  return <LivePreview Component={Component} {...props} />
+  return <LivePreview Component={renderer} {...props} />
 }
 
-export default component
+export default Component

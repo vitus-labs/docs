@@ -50,7 +50,7 @@ const em = Text.attrs({
 
 const strong = Text.theme((t) => ({ fontWeight: t.fontWeight.bold }))
 
-const inlineCode = Text.attrs({ code: true, tag: 'code' })
+const InlineCode = Text.attrs({ code: true, tag: 'code' })
 
 const ul = TextList.theme((t) => ({
   marginLeft: t.spacing.large,
@@ -72,7 +72,7 @@ export default {
   h3,
   h4,
   p,
-  inlineCode,
+  inlineCode: InlineCode,
   em,
   strong,
   a: Link,
@@ -84,5 +84,7 @@ export default {
   td: Col,
   thead: Head,
   th: HeadCol,
+  // code: (props: any) =>
+  //   props.className ? <Editor {...props} /> : <InlineCode {...props} />,
   code: Editor,
 }

@@ -1,3 +1,24 @@
+// eslint-disable-next-line camelcase
+import { Montserrat, Varela_Round, Source_Code_Pro } from 'next/font/google'
+
+const baseFont = Montserrat({
+  weight: ['400', '600', '700'],
+  subsets: ['latin'],
+  style: ['italic', 'normal'],
+})
+
+const headingsFont = Varela_Round({
+  weight: ['400'],
+  subsets: ['latin'],
+  style: ['normal'],
+})
+
+const sourceCode = Source_Code_Pro({
+  weight: ['400'],
+  subsets: ['latin'],
+  style: ['normal', 'italic'],
+})
+
 const theme = {
   rootSize: 16,
   breakpoints: {
@@ -32,7 +53,7 @@ const theme = {
       background: '#222829',
     },
     topMenu: {
-      height: 70,
+      height: 72,
       background: '#0F1111',
       borderColor: '#0F1111',
       zIndex: 100,
@@ -82,9 +103,9 @@ const theme = {
   // TYPOGRAPHY OPTIONS
   // ------------------------------------------------------
   fontFamily: {
-    base: "'Montserrat', sans-serif",
-    headings: "'Varela Round', sans-serif",
-    mono: 'source-code-pro, Menlo, Monaco, Consolas, "Courier New", monospace',
+    base: baseFont.style.fontFamily,
+    headings: headingsFont.style.fontFamily,
+    mono: sourceCode.style.fontFamily,
   },
   fontSize: {
     smaller: '80%',

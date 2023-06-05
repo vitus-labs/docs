@@ -45,10 +45,10 @@ type Props = {
   circle?: boolean
 }
 
-const component: FC<Props> = ({ label, name, ...props }) => (
+const Component: FC<Props> = ({ label, name, ...props }) => (
   <LogoWrapper {...props}>
     <Logo label={label} name={name} />
   </LogoWrapper>
 )
 
-export default component
+export default Component

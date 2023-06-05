@@ -10,9 +10,8 @@ and reusable.
 
 ## Motivation
 
-There are several solutions and helpers but none of them have fit my
-needs so far. They were not enough extensible. With Rocketstyle
-you can do basically whatever you want while writing less code
+There are several solutions and helpers but they are not extensible enough.
+With Rocketstyle you can do basically whatever you want while writing less code
 and have less hassle in styles in your application.
 
 ### Advantages
@@ -30,7 +29,7 @@ Rocketstyle:
 1. less imports,
 2. less code,
 3. less hassle,
-4. huge impact in **reusability** and **consistency**.
+4. huge impact on **reusability** and **consistency**.
 
 Sounds cool, right? So, let's go through the basics and see how powerful
 it can be.
@@ -53,19 +52,18 @@ Rocketstyle depends on the following packages which need to be installed as well
 
 | Package name      | Version |
 | ----------------- | ------- |
-| react             | >= 16.7 |
+| react             | >= 16.8 |
 | styled-components | >= 5.0  |
 
 ## Getting started
 
 Rocketstyle uses styled-components in the background and basically works
-as a wrapper which will generate a **theme** object which will be passed
-to a valid styled component.
+as a wrapper which generates a **theme** object under `$rocketstyle` prop.
 
 When you pass any css styles it automatically wraps your component by **styled**
 from [styled-components](https://styled-components.com/) and passes all
-the styles there so it becomes a regular styled component with its own local
-**theme** passed as am object prop under **$rocketstyle** key name.
+the styles there so it becomes a regular styled component with its own **local
+theme** passed as an object prop under `$rocketstyle` key name.
 
 ## Create your first component
 
@@ -74,18 +72,18 @@ below uses default initialization configuration. For more advance
 usage follow other chapters of this documentation.
 
 ```tsx editor=false live=false
-import rocketstyle from '@vitus-labs/rocketstyle'
-import Element from './someReactComponent'
+import { rocketstyle } from '@vitus-labs/rocketstyle'
+import { Element } from '@vitus-labs/elements'
 
-export default rocketstyle()({
+export const NewElement = rocketstyle()({
   name: 'component/Name',
   component: Element,
 })
-  .theme((t) => ({
+  .theme({
     fontFamily: 'Arial',
     lineHeight: 1.5,
     color: '#000',
-  }))
+  })
   .styles(
     (css) => css`
       ${({ $rocketstyle: t }) => css`
@@ -99,14 +97,14 @@ export default rocketstyle()({
 
 ## Reusability
 
-Imagine you would like to extend the component above. Let's say,
-we want to change `line-height` and `color`. We can easily do it
-like several ways:
+For example, we would like to extend the styling of the component
+above. Let's say, we want to change `line-height` and `color`.
+We can easily do so several ways:
 
-### Passing style properties in theme
+### Overriding style properties in theme
 
-We can pass `lineHeight` and `color` in theme object so the styles from
-the previous example will be able to access those values.
+We can pass `lineHeight` and `color` in the **theme** object
+so the styles from the previous example will be overriden.
 
 ```tsx editor=false live=false
 import element from './previous-example-component'
@@ -115,16 +113,17 @@ export const NewElement = element
   .config({
     name: 'ReuseElement.name',
   })
-  .theme(t => ({
-    lineHeight: 3,
-    color: t.white
-  }))
+  .theme({
+    lineHeight: 3, // value will be overriden
+    color: '#fff' // value will be overriden
+  })
 )
 ```
 
-### Extending css
+### Extending CSS in styles callback
 
-We can just pass new css properties to our component.
+Another approach is to just pass new css properties to our component
+via `styles` callback.
 
 ```tsx editor=false live=false
 import element from './previous-example-component'
@@ -144,7 +143,7 @@ export const NewElement = element
 )
 ```
 
-## Responsive styling
+## Theming
 
 If you want to use theming, don't forget to add **theme**
 into **Provider**.
@@ -152,7 +151,7 @@ into **Provider**.
 ```tsx editor=false live=false
 import { Provider } from '@vitus-labs/rocketstyle'
 
-const component = () => (
+const Component = () => (
   <Provider
     theme={
       {
@@ -165,18 +164,18 @@ const component = () => (
 )
 ```
 
-## Light / dark mode
+## Dark / Light mode
 
 Rocketstyle also has a built-in support for creating **light** / **dark** mode
-styling. By default there is set **mode** to `light`. You may want to change it
+styling. By default the **mode** is set to `light`. You may want to change it
 by passing a mode value into **Provider**.
 
 ```tsx editor=false live=false
 import { Provider } from '@vitus-labs/rocketstyle'
 
-const component = () => (
+const Component = () => (
   <Provider
-    variant="light" // accepts light | dark
+    mode="light" // accepts light | dark
     theme={
       {
         /* ...your theme */
@@ -191,7 +190,7 @@ const component = () => (
 ### Defining styles for dark / light in components
 
 ```tsx editor=false live=false
-const Component = rocketstyle()()({
+const Component = rocketstyle()({
   name: 'component/Name',
   component: Element,
 }).theme((t, m) => ({
@@ -203,10 +202,13 @@ const Component = rocketstyle()()({
 
 ## Extend component
 
-Rocketstyle uses function chaining so we can just import any rocketstyle
-component and simply extend its `states`, `sizes`, `variants`, `theme`,
-`styles` and so on. Below is a brief example of extending a component with
-additional css properties:
+Rocketstyle uses function chaining. so we can just import any **rocketstyle
+component** and simply extend its `states`, `sizes`, `variants`, `theme`,
+`styles` and so on based on the defined configuration. All the changes are
+immutable.
+
+Below is a brief example of extending a component with additional css
+properties:
 
 ```tsx editor=false live=false
 import element from './previous-example-component'
@@ -227,10 +229,10 @@ const NewElementB = NewElementA.styles(css => css`text-align: right;`)
 ```
 
 The `NewElementA` above will look like the previous component but with
-black `background-color`.
+added `background-color` CSS property.
 
-`NewElementB` will have black background color and text aligned to
+`NewElementB` will have set black background color and text aligned to
 the right.
 
-For more composition patterns examples go through
-the documentation so you will see the power of Rocketstyle.
+For more composition patterns examples go through the documentation so
+you will see the power of Rocketstyle in practice.

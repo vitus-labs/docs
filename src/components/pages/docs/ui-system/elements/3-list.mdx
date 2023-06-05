@@ -4,11 +4,15 @@ title: Elements / List
 
 # List
 
-List is a basic component to render simple lists. It could help you
-avoiding repeatable patterns and using **map** function repeatedly.
+List is a component to render simple lists with extensive API.
 
-Secondly, it migh help you keeping components more structured and
-organized.
+It also helps avoiding repeatable patterns and using array `map`
+function repeatedly. List component helps keeping components
+more structured and organized.
+
+List provides extensive API, like ability to wrap your `component`
+by `wrapComponent` and possibility of extending `itemProps` and
+`wrapProps` accordingly for better component composition.
 
 ## Example
 
@@ -45,10 +49,22 @@ const Users = () => (
 render(<Users />)
 ```
 
+## Root element
+
+By default the List component renders [Fragment](https://reactjs.org/docs/fragments.html)
+of items. To enable [Element](/docs/ui-system/elements/element)
+component to be used as **root** element, `rootElement` prop needs
+to be set as `true`.
+
+Using the root element provides another extensive oportunities
+for component composition, e.g. vertical/horizontal alignment, attaching
+`beforeContent` or `afterContent` etc.
+
+**Warning:** `content` and `label` props are being ignored.
+
 ## Render Items
 
 There are several ways of rendering children within **List** component.
-So let's take a look at them.
 
 ### Render children
 
@@ -81,9 +97,9 @@ render(<Users />)
 
 ### Render from an array
 
-Another way of rendering children is passing a props **data** and **component**
-to List component and it will iterate on the background and render list
-of elements.
+Another way of rendering children is passing a props `data` and `component`
+to the List component. It will iterate over the `data` array and pass item
+props to the assigned `component`.
 
 ```tsx
 // import { Element, List } from '@vitus-labs/elements'
@@ -94,29 +110,31 @@ const styles = (css) => css`
   margin: 4px;
 `
 
+// key is not passed, it's used as a React key prop
 const data = [
   { key: '1', name: 'John', surname: 'Doe' },
   { key: '2', name: 'Sam', surname: 'Johnson' },
 ]
 
 const User = ({ name, surname }) => (
-  <Element label={name + ' ' + surname} css={styles} />
+  <Element label={`${name} ${surname}`} css={styles} />
 )
 
-const Users = () => <List rootElement vertical data={data} component={User} />
+const UserList = () => <List rootElement data={data} component={User} />
 
 // ↓↓↓ List ↓↓↓
-render(<Users />)
+render(<UserList />)
 ```
 
 ## Data properties
 
-Prop **data** must be of **Array** type, but the items within array can
-be of different types.
+Prop `data` must be of `Array` type, but the items within array can
+be of different types. Let's dive more into detail in the following
+sections.
 
 ### Array of objects
 
-Probably the most common case is to render array of objects as a list.
+One of the most common cases is to render `array` of `objects` as a list.
 This can be simply done by following example:
 
 ```tsx
@@ -135,22 +153,25 @@ const data = [
 ]
 
 const User = ({ name, surname }) => (
-  <Element label={name + ' ' + surname} css={styles} />
+  <Element label={`${name} ${surname}`} css={styles} />
 )
 
-const Users = () => <List rootElement vertical data={data} component={User} />
+const UserList = () => <List rootElement data={data} component={User} />
 
 // ↓↓↓ List ↓↓↓
-render(<Users />)
+render(<UserList />)
 ```
 
 ### Array of strings or numbers
 
-Sometimes you just want to render list of items which accepts only one
-prop of type **string** or **number**. In that case you can just
-simply pass array of values as **data** prop. It also filters **null**
-and **undefined** values, therefore doesn't render empty elements
-which could lead to throwing errors.
+Sometimes the case is just to render list of items which accepts only one
+prop of type `string` or `number`. In that case can be simply passed
+an array of `string[]` or `number[]` as `data` prop. In this case must be
+defined also **valueName** prop which defines name of the prop to be passed
+to the iteration component.
+
+List also filters `null` and `undefined` values out of the box, therefore
+doesn't render empty elements which could lead to throwing errors.
 
 ```tsx
 // import { Element, List } from '@vitus-labs/elements'
@@ -180,23 +201,24 @@ const Users = () => (
 render(<Users />)
 ```
 
-As there is always need to add a **key** when rendering elements
-dynamically, you don't have to worry about it. It will add
-a [key](https://reactjs.org/docs/lists-and-keys.html) for you out
-of the box.
-
 ## Item key value
 
-By default, it will look for **key** &rarr; **id** &rarr; **itemId** in
-your item object within **data** prop. In case there is no value from
-those mentioned previously, it will fallback to **index** value from map
-function.
+There is always a need to add a **key** when [rendering elements
+dynamically](https://reactjs.org/docs/lists-and-keys.html).
 
-Item key value can be customizable as well. You can pass **itemKey**
-prop which can be either type of **string** or a **function**.
+By default, List component will look for **key** &rarr; **id** &rarr;
+**itemId** in your item `object` within `data` prop. In the case, there is
+non of the mentioned params available, List will fallback to **index**
+value from the array `map` function.
 
-When passing a string value, **List** will use it as a key name from
-item object.
+List also provides control over items keys. To define custom `key`,
+the **itemKey** prop can be passed either as a type of `string`
+or a callback `function`.
+
+### itemKey as a string
+
+When passing a `string` value, **List** will use it as a `key` name from
+item object from `data` array. See the example below.
 
 ```tsx
 // import { Element, List } from '@vitus-labs/elements'
@@ -213,19 +235,21 @@ const data = [
 ]
 
 const User = ({ name, surname }) => (
-  <Element label={name + ' ' + surname} css={styles} />
+  <Element label={`${name} ${surname}`} css={styles} />
 )
 
-const Users = () => (
-  <List rootElement vertical itemKey="userId" data={data} component={User} />
+const UserList = () => (
+  <List rootElement itemKey="userId" data={data} component={User} />
 )
 
 // ↓↓↓ List ↓↓↓
-render(<Users />)
+render(<UserList />)
 ```
 
-By passing a function value you can create a customized **key** for each
-element.
+### itemKey as a callback
+
+By passing a callback function as value can be created a customized **key**
+for each element. See the example below.
 
 ```tsx
 // import { Element, List } from '@vitus-labs/elements'
@@ -236,16 +260,17 @@ const styles = (css) => css`
   margin: 4px;
 `
 
+// userId as a key
 const data = [
   { userId: '1', name: 'John', surname: 'Doe' },
   { userId: '2', name: 'Sam', surname: 'Johnson' },
 ]
 
 const User = ({ name, surname }) => (
-  <Element label={name + ' ' + surname} css={styles} />
+  <Element label={`${name} ${surname}`} css={styles} />
 )
 
-const Users = () => (
+const UserList = () => (
   <List
     rootElement
     vertical
@@ -257,7 +282,7 @@ const Users = () => (
 )
 
 // ↓↓↓ List ↓↓↓
-render(<Users />)
+render(<UserList />)
 ```
 
 ## Custom item component
@@ -276,11 +301,11 @@ const styles = (css) => css`
 `
 
 const User = ({ name, surname }) => (
-  <Element label={name + ' ' + surname} css={styles} />
+  <Element label={`${name} ${surname}`} css={styles} />
 )
 
 const SpecialUser = ({ name, surname }) => (
-  <Element label={name + ' ' + surname + ' - Special user'} css={styles} />
+  <Element label={`${name} ${surname} - Special user`} css={styles} />
 )
 
 const data = [
@@ -289,7 +314,7 @@ const data = [
   { userId: '2', name: 'Sam', surname: 'Johnson', component: SpecialUser },
 ]
 
-const Users = () => (
+const UserList = () => (
   <List
     rootElement
     contentDirection="rows"
@@ -301,19 +326,20 @@ const Users = () => (
 )
 
 // ↓↓↓ List ↓↓↓
-render(<Users />)
+render(<UserList />)
 ```
 
-## Custom item props
+## Custom Item props
 
-You can even **data** create dynamically by using **itemProps** prop.
-This prop can be either an object or a callback function which receives
-item props.
+You can even **data** create dynamically by using `itemProps` prop.
+This prop can be either an object or a callback function.
 
-When using a callback function, you get the following arguments: (
-**item**: item props from data array, **extendProps**: [object](#extend-props)
-of boolean values (**index**, **position**, **first**, **last**, **odd**, **even**)
-and expected to return an object.
+When using a callback function, the function accepts the following arguments:
+`(item, extendProps) => ({ /* returned object */ })`.
+
+Where `item` is data from `data` array prop and `extendProps` are
+meta data of each item in the list containing (**index**, **position**,
+**first**, **last**, **odd**, **even**).
 
 ```tsx
 // import { Element, List } from '@vitus-labs/elements'
@@ -330,13 +356,10 @@ const data = [
 ]
 
 const User = ({ userId, name, surname }) => (
-  <Element
-    label={'[ ' + userId + ' ] - ' + name + ' ' + surname}
-    css={styles}
-  />
+  <Element label={`[${userId}] - ${name} ${surname}`} css={styles} />
 )
 
-const Users = () => (
+const UserList = () => (
   <List
     rootElement
     contentDirection="rows"
@@ -345,69 +368,28 @@ const Users = () => (
     component={User}
     itemProps={(item, extendProps) => ({
       // ↓↓↓ create your own props dynamically
-      userId: extendProps.position, // + '-' + extendProps.position
+      userId: extendProps.position,
     })}
   />
 )
 
 // ↓↓↓ List ↓↓↓
-render(<Users />)
+render(<UserList />)
 ```
 
-## Extend props
+## Wrapping items by another component
 
-Another example of extending Item component props. You can, for example,
-pass all **extendProps** values and handle your component styles according
-to it.
+To render a list of items but need to wrap each element by
+another component, there is no need to first create a new React
+component to combine them together. Prop `wrapComponent` is a way
+to go to add a wrapping component.
 
-```tsx
-// import { Element, List } from '@vitus-labs/elements'
+This might be useful in situations like having a list of links but
+want to wrap them to `li` HTML tag to create a HTML valid list of links.
 
-const styles = (css) => css`
-  ${defaultCss};
-  padding: 8px;
-  margin: 4px;
-`
-
-const data = [
-  { name: 'John', surname: 'Doe' },
-  { name: 'Sam', surname: 'Johnson' },
-]
-
-const User = ({ name, surname, position, odd }) => (
-  <Element
-    label={'[ ' + position + ' ] - ' + name + ' ' + surname}
-    css={styles}
-    style={{
-      color: odd ? '#86C232' : '#fff',
-      background: odd ? 'rgba(134, 194, 50, 0.4)' : '#86C232',
-    }}
-  />
-)
-
-const Users = () => (
-  <List
-    rootElement
-    contentDirection="rows"
-    contentAlignX="block"
-    data={data}
-    component={User}
-    itemProps={(item, extendProps) => extendProps}
-  />
-)
-
-// ↓↓↓ List ↓↓↓
-render(<Users />)
-```
-
-## Wrapping items
-
-If you would like to render a list of items but need to wrap each
-element by another component, then, there is no need to create a new
-component where you combine them together. You can just use
-**wrapComponent** prop to add a wrapping component. For example, this
-might be useful when you have a list of links but want to wrap them to
-**li** HTML tag to create a HTML valid list of links.
+The **root** element of List is [Element component](/docs/ui-system/elements/element),
+therefore can cover rendering `ul` HTML tag to have a full valid
+and extensible HTML list.
 
 ```tsx
 // import { Element, List } from '@vitus-labs/elements'
@@ -426,10 +408,10 @@ const data = [
 const Wrapper = (props) => <li {...props} />
 
 const User = ({ name, surname }) => (
-  <Element label={name + ' ' + surname} css={styles} />
+  <Element label={`${name} ${surname}`} css={styles} />
 )
 
-const Users = () => (
+const UserList = () => (
   <List
     rootElement
     tag="ul"
@@ -442,14 +424,19 @@ const Users = () => (
 )
 
 // ↓↓↓ List ↓↓↓
-render(<Users />)
+render(<UserList />)
 ```
 
 ## Extend Wrapper props
 
-Another example of extending Item component props. You can, for example,
-pass all **extendProps** values and handle your component styles according
-to it.
+Extending wrapper props works the same way as extending item props.
+
+When using a callback function, the function accepts the following arguments:
+`(item, extendProps) => ({ /* returned object */ })`.
+
+Where `item` is data from `data` array prop and `extendProps` are
+meta data of each item in the list containing (**index**, **position**,
+**first**, **last**, **odd**, **even**).
 
 ```tsx
 // import { Element, List } from '@vitus-labs/elements'
@@ -473,7 +460,7 @@ const Wrapper = ({ position, children }) => (
 
 const User = ({ name, surname }) => <Element label={name + ' ' + surname} />
 
-const Users = () => (
+const UserList = () => (
   <List
     rootElement
     contentDirection="rows"
@@ -486,22 +473,23 @@ const Users = () => (
 )
 
 // ↓↓↓ List ↓↓↓
-render(<Users />)
+render(<UserList />)
 ```
 
 ## List properties
 
-List accepts all [Element properties](/docs/ui-system/elements/element)
-(except `label` and `content`) and the following props.
+List accepts all [Element](/docs/ui-system/elements/element) properties
+(except `label` and `content`) and the following props. These props
+are taken into account only when `rootElement` is **enabled**.
 
 | Name          | Type                    | Default value | Description                                                                                           |
 | ------------- | ----------------------- | :-----------: | :---------------------------------------------------------------------------------------------------- |
 | rootElement   | **boolean**             |     false     | Whether a root element should be rendered or the output should be just a type of React **Fragment**   |
-| children      | **ReactNode**           |               | Children to List can be passed manually by using **children** prop.                                   |
+| children      | **ReactNode**           |               | Children to List can be passed manually by using **children** prop                                    |
 | data          | **Array**               |               | An array of item values to be passed to item component                                                |
 | component     | **ComponentType**       |               | A component to be rendered per item                                                                   |
 | wrapComponent | **ComponentType**       |               | A component to be used as a wrapper component for item component                                      |
-| valueName     |                         |               | Can be used when **data** consists of **strings** or **numbers** to name value being passed as a prop |
+| valueName     | **string**              |               | Can be used when **data** consists of **strings** or **numbers** to name value being passed as a prop |
 | itemKey       | **string** **callback** |               | Prop for defining item key name / value if default behavior doesn't work out                          |
 | itemProps     | **object** **callback** |               | A custobizable hook for dynamically render props for each item                                        |
 | wrapProps     | **object** **callback** |               | A custobizable hook for dynamically render props for each item                                        |

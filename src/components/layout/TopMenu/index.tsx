@@ -44,11 +44,11 @@ type Props = {
   transparent?: boolean
 }
 
-const component: FC<Props> = (props) => (
+const Component: FC<Props> = (props) => (
   <Wrapper>
     <Wrapper />
     <Inner {...props} />
   </Wrapper>
 )
 
-export default component
+export default Component

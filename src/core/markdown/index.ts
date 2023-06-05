@@ -1,9 +1,9 @@
-// @ts-nocheck
 import fs from 'fs'
 import { join } from 'path'
 import matter from 'gray-matter'
 import remark from 'remark'
-import mdx from 'remark-mdx'
+import remarkMdx from 'remark-mdx'
+// import remarkGfm from 'remark-gfm'
 
 const ROOT_DIRECTORY = join(process.cwd(), '/src/components/pages')
 
@@ -17,7 +17,8 @@ export const extractFileRoute: ExtractFileRoute = (fileName) => {
   let helper =
     fileNameToArray.length > 0 ? fileNameToArray.join('-') : fileNameToArray[0]
 
-  if (!isNaN(fileNameToArray[0] as any)) {
+  if (!Number.isNaN(fileNameToArray[0])) {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [_, ...rest] = fileNameToArray
     helper = rest.join('-')
   }
@@ -28,18 +29,18 @@ export const extractFileRoute: ExtractFileRoute = (fileName) => {
 // --------------------------------------------------------
 //
 // --------------------------------------------------------
-export const getFileGroupSlug = (slug) => {
-  const _slug = [...slug]
+export const getFileGroupSlug = (slug: string[]): string[] => {
+  const newSlug = [...slug]
 
-  _slug.pop()
+  newSlug.pop()
 
-  return _slug
+  return newSlug
 }
 
 // --------------------------------------------------------
 // Get All Available slugs in a map
 // --------------------------------------------------------
-export const getSlugsMap = (dir = 'docs') => {
+export const getAllRoutesFromDir = (dir = 'docs') => {
   const dirPath = join(ROOT_DIRECTORY, dir)
   const directories = fs.readdirSync(dirPath)
 
@@ -51,14 +52,15 @@ export const getSlugsMap = (dir = 'docs') => {
 
       let helper = finalName.length > 0 ? finalName.join('-') : finalName[0]
 
-      if (!isNaN(finalName[0])) {
+      if (!Number.isNaN(finalName[0])) {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const [_, ...rest] = finalName
         helper = rest.join('-')
       }
 
       result[helper] = item
     } else {
-      result[item] = getSlugsMap(join(dir, item))
+      result[item] = getAllRoutesFromDir(join(dir, item))
     }
   })
 
@@ -81,12 +83,12 @@ export const transformSlugs: TransformSlugs = (
 ) => {
   Object.entries(data).forEach(([key, value]) => {
     if (
-      typeof value !== null &&
+      value !== null &&
       typeof value === 'object' &&
-      Object.keys(value as {}).length > 0
+      Object.keys(value as Record<string, any>).length > 0
     ) {
       result.push([...keys, key]) // index route
-      transformSlugs(value as {}, result, [...keys, key])
+      transformSlugs(value as Record<string, any>, result, [...keys, key])
     } else {
       result.push([...keys, key])
     }
@@ -99,7 +101,7 @@ export const transformSlugs: TransformSlugs = (
 type GetSlugs = (dir: string) => Array<string[]>
 
 export const getSlugs: GetSlugs = (dir) => {
-  const map = getSlugsMap(dir)
+  const map = getAllRoutesFromDir(dir)
   const result: Array<string[]> = []
 
   transformSlugs(map, result, [])
@@ -110,10 +112,7 @@ export const getSlugs: GetSlugs = (dir) => {
 // --------------------------------------------------------
 // Load a file by slug
 // --------------------------------------------------------
-type GetFileBySlug = (
-  slug: string[],
-  filename: string
-) => Promise<ReturnType<typeof fs.readFileSync>>
+type GetFileBySlug = (slug: string[], filename: string) => Promise<string>
 
 export const getFileBySlug: GetFileBySlug = async (slug, fileName) => {
   const fullPath = join(ROOT_DIRECTORY, ...slug, fileName)
@@ -125,13 +124,13 @@ export const getFileBySlug: GetFileBySlug = async (slug, fileName) => {
 // --------------------------------------------------------
 // Parse markdown file
 // --------------------------------------------------------
-type ParseMarkdown = (file: any) => Promise<ReturnType<typeof remark>>
-
-export const parseMarkdown: ParseMarkdown = async (file) => {
+// type ParseMarkdown = (file:string) =>
+export const parseMarkdown = async (file: string) => {
   let result
 
   await remark()
-    .use(mdx)
+    // .use(remarkGfm)
+    .use(remarkMdx)
     .use(() => (tree) => {
       result = tree
     })
@@ -143,11 +142,8 @@ export const parseMarkdown: ParseMarkdown = async (file) => {
 // --------------------------------------------------------
 // Parse markdown file
 // --------------------------------------------------------
-export const splitMetadataAndContentFromFile = async (file) => {
-  const { data, content } = matter(file)
-
-  return { data, content }
-}
+export const splitMetadataAndContentFromFile = async (file: string) =>
+  matter(file)
 
 // --------------------------------------------------------
 // Load a file by slug
@@ -163,12 +159,12 @@ export const filterMenu: FilterMenu = (obj) => {
 
   obj.children.forEach((item) => {
     if (item.type === 'heading' && item.depth === 1) {
-      const value = item.children[0].value
+      const { value } = item.children[0]
       mainHeading = value
     }
 
     if (item.type === 'heading' && item.depth === 2) {
-      const value = item.children[0].value
+      const { value } = item.children[0]
       subHeadings.push(value)
     }
   })
@@ -185,38 +181,40 @@ type Link = {
   submenu?: Array<{ title: string; anchor: string }>
 }
 
+type GetMenuItem = (dir: string[], key: string, value: string) => Promise<Link>
+
+const getMenuItem: GetMenuItem = async (dir, key, value) => {
+  const file = await getFileBySlug(dir, value)
+  const { content } = await splitMetadataAndContentFromFile(file)
+  const parsedFile = await parseMarkdown(content)
+  const menu = await filterMenu(parsedFile as any)
+  const itemLink = `/${[...dir, key].join('/')}`
+
+  return {
+    title: menu.mainHeading,
+    slug: itemLink,
+    submenu: menu.subHeadings?.map((item) => ({
+      title: item,
+      anchor: `${itemLink}#${item.replace(/ /g, '-').toLowerCase()}`,
+    })),
+  }
+}
+
 type GenerateMainMenu = (
   dir: string[],
   folderMap: Record<string, string>
 ) => Promise<Link[]>
 
 export const generateMenu: GenerateMainMenu = async (dir, folderMap) => {
-  const result = Object.entries(folderMap).reduce(async (acc, [key, value]) => {
-    const prevValue = await acc
+  const RESULT = Object.entries(folderMap).map(([key, value]) =>
+    getMenuItem(dir, key, value)
+  )
 
-    const file = await getFileBySlug(dir, value)
-    const { content } = await splitMetadataAndContentFromFile(file)
-    const parsedFile = await parseMarkdown(content)
-    const menu = await filterMenu(parsedFile as any)
-    const itemLink = `/${[...dir, key].join('/')}`
-
-    prevValue.push({
-      title: menu.mainHeading,
-      slug: itemLink,
-      submenu: menu.subHeadings?.map((item) => ({
-        title: item,
-        anchor: `${itemLink}#${item.replace(/ /g, '-').toLowerCase()}`,
-      })),
-    })
-
-    return prevValue
-  }, [] as Link[]) as unknown
-
-  return result as Link[]
+  return Promise.all(RESULT)
 }
 
-export const getMetaDataFromFile = async ({ data, content }) => {
-  const meta = data
+export const getMetaDataFromFile = (data: Record<string, any>) => {
+  const meta = { ...data }
 
   if (!meta.title) {
     const title = '' // find heading

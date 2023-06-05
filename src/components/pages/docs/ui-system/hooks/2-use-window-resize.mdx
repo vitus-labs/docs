@@ -1,0 +1,55 @@
+---
+title: Hooks / useWindowResize
+---
+
+# useWindowResize
+
+`useWindowResize` is a React hook listening to window changes and returns
+client `width` and `height`.
+
+```tsx editor=false live=false
+// import { useWindowResize } from '@vitus-labs/hooks'
+
+// usage
+const Component = () => {
+  const { width, height } = useWindowResize()
+
+  return null
+}
+
+// options for customization
+const Component = () => {
+  const { width, height } = useWindowResize(
+    {
+      throttleDelay: 100,
+      onChange: ({ width, height }) => console.log(width, height),
+    },
+    { width: 0, height: 0 }
+  )
+
+  return null
+}
+```
+
+## Arguments
+
+These are arguments to which can be passed to **useWindowResize**
+
+| Name         | Type       | Default value             | Description                       |
+| ------------ | ---------- | ------------------------- | --------------------------------- |
+| options      | **object** | `{ throttleDelay: 200 }`  | see `Options` section below       |
+| defaultSizes | **object** | `{ width: 0, height: 0 }` | see `Default Sizes` section below |
+
+### Options
+
+| Name          | Type                        | Default value | Description                                              |
+| ------------- | --------------------------- | ------------- | -------------------------------------------------------- |
+| throttleDelay | **number**                  | 200           | a throttling delay value for improved performance        |
+| onChange      | **(params: Sizes) => void** |               | an `onChange` hook to be triggered on every change event |
+
+### Default Sizes
+
+| Name   | Type       | Default value | Description              |
+| ------ | ---------- | ------------- | ------------------------ |
+| width  | **number** | 0             | a default `width` value  |
+| height | **number** | 0             | a default `height` value |

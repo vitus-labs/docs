@@ -36,7 +36,7 @@ type Props = {
   link: string
 }
 
-const component: FC<Props> = ({
+const Component: FC<Props> = ({
   variant = 'primary',
   title,
   label,
@@ -53,4 +53,4 @@ const component: FC<Props> = ({
   </Link>
 )
 
-export default component
+export default Component

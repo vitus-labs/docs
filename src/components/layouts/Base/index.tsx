@@ -6,13 +6,13 @@ type Props = {
   children: ReactNode
 }
 
-const component: FC<Props> = ({ children }) => (
+const Component: FC<Props> = ({ children }) => (
   <Root>
     <TopMenu />
     {children}
   </Root>
 )
 
-component.displayName = 'layouts/Base'
+Component.displayName = 'layouts/Base'
 
-export default component
+export default Component

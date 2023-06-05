@@ -13,7 +13,7 @@ const Root = element
     paddingX: { xs: t.spacing.large, xxxl: t.spacing.reset },
   }))
 
-const component: FC = () => (
+const Component: FC = () => (
   <TopMenu>
     <Container
       width={{
@@ -47,6 +47,6 @@ const component: FC = () => (
   </TopMenu>
 )
 
-component.displayName = 'layouts/Docs/TopMenu'
+Component.displayName = 'layouts/Docs/TopMenu'
 
-export default component
+export default Component

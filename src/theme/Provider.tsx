@@ -8,12 +8,11 @@ type Props = {
   children: ReactNode
 }
 
-const component: FC<Props> = ({ children }) => (
+const Component: FC<Props> = ({ children }) => (
   <Provider theme={theme} provider={provider}>
-    {/* @ts-ignore */}
     <GlobalStyle theme={theme} />
     {children}
   </Provider>
 )
 
-export default component
+export default Component
