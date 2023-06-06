@@ -18,9 +18,15 @@ const h2 = Heading.attrs<{ name?: string; children?: string }>(
     // add id as an anchor link
     id: children ? children.replace(/ /g, '-').toLowerCase() : undefined,
   })
-).theme((t) => ({
-  marginY: t.spacing.xLarge,
-}))
+)
+  .theme((t) => ({
+    marginY: t.spacing.xLarge,
+  }))
+  .styles(
+    (css) => css`
+      scroll-margin-top: 92px;
+    `
+  )
 
 const h3 = Heading.attrs({
   tag: 'h3',
