@@ -3801,6 +3801,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@vitus-labs/hooks@npm:^0.80.0":
+  version: 0.80.0
+  resolution: "@vitus-labs/hooks@npm:0.80.0"
+  peerDependencies:
+    "@vitus-labs/core": "*"
+    react: ">= 16.8"
+  checksum: a1a32cdcedad37e8571565e6991aebbbf9ecc9d120363811f0875c2e508a214637fb7ba55c876b0c924245c71e29a00fd7a6cbb31871e9c12a509fe05ec7cf82
+  languageName: node
+  linkType: hard
+
 "@vitus-labs/rocketstyle@npm:^0.80.0":
   version: 0.80.0
   resolution: "@vitus-labs/rocketstyle@npm:0.80.0"
@@ -3947,6 +3957,7 @@ __metadata:
     "@vitus-labs/coolgrid": ^0.80.0
     "@vitus-labs/core": ^0.80.0
     "@vitus-labs/elements": ^0.80.0
+    "@vitus-labs/hooks": ^0.80.0
     "@vitus-labs/rocketstyle": ^0.80.0
     "@vitus-labs/tools-babel": ^0.46.0
     "@vitus-labs/tools-favicon": ^0.46.0

@@ -11,7 +11,7 @@ export default element
       height: t.size.fill,
       borderStyleLeft: t.borderStyle,
       borderWidthLeft: t.borderWidth,
-      marginX: t.spacing.xLarge,
+      marginX: { xs: t.spacing.small, md: t.spacing.xLarge },
     },
     horizontal: {
       width: t.size.fill,

@@ -36,7 +36,7 @@ const theme = {
   grid: {
     columns: 12,
     container: {
-      xs: '100%',
+      xs: '90%',
       sm: 540,
       md: 720,
       lg: 960,
@@ -53,7 +53,7 @@ const theme = {
       background: '#222829',
     },
     topMenu: {
-      height: 72,
+      height: { xs: 56, md: 72 },
       background: '#0F1111',
       borderColor: '#0F1111',
       zIndex: 100,
@@ -122,12 +122,12 @@ const theme = {
     extraXxLarge: 48,
   },
   headingSize: {
-    jumbo: 96,
-    level1: 64,
-    level2: 48,
-    level3: 40,
-    level4: 32,
-    level5: 24,
+    jumbo: { xs: 56, sm: 72, md: 96 },
+    level1: { xs: 36, md: 64 },
+    level2: { xs: 32, md: 48 },
+    level3: { xs: 28, md: 40 },
+    level4: { xs: 24, md: 32 },
+    level5: { xs: 20, md: 24 },
   },
   fontWeight: {
     thin: 200,

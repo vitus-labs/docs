@@ -6,4 +6,5 @@ export { Icon }
 export default list.config({ name: 'base/IconList' }).attrs({
   component: Icon,
   contentDirection: 'inline',
+  contentAlignY: 'center',
 })

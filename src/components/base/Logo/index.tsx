@@ -18,6 +18,16 @@ const Logo = element
       __html: LogoSVG,
     },
   })
+  .theme({
+    width: { xs: '80%', md: '100%' },
+  })
+  .styles(
+    (css) => css`
+      & > svg {
+        width: 100%;
+      }
+    `
+  )
 
 const Component: FC = () => (
   <Link href="/">

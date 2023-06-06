@@ -1,8 +1,23 @@
 import { FC, ReactNode, useMemo } from 'react'
 import { Container } from '~/components/grid'
 import { Element } from '~/components/core'
+import { useIsLargeViewport } from '~/hooks/useViewport'
 import SideMenu from '../SideMenu'
-import Content from '../Content'
+import content from '../Content'
+
+const Background = content.attrs({
+  light: true,
+})
+
+const Content = content
+  .attrs({
+    light: true,
+  })
+  .theme({
+    maxWidth: 1024,
+    paddingX: 0,
+    paddingY: 0,
+  })
 
 type Props = {
   children: ReactNode
@@ -11,6 +26,8 @@ type Props = {
 }
 
 const Component: FC<Props> = ({ children, side = 'left', sidePanel }) => {
+  const isLargeViewPort = useIsLargeViewport()
+
   const layoutProps = useMemo(
     () =>
       side === 'left'
@@ -36,8 +53,13 @@ const Component: FC<Props> = ({ children, side = 'left', sidePanel }) => {
         xxxl,
       })}
     >
-      <Element contentDirection="inline" {...layoutProps}>
-        <Content light>{children}</Content>
+      <Element
+        contentDirection="inline"
+        {...(isLargeViewPort ? layoutProps : {})}
+      >
+        <Background>
+          <Content>{children}</Content>
+        </Background>
       </Element>
     </Container>
   )

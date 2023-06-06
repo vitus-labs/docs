@@ -76,10 +76,10 @@ const Component: FC<Props> = ({
       >
         <Container gap={32} gutter={12} columns={2} size={isVertical ? 2 : 1}>
           <Row>
-            <Col>
-              <Editor />
+            <Col size={{ xs: 2, md: 1 }}>
+              <Editor resetIndent />
             </Col>
-            <Col>
+            <Col size={{ xs: 2, md: 1 }}>
               <Preview view={preview} />
             </Col>
           </Row>
