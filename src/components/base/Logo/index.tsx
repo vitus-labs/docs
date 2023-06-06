@@ -19,7 +19,8 @@ const Logo = element
     },
   })
   .theme({
-    width: { xs: '80%', md: '100%' },
+    width: { xs: 128, sm: '80%', md: '100%' },
+    overflow: 'hidden',
   })
   .styles(
     (css) => css`
@@ -30,7 +31,7 @@ const Logo = element
   )
 
 const Component: FC = () => (
-  <Link href="/">
+  <Link transparent href="/">
     <Logo />
   </Link>
 )
