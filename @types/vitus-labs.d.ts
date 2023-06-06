@@ -1,6 +1,6 @@
 import '@vitus-labs/rocketstyle'
 import type { StylesTheme } from '@vitus-labs/unistyle'
-import type { Theme } from './src/theme'
+import type { Theme } from '../src/theme'
 
 export type ResponsiveStyles = Partial<{
   [I in keyof StylesTheme]:

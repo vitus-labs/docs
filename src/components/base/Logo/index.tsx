@@ -4,6 +4,7 @@
 import { FC } from 'react'
 import { element } from '~/components/core'
 import Link from '~/components/base/Link'
+import LogoSVG from '~/assets/logo/logo.svg?include'
 
 const Logo = element
   .config({
@@ -14,7 +15,7 @@ const Logo = element
     contentAlignX: 'left',
     contentAlignY: 'center',
     dangerouslySetInnerHTML: {
-      __html: require(`~/assets/logo/logo.svg?include`).default,
+      __html: LogoSVG,
     },
   })
 

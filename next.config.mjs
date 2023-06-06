@@ -10,6 +10,7 @@ const PLUGINS = [
 ]
 
 export default withPlugins(PLUGINS, {
+  output: 'export',
   poweredByHeader: false,
   pageExtensions: ['js', 'jsx', 'ts', 'tsx', 'md', 'mdx'],
   compiler: {
@@ -17,6 +18,7 @@ export default withPlugins(PLUGINS, {
     styledComponents: true,
   },
   images: {
+    unoptimized: true,
     disableStaticImages: true,
   },
   reactStrictMode: true,
