@@ -13,11 +13,12 @@
     "make:favicon": "yarn vl_favicon"
   },
   "dependencies": {
-    "@vitus-labs/coolgrid": "^0.80.0",
-    "@vitus-labs/core": "^0.80.0",
-    "@vitus-labs/elements": "^0.80.0",
-    "@vitus-labs/rocketstyle": "^0.80.0",
-    "@vitus-labs/unistyle": "^0.80.0",
+    "@vitus-labs/coolgrid": "^0.79.0",
+    "@vitus-labs/core": "^0.79.0",
+    "@vitus-labs/elements": "^0.79.0",
+    "@vitus-labs/hooks": "^0.79.0",
+    "@vitus-labs/rocketstyle": "^0.79.0",
+    "@vitus-labs/unistyle": "^0.79.0",
     "gray-matter": "^4.0.3",
     "next": "^13.4.4",
     "next-mdx-remote": "^3.0.8",

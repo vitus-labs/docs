@@ -1,4 +1,5 @@
 import Content from './Content'
+import MobileMenu from './MobileMenu'
 import Root from './Root'
 import SideMenu from './SideMenu'
 import SideMenuLinks from './SideMenuLinks'
@@ -9,6 +10,7 @@ import TopMenuLinks from './TopMenuLinks'
 
 export {
   Content,
+  MobileMenu,
   Root,
   SideMenu,
   SideMenuLinks,

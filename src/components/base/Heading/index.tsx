@@ -37,6 +37,7 @@ export default text
     jumbo: {
       fontSize: t.headingSize.jumbo,
       lineHeight: t.lineHeight.small,
+      fontWeight: t.fontWeight.bold,
     },
     level1: {
       fontSize: t.headingSize.level1,

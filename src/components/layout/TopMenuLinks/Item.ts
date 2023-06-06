@@ -7,6 +7,7 @@ export default link.theme((t) => ({
 
   hover: {
     color: t.color.primary.base,
+    textDecoration: 'none',
   },
 
   active: {

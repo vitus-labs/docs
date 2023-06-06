@@ -13,6 +13,7 @@ export default element
     fontSize: 'inherit',
     lineHeight: 'inherit',
     fontFamily: 'inherit',
+    fontWeight: 'inherit',
   }))
   .multiple({
     centered: {

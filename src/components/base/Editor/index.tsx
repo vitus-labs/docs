@@ -47,7 +47,7 @@ const Component: FC<Props> = ({
           gap={32}
           gutter={12}
           columns={12}
-          size={8}
+          size={{ xs: 12, md: 8 }}
           contentAlignX="center"
         >
           <Row>
@@ -76,10 +76,10 @@ const Component: FC<Props> = ({
       >
         <Container gap={32} gutter={12} columns={2} size={isVertical ? 2 : 1}>
           <Row>
-            <Col>
-              <Editor />
+            <Col size={{ xs: 2, md: 1 }}>
+              <Editor resetIndent />
             </Col>
-            <Col>
+            <Col size={{ xs: 2, md: 1 }}>
               <Preview view={preview} />
             </Col>
           </Row>

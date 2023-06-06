@@ -20,7 +20,7 @@ export default text
       fontSize: t.fontSize.medium,
     },
     xLarge: {
-      fontSize: t.fontSize.xxLarge,
+      fontSize: { xs: t.fontSize.large, md: t.fontSize.xxLarge },
     },
   }))
   .variants((t) => ({
@@ -52,3 +52,4 @@ export default text
       fontWeight: t.fontWeight.semibold,
     },
   }))
+  .config({ passProps: ['paragraph'] })

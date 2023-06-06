@@ -9,8 +9,8 @@ export default element
     contentAlignX: 'block',
   })
   .theme({
-    paddingX: 40,
-    paddingY: 48,
+    paddingX: { xs: 16, sm: 40 },
+    paddingY: { xs: 32, sm: 48 },
     zIndex: 2,
     width: '100%',
   })

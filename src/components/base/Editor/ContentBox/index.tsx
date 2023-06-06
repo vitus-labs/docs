@@ -36,13 +36,23 @@ const Inner = Box.theme((t) => ({
   borderRadius: t.borderRadius.medium,
   overflowY: 'auto',
   width: t.size.hideScrollBar,
-}))
+})).variants({
+  resetIndent: {
+    paddingLeft: 0,
+    paddingRight: 0,
+    paddingTop: 0,
+    paddingBottom: 0,
+  },
+})
 
-type Props = ExtractProps<typeof Inner> & { compact?: boolean }
+type Props = ExtractProps<typeof Inner> & {
+  compact?: boolean
+  resetIndent?: boolean
+}
 
-const Component: FC<Props> = ({ compact, ...props }) => (
+const Component: FC<Props> = ({ compact, resetIndent, ...props }) => (
   <Wrapper compact={compact}>
-    <Inner {...props} />
+    <Inner resetIndent={resetIndent} {...props} />
   </Wrapper>
 )
 
