@@ -4,6 +4,7 @@ import router from 'next/router'
 import Head from 'next/head'
 // import remarkGfm from 'remark-gfm'
 import { get } from '@vitus-labs/core'
+import DocsProvider from '~/contexts/docsContext'
 import Layout from '~/components/layouts/Docs'
 import Meta from '~/components/meta/Meta'
 import Markdown from '~/markdown'
@@ -22,9 +23,11 @@ const Component = ({ meta = {}, content, menu, redirectUrl }: any) => {
       <Head>
         <Meta {...meta} />
       </Head>
-      <Layout menu={menu}>
-        <Markdown {...content} />
-      </Layout>
+      <DocsProvider context={{ menu }}>
+        <Layout>
+          <Markdown {...content} />
+        </Layout>
+      </DocsProvider>
     </>
   )
 }

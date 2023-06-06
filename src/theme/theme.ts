@@ -36,7 +36,7 @@ const theme = {
   grid: {
     columns: 12,
     container: {
-      xs: '90%',
+      xs: '100%',
       sm: 540,
       md: 720,
       lg: 960,

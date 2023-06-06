@@ -39,6 +39,7 @@ const Component = () => (
       <Container
         contentAlignX="center"
         gap={36}
+        width={(prev) => ({ ...prev, xs: '90%' })}
         size={{ xs: 12, sm: 6, xl: 3 }}
       >
         <Row>

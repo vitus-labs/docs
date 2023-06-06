@@ -3,8 +3,8 @@ import { TopMenu } from '~/components/layout'
 import { Container } from '~/components/grid'
 import { IconList, Logo } from '~/components/base'
 import { element } from '~/components/core'
-
 import Menu from './Menu'
+import MobileMenu from './MobileMenu'
 
 const Wrapper = element
   .attrs((_, t) => ({
@@ -21,7 +21,12 @@ const Component = ({ transparent = false }) => {
     <TopMenu transparent={transparent}>
       <Container>
         <Wrapper
-          beforeContent={Logo}
+          beforeContent={
+            <>
+              {isSmallViewPort && <MobileMenu />}
+              <Logo />
+            </>
+          }
           content={!isSmallViewPort ? Menu : null}
           afterContent={
             <IconList

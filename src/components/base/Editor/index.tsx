@@ -47,7 +47,7 @@ const Component: FC<Props> = ({
           gap={32}
           gutter={12}
           columns={12}
-          size={8}
+          size={{ xs: 12, md: 8 }}
           contentAlignX="center"
         >
           <Row>

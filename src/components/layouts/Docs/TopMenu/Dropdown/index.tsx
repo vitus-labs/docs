@@ -13,6 +13,8 @@ const Trigger = element
   }))
   .theme((t) => ({
     width: 200,
+    paddingX: t.spacing.small,
+    paddingY: t.spacing.large,
     fontWeight: t.fontWeight.bold,
     color: t.color.light.base,
     cursor: 'pointer',
@@ -32,6 +34,7 @@ const Component = () => {
 
   return (
     <Dropdown
+      offsetY={0}
       trigger={
         <DefaultTrigger label={activeItem.label} icon={activeItem.icon} />
       }

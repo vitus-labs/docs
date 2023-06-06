@@ -20,6 +20,7 @@ export default element
   .theme((t) => ({
     transition: t.transition.base,
     border: 'none',
+    background: 'none',
     textDecoration: 'none',
     outline: 'none',
     padding: t.spacing.reset,

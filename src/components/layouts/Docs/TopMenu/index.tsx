@@ -1,9 +1,10 @@
 import { FC } from 'react'
 import { useIsSmallViewport } from '~/hooks/useViewport'
-import { TopMenu, MobileMenu } from '~/components/layout'
+import { TopMenu } from '~/components/layout'
 import { Container } from '~/components/grid'
 import { Logo, IconList, Line } from '~/components/base'
 import { element } from '~/components/core'
+import MobileMenu from './MobileMenu'
 import Dropdown from './Dropdown'
 
 const Root = element
