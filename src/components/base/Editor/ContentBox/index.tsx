@@ -32,7 +32,7 @@ const Inner = Box.theme((t) => ({
   paddingLeft: t.spacing.large,
   paddingRight: t.spacing.large + 20,
   fontFamily: t.fontFamily.mono,
-  fontSize: t.fontSize.medium,
+  fontSize: { xs: t.fontSize.small, md: t.fontSize.medium },
   borderRadius: t.borderRadius.medium,
   overflowY: 'auto',
   width: t.size.hideScrollBar,
