@@ -17,7 +17,7 @@ const Component = () => {
   const isLargeViewport = useIsLargeViewport()
   return (
     <Section centered gapLg>
-      <Container>
+      <Container width={(prev) => ({ ...prev, xs: '90%' })}>
         <Heading jumbo centered>
           A <Text primary>developer</Text> experience
           <br /> you will <Text primary>love</Text>
