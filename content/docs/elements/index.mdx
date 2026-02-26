@@ -194,6 +194,70 @@ interface VLStatic {
 
 This enables identification and metadata access across the ecosystem. For example, `rocketstyle` uses `VITUS_LABS__COMPONENT` to verify that components originate from `@vitus-labs/elements`.
 
+## Iterator Types
+
+These types power the data-driven rendering in List (and can be imported for custom use):
+
+### ExtendedProps
+
+Positional metadata injected into each rendered item:
+
+```tsx
+type ExtendedProps = {
+  index: number    // 0-based array index
+  position: number // 1-based position (index + 1)
+  first: boolean   // true if position === 1
+  last: boolean    // true if position === length
+  odd: boolean     // true if position is odd (1, 3, 5...)
+  even: boolean    // true if position is even (2, 4, 6...)
+}
+```
+
+### ObjectValue
+
+Data object shape for object arrays in List's `data` prop:
+
+```tsx
+type ObjectValue = Partial<{
+  id: SimpleValue       // Fallback key (priority 1)
+  key: SimpleValue      // Fallback key (priority 2)
+  itemId: SimpleValue   // Fallback key (priority 3)
+  component: ElementType // Per-item component override
+}> & Record<string, unknown>
+```
+
+The `component` property is consumed by the iterator and not passed to the rendered component. All other properties are spread as props.
+
+### PropsCallback
+
+Type for `itemProps` and `wrapProps` — can be a static object or a function receiving item data and positional metadata:
+
+```tsx
+type PropsCallback =
+  | Record<string, unknown>                              // Static props
+  | ((
+      itemProps: Record<string, unknown> | ObjectValue,  // Item data
+      extendedProps: ExtendedProps,                       // Positional metadata
+    ) => Record<string, unknown>)
+```
+
+### IteratorProps
+
+Full props type for the internal Iterator component (used by List):
+
+```tsx
+type IteratorProps = Partial<{
+  children: ReactNode
+  data: Array<string | number | ObjectValue | null>
+  component: ElementType
+  valueName: string
+  wrapComponent: ElementType
+  itemProps: PropsCallback
+  wrapProps: PropsCallback
+  itemKey: string | ((item, index: number) => string | number)
+}>
+```
+
 ## Exports
 
 ```tsx

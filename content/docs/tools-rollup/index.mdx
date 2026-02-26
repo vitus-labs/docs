@@ -1,0 +1,124 @@
+---
+title: Tools Rollup
+description: Rollup-based build tool for library packages — the predecessor to tools-rolldown.
+---
+
+`@vitus-labs/tools-rollup` is the legacy build tool using [Rollup](https://rollupjs.org/). For new projects, prefer [`tools-rolldown`](/docs/tools-rolldown) which uses the faster Rust-based Rolldown bundler.
+
+## Installation
+
+```package-install
+@vitus-labs/tools-rollup
+```
+
+## Quick Start
+
+```json
+{
+  "scripts": {
+    "build": "vl_build"
+  }
+}
+```
+
+```bash
+bun run build
+```
+
+## Comparison with tools-rolldown
+
+| Feature | tools-rollup | tools-rolldown |
+|---------|-------------|----------------|
+| Bundler | Rollup v4 | Rolldown v1 (Rust) |
+| CLI command | `vl_build` | `vl_rolldown_build` |
+| TypeScript | rollup-plugin-typescript2 + ts-patch | Built-in Rolldown TS |
+| Type generation | @microsoft/api-extractor | rolldown-plugin-dts |
+| Dependencies | ~15 | ~6 |
+| Path transforms | typescript-transform-paths | Rolldown native |
+
+Both tools share the same configuration format (`build` key in `vl-tools.config.mjs`) and produce identical output formats.
+
+## CLI Commands
+
+### vl_build
+
+Production build:
+
+```bash
+vl_build
+```
+
+### vl_build-watch
+
+Watch mode (development):
+
+```bash
+vl_build-watch
+```
+
+## Configuration
+
+Same config shape as `tools-rolldown` — uses the `build` key in `vl-tools.config.mjs`:
+
+```js
+// vl-tools.config.mjs
+export default {
+  build: {
+    sourceDir: 'src',
+    outputDir: 'lib',
+    typescript: true,
+    replaceGlobals: true,
+    filesize: true,
+    visualise: {
+      template: 'network',
+      gzipSize: true,
+      outputDir: 'analysis',
+    },
+  },
+}
+```
+
+## Plugin Pipeline
+
+The Rollup build uses a 7-plugin pipeline:
+
+| Order | Plugin | Condition | Purpose |
+|-------|--------|-----------|---------|
+| 1 | `@rollup/plugin-node-resolve` | Always | Resolve npm modules |
+| 2 | `rollup-plugin-typescript2` | `typescript: true` | TypeScript compilation with ts-patch |
+| 3 | `rollup-plugin-api-extractor` | When types needed | Consolidate `.d.ts` files |
+| 4 | `@rollup/plugin-replace` | `replaceGlobals: true` | Inject platform constants |
+| 5 | `rollup-plugin-visualizer` | When `visualise` set | Bundle visualization |
+| 6 | `@rollup/plugin-terser` | Production env | Minification |
+| 7 | `rollup-plugin-filesize` | `filesize: true` | Console size reporting |
+
+### TypeScript Compilation
+
+Uses `ts-patch` compiler with two transforms:
+
+1. **`typescript-transform-paths`** — resolves path aliases in compiled JS
+2. **`typescript-transform-paths` (afterDeclarations)** — resolves aliases in `.d.ts` files
+
+### Type Generation
+
+Uses `@microsoft/api-extractor` to consolidate all `.d.ts` files into a single rolled-up declaration file. Only the first build variant generates types.
+
+## Output Formats
+
+| Format | Exports | Name | Use Case |
+|--------|---------|------|----------|
+| `es` | — | — | Modern ESM consumers |
+| `cjs` | `named` | — | CommonJS/Node.js |
+| `umd` | `named` | `PKG.bundleName` | Browser `<script>` tags |
+
+## Platform Globals
+
+Same as `tools-rolldown` — injects `__VERSION__`, `__WEB__`, `__NATIVE__`, `__BROWSER__`, `__NODE__`, `__CLIENT__` based on platform.
+
+## Build Pipeline
+
+Builds execute sequentially (not in parallel). The pipeline is determined from `package.json` fields following the same logic as `tools-rolldown`:
+
+1. `exports` field (preferred) → determines format and platform per condition
+2. `main`/`module`/`react-native` fields (fallback)
+3. `browser` field → separate build variant if differs from `main`

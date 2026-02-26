@@ -1,0 +1,228 @@
+---
+title: Tools Atlas
+description: Dependency graph visualizer and monorepo health analyzer — cycle detection, impact analysis, bundle sizes, and health scores.
+---
+
+`@vitus-labs/tools-atlas` analyzes monorepo dependency graphs and generates interactive visualizations plus AI-readable reports. It detects circular dependencies, calculates impact scores, measures dependency depth, estimates bundle sizes, checks version drift, and computes overall health scores.
+
+## Installation
+
+```package-install
+@vitus-labs/tools-atlas
+```
+
+## Quick Start
+
+```tsx
+import { generateAtlas } from '@vitus-labs/tools-atlas'
+
+await generateAtlas({
+  rootDir: process.cwd(),
+  outputDir: 'atlas-report',
+})
+```
+
+This generates:
+- Interactive HTML visualization (ECharts graph)
+- JSON dependency data
+- AI-readable markdown report
+
+## CLI Usage
+
+Add a script to your `package.json`:
+
+```json
+{
+  "scripts": {
+    "atlas": "vl_atlas"
+  }
+}
+```
+
+```bash
+bun run atlas
+```
+
+## Analysis Types
+
+### 1. Cycle Detection
+
+Finds circular dependency chains in the workspace:
+
+```
+@vitus-labs/elements → @vitus-labs/rocketstyle → @vitus-labs/elements
+```
+
+Uses depth-first search with visited/recursion-stack tracking. Reports:
+- All detected cycles as arrays of package names
+- Cycle count and severity
+
+### 2. Impact Analysis
+
+Calculates how many packages are affected when a given package changes:
+
+```tsx
+{
+  '@vitus-labs/core': {
+    directDependents: 5,    // Packages that directly depend on core
+    transitiveDependents: 12, // All packages affected transitively
+    impactScore: 0.85,      // 0-1 normalized impact
+  }
+}
+```
+
+Higher impact scores mean changes ripple further through the monorepo.
+
+### 3. Dependency Depth
+
+Measures the longest dependency chain from each package to a leaf:
+
+```tsx
+{
+  '@vitus-labs/rocketstyle': {
+    depth: 4,
+    chain: ['rocketstyle', 'elements', 'unistyle', 'core', 'styler'],
+  }
+}
+```
+
+Deep chains indicate high coupling and potential build-order complexity.
+
+### 4. Bundle Size Estimation
+
+Estimates bundle sizes by analyzing `package.json` files:
+
+```tsx
+{
+  '@vitus-labs/core': {
+    dependencies: 2,
+    estimatedSize: '~12KB',
+  }
+}
+```
+
+### 5. Version Drift
+
+Checks for inconsistent dependency versions across the monorepo:
+
+```tsx
+{
+  'typescript': {
+    versions: { '5.8.0': ['pkg-a'], '5.9.3': ['pkg-b', 'pkg-c'] },
+    drift: true,
+  }
+}
+```
+
+### 6. Health Score
+
+Computes an overall health score (0-100) based on weighted factors:
+
+| Factor | Weight | Scoring |
+|--------|--------|---------|
+| Circular dependencies | 30% | Deducts per cycle detected |
+| Dependency depth | 20% | Penalizes chains > 5 levels |
+| Version consistency | 20% | Penalizes version drift |
+| Impact concentration | 15% | Penalizes single-package dominance |
+| Unused dependencies | 15% | Penalizes declared but unused deps |
+
+```tsx
+{
+  score: 78,
+  grade: 'B',
+  breakdown: {
+    cycles: 25,      // out of 30
+    depth: 18,       // out of 20
+    versions: 15,    // out of 20
+    impact: 10,      // out of 15
+    unused: 10,      // out of 15
+  }
+}
+```
+
+### 7. Change Frequency
+
+Analyzes git history to identify frequently changed packages:
+
+```tsx
+{
+  '@vitus-labs/core': {
+    commits: 142,
+    lastChanged: '2025-12-15',
+    changeFrequency: 'high',
+  }
+}
+```
+
+## Visualization
+
+The HTML report uses [ECharts](https://echarts.apache.org/) to render an interactive dependency graph:
+
+- **Nodes** — packages, sized by impact score
+- **Edges** — dependency relationships, colored by type (dep/devDep/peer)
+- **Zoom/pan** — navigate large graphs
+- **Tooltips** — hover for package details
+- **Filtering** — toggle dependency types
+
+## AI-Readable Reports
+
+The markdown report is structured for LLM consumption:
+
+```markdown
+# Atlas Report: @vitus-labs/tools
+
+## Summary
+- Packages: 11
+- Health Score: 78/100 (B)
+- Circular Dependencies: 1
+- Max Depth: 4
+
+## Recommendations
+1. Break circular dependency: elements ↔ rocketstyle
+2. Consider extracting shared utilities from core
+3. Align typescript versions across packages
+```
+
+## Configuration
+
+```tsx
+interface AtlasConfig {
+  rootDir: string              // Monorepo root directory
+  outputDir: string            // Report output directory (default: 'atlas-report')
+  include?: string[]           // Package name patterns to include
+  exclude?: string[]           // Package name patterns to exclude
+  analyses?: AnalysisType[]    // Analyses to run (default: all)
+  format?: ('html' | 'json' | 'markdown')[]  // Output formats
+}
+
+type AnalysisType =
+  | 'cycles'
+  | 'impact'
+  | 'depth'
+  | 'bundleSize'
+  | 'versionDrift'
+  | 'healthScore'
+  | 'changeFrequency'
+```
+
+### Run Specific Analyses
+
+```tsx
+await generateAtlas({
+  rootDir: process.cwd(),
+  outputDir: 'atlas-report',
+  analyses: ['cycles', 'healthScore'],
+  format: ['markdown'],
+})
+```
+
+### Filter Packages
+
+```tsx
+await generateAtlas({
+  rootDir: process.cwd(),
+  outputDir: 'atlas-report',
+  include: ['@vitus-labs/*'],
+  exclude: ['@vitus-labs/tools-*'],
+})
+```

@@ -1,0 +1,222 @@
+---
+title: Tools Storybook
+description: Preconfigured Storybook 10 with auto-discovery, rocketstories integration, and Vite-powered builds.
+---
+
+`@vitus-labs/tools-storybook` provides a preconfigured [Storybook 10](https://storybook.js.org/) setup with automatic story discovery, rocketstories integration via a custom Vite plugin, and built-in addons for controls, actions, viewport, and accessibility.
+
+## Installation
+
+```package-install
+@vitus-labs/tools-storybook
+```
+
+**Peer dependencies:** `storybook >= 9`
+
+## Quick Start
+
+Add scripts to your `package.json`:
+
+```json
+{
+  "scripts": {
+    "storybook": "storybook dev -p 6006",
+    "storybook:build": "storybook build"
+  }
+}
+```
+
+Create `.storybook/main.ts`:
+
+```tsx
+import { main } from '@vitus-labs/tools-storybook'
+
+export default main()
+```
+
+Create `.storybook/preview.ts`:
+
+```tsx
+import { preview } from '@vitus-labs/tools-storybook'
+
+export default preview()
+```
+
+Run:
+
+```bash
+bun run storybook
+```
+
+## Auto-Discovery System
+
+The indexer automatically discovers stories using two methods:
+
+### 1. Standard Storybook Stories
+
+Files matching `**/*.stories.{ts,tsx,js,jsx}` are discovered as standard Storybook stories.
+
+### 2. Rocketstories Files
+
+Files matching `**/*.rocketstories.{ts,tsx,js,jsx}` are discovered and processed through a custom Vite plugin that generates Storybook-compatible story modules on the fly.
+
+```
+src/
+├── Button/
+│   ├── Button.tsx
+│   ├── Button.stories.tsx      ← Standard story
+│   └── Button.rocketstories.tsx ← Auto-generated via Vite plugin
+└── Input/
+    └── Input.rocketstories.tsx  ← Auto-generated via Vite plugin
+```
+
+## Configuration
+
+Configure via `vl-tools.config.mjs` under the `storybook` key:
+
+```js
+// vl-tools.config.mjs
+export default {
+  storybook: {
+    stories: ['src/**/*.stories.tsx', 'src/**/*.rocketstories.tsx'],
+    addons: [],          // Additional Storybook addons
+    staticDirs: [],      // Static asset directories
+    refs: {},            // Storybook composition refs
+  },
+}
+```
+
+## main()
+
+```tsx
+main(options?: MainOptions): StorybookConfig
+```
+
+Returns a complete Storybook main configuration with:
+
+- **Framework:** `@storybook/react-vite`
+- **Addons:** `@storybook/addon-essentials`, `@storybook/addon-a11y`
+- **Indexer:** Custom indexer for `.rocketstories` files
+- **Vite plugin:** Transforms `.rocketstories` imports at build time
+- **TypeScript:** `react-docgen` for prop extraction
+
+### Built-in Addons
+
+| Addon | Purpose |
+|-------|---------|
+| `@storybook/addon-essentials` | Controls, actions, viewport, backgrounds, docs |
+| `@storybook/addon-a11y` | Accessibility testing panel |
+
+### Vite Plugin
+
+The rocketstories Vite plugin intercepts imports of `.rocketstories` files and transforms them into standard Storybook story modules. It:
+
+1. Reads the rocketstories file
+2. Calls the exported builder methods (`.init()`, `.main()`, `.dimension()`, etc.)
+3. Generates a virtual module with `default` (meta) and named story exports
+4. Serves the virtual module to Storybook
+
+## preview()
+
+```tsx
+preview(options?: PreviewOptions): StorybookPreview
+```
+
+Returns preview configuration with:
+
+- **Controls:** Expanded by default, sorted alphabetically
+- **Backgrounds:** Disabled (handled by theme decorator)
+- **Layout:** Centered
+
+```tsx
+import { preview } from '@vitus-labs/tools-storybook'
+
+export default preview({
+  decorators: [ThemeDecorator],
+  parameters: {
+    // Custom parameters
+  },
+})
+```
+
+## manager()
+
+```tsx
+manager(options?: ManagerOptions): void
+```
+
+Configures the Storybook manager UI. Call from `.storybook/manager.ts`:
+
+```tsx
+import { manager } from '@vitus-labs/tools-storybook'
+
+manager({
+  // Custom manager options
+})
+```
+
+## Rocketstories Integration
+
+The auto-discovery system understands rocketstories builder patterns:
+
+```tsx
+// Button.rocketstories.tsx
+import { init } from '@vitus-labs/rocketstories'
+import Button from './Button'
+
+const stories = init({ theme })(Button)
+
+export default stories.init()        // Meta (default export)
+export const Main = stories.main()   // Main story with controls
+export const Size = stories.dimension('size')  // Size dimension
+export const State = stories.dimension('state') // State dimension
+```
+
+The indexer extracts story titles from the component's `displayName` and generates sidebar entries for each export.
+
+## Story Discovery Patterns
+
+Default patterns (configurable):
+
+```tsx
+[
+  'src/**/*.stories.@(ts|tsx|js|jsx)',
+  'src/**/*.rocketstories.@(ts|tsx|js|jsx)',
+]
+```
+
+## TypeScript Configuration
+
+The main config enables:
+
+- **react-docgen** — extracts prop types for Controls panel
+- **skipCompiler** — skips full TypeScript compilation (Vite handles it)
+
+## Static Assets
+
+Configure static directories for images, fonts, etc.:
+
+```js
+export default {
+  storybook: {
+    staticDirs: ['../public'],
+  },
+}
+```
+
+## Storybook Composition
+
+Reference other Storybook instances:
+
+```js
+export default {
+  storybook: {
+    refs: {
+      'design-system': {
+        title: 'Design System',
+        url: 'https://design.example.com',
+      },
+    },
+  },
+}
+```

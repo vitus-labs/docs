@@ -1,0 +1,227 @@
+---
+title: API Reference
+description: Complete API reference for @vitus-labs/tools-atlas.
+---
+
+## generateAtlas()
+
+```tsx
+generateAtlas(config: AtlasConfig): Promise<AtlasReport>
+```
+
+Main entry point. Scans the monorepo, runs analyses, and generates reports.
+
+```tsx
+import { generateAtlas } from '@vitus-labs/tools-atlas'
+
+const report = await generateAtlas({
+  rootDir: '/path/to/monorepo',
+  outputDir: 'atlas-report',
+})
+```
+
+## AtlasConfig
+
+```tsx
+interface AtlasConfig {
+  rootDir: string
+  outputDir: string
+  include?: string[]
+  exclude?: string[]
+  analyses?: AnalysisType[]
+  format?: OutputFormat[]
+}
+
+type AnalysisType =
+  | 'cycles'
+  | 'impact'
+  | 'depth'
+  | 'bundleSize'
+  | 'versionDrift'
+  | 'healthScore'
+  | 'changeFrequency'
+
+type OutputFormat = 'html' | 'json' | 'markdown'
+```
+
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| `rootDir` | `string` | — | Monorepo root directory (required) |
+| `outputDir` | `string` | `'atlas-report'` | Output directory for reports |
+| `include` | `string[]` | All packages | Package name glob patterns to include |
+| `exclude` | `string[]` | None | Package name glob patterns to exclude |
+| `analyses` | `AnalysisType[]` | All | Analyses to run |
+| `format` | `OutputFormat[]` | `['html', 'json', 'markdown']` | Output formats |
+
+## AtlasReport
+
+```tsx
+interface AtlasReport {
+  packages: PackageNode[]
+  edges: DependencyEdge[]
+  cycles: CycleInfo[]
+  impact: Record<string, ImpactInfo>
+  depth: Record<string, DepthInfo>
+  bundleSize: Record<string, BundleSizeInfo>
+  versionDrift: Record<string, VersionDriftInfo>
+  healthScore: HealthScore
+  changeFrequency: Record<string, ChangeFrequencyInfo>
+}
+```
+
+## PackageNode
+
+```tsx
+interface PackageNode {
+  name: string
+  version: string
+  path: string
+  dependencies: Record<string, string>
+  devDependencies: Record<string, string>
+  peerDependencies: Record<string, string>
+}
+```
+
+## DependencyEdge
+
+```tsx
+interface DependencyEdge {
+  source: string       // Package name
+  target: string       // Dependency name
+  type: 'dependency' | 'devDependency' | 'peerDependency'
+  version: string      // Version range
+}
+```
+
+## CycleInfo
+
+```tsx
+interface CycleInfo {
+  packages: string[]   // Cycle chain: [A, B, C, A]
+  length: number       // Number of packages in cycle
+}
+```
+
+Detection algorithm: depth-first traversal with visited set and recursion stack. A cycle is detected when a node in the current path is revisited.
+
+## ImpactInfo
+
+```tsx
+interface ImpactInfo {
+  directDependents: number      // Packages that directly depend on this
+  transitiveDependents: number  // All packages affected transitively
+  impactScore: number           // 0-1 normalized score
+}
+```
+
+Impact score formula: `transitiveDependents / totalPackages`
+
+## DepthInfo
+
+```tsx
+interface DepthInfo {
+  depth: number        // Longest chain length
+  chain: string[]      // Package names in the longest chain
+}
+```
+
+## BundleSizeInfo
+
+```tsx
+interface BundleSizeInfo {
+  dependencies: number     // Number of runtime dependencies
+  estimatedSize: string    // Human-readable estimate
+}
+```
+
+## VersionDriftInfo
+
+```tsx
+interface VersionDriftInfo {
+  versions: Record<string, string[]>  // version → packages using it
+  drift: boolean                       // true if multiple versions exist
+}
+```
+
+## HealthScore
+
+```tsx
+interface HealthScore {
+  score: number        // 0-100
+  grade: string        // A, B, C, D, F
+  breakdown: {
+    cycles: number     // out of 30
+    depth: number      // out of 20
+    versions: number   // out of 20
+    impact: number     // out of 15
+    unused: number     // out of 15
+  }
+}
+```
+
+### Grading Scale
+
+| Score | Grade |
+|-------|-------|
+| 90-100 | A |
+| 80-89 | B |
+| 70-79 | C |
+| 60-69 | D |
+| 0-59 | F |
+
+### Weight Distribution
+
+| Factor | Max Points | Deduction Logic |
+|--------|-----------|-----------------|
+| Circular dependencies | 30 | -10 per cycle |
+| Dependency depth | 20 | -2 per level > 5 |
+| Version consistency | 20 | -5 per drifted dependency |
+| Impact concentration | 15 | -5 if single package impacts > 50% |
+| Unused dependencies | 15 | -3 per unused dep |
+
+## ChangeFrequencyInfo
+
+```tsx
+interface ChangeFrequencyInfo {
+  commits: number
+  lastChanged: string          // ISO date
+  changeFrequency: 'high' | 'medium' | 'low'
+}
+```
+
+Frequency thresholds (based on commits in last 6 months):
+- **high:** > 50 commits
+- **medium:** 10-50 commits
+- **low:** < 10 commits
+
+## Dependency Scanning
+
+Packages are discovered by scanning for `package.json` files in the workspace. The scanner:
+
+1. Reads root `package.json` for workspace patterns
+2. Resolves glob patterns to package directories
+3. Parses each `package.json` for name, version, and dependencies
+4. Builds a directed graph of dependencies
+5. Filters by `include`/`exclude` patterns
+
+## Exports
+
+```tsx
+import { generateAtlas } from '@vitus-labs/tools-atlas'
+
+import type {
+  AtlasConfig,
+  AtlasReport,
+  PackageNode,
+  DependencyEdge,
+  CycleInfo,
+  ImpactInfo,
+  DepthInfo,
+  BundleSizeInfo,
+  VersionDriftInfo,
+  HealthScore,
+  ChangeFrequencyInfo,
+  AnalysisType,
+  OutputFormat,
+} from '@vitus-labs/tools-atlas'
+```

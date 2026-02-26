@@ -1,0 +1,351 @@
+---
+title: Types Reference
+description: All exported types from @vitus-labs/rocketstyle with full definitions.
+---
+
+## Component Types
+
+### RocketStyleComponent
+
+The main rocketstyle component type. Extends `IRocketStyleComponent` and includes dynamically-generated dimension chain methods (e.g., `.sm()`, `.lg()`, `.primary()`).
+
+**Generic parameters:**
+
+| Param | Description |
+|-------|-------------|
+| `OA` | Original component props (from the base component) |
+| `EA` | Extended props (accumulated from `.attrs()` calls) |
+| `T` | Theme type (from `.theme()`) |
+| `CSS` | Custom CSS theme properties |
+| `S` | Statics (from `.statics()`) |
+| `HOC` | Higher-order components (from `.compose()`) |
+| `D` | Dimensions configuration |
+| `UB` | Use booleans flag |
+| `DKP` | Dimension key props (typed options per dimension) |
+
+Every chain method returns a new `RocketStyleComponent` with updated generics — this is how TypeScript tracks accumulated configuration through the builder chain.
+
+### IRocketStyleComponent
+
+The core interface defining all chain methods and static properties:
+
+```tsx
+interface IRocketStyleComponent<OA, EA, T, CSS, S, HOC, D, UB, DKP> {
+  // Chain methods (each returns new RocketStyleComponent)
+  config(options: ConfigAttrs): RocketStyleComponent
+  attrs(param, config?): RocketStyleComponent
+  theme(param): RocketStyleComponent
+  styles(param: StylesCb): RocketStyleComponent
+  compose(param: ComposeParam): RocketStyleComponent
+  statics(param): RocketStyleComponent
+
+  // Output methods
+  meta: S                          // Access statics
+  getStaticDimensions(theme): {    // Dimension introspection
+    dimensions: DKP
+    useBooleans: UB
+    multiKeys: Record<string, true>
+  }
+  getDefaultAttrs(props, theme, mode): Record<string, unknown>
+
+  // Type introspection (compile-time only)
+  readonly $$rocketstyle: ExtractDimensions<D, DKP>
+  readonly $$originTypes: OA
+  readonly $$extendedTypes: EA
+  readonly $$types: MergedFinalProps
+
+  // Markers
+  IS_ROCKETSTYLE: true
+  displayName: string
+}
+```
+
+### RocketComponentType
+
+Runtime type guard for any rocketstyle component:
+
+```tsx
+type RocketComponentType = ElementType & {
+  IS_ROCKETSTYLE: true
+  $$rocketstyle: Record<string, unknown>
+}
+```
+
+Used by `isRocketComponent()` for runtime checks, and by `rocketstories` for detecting rocketstyle components.
+
+## Configuration Types
+
+### ConfigAttrs
+
+Options for the `.config()` chain method:
+
+```tsx
+type ConfigAttrs = Partial<{
+  name: string              // Display name for debugging
+  component: ElementType    // Replace the base component
+  provider: boolean         // Enable local context provider
+  consumer: ConsumerCb      // Map parent provider state to props
+  DEBUG: boolean            // Enable debug mode (data-rocketstyle attribute)
+  inversed: boolean         // Invert theme mode (light↔dark)
+  passProps: string[]       // Dimension boolean props to forward to DOM
+  styled: boolean           // Wrap in styled() (default: true)
+}>
+```
+
+### AttrsCb
+
+Callback form for `.attrs()`:
+
+```tsx
+type AttrsCb<Props, Theme> = (
+  props: Partial<Props>,
+  theme: Theme,
+  helpers: {
+    mode?: 'light' | 'dark'
+    isDark?: boolean
+    isLight?: boolean
+    createElement: typeof render
+  },
+) => Partial<Props>
+```
+
+## Dimension Types
+
+### Dimensions
+
+Configuration mapping dimension method names to their output prop names:
+
+```tsx
+type Dimensions = Record<string, DimensionValue>
+
+type DimensionValue =
+  | string                              // Simple: prop name string
+  | { propName: string; multi?: boolean } // Advanced: multi-select support
+```
+
+**Default dimensions:**
+
+| Method | Prop Name | Multi |
+|--------|-----------|-------|
+| `states` | `'state'` | no |
+| `sizes` | `'size'` | no |
+| `variants` | `'variant'` | no |
+| `multiple` | `{ propName: 'multiple', multi: true }` | yes |
+
+### DimensionCallbackParam
+
+Parameter type for dimension chain methods (e.g., `.primary()`, `.sm()`):
+
+```tsx
+type DimensionCallbackParam<Theme, CSSTheme> =
+  | Record<string, boolean | null | DeepPartial<CSSTheme>>  // Static object
+  | ((
+      theme: Theme,
+      mode: ThemeModeCallback,
+      css: Css,
+    ) => Record<string, boolean | null | DeepPartial<CSSTheme>>)  // Callback
+```
+
+### ExtractDimensionProps
+
+Extracts the final component props from dimensions. When `useBooleans` is true, includes boolean shorthand props alongside the dimension prop names:
+
+```tsx
+// With useBooleans=true:
+// props = { state?: 'primary' | 'danger', primary?: boolean, danger?: boolean }
+
+// With useBooleans=false:
+// props = { state?: 'primary' | 'danger' }
+```
+
+### ExtractDimensions
+
+Extracts dimension prop names and their available options. Used for the `$$rocketstyle` introspection property:
+
+```tsx
+// If dimensions have states: { primary: {...}, danger: {...} }
+// $$rocketstyle = { state: { primary: true, danger: true } }
+```
+
+## Theme & Style Types
+
+### ThemeCb
+
+Callback for `.theme()`:
+
+```tsx
+type ThemeCb<CSSTheme, Theme> = (
+  theme: Theme,
+  mode: ThemeModeCallback,
+  css: Css,
+) => Partial<CSSTheme>
+```
+
+### ThemeModeCallback
+
+Higher-order function for light/dark value selection:
+
+```tsx
+type ThemeModeCallback = <A, B>(
+  light: A,
+  dark: B,
+) => (mode: 'light' | 'dark') => A | B
+```
+
+Usage in `.theme()`:
+
+```tsx
+.theme((theme, mode) => ({
+  color: mode('black', 'white'),       // Returns thunk: (mode) => 'black' | 'white'
+  background: mode('#fff', '#1a1a1a'), // Resolved later by getThemeByMode()
+}))
+```
+
+### ThemeModeKeys
+
+```tsx
+type ThemeModeKeys = 'light' | 'dark'
+```
+
+### StylesCb
+
+Callback for `.styles()`:
+
+```tsx
+type StylesCb<CSSTheme> = (
+  css: RocketCss<CSSTheme>,
+) => ReturnType<Css>
+```
+
+The `css` function provides typed interpolation props:
+
+### RocketStyleInterpolationProps
+
+Props available inside CSS interpolation functions in `.styles()`:
+
+```tsx
+type RocketStyleInterpolationProps<CSSTheme> = {
+  $rocketstyle: CSSTheme    // Merged theme from all .theme() calls
+  $rocketstate: {            // Active dimension values
+    [dimensionProp: string]: string | string[]
+    pseudo: Partial<PseudoState>  // hover, focus, active, pressed
+  }
+} & Record<string, any>     // Plus any other props
+```
+
+## Provider & Consumer Types
+
+### RocketProviderState
+
+State shape provided by a rocketstyle context provider:
+
+```tsx
+type RocketProviderState<T> =
+  T extends RocketComponentType
+    ? Partial<T['$$rocketstyle']> & { pseudo: PseudoState }
+    : T
+```
+
+For rocketstyle components, includes partial dimension options plus pseudo-state. For non-rocketstyle types, passes through as-is.
+
+### ConsumerCb
+
+Top-level consumer callback for `.config({ consumer })`:
+
+```tsx
+type ConsumerCb = (
+  ctx: (attrs: RocketProviderState) => Partial<DimensionProps & { pseudo: PseudoState }>
+) => Partial<DimensionProps & { pseudo: PseudoState }>
+```
+
+Maps parent provider state to the current component's dimension props:
+
+```tsx
+.config({
+  consumer: (ctx) =>
+    ctx((parentState) => ({
+      state: parentState.state,
+      pseudo: parentState.pseudo,
+    })),
+})
+```
+
+## Composition Types
+
+### ComposeParam
+
+Object for `.compose()` — maps named HOCs:
+
+```tsx
+type ComposeParam = Record<string, GenericHoc | null | undefined | false>
+```
+
+Setting a key to `null`/`undefined`/`false` removes a previously added HOC.
+
+### GenericHoc
+
+HOC signature:
+
+```tsx
+type GenericHoc = (component: ElementType) => ElementType
+```
+
+## Utility Types
+
+### isRocketComponent
+
+Runtime type guard function:
+
+```tsx
+const isRocketComponent: (component: unknown) => boolean
+```
+
+Returns `true` if the component has the `IS_ROCKETSTYLE` marker. Uses `Object.hasOwn()` for safe property check.
+
+### Type Introspection Symbols
+
+Every rocketstyle component exposes these read-only properties for TypeScript inference:
+
+| Symbol | Type | Purpose |
+|--------|------|---------|
+| `$$rocketstyle` | `ExtractDimensions<D, DKP>` | Available dimension values |
+| `$$originTypes` | `OA` | Original base component props |
+| `$$extendedTypes` | `EA` | Props added via `.attrs()` |
+| `$$types` | Merged | Final resolved props type |
+
+These are compile-time only — they have no runtime value. They enable type inference when extending rocketstyle components or using them with `rocketstories`.
+
+## Full Exports
+
+```tsx
+import { rocketstyle, isRocketComponent, Provider, context } from '@vitus-labs/rocketstyle'
+
+import type {
+  RocketStyleComponent,
+  IRocketStyleComponent,
+  RocketComponentType,
+  RocketProviderState,
+  ConsumerCtxCBValue,
+  ConsumerCtxCb,
+  ConsumerCb,
+  DimensionCallbackParam,
+  DimensionProps,
+  Dimensions,
+  DimensionValue,
+  StylesCb,
+  RocketStyleInterpolationProps,
+  ThemeCb,
+  ThemeModeCallback,
+  ThemeModeKeys,
+  ConfigAttrs,
+  AttrsCb,
+  ComposeParam,
+  GenericHoc,
+  ExtractDimensionProps,
+  ExtractDimensions,
+  ExtractProps,
+  ElementType,
+  MergeTypes,
+  Rocketstyle,
+} from '@vitus-labs/rocketstyle'
+```

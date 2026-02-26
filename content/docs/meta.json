@@ -15,6 +15,18 @@
     "coolgrid",
     "hooks",
     "connectors",
-    "rocketstories"
+    "rocketstories",
+    "---Tools---",
+    "tools-core",
+    "tools-typescript",
+    "tools-lint",
+    "tools-rolldown",
+    "tools-rollup",
+    "tools-vitest",
+    "tools-storybook",
+    "tools-nextjs",
+    "tools-nextjs-images",
+    "tools-atlas",
+    "tools-favicon"
   ]
 }

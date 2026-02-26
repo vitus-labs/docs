@@ -1,0 +1,181 @@
+---
+title: API Reference
+description: Complete API reference for @vitus-labs/tools-core.
+---
+
+## defineConfig()
+
+```tsx
+defineConfig(config: VLToolsConfig): VLToolsConfig
+```
+
+Identity function providing type safety for `vl-tools.config.mjs` files. Returns the config object unchanged.
+
+```tsx
+// vl-tools.config.mjs
+import { defineConfig } from '@vitus-labs/tools-core'
+
+export default defineConfig({
+  build: { outputDir: 'lib' },
+  next: { headers: true },
+})
+```
+
+## VL_CONFIG()
+
+```tsx
+VL_CONFIG(key: string): { config: Record<string, any>, merge: (defaults: object) => { config: object } }
+```
+
+Loads cascading `vl-tools.config.mjs` files, extracts the value at `key`, and returns an object with:
+
+- `config` — the merged config for that key
+- `merge(defaults)` — deep-merges with base defaults, returns `{ config }`
+
+```tsx
+const vlConfig = VL_CONFIG('build')
+const CONFIG = vlConfig.merge(baseConfig).config
+```
+
+**Resolution order:**
+1. Find all `vl-tools.config.mjs` from `process.cwd()` up to root
+2. Load each via dynamic `import()`
+3. Deep-merge in order (root first, closest last)
+4. Extract `result[key]`
+
+## PKG
+
+```tsx
+const PKG: {
+  name: string
+  version: string
+  type: 'module' | 'commonjs'
+  main?: string
+  module?: string
+  exports?: Record<string, any>
+  browser?: string | Record<string, string>
+  bundleName: string
+  externalDependencies: string[]
+  dependencies: Record<string, string>
+  peerDependencies: Record<string, string>
+  devDependencies: Record<string, string>
+}
+```
+
+Pre-parsed `package.json` from `process.cwd()`.
+
+### Computed Properties
+
+| Property | Derivation |
+|----------|-----------|
+| `bundleName` | Package name converted to camelCase (strips scope, hyphens) |
+| `externalDependencies` | `Object.keys(dependencies) + Object.keys(peerDependencies)` |
+
+## TS_CONFIG
+
+```tsx
+const TS_CONFIG: {
+  compilerOptions: Record<string, any>
+  include?: string[]
+  exclude?: string[]
+  extends?: string
+}
+```
+
+Pre-parsed `tsconfig.json` from `process.cwd()`. Loaded via `loadFileToJSON('tsconfig.json')`.
+
+## findFile()
+
+```tsx
+findFile(filename: string): string | undefined
+```
+
+Searches for `filename` starting from `process.cwd()`, walking upward through parent directories. Returns the absolute path if found, `undefined` otherwise.
+
+```tsx
+findFile('tsconfig.json')    // '/Users/me/project/tsconfig.json'
+findFile('.eslintrc')        // undefined (not found)
+```
+
+## loadFileToJSON()
+
+```tsx
+loadFileToJSON(filename: string): Record<string, any>
+```
+
+Reads a JSON file relative to `process.cwd()` and parses it. Throws if the file doesn't exist or contains invalid JSON.
+
+## loadConfigParam()
+
+```tsx
+loadConfigParam(filename: string, key: string): any
+```
+
+Loads a JSON file and returns the value at `key`. Equivalent to `loadFileToJSON(filename)[key]`.
+
+## loadVLToolsConfig()
+
+```tsx
+loadVLToolsConfig(): Promise<Record<string, any>>
+```
+
+Async function that discovers and merges all `vl-tools.config.mjs` files from `process.cwd()` upward. Returns the fully merged configuration object.
+
+```tsx
+const config = await loadVLToolsConfig()
+// { build: { ... }, next: { ... }, storybook: { ... }, favicon: { ... } }
+```
+
+## swapGlobals()
+
+```tsx
+swapGlobals(globals: Record<string, string>): Record<string, string>
+```
+
+Inverts keys and values in a mapping. Used to convert `{ packageName: globalVar }` to `{ globalVar: packageName }` for UMD bundle externals.
+
+```tsx
+swapGlobals({ react: 'React' })
+// { React: 'react' }
+```
+
+## deepMerge()
+
+```tsx
+deepMerge(target: object, source: object): object
+```
+
+Recursively merges `source` into `target`:
+- Objects are recursively merged
+- Arrays are replaced (not concatenated)
+- Primitives from `source` override `target`
+- `undefined` values in source are skipped
+
+## get()
+
+```tsx
+get(obj: object, path: string): any
+```
+
+Deep property access using dot-notation:
+
+```tsx
+get({ a: { b: { c: 42 } } }, 'a.b.c')  // 42
+get({ a: 1 }, 'a.b.c')                  // undefined
+```
+
+## findFileUp()
+
+```tsx
+findFileUp(filename: string, startDir?: string): string | undefined
+```
+
+Walks up the directory tree from `startDir` (defaults to `process.cwd()`) looking for `filename`. Returns the absolute path of the first match or `undefined`.
+
+## loadModuleAsync()
+
+```tsx
+loadModuleAsync(modulePath: string): Promise<any>
+```
+
+Dynamic ESM import wrapper with error handling. Returns the module's default export or the module object.

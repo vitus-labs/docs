@@ -1,0 +1,235 @@
+---
+title: Tools Favicon
+description: Multi-platform favicon generator CLI — Android, Apple, Windows, Firefox, and standard favicons from a single source image.
+---
+
+`@vitus-labs/tools-favicon` generates favicons and web app manifests for 8 platforms from a single source image. It produces `favicon.ico`, Apple touch icons, Android homescreen icons, Windows tiles, and PWA manifests.
+
+## Installation
+
+```package-install
+@vitus-labs/tools-favicon
+```
+
+## Quick Start
+
+Configure in `vl-tools.config.mjs`:
+
+```js
+export default {
+  favicon: {
+    path: '/favicons',
+    icons: [
+      {
+        input: 'src/assets/logo.png',
+        output: 'public/favicons',
+        path: 'favicons',
+      },
+    ],
+  },
+}
+```
+
+Run:
+
+```bash
+vl_favicon
+```
+
+Or add a script:
+
+```json
+{
+  "scripts": {
+    "favicon": "vl_favicon"
+  }
+}
+```
+
+## Configuration
+
+Configure via `vl-tools.config.mjs` under the `favicon` key:
+
+```js
+export default {
+  favicon: {
+    // URL path for assets in manifests
+    path: '/favicons',
+
+    // Icon source/output pairs (array)
+    icons: [
+      {
+        input: 'src/assets/logo.png',    // Source image (relative to cwd)
+        output: 'public/favicons',        // Output directory (relative to cwd)
+        path: 'favicons',                 // URL path in manifests
+      },
+    ],
+
+    // PWA manifest settings
+    dir: 'auto',
+    lang: 'en-US',
+    background: '#fff',
+    theme_color: '#fff',
+    appleStatusBarStyle: 'black-translucent',
+    display: 'standalone',
+    orientation: 'any',
+    scope: '/',
+    start_url: '/?homescreen=1',
+    version: '1.0',
+
+    // Feature flags
+    logging: false,
+    pixel_art: false,
+    loadManifestWithCredentials: false,
+
+    // Platform toggles
+    android: true,
+    appleIcon: true,
+    appleStartup: true,
+    coast: true,
+    favicons: true,
+    firefox: true,
+    windows: true,
+    yandex: true,
+  },
+}
+```
+
+### Configuration Options
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `icons` | `Array<{ input, output, path }>` | — | Icon source/output pairs (required in user config) |
+| `path` | `string` | — | Base URL path for favicon assets |
+| `dir` | `string` | `'auto'` | Text direction for PWA manifest |
+| `lang` | `string` | `'en-US'` | Language tag (BCP 47) |
+| `background` | `string` | `'#fff'` | Background color for icons and manifest |
+| `theme_color` | `string` | `'#fff'` | Theme color for browser UI |
+| `appleStatusBarStyle` | `string` | `'black-translucent'` | Apple status bar style |
+| `display` | `string` | `'standalone'` | PWA display mode |
+| `orientation` | `string` | `'any'` | Default screen orientation |
+| `scope` | `string` | `'/'` | PWA scope |
+| `start_url` | `string` | `'/?homescreen=1'` | PWA start URL |
+| `version` | `string` | `'1.0'` | App version in manifest |
+| `logging` | `boolean` | `false` | Enable console logging |
+| `pixel_art` | `boolean` | `false` | Keep pixels sharp when scaling |
+| `loadManifestWithCredentials` | `boolean` | `false` | Include credentials when fetching manifest |
+
+### Platform Toggles
+
+Each platform can be `true` (generate all sizes), `false` (skip), or an object with options:
+
+| Platform | Default | Generated Icons |
+|----------|---------|----------------|
+| `android` | `true` | Homescreen icons (192x192, 384x384, 512x512) |
+| `appleIcon` | `true` | Touch icons (120x120, 152x152, 180x180) |
+| `appleStartup` | `true` | iOS splash screens |
+| `coast` | `true` | Opera Coast icon |
+| `favicons` | `true` | favicon.ico, favicon-16x16.png, favicon-32x32.png |
+| `firefox` | `true` | Firefox manifest icons |
+| `windows` | `true` | Tile images (70x70, 150x150, 310x310) |
+| `yandex` | `true` | Yandex browser icon |
+
+### Platform Options
+
+```js
+{
+  android: {
+    offset: 10,           // Offset percentage
+    background: '#0066cc', // Custom background
+    mask: true,            // Circular mask
+    overlayGlow: false,    // Glow effect
+    overlayShadow: false,  // Drop shadow
+  },
+  windows: false,          // Disable Windows tiles
+  coast: false,            // Disable Opera Coast
+}
+```
+
+## Generated Files
+
+### Image Files
+
+- `favicon.ico` — Classic favicon (16x16, 32x32, 48x48)
+- `favicon-16x16.png`, `favicon-32x32.png`, `favicon-96x96.png`
+- `apple-touch-icon.png` — 180x180 (iOS)
+- `apple-touch-icon-120x120.png`, `apple-touch-icon-152x152.png`, `apple-touch-icon-180x180.png`
+- `apple-touch-startup-image-*.png` — iOS splash screens
+- `android-chrome-*.png` — Android icons (192x192, 384x384, 512x512)
+- `mstile-*.png` — Windows tiles (70x70, 150x150, 310x310)
+- `firefox_app_*.png`, `coast-*.png`, `yandex-browser-*.png`
+
+### Manifest Files
+
+- `manifest.json` — Standard Web App Manifest
+- `manifest.webmanifest` — Modern variant
+- `browserconfig.xml` — Windows tile configuration
+- `yandex-manifest.json` — Yandex metadata
+
+## Programmatic API
+
+```tsx
+import { generateFavicons, configuration } from '@vitus-labs/tools-favicon'
+
+// Generate favicons
+await generateFavicons()
+
+// Access default configuration
+console.log(configuration)
+```
+
+### generateFavicons()
+
+```tsx
+generateFavicons(): Promise<void[]>
+```
+
+Loads configuration from `vl-tools.config.mjs`, generates favicons for each icon entry, and writes files to disk.
+
+- Processes all icon entries in parallel via `Promise.all`
+- Writes images and manifests using `fs.writeFileSync`
+- Logs errors per-icon but continues processing remaining entries
+
+### configuration
+
+The default configuration object (before merging with user config):
+
+```tsx
+const configuration: Configuration
+```
+
+## Multiple Icon Sets
+
+Generate different favicon sets for different contexts:
+
+```js
+export default {
+  favicon: {
+    icons: [
+      {
+        input: 'src/assets/main-logo.png',
+        output: 'public/favicons',
+        path: '/favicons',
+      },
+      {
+        input: 'src/assets/admin-logo.png',
+        output: 'public/admin/favicons',
+        path: '/admin/favicons',
+      },
+    ],
+  },
+}
+```
+
+Each entry generates a complete set of favicons independently.
+
+## Exports
+
+```tsx
+import {
+  generateFavicons,
+  configuration,
+} from '@vitus-labs/tools-favicon'
+
+import type { Configuration } from '@vitus-labs/tools-favicon'
+```

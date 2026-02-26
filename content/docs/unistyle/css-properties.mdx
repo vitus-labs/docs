@@ -153,40 +153,354 @@ CSS Logical Properties are also supported:
 // → &:hover { opacity: 0.8; }
 ```
 
-## Complete Property Categories
+## Unit Conversion Rules
+
+Understanding when values are converted:
+
+| Input | Output (Web) | Output (Native) |
+|-------|-------------|-----------------|
+| `16` (number) | `1rem` (16/rootSize) | `16px` |
+| `0` (zero) | `0` (unitless) | `0` (unitless) |
+| `'16px'` (string with unit) | `'16px'` (unchanged) | `'16px'` (unchanged) |
+| `'auto'` (keyword) | `'auto'` (unchanged) | `'auto'` (unchanged) |
+| `null` / `undefined` | Skipped | Skipped |
+
+Only the **convert**, **convert_fallback**, and **edge** descriptor types perform unit conversion. **simple** descriptors pass values through unchanged.
+
+## Complete Property Reference
+
+Every property supported by unistyle, organized by category. The **Type** column indicates the descriptor type: **S** = simple (pass-through), **C** = convert (number→rem), **CF** = convert_fallback, **E** = edge shorthand, **BR** = border-radius shorthand, **SP** = special handler.
 
 ### Position & Layout
-`display`, `position`, `boxSizing`, `float`, `all`, `zIndex`, `overflow`, `overflowX`, `overflowY`
+
+| Prop | CSS Property | Type |
+|------|-------------|------|
+| `all` | `all` | S |
+| `display` | `display` | S |
+| `position` | `position` | S |
+| `boxSizing` | `box-sizing` | S |
+| `float` | `float` | S |
+| `zIndex` | `z-index` | S |
+| `overflow` | `overflow` | S |
+| `overflowX` | `overflow-x` | S |
+| `overflowY` | `overflow-y` | S |
+| `overflowWrap` | `overflow-wrap` | S |
+| `visibility` | `visibility` | S |
+| `contain` | `contain` | S |
+| `containerType` | `container-type` | S |
+| `containerName` | `container-name` | S |
+| `container` | `container` | S |
+| `contentVisibility` | `content-visibility` | S |
+
+### Inset (Edge Shorthand)
+
+| Prop | Sides Affected | Type |
+|------|---------------|------|
+| `inset` | All four sides | E |
+| `insetX` | Left + Right | E |
+| `insetY` | Top + Bottom | E |
+| `top` | Top only | E |
+| `right` | Right only | E |
+| `bottom` | Bottom only | E |
+| `left` | Left only | E |
+
+**Logical inset:** `insetInline`, `insetInlineStart`, `insetInlineEnd`, `insetBlock`, `insetBlockStart`, `insetBlockEnd` — all type **C**.
 
 ### Sizing
-`width`, `height`, `size`, `minWidth`, `minHeight`, `minSize`, `maxWidth`, `maxHeight`, `maxSize`, `aspectRatio`, `inlineSize`, `blockSize`, `minInlineSize`, `maxInlineSize`, `minBlockSize`, `maxBlockSize`
 
-### Spacing
-`margin` (full/x/y/sides), `padding` (full/x/y/sides), `inset` (full/x/y/sides), logical margin/padding/inset variants
+| Prop | CSS Property | Type | Fallback |
+|------|-------------|------|----------|
+| `width` | `width` | CF | `width` → `size` |
+| `height` | `height` | CF | `height` → `size` |
+| `minWidth` | `min-width` | CF | `minWidth` → `minSize` |
+| `minHeight` | `min-height` | CF | `minHeight` → `minSize` |
+| `maxWidth` | `max-width` | CF | `maxWidth` → `maxSize` |
+| `maxHeight` | `max-height` | CF | `maxHeight` → `maxSize` |
+| `aspectRatio` | `aspect-ratio` | S | — |
+| `gap` | `gap` | C | — |
+| `inlineSize` | `inline-size` | C | — |
+| `blockSize` | `block-size` | C | — |
+| `minInlineSize` | `min-inline-size` | C | — |
+| `minBlockSize` | `min-block-size` | C | — |
+| `maxInlineSize` | `max-inline-size` | C | — |
+| `maxBlockSize` | `max-block-size` | C | — |
+
+**Shorthand props** (not real CSS, resolved internally): `size` (sets both width+height), `minSize` (sets both min-width+min-height), `maxSize` (sets both max-width+max-height).
+
+### Spacing (Edge Shorthands)
+
+**Margin:** `margin`, `marginX`, `marginY`, `marginTop`, `marginRight`, `marginBottom`, `marginLeft` — all type **E** with rem conversion.
+
+**Padding:** `padding`, `paddingX`, `paddingY`, `paddingTop`, `paddingRight`, `paddingBottom`, `paddingLeft` — all type **E** with rem conversion.
+
+**Logical margin:** `marginInline`, `marginInlineStart`, `marginInlineEnd`, `marginBlock`, `marginBlockStart`, `marginBlockEnd` — all type **C**.
+
+**Logical padding:** `paddingInline`, `paddingInlineStart`, `paddingInlineEnd`, `paddingBlock`, `paddingBlockStart`, `paddingBlockEnd` — all type **C**.
 
 ### Flexbox
-`flex`, `flexBasis`, `flexDirection`, `flexFlow`, `flexGrow`, `flexShrink`, `flexWrap`, `alignItems`, `alignContent`, `alignSelf`, `justifyContent`, `justifyItems`, `justifySelf`, `placeContent`, `placeItems`, `placeSelf`, `gap`, `rowGap`, `columnGap`, `order`
+
+| Prop | CSS Property | Type |
+|------|-------------|------|
+| `flex` | `flex` | S |
+| `flexBasis` | `flex-basis` | S |
+| `flexDirection` | `flex-direction` | S |
+| `flexFlow` | `flex-flow` | S |
+| `flexGrow` | `flex-grow` | S |
+| `flexShrink` | `flex-shrink` | S |
+| `flexWrap` | `flex-wrap` | S |
+| `alignItems` | `align-items` | S |
+| `alignContent` | `align-content` | S |
+| `alignSelf` | `align-self` | S |
+| `justifyContent` | `justify-content` | S |
+| `justifyItems` | `justify-items` | S |
+| `justifySelf` | `justify-self` | S |
+| `placeContent` | `place-content` | S |
+| `placeItems` | `place-items` | S |
+| `placeSelf` | `place-self` | S |
+| `rowGap` | `row-gap` | C |
+| `columnGap` | `column-gap` | C |
+| `order` | `order` | S |
 
 ### Grid
-`grid`, `gridArea`, `gridTemplateColumns`, `gridTemplateRows`, `gridTemplateAreas`, `gridAutoColumns`, `gridAutoRows`, `gridAutoFlow`, `gridColumn`, `gridColumnStart`, `gridColumnEnd`, `gridRow`, `gridRowStart`, `gridRowEnd`
+
+| Prop | CSS Property | Type |
+|------|-------------|------|
+| `grid` | `grid` | S |
+| `gridArea` | `grid-area` | S |
+| `gridTemplateColumns` | `grid-template-columns` | S |
+| `gridTemplateRows` | `grid-template-rows` | S |
+| `gridTemplateAreas` | `grid-template-areas` | S |
+| `gridAutoColumns` | `grid-auto-columns` | C |
+| `gridAutoRows` | `grid-auto-rows` | C |
+| `gridAutoFlow` | `grid-auto-flow` | S |
+| `gridColumn` | `grid-column` | S |
+| `gridColumnStart` | `grid-column-start` | C |
+| `gridColumnEnd` | `grid-column-end` | S |
+| `gridColumnGap` | `grid-column-gap` | C |
+| `gridRow` | `grid-row` | S |
+| `gridRowStart` | `grid-row-start` | S |
+| `gridRowEnd` | `grid-row-end` | S |
+| `gridRowGap` | `grid-row-gap` | C |
+| `gridGap` | `grid-gap` | C |
+| `gridTemplate` | `grid-template` | S |
 
 ### Typography
-`fontFamily`, `fontSize`, `fontWeight`, `fontStyle`, `fontVariant`, `lineHeight`, `letterSpacing`, `textAlign`, `textDecoration`, `textTransform`, `textShadow`, `textOverflow`, `textIndent`, `wordBreak`, `wordWrap`, `wordSpacing`, `whiteSpace`, `writingMode`, `direction`, `hyphens`
+
+| Prop | CSS Property | Type |
+|------|-------------|------|
+| `font` | `font` | S |
+| `fontFamily` | `font-family` | S |
+| `fontSize` | `font-size` | C |
+| `fontSizeAdjust` | `font-size-adjust` | C |
+| `fontStretch` | `font-stretch` | C |
+| `fontStyle` | `font-style` | S |
+| `fontVariant` | `font-variant` | S |
+| `fontWeight` | `font-weight` | S |
+| `fontKerning` | `font-kerning` | S |
+| `fontFeatureSettings` | `font-feature-settings` | S |
+| `fontVariationSettings` | `font-variation-settings` | S |
+| `fontOpticalSizing` | `font-optical-sizing` | S |
+| `lineHeight` | `line-height` | S |
+| `letterSpacing` | `letter-spacing` | S |
+| `wordSpacing` | `word-spacing` | S |
+| `textAlign` | `text-align` | S |
+| `textAlignLast` | `text-align-last` | S |
+| `textDecoration` | `text-decoration` | S |
+| `textDecorationColor` | `text-decoration-color` | S |
+| `textDecorationLine` | `text-decoration-line` | S |
+| `textDecorationStyle` | `text-decoration-style` | S |
+| `textDecorationThickness` | `text-decoration-thickness` | S |
+| `textUnderlineOffset` | `text-underline-offset` | S |
+| `textEmphasis` | `text-emphasis` | S |
+| `textEmphasisColor` | `text-emphasis-color` | S |
+| `textEmphasisStyle` | `text-emphasis-style` | S |
+| `textTransform` | `text-transform` | S |
+| `textShadow` | `text-shadow` | S |
+| `textOverflow` | `text-overflow` | S |
+| `textIndent` | `text-indent` | S |
+| `textJustify` | `text-justify` | S |
+| `textWrap` | `text-wrap` | S |
+| `textRendering` | `text-rendering` | S |
+| `whiteSpace` | `white-space` | S |
+| `wordBreak` | `word-break` | S |
+| `wordWrap` | `word-wrap` | S |
+| `writingMode` | `writing-mode` | S |
+| `direction` | `direction` | S |
+| `hyphens` | `hyphens` | S |
 
 ### Colors & Background
-`color`, `background`, `backgroundColor`, `backgroundImage`, `backgroundAttachment`, `backgroundClip`, `backgroundOrigin`, `backgroundPosition`, `backgroundRepeat`, `backgroundSize`, `opacity`
+
+| Prop | CSS Property | Type |
+|------|-------------|------|
+| `color` | `color` | S |
+| `opacity` | `opacity` | S |
+| `background` | `background` | S |
+| `backgroundColor` | `background-color` | S |
+| `backgroundImage` | `background-image` | SP (wraps with `url()`) |
+| `backgroundAttachment` | `background-attachment` | S |
+| `backgroundClip` | `background-clip` | S |
+| `backgroundOrigin` | `background-origin` | S |
+| `backgroundPosition` | `background-position` | S |
+| `backgroundRepeat` | `background-repeat` | S |
+| `backgroundSize` | `background-size` | S |
 
 ### Borders
-`border`, `borderWidth` (full/x/y/sides), `borderStyle` (full/x/y/sides), `borderColor` (full/x/y/sides), `borderRadius` (full/corners), `borderSpacing`, `borderCollapse`
+
+**Shorthand border:** `border`, `borderTop`, `borderBottom`, `borderLeft`, `borderRight` — all type **S**.
+
+**Border width (edge shorthand):** `borderWidth`, `borderWidthX`, `borderWidthY`, `borderWidthTop`, `borderWidthRight`, `borderWidthBottom`, `borderWidthLeft` — type **E** with px unit.
+
+**Border style (edge shorthand):** `borderStyle`, `borderStyleX`, `borderStyleY`, `borderStyleTop`, `borderStyleRight`, `borderStyleBottom`, `borderStyleLeft` — type **E** (no unit).
+
+**Border color (edge shorthand):** `borderColor`, `borderColorX`, `borderColorY`, `borderColorTop`, `borderColorRight`, `borderColorBottom`, `borderColorLeft` — type **E** (no unit).
+
+**Border radius (corner shorthand):** `borderRadius`, `borderRadiusTop`, `borderRadiusBottom`, `borderRadiusLeft`, `borderRadiusRight`, `borderRadiusTopLeft`, `borderRadiusTopRight`, `borderRadiusBottomLeft`, `borderRadiusBottomRight` — type **BR** with rem conversion.
+
+**Border other:** `borderSpacing` (S), `borderImage` (S), `borderImageOutset` (S), `borderImageRepeat` (S), `borderImageSlice` (S), `borderImageSource` (S), `borderImageWidth` (S).
+
+**Logical borders:** `borderInline`, `borderBlock`, `borderInlineStart`, `borderInlineEnd`, `borderBlockStart`, `borderBlockEnd` — all type **S**.
 
 ### Visual Effects
-`boxShadow`, `filter`, `backdropFilter`, `mixBlendMode`, `backgroundBlendMode`, `outline`, `outlineColor`, `outlineOffset`, `outlineStyle`, `outlineWidth`, `backfaceVisibility`, `isolation`
 
-### Animations
-`animation`, `animationDelay`, `animationDirection`, `animationDuration`, `animationFillMode`, `animationIterationCount`, `animationName`, `animationPlayState`, `animationTimingFunction`, `keyframe`, `transition`, `transitionDelay`, `transitionDuration`, `transitionProperty`, `transitionTimingFunction`, `transform`, `transformOrigin`, `translate`, `rotate`, `scale`
+| Prop | CSS Property | Type |
+|------|-------------|------|
+| `boxShadow` | `box-shadow` | S |
+| `filter` | `filter` | S |
+| `backdropFilter` | `backdrop-filter` | S |
+| `mixBlendMode` | `mix-blend-mode` | S |
+| `backgroundBlendMode` | `background-blend-mode` | S |
+| `isolation` | `isolation` | S |
+| `outline` | `outline` | S |
+| `outlineColor` | `outline-color` | S |
+| `outlineOffset` | `outline-offset` | S |
+| `outlineStyle` | `outline-style` | S |
+| `outlineWidth` | `outline-width` | S |
+| `backfaceVisibility` | `backface-visibility` | S |
+
+### Animations & Transforms
+
+| Prop | CSS Property | Type |
+|------|-------------|------|
+| `animation` | — | SP (combines keyframe + animation) |
+| `animationName` | `animation-name` | S |
+| `animationDuration` | `animation-duration` | S |
+| `animationTimingFunction` | `animation-timing-function` | S |
+| `animationDelay` | `animation-delay` | S |
+| `animationIterationCount` | `animation-iteration-count` | S |
+| `animationDirection` | `animation-direction` | S |
+| `animationFillMode` | `animation-fill-mode` | S |
+| `animationPlayState` | `animation-play-state` | S |
+| `transition` | `transition` | S |
+| `transitionDelay` | `transition-delay` | S |
+| `transitionDuration` | `transition-duration` | S |
+| `transitionProperty` | `transition-property` | S |
+| `transitionTimingFunction` | `transition-timing-function` | S |
+| `transform` | `transform` | S |
+| `transformOrigin` | `transform-origin` | S |
+| `transformStyle` | `transform-style` | S |
+| `translate` | `translate` | S |
+| `rotate` | `rotate` | S |
+| `scale` | `scale` | S |
+| `willChange` | `will-change` | S |
+
+### Scroll
+
+| Prop | CSS Property | Type |
+|------|-------------|------|
+| `scrollBehavior` | `scroll-behavior` | S |
+| `scrollSnapType` | `scroll-snap-type` | S |
+| `scrollSnapAlign` | `scroll-snap-align` | S |
+| `scrollSnapStop` | `scroll-snap-stop` | S |
+| `scrollMargin` | `scroll-margin` | S |
+| `scrollPadding` | `scroll-padding` | S |
+| `overscrollBehavior` | `overscroll-behavior` | S |
+| `overscrollBehaviorX` | `overscroll-behavior-x` | S |
+| `overscrollBehaviorY` | `overscroll-behavior-y` | S |
 
 ### Interaction
-`cursor`, `pointerEvents`, `userSelect`, `touchAction`, `scrollbarColor`, `scrollbarWidth`, `scrollbarGutter`, `caretColor`, `accentColor`, `colorScheme`
+
+| Prop | CSS Property | Type |
+|------|-------------|------|
+| `cursor` | `cursor` | S |
+| `pointerEvents` | `pointer-events` | S |
+| `userSelect` | `user-select` | S |
+| `touchAction` | `touch-action` | S |
+| `scrollbarWidth` | `scrollbar-width` | S |
+| `scrollbarColor` | `scrollbar-color` | S |
+| `scrollbarGutter` | `scrollbar-gutter` | S |
+| `caretColor` | `caret-color` | S |
+| `accentColor` | `accent-color` | S |
+| `colorScheme` | `color-scheme` | S |
+| `appearance` | `appearance` | S |
+| `imageRendering` | `image-rendering` | S |
+
+### Lists
+
+| Prop | CSS Property | Type |
+|------|-------------|------|
+| `listStyle` | `list-style` | S |
+| `listStyleImage` | `list-style-image` | S |
+| `listStylePosition` | `list-style-position` | S |
+| `listStyleType` | `list-style-type` | S |
+
+### Masks
+
+| Prop | CSS Property | Type |
+|------|-------------|------|
+| `maskImage` | `mask-image` | S |
+| `maskSize` | `mask-size` | S |
+| `maskPosition` | `mask-position` | S |
+| `maskRepeat` | `mask-repeat` | S |
+
+### Shapes
+
+| Prop | CSS Property | Type |
+|------|-------------|------|
+| `shapeOutside` | `shape-outside` | S |
+| `shapeMargin` | `shape-margin` | S |
+| `shapeImageThreshold` | `shape-image-threshold` | S |
+
+### Columns
+
+| Prop | CSS Property | Type |
+|------|-------------|------|
+| `columnCount` | `column-count` | S |
+| `columnWidth` | `column-width` | S |
+| `columnRule` | `column-rule` | S |
+| `columns` | `columns` | S |
+
+### Table & Misc
+
+| Prop | CSS Property | Type |
+|------|-------------|------|
+| `tableLayout` | `table-layout` | S |
+| `captionSide` | `caption-side` | S |
+| `emptyCells` | `empty-cells` | S |
+| `content` | `content` | S |
+| `counterIncrement` | `counter-increment` | S |
+| `counterReset` | `counter-reset` | S |
+| `clear` | `clear` | S |
+| `clip` | `clip` | S |
+| `clipPath` | `clip-path` | S |
+| `perspective` | `perspective` | S |
+| `perspectiveOrigin` | `perspective-origin` | S |
+| `quotes` | `quotes` | S |
+| `tabSize` | `tab-size` | S |
+| `objectFit` | `object-fit` | S |
+| `objectPosition` | `object-position` | S |
+| `resize` | `resize` | S |
+| `verticalAlign` | `vertical-align` | S |
+
+### Fragmentation (Print)
+
+| Prop | CSS Property | Type |
+|------|-------------|------|
+| `breakBefore` | `break-before` | S |
+| `breakAfter` | `break-after` | S |
+| `breakInside` | `break-inside` | S |
+| `orphans` | `orphans` | S |
+| `widows` | `widows` | S |
+| `printColorAdjust` | `print-color-adjust` | S |
 
 ## API Reference
 
