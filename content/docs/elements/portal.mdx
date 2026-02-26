@@ -1,0 +1,104 @@
+---
+title: Portal
+description: DOM portal for rendering content outside the component hierarchy.
+---
+
+Portal creates a new DOM element, appends it to a target location, and uses React's `createPortal` to render children into it. The element is cleaned up on unmount.
+
+## Usage
+
+```tsx
+import { Portal } from '@vitus-labs/elements'
+
+// Render into document.body (default)
+<Portal>
+  <div className="modal">Modal content</div>
+</Portal>
+
+// Render into specific element
+<Portal DOMLocation={document.getElementById('modal-root')}>
+  <div className="modal">Modal content</div>
+</Portal>
+
+// Custom element tag
+<Portal tag="section">
+  <div>Content rendered in a <section> portal</div>
+</Portal>
+```
+
+## Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `children` | `ReactNode` | — | Content to render in the portal |
+| `DOMLocation` | `HTMLElement` | `document.body` | Target parent element |
+| `tag` | `string` | `'div'` | HTML tag of the portal container element |
+
+## Lifecycle
+
+1. **Mount**: Creates `document.createElement(tag)` and appends to `DOMLocation`
+2. **Render**: Uses `createPortal(children, element)` to render children into the created element
+3. **Unmount**: Removes the created element from the DOM
+
+## Common Patterns
+
+### Modal Root
+
+```tsx
+// In your HTML:
+<div id="modal-root"></div>
+
+// In your component:
+function Modal({ isOpen, children }) {
+  if (!isOpen) return null
+
+  return (
+    <Portal DOMLocation={document.getElementById('modal-root')}>
+      <div className="modal-backdrop">
+        <div className="modal-content">
+          {children}
+        </div>
+      </div>
+    </Portal>
+  )
+}
+```
+
+### Toast Notifications
+
+```tsx
+function Toast({ message }) {
+  return (
+    <Portal>
+      <div style={{
+        position: 'fixed',
+        bottom: 24,
+        right: 24,
+        padding: '12px 24px',
+        background: '#333',
+        color: '#fff',
+        borderRadius: 8,
+      }}>
+        {message}
+      </div>
+    </Portal>
+  )
+}
+```
+
+### Used by Overlay
+
+Portal is used internally by the Overlay component to render floating content outside the DOM hierarchy, preventing overflow clipping issues:
+
+```tsx
+<Overlay
+  DOMLocation={document.getElementById('popover-root')}
+  trigger={<button>Open</button>}
+>
+  <div>This renders in a Portal</div>
+</Overlay>
+```
+
+## API Reference
+
+<AutoTypeTable path="./src/types/elements.ts" name="PortalProps" />

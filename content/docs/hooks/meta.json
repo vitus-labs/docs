@@ -1,0 +1,12 @@
+{
+  "title": "Hooks",
+  "pages": [
+    "index",
+    "state",
+    "dom",
+    "events",
+    "timing",
+    "theme",
+    "accessibility"
+  ]
+}

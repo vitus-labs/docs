@@ -1,0 +1,239 @@
+---
+title: Responsive System
+description: Breakpoints, media queries, responsive value formats, and the transformation pipeline.
+---
+
+Unistyle's responsive system transforms responsive value declarations into optimized, mobile-first media queries.
+
+## Default Breakpoints
+
+```tsx
+{
+  xs: 0,       // Mobile (no media query — baseline)
+  sm: 576,     // Small devices
+  md: 768,     // Tablets
+  lg: 992,     // Desktops
+  xl: 1200,    // Large desktops
+  xxl: 1440,   // Extra-large
+}
+```
+
+Media queries use `em` units for accessibility (respects browser font-size settings):
+
+| Breakpoint | Pixel | Em | Media Query |
+|-----------|-------|-----|-------------|
+| `xs` | 0 | — | No wrapper (baseline) |
+| `sm` | 576 | 36em | `@media only screen and (min-width: 36em)` |
+| `md` | 768 | 48em | `@media only screen and (min-width: 48em)` |
+| `lg` | 992 | 62em | `@media only screen and (min-width: 62em)` |
+| `xl` | 1200 | 75em | `@media only screen and (min-width: 75em)` |
+| `xxl` | 1440 | 90em | `@media only screen and (min-width: 90em)` |
+
+## Responsive Value Formats
+
+Every theme property supports three responsive formats:
+
+### Scalar (Single Value)
+
+Applied to all breakpoints:
+
+```tsx
+{ fontSize: 16, color: 'red' }
+// All breakpoints: fontSize=16, color=red
+```
+
+### Array (Positional)
+
+Values map to breakpoints in order. Last value carries forward:
+
+```tsx
+{ fontSize: [12, 14, 16, 18] }
+// xs: 12, sm: 14, md: 16, lg: 18, xl: 18, xxl: 18
+//                                   ↑ last value repeats
+```
+
+### Object (Breakpoint-Keyed)
+
+Explicit breakpoint assignment. Gaps filled by previous breakpoint:
+
+```tsx
+{ fontSize: { xs: 12, md: 16, lg: 18 } }
+// xs: 12, sm: 12, md: 16, lg: 18, xl: 18, xxl: 18
+//         ↑ inherited from xs
+```
+
+## Transformation Pipeline
+
+The responsive engine applies 4 transformations:
+
+### 1. Normalize
+
+Expands arrays and objects to full breakpoint maps:
+
+```tsx
+// Input
+{ fontSize: [12, 14, 16], padding: { xs: 8, md: 16 }, color: 'red' }
+
+// After normalize
+{
+  fontSize: { xs: 12, sm: 14, md: 16, lg: 16, xl: 16, xxl: 16 },
+  padding:  { xs: 8,  sm: 8,  md: 16, lg: 16, xl: 16, xxl: 16 },
+  color:    'red'  // Scalars unchanged
+}
+```
+
+**Fast path:** If no arrays or objects are detected among the values, normalization is skipped entirely — scalars pass through unchanged, avoiding the overhead of creating full breakpoint maps.
+
+### 2. Transform
+
+Pivots from property-centric to breakpoint-centric layout:
+
+```tsx
+// Input (normalized)
+{
+  fontSize: { xs: 12, sm: 14, md: 16 },
+  padding:  { xs: 8, md: 16 },
+  color:    'red'
+}
+
+// After transform
+{
+  xs: { fontSize: 12, padding: 8, color: 'red' },
+  sm: { fontSize: 14 },
+  md: { fontSize: 16, padding: 16 },
+}
+```
+
+### 3. Optimize
+
+Removes duplicate breakpoints with identical styles:
+
+```tsx
+// Input
+{
+  xs: { fontSize: 16, color: 'red' },
+  sm: { fontSize: 16, color: 'red' },  // Identical to xs
+  md: { fontSize: 18, color: 'red' },
+  lg: { fontSize: 18, color: 'red' },  // Identical to md
+}
+
+// After optimize
+{
+  xs: { fontSize: 16, color: 'red' },
+  md: { fontSize: 18, color: 'red' },
+}
+// sm and lg removed — avoids duplicate @media blocks
+```
+
+### 4. Media Query Wrapping
+
+Each remaining breakpoint gets wrapped in its media query:
+
+```css
+/* xs (baseline, no @media) */
+font-size: 0.75rem;
+color: red;
+
+/* md and larger */
+@media only screen and (min-width: 48em) {
+  font-size: 1.125rem;
+}
+```
+
+## makeItResponsive()
+
+The core responsive engine used by styled components:
+
+```tsx
+import { makeItResponsive, styles } from '@vitus-labs/unistyle'
+import { config } from '@vitus-labs/core'
+
+const ResponsiveBox = config.styled('div')`
+  ${makeItResponsive({
+    key: '$box',
+    css: config.css,
+    styles: (props) => styles({
+      theme: props.theme,
+      css: config.css,
+      rootSize: 16,
+    }),
+  })}
+`
+```
+
+### Options
+
+| Option | Type | Description |
+|--------|------|-------------|
+| `key` | `string` | Theme prop name (e.g., `'$box'`) |
+| `css` | `function` | CSS tagged template function |
+| `styles` | `function` | Style processor callback |
+| `normalize` | `boolean` | Enable/disable normalization (default: `true`) |
+
+### No-Breakpoint Fast Path
+
+When the theme has no breakpoints at all (no `__VITUS_LABS__` data), `makeItResponsive` skips the entire normalize/transform/optimize pipeline and renders plain CSS directly — a single pass through the styles function.
+
+### Caching
+
+`makeItResponsive` uses a `WeakMap` to cache optimized themes per component:
+
+- **Key:** Theme prop object reference
+- **Hit criteria:** Same object reference + same sorted breakpoints
+- **Result:** The expensive normalize → transform → optimize pipeline runs only once per unique theme object
+
+When the theme prop reference doesn't change between renders, all breakpoint processing is skipped and the cached result is reused.
+
+## Responsive Alignment
+
+The alignment system supports responsive values:
+
+```tsx
+const theme = {
+  display: 'flex',
+  direction: { xs: 'rows', md: 'inline' },       // Column on mobile, row on desktop
+  alignX: { xs: 'center', md: 'left' },
+  alignY: 'center',
+  gap: [8, 12, 16],                                // Scales up with breakpoints
+}
+```
+
+## Custom Breakpoints
+
+Configure custom breakpoints via the Provider:
+
+```tsx
+<Provider
+  theme={{
+    rootSize: 16,
+    breakpoints: {
+      mobile: 0,
+      tablet: 600,
+      desktop: 1024,
+      wide: 1440,
+    },
+  }}
+>
+  <App />
+</Provider>
+
+// Usage with custom breakpoint names
+<Box $box={{
+  fontSize: { mobile: 14, tablet: 16, desktop: 18 },
+  padding: { mobile: 8, desktop: 24 },
+}} />
+```
+
+## API Reference
+
+### Breakpoints
+
+<AutoTypeTable path="./src/types/unistyle.ts" name="Breakpoints" />
+
+### Value
+
+<AutoTypeTable path="./src/types/unistyle.ts" name="Value" />
+
+### MakeItResponsive
+
+<AutoTypeTable path="./src/types/unistyle.ts" name="MakeItResponsive" />

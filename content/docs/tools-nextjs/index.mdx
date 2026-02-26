@@ -1,0 +1,178 @@
+---
+title: Tools Next.js
+description: Next.js configuration wrapper with security headers, monorepo transpilation, and tools-core integration.
+---
+
+`@vitus-labs/tools-nextjs` wraps your Next.js configuration with security headers, monorepo transpile support, and TypeScript build settings. Configuration is loaded from `vl-tools.config.mjs` via `tools-core`.
+
+## Installation
+
+```package-install
+@vitus-labs/tools-nextjs
+```
+
+**Peer dependency:** `next >= 14`
+
+## Quick Start
+
+```tsx
+// next.config.ts
+import { withVitusLabs } from '@vitus-labs/tools-nextjs'
+
+export default withVitusLabs({
+  // Your standard Next.js config
+  experimental: { ppr: true },
+})
+```
+
+This wraps your config with:
+- 6 security headers applied to all routes
+- Monorepo package transpilation
+- TypeScript build settings
+
+## withVitusLabs()
+
+```tsx
+withVitusLabs(nextConfig?: NextConfig): NextConfig
+```
+
+Wraps a Next.js configuration with vitus-labs defaults. All standard Next.js properties are preserved.
+
+### Merge Strategy
+
+| Property | Behavior |
+|----------|----------|
+| `images` | Object merge (user overrides config) |
+| `transpilePackages` | Array concatenation (config + user) |
+| `typescript` | Object merge (user overrides config) |
+| `headers` | Security headers prepended, user headers appended |
+| Everything else | Preserved via spread |
+
+```tsx
+export default withVitusLabs({
+  images: { formats: ['image/webp'] },
+  transpilePackages: ['@my-org/shared'],
+  headers: async () => [
+    { source: '/api/(.*)', headers: [{ key: 'X-Custom', value: 'yes' }] },
+  ],
+})
+```
+
+The result:
+- Security headers apply to `/(.*)`
+- Your custom header applies to `/api/(.*)`
+- `transpilePackages` includes both config-level and inline packages
+
+## Security Headers
+
+Six security headers are applied to all routes by default:
+
+| Header | Value | Purpose |
+|--------|-------|---------|
+| `X-DNS-Prefetch-Control` | `on` | Enable DNS prefetching |
+| `Strict-Transport-Security` | `max-age=63072000; includeSubDomains; preload` | HSTS with 2-year max-age |
+| `X-Content-Type-Options` | `nosniff` | Prevent MIME type sniffing |
+| `Referrer-Policy` | `origin-when-cross-origin` | Control referrer information |
+| `X-Frame-Options` | `SAMEORIGIN` | Prevent clickjacking |
+| `Permissions-Policy` | `camera=(), microphone=(), geolocation=()` | Disable sensitive APIs |
+
+### Header Configuration
+
+Configure via `vl-tools.config.mjs` under the `next` key:
+
+```js
+export default {
+  next: {
+    // Enable all defaults
+    headers: true,
+
+    // Disable all security headers
+    headers: false,
+
+    // Override specific headers
+    headers: {
+      'Permissions-Policy': 'camera=(self), microphone=()',
+      'X-Frame-Options': 'DENY',
+    },
+
+    // Full control via callback
+    headers: (defaults) => defaults.filter(h => h.key !== 'X-Frame-Options'),
+  },
+}
+```
+
+### securityHeaders()
+
+Also exported for standalone use:
+
+```tsx
+import { securityHeaders } from '@vitus-labs/tools-nextjs'
+
+// Returns Next.js headers format: [{ source: '/(.*)', headers: [...] }]
+const headers = securityHeaders(true)   // All defaults
+const headers = securityHeaders(false)  // Empty array
+const headers = securityHeaders({       // Override specific
+  'X-Frame-Options': 'DENY',
+})
+```
+
+## Configuration
+
+Configure via `vl-tools.config.mjs`:
+
+```js
+export default {
+  next: {
+    headers: true,                         // Security headers (default: true)
+    images: {                              // Next.js image config
+      remotePatterns: [{ hostname: '*.example.com' }],
+    },
+    transpilePackages: ['@my-org/ui'],     // Packages to transpile
+    typescript: {
+      ignoreBuildErrors: false,            // Strict (default)
+    },
+  },
+}
+```
+
+### NextjsToolsConfig
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `headers` | `boolean \| Record<string, string> \| (defaults) => SecurityHeader[]` | `true` | Security header configuration |
+| `images` | `NextConfig['images']` | `{}` | Next.js image optimization |
+| `transpilePackages` | `string[]` | `[]` | Packages to transpile in monorepo |
+| `typescript` | `NextConfig['typescript']` | `{ ignoreBuildErrors: false }` | TypeScript build settings |
+
+## Types
+
+```tsx
+interface SecurityHeader {
+  key: string
+  value: string
+}
+
+type HeadersConfig =
+  | boolean
+  | Record<string, string>
+  | ((defaults: SecurityHeader[]) => SecurityHeader[])
+
+interface NextjsToolsConfig {
+  headers?: HeadersConfig
+  images?: NextConfig['images']
+  transpilePackages?: string[]
+  typescript?: NextConfig['typescript']
+}
+```
+
+## Exports
+
+```tsx
+import { withVitusLabs, securityHeaders } from '@vitus-labs/tools-nextjs'
+
+import type {
+  HeadersConfig,
+  NextjsToolsConfig,
+  SecurityHeader,
+} from '@vitus-labs/tools-nextjs'
+```

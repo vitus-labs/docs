@@ -1,0 +1,558 @@
+---
+title: Utilities
+description: Object manipulation, function composition, and React helpers exported from @vitus-labs/core.
+---
+
+`@vitus-labs/core` re-exports a set of utility functions used throughout the UI system. They are also available for use in your application code.
+
+## Quick Reference
+
+| Utility | Mutates | Depth | Null-safe | Description |
+|---------|---------|-------|-----------|-------------|
+| `omit` | No | Shallow | Yes | Exclude keys from object |
+| `pick` | No | Shallow | Yes | Include only specified keys |
+| `get` | No | Deep | Yes | Read nested value by path |
+| `set` | **Yes** | Deep | No | Write nested value by path |
+| `merge` | **Yes** | Deep (objects) | Yes | Deep merge multiple objects |
+| `isEmpty` | No | — | Yes | Type-safe emptiness check |
+| `isEqual` | No | Deep | Yes | Deep equality comparison |
+| `compose` | No | — | No | Right-to-left function composition |
+| `throttle` | No | — | No | Rate-limit function execution |
+| `render` | No | — | Yes | Flexible React element renderer |
+| `useStableValue` | No | — | Yes | Stabilize value via deep equality |
+| `hoistNonReactStatics` | **Yes** (target) | Prototype chain | No | Copy statics between components |
+
+## Object Utilities
+
+### omit
+
+Creates a new object excluding specified keys.
+
+```tsx
+import { omit } from '@vitus-labs/core'
+
+omit({ a: 1, b: 2, c: 3 }, ['b'])     // { a: 1, c: 3 }
+omit({ x: 10, y: 20 })                // { x: 10, y: 20 } (shallow copy)
+omit(null)                             // {}
+omit(undefined)                        // {}
+```
+
+**Signature:**
+```tsx
+omit<T extends Record<string, any>>(
+  obj: T | null | undefined,
+  keys?: readonly (string | keyof T)[]
+): Partial<T>
+```
+
+**Behavior:**
+- Returns `{}` if `obj` is null or undefined
+- Returns a shallow copy of the entire object if `keys` is not provided or empty
+- Uses a `Set` internally for O(1) key lookup during iteration
+- Only includes **own properties** (inherited properties are excluded)
+- Non-existent keys in the exclusion list are safely ignored
+
+### pick
+
+Creates a new object with only the specified keys. Complement to `omit`.
+
+```tsx
+import { pick } from '@vitus-labs/core'
+
+pick({ a: 1, b: 2, c: 3 }, ['a', 'c'])  // { a: 1, c: 3 }
+pick({ a: 1 }, ['a', 'b', 'c'])         // { a: 1 } (missing keys skipped)
+pick(null, ['a'])                         // {}
+pick({ a: 1 })                           // { a: 1 } (shallow copy)
+```
+
+**Signature:**
+```tsx
+pick<T extends Record<string, any>>(
+  obj: T | null | undefined,
+  keys?: readonly (string | keyof T)[]
+): Partial<T>
+```
+
+**Behavior:**
+- Returns `{}` if `obj` is null or undefined
+- Returns a shallow copy of the entire object if `keys` is not provided or empty
+- Non-existent keys in the pick list are silently ignored
+- Only picks **own properties** (inherited properties are never included)
+
+### get
+
+Retrieves a nested value using dot/bracket path notation.
+
+```tsx
+import { get } from '@vitus-labs/core'
+
+const data = { a: { b: { c: 42 } }, items: [10, 20, 30] }
+
+get(data, 'a.b.c')              // 42
+get(data, 'items[1]')           // 20
+get(data, 'items.1')            // 20 (dot notation works for arrays)
+get(data, 'x.y', 'fallback')   // 'fallback'
+get({ a: 0 }, 'a', 'default')  // 0 (falsy values preserved)
+get({ a: undefined }, 'a', 'd') // 'd' (undefined triggers default)
+get({ a: null }, 'a.b', 'fb')  // 'fb' (null at intermediate step)
+get(data, ['a', 'b', 'c'])     // 42 (array path)
+```
+
+**Signature:**
+```tsx
+get(obj: any, path: string | string[], defaultValue?: any): any
+```
+
+**Path syntax:**
+- **Dot notation:** `'a.b.c'` — splits into `['a', 'b', 'c']`
+- **Bracket notation:** `'items[0]'` or `'a[b][c]'`
+- **Mixed:** `'data.items[2].name'`
+- **Array form:** `['a', 'b', 'c']` — bypasses parsing, used directly
+
+Path parsing uses the regex `/[^.[\]]+/g` which matches sequences not containing `.`, `[`, or `]`.
+
+**Return behavior:**
+- Returns the value at the path if it exists and is not `undefined`
+- Returns `defaultValue` if any intermediate segment is null/undefined
+- Returns `defaultValue` if the final value is `undefined`
+- **Preserves falsy values:** `0`, `false`, `''`, and `null` at the final path position are returned as-is (not replaced with `defaultValue`)
+- Empty path array returns the root object itself
+
+### set
+
+Sets a nested value by path, auto-creating intermediate objects/arrays. **Mutates the input object.**
+
+```tsx
+import { set } from '@vitus-labs/core'
+
+const obj = {}
+set(obj, 'a.b.c', 42)           // obj → { a: { b: { c: 42 } } }
+set({}, 'items[0]', 'first')    // { items: ['first'] }
+set({}, 'items.0', 'first')     // { items: ['first'] }
+set({}, 'a.0.b', 'x')           // { a: [{ b: 'x' }] }
+```
+
+**Signature:**
+```tsx
+set(
+  obj: Record<string, any>,
+  path: string | string[],
+  value: any
+): Record<string, any>
+```
+
+**Behavior:**
+- **Mutates the input object** and returns it (same reference)
+- Auto-creates intermediate containers based on the next path segment:
+  - Numeric segment (matches `/^\d+$/`) → creates an array `[]`
+  - Non-numeric segment → creates an object `{}`
+- Empty path results in a no-op (returns object unchanged)
+- Path parsing uses the same regex as `get()`
+
+**Prototype pollution protection:**
+
+`set()` blocks the following unsafe keys at any position in the path:
+- `__proto__`
+- `constructor`
+- `prototype`
+
+If any segment in the path is unsafe, the entire operation is a **no-op** — the object is returned unchanged:
+
+```tsx
+set({}, '__proto__.polluted', true)    // No effect — returns {}
+set({}, 'a.constructor.b', true)       // No effect — returns {}
+set({}, 'a.__proto__', true)           // No effect — returns {}
+```
+
+### merge
+
+Deep merges source objects into target. **Mutates the target.**
+
+```tsx
+import { merge } from '@vitus-labs/core'
+
+const target = { a: { x: 1 }, b: 2 }
+merge(target, { a: { y: 2 }, c: 3 }, { a: { z: 3 } })
+// target → { a: { x: 1, y: 2, z: 3 }, b: 2, c: 3 }
+
+// Arrays are replaced (not merged)
+merge({ items: [1, 2] }, { items: [3] })
+// → { items: [3] }
+
+// Multiple sources, last wins
+merge({ a: 1 }, { a: 2 }, { a: 3 })
+// → { a: 3 }
+```
+
+**Signature:**
+```tsx
+merge<T extends Record<string, any>>(
+  target: T,
+  ...sources: Record<string, any>[]
+): T
+```
+
+**Recursion rules:**
+- **Plain objects** (where `Object.getPrototypeOf(value) === Object.prototype`): Recursively merged
+- **Arrays:** Replaced wholesale (source array replaces target array)
+- **Class instances:** Assigned by reference (not deep copied or recursed)
+- **Date, RegExp, Map, Set:** Assigned by reference
+
+**Additional behavior:**
+- `null` or `undefined` sources are silently skipped
+- Last source wins in case of key conflicts
+- Returns the mutated `target` (same reference)
+
+**Prototype pollution protection:**
+
+`merge()` skips the following keys in every source:
+- `__proto__`
+- `constructor`
+- `prototype`
+
+### isEmpty
+
+Type-safe emptiness check for objects, arrays, null, and undefined.
+
+```tsx
+import { isEmpty } from '@vitus-labs/core'
+
+isEmpty(null)          // true
+isEmpty(undefined)     // true
+isEmpty({})            // true
+isEmpty([])            // true
+isEmpty('')            // true (falsy → true)
+isEmpty(0)             // true (falsy → true)
+isEmpty({ a: 1 })     // false
+isEmpty([1, 2])        // false
+```
+
+**Signature:**
+```tsx
+isEmpty<T extends Record<number | string, any> | any[] | null | undefined>(
+  param: T
+): T extends null | undefined
+  ? true
+  : keyof T extends never
+    ? true
+    : T extends T[]
+      ? T[number] extends never
+        ? true
+        : false
+      : false
+```
+
+**Algorithm:**
+1. `!param` → `true` (catches `null`, `undefined`, `false`, `0`, `''`)
+2. `typeof param !== 'object'` → `true` (non-objects treated as empty)
+3. `Array.isArray(param)` → `param.length === 0`
+4. Otherwise → `Object.keys(param).length === 0`
+
+**Type narrowing:**
+
+The return type uses conditional types, enabling TypeScript to narrow the input type after the check:
+
+```tsx
+const value: { a: number } | null = getConfig()
+
+if (isEmpty(value)) {
+  // TypeScript knows: value is null
+} else {
+  // TypeScript knows: value is { a: number }
+  console.log(value.a)
+}
+```
+
+### isEqual
+
+Deep equality check for plain objects, arrays, and primitives.
+
+```tsx
+import { isEqual } from '@vitus-labs/core'
+
+isEqual({ a: { b: 1 } }, { a: { b: 1 } })  // true
+isEqual([1, 2, 3], [1, 2, 3])               // true
+isEqual({ a: 1 }, { a: 1, b: 2 })           // false
+isEqual(NaN, NaN)                            // true (via Object.is)
+isEqual(null, undefined)                     // false
+isEqual(1, 1)                                // true
+```
+
+**Signature:**
+```tsx
+isEqual(a: unknown, b: unknown): boolean
+```
+
+**Algorithm:**
+1. `Object.is(a, b)` — handles same reference, `NaN === NaN`, `+0 === -0`
+2. Type check — returns `false` if types differ or either is `null`
+3. **Arrays:** Compares element-by-element recursively; returns `false` if lengths differ
+4. **Objects:** Compares all keys recursively; returns `false` if key counts differ
+
+**Limitations:**
+- Does **not** handle `Date`, `RegExp`, `Map`, `Set`, or other special objects (compared by reference)
+- Does **not** detect circular references (will infinite loop)
+- Key order does not matter for objects
+
+**Primary use case:** Theme/props comparison in `useStableValue` and the `Provider`.
+
+## Function Utilities
+
+### compose
+
+Right-to-left function composition. `compose(f, g, h)(x)` equals `f(g(h(x)))`.
+
+```tsx
+import { compose } from '@vitus-labs/core'
+
+const double = (x: number) => x * 2
+const addOne = (x: number) => x + 1
+const toString = (x: number) => String(x)
+
+const transform = compose(toString, addOne, double)
+transform(3)  // double(3)=6, addOne(6)=7, toString(7)='7'
+```
+
+**Signature:**
+```tsx
+compose<T extends ArityOneFn[]>(
+  ...fns: T
+): (p: FirstFnParameterType<T>) => LastFnReturnType<T>
+```
+
+**Type inference:**
+- Input type is inferred from the **rightmost** function's parameter
+- Return type is inferred from the **leftmost** function's return type
+- Full type safety across the composition chain
+
+**Implementation:** Uses `Array.reduceRight` — starts with the argument, applies functions from right to left.
+
+**Primary use case:** Building HOC (Higher-Order Component) chains:
+
+```tsx
+const Enhanced = compose(
+  withTheme,
+  withLogger,
+  withErrorBoundary,
+)(BaseComponent)
+```
+
+### throttle
+
+Limits function execution to at most once per `wait` milliseconds.
+
+```tsx
+import { throttle } from '@vitus-labs/core'
+
+const handleResize = throttle(() => {
+  console.log('resized', window.innerWidth)
+}, 200)
+
+window.addEventListener('resize', handleResize)
+
+// Cancel pending trailing call
+handleResize.cancel()
+```
+
+**Signature:**
+```tsx
+throttle<T extends (...args: any[]) => any>(
+  fn: T,
+  wait?: number,
+  options?: { leading?: boolean; trailing?: boolean }
+): T & { cancel: () => void }
+```
+
+**Parameters:**
+
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `fn` | `T` | — | Function to throttle |
+| `wait` | `number` | `0` | Milliseconds between invocations |
+| `options.leading` | `boolean` | `true` | Invoke immediately on first call |
+| `options.trailing` | `boolean` | `true` | Invoke once more after wait elapses |
+
+**Behavior matrix:**
+
+| leading | trailing | First call | After wait period |
+|---------|----------|-----------|-------------------|
+| `true` (default) | `true` (default) | Invoked immediately | Latest args invoked |
+| `false` | `true` | Skipped | Args invoked |
+| `true` | `false` | Invoked immediately | Skipped |
+| `false` | `false` | Skipped | Skipped |
+
+**Trailing call behavior:** When multiple calls happen within the wait period, only the **latest arguments** are used for the trailing invocation.
+
+**Cancel:** The `.cancel()` method clears any pending timeout and resets the throttle state. The next call after cancel starts a fresh throttle cycle.
+
+**Timing:** Uses `Date.now()` for timestamps and `setTimeout` for deferred trailing calls.
+
+```tsx
+// Leading-only (fire immediately, no trailing)
+const leadingOnly = throttle(fn, 100, { trailing: false })
+
+// Trailing-only (debounce-like, fire after quiet period)
+const trailingOnly = throttle(fn, 100, { leading: false })
+```
+
+## React Utilities
+
+### render
+
+Flexible React element renderer that handles primitives, components, elements, arrays, fragments, and render functions.
+
+```tsx
+import { render } from '@vitus-labs/core'
+
+// Primitives — returned as-is
+render('hello')     // 'hello'
+render(42)          // 42
+
+// Component type — created with props
+render(MyIcon, { size: 24 })
+// → createElement(MyIcon, { size: 24 })
+
+// Valid element — cloned with additional props
+render(<MyIcon />, { size: 24 })
+// → cloneElement(<MyIcon />, { size: 24 })
+
+// Render function — called with props
+render((props) => <div>{props.label}</div>, { label: 'hello' })
+// → <div>hello</div>
+
+// Falsy values → null
+render(null)     // null
+render(false)    // null
+render(undefined) // null
+
+// Arrays and fragments — returned as-is
+render([<A key="a" />, <B key="b" />])  // returned directly
+render(<>{children}</>)                  // returned directly
+```
+
+**Signature:**
+```tsx
+render<T extends Record<string, any> | undefined>(
+  content?: ReactNode | ComponentType | RenderProps<T>,
+  attachProps?: T
+): ReturnType<typeof createElement> | ReturnType<typeof cloneElement> | null
+```
+
+**Resolution order:**
+
+1. **Falsy content** → returns `null`
+2. **Primitives** (`string`, `number`, `boolean`, `bigint`) → returned as-is (React renders them as text)
+3. **Arrays or Fragments** → returned as-is (React handles rendering)
+4. **Valid component type** (checked via `isValidElementType` from `react-is`) → created with `createElement(content, attachProps)`
+5. **Valid React element** (checked via `isValidElement`) → if `attachProps` is empty, returned as-is; otherwise cloned with `cloneElement(content, attachProps)`
+6. **Everything else** → returned as-is
+
+**Dependencies:** Uses `react-is` for type checks (`isFragment`, `isValidElementType`, `isValidElement`).
+
+**Primary use case:** The `elements` package uses `render()` to handle flexible `beforeContent`/`afterContent`/`content` props that accept components, elements, or render functions.
+
+### useStableValue
+
+React hook that returns a referentially stable version of a value. The reference only updates when the value changes (deep equality via `isEqual`).
+
+```tsx
+import { useStableValue } from '@vitus-labs/core'
+
+function MyComponent({ config }) {
+  // config might be a new object reference on every render
+  const stableConfig = useStableValue(config)
+
+  useEffect(() => {
+    // Only runs when config content actually changes
+    applyConfig(stableConfig)
+  }, [stableConfig])
+}
+```
+
+**Signature:**
+```tsx
+useStableValue<T>(value: T): T
+```
+
+**Implementation:**
+```tsx
+const ref = useRef(value)
+if (!isEqual(ref.current, value)) {
+  ref.current = value
+}
+return ref.current
+```
+
+**Behavior:**
+- First render: returns the initial value
+- Subsequent renders: if `isEqual(prev, next)` is `true`, returns the **previous** reference (same object)
+- If not equal: updates `ref.current` to the new value and returns it
+
+**Use case in core:** The `Provider` stabilizes its context value `{ theme, ...props }` to prevent unnecessary re-renders of consumers when the parent re-renders with a structurally identical theme object.
+
+**Performance note:** Deep comparison on every render. Best suited for small-to-medium objects (themes, configs). Avoid for large data structures.
+
+### hoistNonReactStatics
+
+Copies non-React static properties from a source component to a target component. Essential in HOC patterns to preserve static methods.
+
+```tsx
+import { hoistNonReactStatics } from '@vitus-labs/core'
+
+function withFeature(Component) {
+  const Wrapped = (props) => <Component {...props} feature />
+  hoistNonReactStatics(Wrapped, Component)
+  return Wrapped
+}
+
+// Static methods from Component are now available on Wrapped
+```
+
+**Signature:**
+```tsx
+hoistNonReactStatics<T, S>(
+  target: T,
+  source: S,
+  excludeList?: Record<string, true>
+): T
+```
+
+**Parameters:**
+- `target` — Wrapper component to copy properties **to**
+- `source` — Original component to copy properties **from**
+- `excludeList` — Optional set of property names to skip (keys are property names, values are `true`)
+
+**What gets skipped (never hoisted):**
+
+React-specific statics:
+```
+childContextTypes, contextType, contextTypes, defaultProps, displayName,
+getDefaultProps, getDerivedStateFromError, getDerivedStateFromProps,
+mixins, propTypes, type
+```
+
+JavaScript built-ins:
+```
+name, length, prototype, caller, callee, arguments, arity
+```
+
+For `forwardRef` components, additional skips:
+```
+$$typeof, render, defaultProps, displayName, propTypes
+```
+
+For `memo` components, additional skips:
+```
+$$typeof, compare, defaultProps, displayName, propTypes, type
+```
+
+**Component type detection:**
+- Detects `forwardRef` via `Symbol.for('react.forward_ref')`
+- Detects `memo` via `isMemo()` from `react-is`
+- Uses type-specific skip lists for each
+
+**Descriptor preservation:**
+- Uses `Object.getOwnPropertyDescriptor` + `Object.defineProperty` to preserve getters, setters, and non-writable properties
+- Includes Symbol properties via `Object.getOwnPropertySymbols`
+- Walks the prototype chain recursively to hoist inherited statics
+- Non-configurable properties are silently skipped (try/catch)

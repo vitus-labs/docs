@@ -1,0 +1,336 @@
+---
+title: API Reference
+description: Unit conversion, alignment, edge shorthands, and utility functions.
+---
+
+## Unit Conversion
+
+The unit conversion system automatically converts unitless numbers to CSS rem values (web) or px (native). All convert-type property descriptors use this system.
+
+**Conversion rules:**
+- Unitless numbers → divided by `rootSize` and output as rem (web) or px (native)
+- Zero → always unitless `0`
+- Strings with units (e.g. `'16px'`, `'2em'`) → passed through unchanged
+- Keywords (e.g. `'auto'`, `'inherit'`) → passed through unchanged
+- `null` / `undefined` → skipped (no CSS output)
+
+### stripUnit()
+
+```tsx
+stripUnit<V>(value: V, unitReturn?: boolean): number | [number, string]
+```
+
+Removes CSS unit suffix from a value. Uses regex `/^([+-]?(?:\d+|\d*\.\d+))([a-z]*|%)$/`.
+
+```tsx
+import { stripUnit } from '@vitus-labs/unistyle'
+
+stripUnit('16px')      // 16
+stripUnit('1.5rem')    // 1.5
+stripUnit(16)          // 16
+stripUnit('invalid')   // 'invalid' (non-matching strings returned as-is)
+
+// With unit return (tuple mode)
+stripUnit('16px', true)    // [16, 'px']
+stripUnit('1.5rem', true)  // [1.5, 'rem']
+stripUnit(16, true)        // [16, undefined]
+stripUnit('50%', true)     // [50, '%']
+```
+
+### value()
+
+```tsx
+value(
+  param: string | number | null | undefined,
+  rootSize?: number,    // Default: 16
+  outputUnit?: CssUnits // Default: 'rem' (web), 'px' (native)
+): string | number | null
+```
+
+Converts a single value to CSS with unit conversion.
+
+**Supported `CssUnits`:** `'px'` | `'rem'` | `'%'` | `'em'` | `'ex'` | `'cm'` | `'mm'` | `'in'` | `'pt'` | `'pc'` | `'ch'` | `'vh'` | `'vw'` | `'vmin'` | `'vmax'`
+
+```tsx
+import { value } from '@vitus-labs/unistyle'
+
+// Number → rem (default web behavior)
+value(16, 16)              // '1rem'     (16 / 16 = 1)
+value(24, 16)              // '1.5rem'   (24 / 16 = 1.5)
+value(8, 16)               // '0.5rem'   (8 / 16 = 0.5)
+
+// Zero → always unitless
+value(0, 16)               // 0
+
+// Explicit output unit
+value(16, 16, 'px')        // '16px'
+value(16, 16, 'rem')       // '1rem'
+
+// String with unit → unchanged (unless px→rem conversion)
+value('1.5rem', 16)        // '1.5rem'
+value('16px', 16, 'rem')   // '1rem' (px→rem: strips px, divides by rootSize)
+value('auto', 16)          // 'auto'
+value('calc(100% - 16px)') // 'calc(100% - 16px)'
+
+// Null/undefined → null (no CSS emitted)
+value(null, 16)            // null
+value(undefined, 16)       // null
+```
+
+### values()
+
+```tsx
+values(
+  values: unknown[],
+  rootSize?: number,
+  outputUnit?: CssUnits
+): string | number | null
+```
+
+Picks the **first non-null/undefined** value from the array, then converts it. If the picked value is itself an array, each item is converted and joined with spaces (useful for shorthand properties).
+
+```tsx
+import { values } from '@vitus-labs/unistyle'
+
+values([undefined, 16, 24], 16)              // '1rem' (picks 16, converts)
+values([undefined, [8, 16], undefined], 16)  // '0.5rem 1rem' (picks [8,16], converts each)
+values([0, 8], 16)                           // 0 (picks 0, zero is unitless)
+values([null, undefined], 16)                // null (nothing found)
+```
+
+## Semantic Alignment
+
+### alignContent()
+
+Converts semantic direction/alignment props to flex CSS:
+
+```tsx
+import { alignContent } from '@vitus-labs/unistyle'
+
+alignContent({
+  direction: 'inline',
+  alignX: 'center',
+  alignY: 'top',
+})
+// → flex-direction: row;
+//   justify-content: center;
+//   align-items: flex-start;
+```
+
+**Parameters:**
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `direction` | `'inline' \| 'rows' \| 'reverseInline' \| 'reverseRows'` | Flex direction |
+| `alignX` | `'left' \| 'center' \| 'right' \| 'spaceBetween' \| 'spaceAround' \| 'block'` | Horizontal alignment |
+| `alignY` | `'top' \| 'center' \| 'bottom' \| 'spaceBetween' \| 'spaceAround' \| 'block'` | Vertical alignment |
+
+### Direction Mappings
+
+| Direction | CSS | Axis Behavior |
+|-----------|-----|--------------|
+| `inline` | `flex-direction: row` | justifyContent ← alignX, alignItems ← alignY |
+| `reverseInline` | `flex-direction: row-reverse` | Same as inline |
+| `rows` | `flex-direction: column` | justifyContent ← alignY, alignItems ← alignX |
+| `reverseRows` | `flex-direction: column-reverse` | Same as rows |
+
+### Alignment Value Mappings
+
+**alignX:**
+
+| Value | CSS |
+|-------|-----|
+| `left` | `flex-start` |
+| `right` | `flex-end` |
+| `center` | `center` |
+| `spaceBetween` | `space-between` |
+| `spaceAround` | `space-around` |
+| `block` | `stretch` |
+
+**alignY:**
+
+| Value | CSS |
+|-------|-----|
+| `top` | `flex-start` |
+| `bottom` | `flex-end` |
+| `center` | `center` |
+| `spaceBetween` | `space-between` |
+| `spaceAround` | `space-around` |
+| `block` | `stretch` |
+
+### Axis Swapping
+
+For row-like directions (`inline`, `reverseInline`):
+- `alignItems` ← Y-axis alignment
+- `justifyContent` ← X-axis alignment
+
+For column-like directions (`rows`, `reverseRows`):
+- `alignItems` ← X-axis alignment
+- `justifyContent` ← Y-axis alignment
+
+This means you always think in terms of horizontal (X) and vertical (Y), regardless of flex direction.
+
+## extendCss()
+
+Evaluates custom CSS — accepts a callback or string:
+
+```tsx
+import { extendCss } from '@vitus-labs/unistyle'
+
+// Function form
+extendCss((css) => css`
+  &:hover { opacity: 0.8; }
+  &::before { content: '→'; }
+`)
+
+// String form
+extendCss('&:focus { outline: 2px solid blue; }')
+
+// Null/undefined → empty string
+extendCss(null) // ''
+```
+
+## styles()
+
+```tsx
+styles({
+  theme: Record<string, unknown>,  // Resolved theme values (CSS property map)
+  css: Css,                        // CSS engine function (from core config)
+  rootSize?: number,               // Root font size for unit conversion (default: 16)
+}): ReturnType<typeof css>         // CSS result (class name + rules)
+```
+
+Core CSS processor — iterates the full property map and produces a single CSS result. Each property is processed according to its descriptor type (simple, convert, edge, border-radius, or special).
+
+```tsx
+import { styles } from '@vitus-labs/unistyle'
+
+const result = styles({
+  theme: {
+    display: 'flex',
+    fontSize: 16,         // convert: 16/16 = 1rem
+    margin: 8,            // edge: 0.5rem on all sides
+    borderRadius: 4,      // border-radius: 0.25rem
+    fullScreen: true,     // special: position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+    color: 'red',         // simple: color: red;
+  },
+  css: config.css,
+  rootSize: 16,
+})
+```
+
+Properties with `null`/`undefined` values are silently skipped — no CSS is emitted for them.
+
+## Breakpoint Utilities
+
+### Breakpoint Semantics
+
+Breakpoints use **mobile-first min-width** with **em units**:
+
+- Breakpoint value `0` (typically `xs`) → no media query wrapper, styles apply at all widths
+- All other breakpoints → `@media only screen and (min-width: <value_em>)`
+- Values are converted from px to em: `breakpoint_px / rootSize = value_em`
+- Breakpoints are **inclusive** — `min-width: 48em` includes exactly 48em and above
+- Em units are used instead of px so media queries respect user font-size settings
+
+| Breakpoint | px | em (rootSize=16) | Media Query |
+|---|---|---|---|
+| `xs: 0` | 0 | — | No wrapper |
+| `sm: 576` | 576px | 36em | `@media only screen and (min-width: 36em)` |
+| `md: 768` | 768px | 48em | `@media only screen and (min-width: 48em)` |
+| `lg: 992` | 992px | 62em | `@media only screen and (min-width: 62em)` |
+| `xl: 1200` | 1200px | 75em | `@media only screen and (min-width: 75em)` |
+
+### sortBreakpoints()
+
+Sorts breakpoint keys by pixel value (ascending):
+
+```tsx
+import { sortBreakpoints } from '@vitus-labs/unistyle'
+
+sortBreakpoints({ lg: 992, xs: 0, md: 768, sm: 576 })
+// ['xs', 'sm', 'md', 'lg']
+```
+
+### createMediaQueries()
+
+Builds breakpoint name → media query template functions:
+
+```tsx
+import { createMediaQueries } from '@vitus-labs/unistyle'
+
+const media = createMediaQueries({
+  breakpoints: { xs: 0, sm: 576, md: 768 },
+  css: config.css,
+  rootSize: 16,
+})
+
+media.xs`font-size: 12px;`  // No @media wrapper (applied at all widths)
+media.sm`font-size: 14px;`  // @media only screen and (min-width: 36em) { ... }
+media.md`font-size: 16px;`  // @media only screen and (min-width: 48em) { ... }
+```
+
+### Color
+
+<AutoTypeTable path="./src/types/unistyle.ts" name="Color" />
+
+### PropertyValue
+
+<AutoTypeTable path="./src/types/unistyle.ts" name="PropertyValue" />
+
+### UnitValue
+
+<AutoTypeTable path="./src/types/unistyle.ts" name="UnitValue" />
+
+### normalizeTheme()
+
+```tsx
+normalizeTheme({
+  theme: Record<string, unknown>,
+  breakpoints: string[],
+}): Record<string, unknown>
+```
+
+Ensures every responsive theme property has a value for every breakpoint, preventing gaps in responsive rendering.
+
+**Fast path:** If no property is an array or object (all scalars), returns theme as-is.
+
+**Array values** — filled by index, last value carries forward:
+
+```tsx
+normalizeTheme(
+  { fontSize: [12, 14], color: 'red' },
+  ['xs', 'sm', 'md', 'lg']
+)
+// {
+//   fontSize: { xs: 12, sm: 14, md: 14, lg: 14 },  ← 14 carries forward
+//   color: 'red'                                      ← scalars untouched
+// }
+```
+
+**Object values** — missing breakpoints remain undefined (no carry-forward from previous):
+
+```tsx
+normalizeTheme(
+  { fontSize: { sm: 14, lg: 18 } },
+  ['xs', 'sm', 'md', 'lg']
+)
+// { fontSize: { xs: undefined, sm: 14, md: undefined, lg: 18 } }
+```
+
+### transformTheme()
+
+Pivots from property-centric to breakpoint-centric. Consecutive breakpoints with identical values are deduplicated (optimization):
+
+```tsx
+import { transformTheme } from '@vitus-labs/unistyle'
+
+transformTheme(
+  { fontSize: { xs: 12, sm: 12, md: 16 }, color: 'red' },
+  ['xs', 'sm', 'md']
+)
+// {
+//   xs: { fontSize: 12, color: 'red' },
+//   md: { fontSize: 16 }              ← sm omitted (same as xs)
+// }
+```

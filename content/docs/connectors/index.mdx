@@ -1,0 +1,190 @@
+---
+title: Connectors
+description: CSS engine adapters — switch between Styler, styled-components, or Emotion.
+---
+
+Connectors are adapter packages that standardize how different CSS-in-JS libraries integrate with the Vitus Labs UI System. They allow switching between CSS engines without changing component code.
+
+## Why Connectors?
+
+All vitus-labs components depend on `@vitus-labs/core`, not on a specific CSS-in-JS library. The connector system:
+
+1. **Decouples components from CSS engines** — write once, run with any supported engine
+2. **Provides a unified interface** — all connectors implement the same `CSSEngineConnector` shape
+3. **Enables runtime engine selection** — call `init()` at startup to choose your engine
+4. **Supports lazy initialization** — destructured functions work before `init()` is called
+
+## CSSEngineConnector Interface
+
+Every connector exports these functions:
+
+| Export | Type | Required | Description |
+|--------|------|----------|-------------|
+| `css` | Tagged template | Yes | Create composable CSS fragments |
+| `styled` | Component factory | Yes | `styled(tag)\`...\`` → React component |
+| `provider` | `FC<{ theme, children }>` | Yes | ThemeProvider component |
+| `keyframes` | Tagged template | No | Define keyframe animations |
+| `createGlobalStyle` | Tagged template | No | Create global CSS |
+| `useTheme` | `() => theme` | No | Access current theme |
+
+## Available Connectors
+
+### connector-styler (Recommended)
+
+Uses the built-in `@vitus-labs/styler` engine. Lightweight (~3KB gzipped), purpose-built for the UI system.
+
+```package-install
+@vitus-labs/connector-styler
+```
+
+```tsx
+import { init } from '@vitus-labs/core'
+import {
+  css,
+  styled,
+  provider,
+  keyframes,
+  createGlobalStyle,
+  useTheme,
+} from '@vitus-labs/connector-styler'
+
+init({ css, styled, provider, keyframes, createGlobalStyle, useTheme })
+```
+
+**Implementation:** Pure pass-through — re-exports `@vitus-labs/styler` functions directly.
+
+### connector-styled-components
+
+Uses `styled-components` (v6+) for applications already using it.
+
+```package-install
+@vitus-labs/connector-styled-components
+```
+
+```tsx
+import { init } from '@vitus-labs/core'
+import {
+  css,
+  styled,
+  provider,
+  keyframes,
+  createGlobalStyle,
+  useTheme,
+} from '@vitus-labs/connector-styled-components'
+
+init({ css, styled, provider, keyframes, createGlobalStyle, useTheme })
+```
+
+**Implementation:** Pure pass-through — re-exports `styled-components` functions directly.
+
+**Peer dependency:** `styled-components >= 6`
+
+### connector-emotion
+
+Uses `@emotion/react` + `@emotion/styled` with an adapter layer for CSS composition compatibility.
+
+```package-install
+@vitus-labs/connector-emotion
+```
+
+```tsx
+import { init } from '@vitus-labs/core'
+import {
+  css,
+  styled,
+  provider,
+  keyframes,
+  createGlobalStyle,
+  useTheme,
+} from '@vitus-labs/connector-emotion'
+
+init({ css, styled, provider, keyframes, createGlobalStyle, useTheme })
+```
+
+**Implementation:** Adapter wrapping Emotion's APIs to match styled-components' CSS composition pattern.
+
+The adapter handles:
+- **Static templates** → returns plain string (fast path, no overhead)
+- **Static values** (all interpolations are strings/numbers) → builds string directly (second fast path)
+- **Dynamic templates** (with function interpolations) → returns `(props) => string` thunk that Emotion's styled resolves at render time
+- **`createGlobalStyle`** → wraps Emotion's `<Global>` component to match the styled-components API
+
+Internally, the adapter uses a `resolveValue()` helper that recursively resolves interpolation values:
+- `null`/`false`/`true` → empty string
+- Functions → called with props, then recursed
+- Arrays → each element recursed and joined
+- Primitives → converted to string
+
+**Peer dependencies:** `@emotion/react >= 11`, `@emotion/styled >= 11`
+
+## How init() Works
+
+The `init()` function from `@vitus-labs/core` registers the CSS engine:
+
+```tsx
+import { init } from '@vitus-labs/core'
+
+init({
+  css,              // Required: tagged template for CSS fragments
+  styled,           // Required: component factory
+  provider,         // Required: ThemeProvider
+  keyframes,        // Optional: keyframe animations
+  createGlobalStyle, // Optional: global styles
+  useTheme,         // Optional: theme hook
+})
+```
+
+### Lazy Delegate Pattern
+
+The core uses a lazy delegate pattern, so you can destructure `config` at module level before `init()` is called:
+
+```tsx
+import { config } from '@vitus-labs/core'
+
+// These work even before init() — they delegate to the engine when called
+const { styled, css } = config
+
+// Later, in your app entry:
+init({ css: engineCss, styled: engineStyled, provider: engineProvider })
+
+// Now all styled/css calls from any module use the registered engine
+```
+
+## Choosing a Connector
+
+| Connector | Size | When to Use |
+|-----------|------|-------------|
+| **connector-styler** | ~3KB gzipped | New projects, best performance |
+| **connector-styled-components** | ~12KB gzipped | Existing styled-components codebase |
+| **connector-emotion** | ~11KB gzipped | Existing Emotion codebase |
+
+### Compatibility
+
+All connectors support:
+- CSS-in-CSS nesting (tagged template composition)
+- Dynamic interpolations (functions receiving props)
+- Theme context via provider
+- Keyframes and global styles
+
+### Switching Engines
+
+To switch engines, just change the import and reinstall dependencies:
+
+```tsx
+// Before: styled-components
+import * as connector from '@vitus-labs/connector-styled-components'
+
+// After: styler
+import * as connector from '@vitus-labs/connector-styler'
+
+// Same init call
+init(connector)
+```
+
+No component code changes required.
+
+## API Reference
+
+### CSSEngineConnector
+
+<AutoTypeTable path="./src/types/core.ts" name="CSSEngineConnector" />

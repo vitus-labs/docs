@@ -1,0 +1,428 @@
+---
+title: Themes & Styles
+description: Theme callbacks, CSS styles, light/dark mode switching, and $rocketstyle/$rocketstate props.
+---
+
+Rocketstyle separates **theme** (data) from **styles** (CSS). Themes define values as plain objects, styles consume them via `$rocketstyle` and `$rocketstate` in CSS-in-JS templates.
+
+## .theme() — Base Theme
+
+Defines the base theme object available to all dimensions. The base theme is the foundation — dimension themes are merged on top of it:
+
+```tsx
+const Button = rocketstyle()({
+  name: 'Button',
+  component: 'button',
+})
+  .theme((theme, mode, css) => ({
+    fontFamily: theme.fontFamily?.base ?? 'sans-serif',
+    borderRadius: '4px',
+    transition: 'all 0.2s ease',
+  }))
+```
+
+### Callback Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `theme` | `object` | Current theme from context (provided by `<Provider theme={...}>`) |
+| `mode` | `ThemeModeCallback` | `(lightValue, darkValue) => thunk` — light/dark mode selector |
+| `css` | `function` | Tagged template literal function from the CSS engine |
+
+### Multiple .theme() Calls
+
+Calling `.theme()` multiple times accumulates callbacks. Results are deep-merged in order:
+
+```tsx
+const Button = rocketstyle()({ name: 'Button', component: 'button' })
+  .theme(() => ({ borderRadius: '4px', padding: '8px' }))
+  .theme(() => ({ padding: '12px', color: 'blue' }))
+// Base theme: { borderRadius: '4px', padding: '12px', color: 'blue' }
+```
+
+## Dimension Theme Methods
+
+Each dimension key becomes a chainable method that defines dimension-specific values:
+
+```tsx
+.states((theme, mode, css) => ({
+  primary: {
+    backgroundColor: mode('blue', 'lightblue'),
+    color: mode('white', 'black'),
+  },
+  secondary: {
+    backgroundColor: mode('gray', 'darkgray'),
+    color: mode('black', 'white'),
+  },
+  danger: {
+    backgroundColor: 'red',
+    color: 'white',
+  },
+}))
+
+.sizes((theme, mode, css) => ({
+  sm: { fontSize: '12px', padding: '4px 8px' },
+  md: { fontSize: '14px', padding: '8px 16px' },
+  lg: { fontSize: '16px', padding: '12px 24px' },
+}))
+
+.variants((theme, mode, css) => ({
+  outlined: { border: '2px solid currentColor', backgroundColor: 'transparent' },
+  ghost: { backgroundColor: 'transparent', border: 'none' },
+}))
+```
+
+Each dimension method has the same callback signature as `.theme()`: `(theme, mode, css) => Record<string, ThemeValues>`.
+
+## .styles() — CSS Styles
+
+Defines the actual CSS that consumes `$rocketstyle` and `$rocketstate`:
+
+```tsx
+.styles((css) => css`
+  cursor: pointer;
+  border: none;
+  outline: none;
+  font-family: ${({ $rocketstyle }) => $rocketstyle.fontFamily};
+  font-size: ${({ $rocketstyle }) => $rocketstyle.fontSize};
+  padding: ${({ $rocketstyle }) => $rocketstyle.padding};
+  background-color: ${({ $rocketstyle }) => $rocketstyle.backgroundColor};
+  color: ${({ $rocketstyle }) => $rocketstyle.color};
+  border-radius: ${({ $rocketstyle }) => $rocketstyle.borderRadius};
+  transition: ${({ $rocketstyle }) => $rocketstyle.transition};
+
+  &:hover {
+    opacity: 0.9;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+`)
+```
+
+### Styles Callback
+
+The `.styles()` callback receives the CSS engine's `css` tagged template function. The returned CSS result is used to create a styled component wrapper.
+
+```tsx
+type StylesCb<CSS> = (css: RocketCss<CSS>) => ReturnType<Css>
+```
+
+### Interpolation Props
+
+Within the CSS template, interpolation functions receive typed props:
+
+```tsx
+type RocketStyleInterpolationProps<CSS> = {
+  $rocketstyle: CSS           // Computed theme (base + active dimensions)
+  $rocketstate: {
+    [dimensionProp: string]: string | string[]  // Active dimension values
+    pseudo: Partial<PseudoState>                // Pseudo-state flags
+  }
+} & Record<string, any>      // All other component props
+```
+
+## $rocketstyle Prop
+
+The computed theme object, merged from base theme + active dimension themes:
+
+```tsx
+// Given:
+.theme(() => ({ borderRadius: '4px' }))
+.states(() => ({ primary: { backgroundColor: 'blue', color: 'white' } }))
+.sizes(() => ({ lg: { fontSize: '16px' } }))
+
+// When rendered as:
+<Button state="primary" size="lg" />
+
+// $rocketstyle =
+{
+  borderRadius: '4px',        // from base theme
+  backgroundColor: 'blue',    // from states.primary
+  color: 'white',             // from states.primary
+  fontSize: '16px',           // from sizes.lg
+}
+```
+
+### Merge Order
+
+1. Start with mode-resolved base theme
+2. Merge active dimension themes in dimension definition order
+3. For multi-select dimensions, merge each selected value in array order
+4. Later values override earlier ones (deep merge via `merge()`)
+
+## $rocketstate Prop
+
+Contains the current dimension values and pseudo-states:
+
+```tsx
+.styles((css) => css`
+  ${({ $rocketstate }) => {
+    // Dimension values
+    console.log($rocketstate.state)   // 'primary'
+    console.log($rocketstate.size)    // 'lg'
+    console.log($rocketstate.variant) // undefined
+
+    // Pseudo-states
+    console.log($rocketstate.pseudo.hover)    // true/false
+    console.log($rocketstate.pseudo.focus)    // true/false
+    console.log($rocketstate.pseudo.pressed)  // true/false
+    console.log($rocketstate.pseudo.active)   // true/false
+    console.log($rocketstate.pseudo.disabled) // true/false
+    console.log($rocketstate.pseudo.readOnly) // true/false
+  }}
+`)
+```
+
+### Conditional Styling with $rocketstate
+
+```tsx
+.styles((css) => css`
+  ${({ $rocketstate }) => {
+    const { hover, focus, disabled } = $rocketstate.pseudo
+
+    if (disabled) {
+      return css`
+        opacity: 0.5;
+        cursor: not-allowed;
+        pointer-events: none;
+      `
+    }
+
+    if (hover) {
+      return css`background-color: darkblue;`
+    }
+
+    if (focus) {
+      return css`box-shadow: 0 0 0 2px rgba(0, 0, 255, 0.3);`
+    }
+  }}
+`)
+```
+
+## Light/Dark Mode
+
+### mode() Callback
+
+Used in `.theme()` and dimension callbacks to switch values based on the current color mode:
+
+```tsx
+.theme((theme, mode) => ({
+  backgroundColor: mode('#ffffff', '#1a1a1a'),
+  color: mode('#000000', '#ffffff'),
+  borderColor: mode('#e0e0e0', '#333333'),
+}))
+
+.states((theme, mode) => ({
+  primary: {
+    backgroundColor: mode('#0066cc', '#3399ff'),
+    color: mode('#ffffff', '#000000'),
+  },
+}))
+```
+
+### How mode() Works Internally
+
+The `mode(light, dark)` call returns a thunk function:
+
+```tsx
+themeModeCallback = (light, dark) => (mode) => {
+  if (!mode || mode === 'light') return light
+  return dark
+}
+```
+
+These thunks are stored in the theme object as-is. They are only resolved to concrete values by `getThemeByMode()` during the render pipeline, after the actual mode is known. This deferred resolution enables efficient caching — the same base theme can be cached independently of the mode.
+
+### Setting the Mode
+
+```tsx
+import { Provider } from '@vitus-labs/rocketstyle'
+
+<Provider theme={myTheme} mode="dark">
+  <App />
+</Provider>
+```
+
+The mode defaults to `'light'` when not specified.
+
+### Inversed Mode
+
+Nested providers can flip the mode:
+
+```tsx
+<Provider mode="light">
+  <LightSection />
+
+  <Provider inversed>
+    {/* Dark mode (inverted from parent light) */}
+    <DarkSection />
+
+    <Provider inversed>
+      {/* Back to light mode (double inversion) */}
+      <LightAgain />
+    </Provider>
+  </Provider>
+</Provider>
+```
+
+The inversion map is: `{ light: 'dark', dark: 'light' }`.
+
+Individual components can also be inversed via `.config({ inversed: true })`.
+
+## Theme Caching
+
+Rocketstyle uses multi-tier `WeakMap` caching to prevent unnecessary theme recalculation:
+
+```
+ThemeManager (per component instance)
+├── baseTheme:           WeakMap<themeObj, resolvedBase>
+├── dimensionsThemes:    WeakMap<themeObj, resolvedDimensions>
+├── modeBaseTheme:
+│   ├── light:           WeakMap<baseTheme, modeResolved>
+│   └── dark:            WeakMap<baseTheme, modeResolved>
+└── modeDimensionTheme:
+    ├── light:           WeakMap<dimThemes, modeResolved>
+    └── dark:            WeakMap<dimThemes, modeResolved>
+```
+
+### Cache Behavior
+
+- **WeakMap keys** are the context theme object and intermediate computed objects — GC-friendly
+- **baseTheme cache**: Stores result of evaluating all `.theme()` callbacks against the context theme
+- **dimensionsThemes cache**: Stores result of evaluating all dimension callbacks against the context theme
+- **modeBaseTheme cache**: Stores the mode-resolved base theme (one per mode)
+- **modeDimensionTheme cache**: Stores mode-resolved dimension themes (one per mode)
+
+When the context theme reference changes (new object), all caches miss and recompute. When only the mode changes, only the mode-specific caches recompute.
+
+### Content-Based Memoization
+
+The final `$rocketstyle` computation is memoized by serializing the active rocketstate values into a string key:
+
+```tsx
+// rocketstate = { state: 'primary', size: 'lg' }
+// → rsKey = 'stateprimarysizeig'
+```
+
+This avoids re-running `getTheme()` when dimension selections haven't changed, even though `rocketstate` is a fresh object each render.
+
+## Theme Resolution Functions
+
+### getThemeFromChain
+
+Evaluates accumulated `.theme()` callbacks:
+
+```tsx
+getThemeFromChain(callbacks, theme) → mergedBaseTheme
+```
+
+1. Reduces the array of callbacks
+2. Calls each with `(theme, themeModeCallback, config.css)`
+3. Deep-merges results via `merge()`
+
+### getDimensionThemes
+
+Evaluates all dimension callbacks:
+
+```tsx
+getDimensionThemes(theme, options) → { state: {...}, size: {...}, ... }
+```
+
+For each dimension key (e.g., `states`):
+1. Gets the accumulated callbacks from `options[dimensionKey]`
+2. Evaluates via `getThemeFromChain()`
+3. Strips `null`/`undefined`/`false` values via `removeNullableValues()`
+4. Stores under the prop name (e.g., `state`, not `states`)
+
+### getThemeByMode
+
+Recursively resolves mode callbacks to concrete values:
+
+```tsx
+getThemeByMode(themeObject, mode) → resolvedObject
+```
+
+Traverses the object tree. For each value:
+- If it's a mode callback function → calls `value(mode)` to get concrete value
+- If it's a nested object → recurses
+- Otherwise → keeps as-is
+
+### getTheme
+
+Merges base theme with active dimension themes:
+
+```tsx
+getTheme({ rocketstate, themes, baseTheme }) → $rocketstyle
+```
+
+1. Starts with `{ ...baseTheme }`
+2. For each dimension in rocketstate with an active value:
+   - Single value → deep-merge the matching dimension theme
+   - Array value (multi) → deep-merge each in order
+3. Returns the final merged object
+
+## Complete Example
+
+```tsx
+const Card = rocketstyle()({
+  name: 'Card',
+  component: 'div',
+})
+  .theme((theme, mode) => ({
+    background: mode('#ffffff', '#2a2a2a'),
+    color: mode('#1a1a1a', '#f0f0f0'),
+    borderColor: mode('#e0e0e0', '#444444'),
+    borderRadius: '8px',
+    transition: 'all 0.2s ease',
+  }))
+  .states((theme, mode) => ({
+    default: {},
+    highlighted: {
+      borderColor: mode('#0066cc', '#3399ff'),
+      boxShadow: mode(
+        '0 0 0 1px #0066cc',
+        '0 0 0 1px #3399ff'
+      ),
+    },
+    error: {
+      borderColor: 'red',
+      boxShadow: '0 0 0 1px red',
+    },
+  }))
+  .sizes((theme) => ({
+    sm: { padding: '12px', fontSize: '14px' },
+    md: { padding: '16px', fontSize: '16px' },
+    lg: { padding: '24px', fontSize: '18px' },
+  }))
+  .styles((css) => css`
+    border: 1px solid ${({ $rocketstyle }) => $rocketstyle.borderColor};
+    border-radius: ${({ $rocketstyle }) => $rocketstyle.borderRadius};
+    background: ${({ $rocketstyle }) => $rocketstyle.background};
+    color: ${({ $rocketstyle }) => $rocketstyle.color};
+    padding: ${({ $rocketstyle }) => $rocketstyle.padding};
+    font-size: ${({ $rocketstyle }) => $rocketstyle.fontSize};
+    transition: ${({ $rocketstyle }) => $rocketstyle.transition};
+    box-shadow: ${({ $rocketstyle }) => $rocketstyle.boxShadow ?? 'none'};
+  `)
+```
+
+## API Reference
+
+### StylesCb
+
+<AutoTypeTable path="./src/types/rocketstyle.ts" name="StylesCb" />
+
+### ThemeCb
+
+<AutoTypeTable path="./src/types/rocketstyle.ts" name="ThemeCb" />
+
+### ThemeModeCallback
+
+<AutoTypeTable path="./src/types/rocketstyle.ts" name="ThemeModeCallback" />
+
+### RocketStyleInterpolationProps
+
+<AutoTypeTable path="./src/types/rocketstyle.ts" name="RocketStyleInterpolationProps" />

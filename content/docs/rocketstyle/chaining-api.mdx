@@ -1,0 +1,426 @@
+---
+title: Chaining API
+description: All chainable methods — .config(), .attrs(), .theme(), .styles(), .compose(), .statics().
+---
+
+Every chaining method returns a **new** component instance (via `cloneAndEnhance`), enabling immutable composition and extension. The original component is never mutated.
+
+## Method Overview
+
+```tsx
+const Component = rocketstyle()(config)
+  .config(options)         // Override configuration
+  .attrs(propsOrFn)        // Default props
+  .theme(fn)               // Base theme
+  .styles(fn)              // CSS styles
+  .compose(hocs)           // Add/remove HOCs
+  .statics(staticValues)   // Static properties
+  .[dimensionKey](fn)      // Dimension-specific theme (e.g., .states(), .sizes())
+```
+
+## .config()
+
+Override component configuration:
+
+```tsx
+.config({
+  name?: string,               // Change display name
+  component?: ComponentType,   // Replace wrapped component
+  provider?: boolean,          // Enable pseudo-state broadcasting
+  consumer?: ConsumerCallback, // Consume parent provider context
+  DEBUG?: boolean,             // Log debug info to console
+  inversed?: boolean,          // Invert theme mode
+  passProps?: string[],        // Pass styling props to wrapped component
+  styled?: boolean,            // Wrap with styled component
+})
+```
+
+### Config Options in Detail
+
+#### name
+
+Changes the component's `displayName` for React DevTools and debug logging:
+
+```tsx
+const NavButton = Button.config({ name: 'NavButton' })
+// NavButton.displayName === 'NavButton'
+```
+
+#### component
+
+Replaces the wrapped component while keeping all theme/dimension configuration:
+
+```tsx
+const LinkButton = Button.config({ component: 'a' })
+// Renders as <a> with all Button's themes and styles
+```
+
+#### provider
+
+Enables pseudo-state broadcasting to child consumers. See [Provider & Consumer](/docs/rocketstyle/provider-consumer).
+
+```tsx
+const FormField = Field.config({ provider: true })
+```
+
+#### consumer
+
+Consumes pseudo-states from a parent provider. See [Provider & Consumer](/docs/rocketstyle/provider-consumer).
+
+```tsx
+const FormLabel = Label.config({
+  consumer: (ctx) => ctx(({ pseudo }) => ({
+    isFieldFocused: pseudo?.focus,
+  })),
+})
+```
+
+#### DEBUG
+
+Logs component state on every render (development only):
+
+```tsx
+const DebugButton = Button.config({ DEBUG: true })
+// Console: [rocketstyle] DebugButton render: { $rocketstyle: {...}, $rocketstate: {...}, ... }
+```
+
+#### inversed
+
+Flips the theme mode (light ↔ dark) for this component:
+
+```tsx
+const InvertedCard = Card.config({ inversed: true })
+// In a light-mode context, this renders with dark-mode theme values
+```
+
+#### passProps
+
+By default, dimension-related props are stripped from the final component props. `passProps` re-adds specific props:
+
+```tsx
+const CustomButton = Button.config({
+  passProps: ['disabled', 'primary'],
+})
+// 'disabled' and 'primary' will be forwarded to the wrapped component
+```
+
+Only available when `useBooleans: true`. The values must be dimension option names.
+
+#### styled
+
+Controls whether the component gets a styled-component wrapper. Defaults to `true` from the factory. Setting to `false` skips the styled wrapper.
+
+### Examples
+
+```tsx
+// Enable provider for pseudo-state broadcasting
+const ParentButton = Button.config({ provider: true })
+
+// Enable debug logging
+const DebugButton = Button.config({ DEBUG: true })
+
+// Invert theme mode
+const InvertedCard = Card.config({ inversed: true })
+
+// Replace component + rename
+const LinkButton = Button.config({
+  name: 'LinkButton',
+  component: 'a',
+})
+```
+
+## .attrs()
+
+Set default props, with optional priority and filtering.
+
+### Static Attrs
+
+```tsx
+.attrs({
+  type: 'button',
+  className: 'btn',
+  disabled: false,
+})
+```
+
+### Dynamic Attrs (Callback)
+
+```tsx
+.attrs((props, theme, helpers) => ({
+  disabled: props.loading ?? false,
+  'aria-busy': props.loading ?? false,
+  className: props.variant === 'primary' ? 'btn-primary' : 'btn-default',
+}))
+```
+
+#### Callback Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `props` | `Partial<ComponentProps>` | Current component props |
+| `theme` | `object` | Current theme from context |
+| `helpers` | `object` | Mode and rendering utilities |
+
+#### Helpers Object
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `mode` | `'light' \| 'dark'` | Current theme mode |
+| `isDark` | `boolean` | `true` when mode is `'dark'` |
+| `isLight` | `boolean` | `true` when mode is `'light'` |
+| `createElement` | `function` | React element factory (aliased from `render()`) |
+
+### Priority Attrs
+
+Priority attrs are evaluated first and act as low-priority defaults that can be overridden:
+
+```tsx
+// Priority attrs (lowest priority)
+.attrs({ type: 'button', role: 'button' }, { priority: true })
+
+// Normal attrs (override priority)
+.attrs({ type: 'submit' })
+
+// Resolution order:
+// 1. priority attrs: { type: 'button', role: 'button' }
+// 2. normal attrs:   { type: 'submit' }           → overrides type
+// 3. explicit props: type="reset"                  → overrides everything
+```
+
+### Props Resolution Order
+
+```
+1. Strip undefined values from all sources
+2. Evaluate priority attrs (callbacks receive filtered props)
+3. Merge: { ...priorityAttrs, ...filteredProps }
+4. Evaluate normal attrs (callbacks receive merged result)
+5. Merge: { ...normalAttrs, ...filteredProps }
+6. Explicit props always have final say
+```
+
+### Filter Props
+
+Prevent internal props from reaching the wrapped component:
+
+```tsx
+.attrs(
+  (props) => ({
+    computedValue: expensiveComputation(props.data),
+  }),
+  { filter: ['internalState', 'computedValue'] }
+)
+// 'internalState' and 'computedValue' won't be passed to the DOM
+```
+
+Filters accumulate across multiple `.attrs()` calls — each call's filter is added to the list.
+
+### Type Extension
+
+The `.attrs()` method accepts a generic type parameter to extend the component's props:
+
+```tsx
+.attrs<{ loading?: boolean }>((props) => ({
+  disabled: props.loading,      // 'loading' is now typed
+  'aria-busy': props.loading,
+}))
+```
+
+### Multiple .attrs() Calls
+
+Each `.attrs()` call adds to the attrs chain. Priority and normal attrs are tracked separately. During render, the attrs HOC evaluates them all in sequence.
+
+## .theme()
+
+Define the base theme available to all dimensions:
+
+```tsx
+.theme((theme, mode, css) => ({
+  fontFamily: theme.fontFamily?.base,
+  borderRadius: '4px',
+  transition: 'all 0.2s ease',
+}))
+```
+
+See [Themes & Styles](/docs/rocketstyle/themes-styles) for full details.
+
+## .styles()
+
+Define CSS styles consuming `$rocketstyle` and `$rocketstate`:
+
+```tsx
+.styles((css) => css`
+  font-family: ${({ $rocketstyle }) => $rocketstyle.fontFamily};
+  border-radius: ${({ $rocketstyle }) => $rocketstyle.borderRadius};
+`)
+```
+
+See [Themes & Styles](/docs/rocketstyle/themes-styles) for full details.
+
+## Dimension Methods
+
+Each dimension key defined in the factory options becomes a chainable method. With default dimensions, these are `.states()`, `.sizes()`, `.variants()`, and `.multiple()`.
+
+```tsx
+.states((theme, mode, css) => ({
+  primary: { backgroundColor: mode('blue', 'lightblue') },
+  secondary: { backgroundColor: 'gray' },
+}))
+
+.sizes((theme) => ({
+  sm: { fontSize: '12px' },
+  lg: { fontSize: '18px' },
+}))
+```
+
+See [Dimensions](/docs/rocketstyle/dimensions) for full details.
+
+## .compose()
+
+Add or remove Higher-Order Components.
+
+### Adding HOCs
+
+```tsx
+const withAnimation = (Component) => (props) => (
+  <motion.div animate={{ opacity: 1 }}>
+    <Component {...props} />
+  </motion.div>
+)
+
+const withTooltip = (Component) => (props) => (
+  <Tooltip title={props.tooltipText}>
+    <Component {...props} />
+  </Tooltip>
+)
+
+const AnimatedButton = Button.compose({
+  withAnimation,
+  withTooltip,
+})
+```
+
+### Removing HOCs
+
+Pass `false`, `null`, or `undefined` to remove a previously composed HOC:
+
+```tsx
+const PlainButton = AnimatedButton.compose({
+  withTooltip: false,   // Removes withTooltip
+  // withAnimation remains
+})
+```
+
+### HOC Execution Order
+
+HOCs are applied in reverse order (last listed wraps outermost):
+
+```tsx
+.compose({
+  first: hocA,    // Innermost wrapper
+  second: hocB,   // Outermost wrapper
+})
+// Result: hocB(hocA(Component))
+```
+
+The compose chain uses `calculateHocsFuncs()` which extracts valid HOC functions and reverses them for proper nesting.
+
+### Multiple .compose() Calls
+
+Compose calls accumulate and are merged. HOC names are stable keys — you can override or remove specific HOCs in later calls without affecting others.
+
+## .statics()
+
+Attach static metadata to the component. Accessible via the `.meta` property:
+
+```tsx
+const Button = rocketstyle()({
+  name: 'Button',
+  component: 'button',
+}).statics({
+  isButton: true,
+  version: '1.0.0',
+  variants: ['primary', 'secondary', 'danger'],
+  getLabel: (variant) => variant.toUpperCase(),
+})
+
+// Access via .meta
+Button.meta.isButton       // true
+Button.meta.version        // '1.0.0'
+Button.meta.getLabel('primary') // 'PRIMARY'
+```
+
+Statics are merged across chains — each `.statics()` call adds to the meta object.
+
+## Extending Components
+
+Each chain method returns a new instance, enabling extension without mutation:
+
+```tsx
+// Base component
+const BaseButton = rocketstyle()({
+  name: 'BaseButton',
+  component: 'button',
+})
+  .theme((theme) => ({
+    fontFamily: theme.fontFamily?.base,
+    borderRadius: '4px',
+  }))
+  .styles((css) => css`
+    cursor: pointer;
+    border: none;
+    font-family: ${({ $rocketstyle }) => $rocketstyle.fontFamily};
+    border-radius: ${({ $rocketstyle }) => $rocketstyle.borderRadius};
+  `)
+
+// Extended: Primary button with states
+const PrimaryButton = BaseButton
+  .states((theme) => ({
+    primary: { backgroundColor: 'blue', color: 'white' },
+  }))
+  .attrs({ state: 'primary' })
+
+// Extended: Icon button with sizes
+const IconButton = BaseButton
+  .sizes((theme) => ({
+    sm: { width: '24px', height: '24px' },
+    md: { width: '32px', height: '32px' },
+    lg: { width: '40px', height: '40px' },
+  }))
+  .attrs({ size: 'md' })
+```
+
+`BaseButton` is untouched — `PrimaryButton` and `IconButton` are independent branches.
+
+## Chaining Order
+
+While methods can be called in any order, the recommended pattern is:
+
+```tsx
+rocketstyle()(config)
+  .config(...)      // 1. Configuration first
+  .attrs(...)       // 2. Default props
+  .theme(...)       // 3. Base theme
+  .states(...)      // 4. Dimension themes
+  .sizes(...)
+  .variants(...)
+  .styles(...)      // 5. CSS styles last
+  .compose(...)     // 6. HOCs (optional)
+  .statics(...)     // 7. Static metadata (optional)
+```
+
+## Internal: cloneAndEnhance
+
+Every chain method calls `cloneAndEnhance(currentOptions, newOptions)` internally:
+
+1. Deep-clones the current configuration
+2. For array-based options (`theme`, `attrs`, dimension callbacks), appends to the array
+3. For object-based options (`compose`, `statics`), merges
+4. Returns a fresh `rocketComponent()` with the merged configuration
+
+This ensures immutability — the original component is never modified.
+
+## API Reference
+
+### ConfigAttrs
+
+<AutoTypeTable path="./src/types/rocketstyle.ts" name="ConfigAttrs" />

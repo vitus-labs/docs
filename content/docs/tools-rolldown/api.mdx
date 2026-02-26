@@ -1,0 +1,183 @@
+---
+title: API Reference
+description: Complete API reference for @vitus-labs/tools-rolldown.
+---
+
+## runBuild()
+
+```tsx
+runBuild(): Promise<void>
+```
+
+Orchestrates the complete build pipeline. Reads configuration, generates build variants, and executes each sequentially.
+
+**Steps:**
+1. Clean output directory (`rimraf`)
+2. Create build pipeline from `package.json` fields
+3. Execute each build with Rolldown
+4. Report file sizes and generate visualization
+
+```tsx
+import { runBuild } from '@vitus-labs/tools-rolldown'
+
+await runBuild()
+```
+
+## Configuration Shape
+
+```tsx
+interface BuildConfig {
+  sourceDir: string              // Input directory (default: 'src')
+  outputDir: string              // Output directory (default: 'lib')
+  typesDir: string               // Types output directory (default: 'lib/types')
+  typescript: boolean            // Generate .d.ts files (default: true)
+  replaceGlobals: boolean        // Inject platform globals (default: true)
+  filesize: boolean              // Show file size stats (default: true)
+  visualise: {
+    template: string             // 'network' | 'treemap' | 'sunburst'
+    gzipSize: boolean            // Show gzip sizes
+    outputDir: string            // Analysis output dir (default: 'analysis')
+  } | false
+  extensions: string[]           // File extensions to resolve
+  include: string[]              // Include patterns
+  external: string[]             // Additional external packages
+  exclude: string[]              // Exclude patterns
+  globals: Record<string, string>  // UMD global variable mappings
+}
+```
+
+### Default Configuration
+
+```tsx
+{
+  sourceDir: 'src',
+  outputDir: 'lib',
+  typesDir: 'lib/types',
+  typescript: true,
+  replaceGlobals: true,
+  filesize: true,
+  visualise: {
+    template: 'network',
+    gzipSize: true,
+    outputDir: 'analysis',
+  },
+  extensions: ['.json', '.js', '.jsx', '.ts', '.tsx', '.es6', '.es', '.mjs'],
+  include: ['src'],
+  external: ['react/jsx-runtime'],
+  exclude: [
+    'lib',
+    'node_modules/**',
+    '**/__tests__/**',
+    '**/__specs__/**',
+    '**/__stories__/**',
+    '*.test.*',
+    '*.spec.*',
+    '*.stories.*',
+    'stories.*',
+    '*.story.*',
+  ],
+  globals: {
+    react: 'React',
+    ReactDOM: 'react-dom',
+  },
+}
+```
+
+## Build Pipeline Generation
+
+The pipeline is generated from `package.json` fields:
+
+### exports Field Processing
+
+| Condition Key | Output Format | Platform |
+|---------------|--------------|----------|
+| `import` | `'es'` | `'universal'` |
+| `require` | `'cjs'` | `'universal'` |
+| `node` | `'es'` | `'node'` |
+| `default` | `'es'` | `'universal'` |
+
+### Fallback Fields
+
+| Field | Output Format | Platform |
+|-------|--------------|----------|
+| `main` | Inferred from extension (`.cjs` → CJS, `.js` with `type: "module"` → ESM) | `'universal'` |
+| `module` | `'es'` | `'universal'` |
+| `react-native` | `'es'` | `'native'` |
+
+### Build Variant Shape
+
+```tsx
+interface BuildVariant {
+  file: string           // Output file path
+  format: 'es' | 'cjs' | 'umd'
+  env: 'development' | 'production'
+  platform: 'universal' | 'browser' | 'node' | 'web' | 'native'
+  typesFilePath?: string  // Only first build gets DTS
+}
+```
+
+## Plugin Pipeline
+
+Each build uses these plugins (in order):
+
+| Plugin | Condition | Purpose |
+|--------|-----------|---------|
+| `nodeResolve` | Always | Resolves npm modules with platform-specific extensions |
+| `rolldown-plugin-dts` | When `typesFilePath` set | Generates rolled-up `.d.ts` file |
+| `replace` | When `replaceGlobals: true` | Injects platform constants |
+| `visualizer` | When `visualise` configured | Bundle composition HTML |
+| `filesize` | When `filesize: true` | Console file size reporting |
+
+## Platform-Specific Extensions
+
+For platform `"browser"`, the resolver checks (in order):
+
+```
+.browser.json, .browser.js, .browser.jsx, .browser.ts, .browser.tsx,
+.browser.es6, .browser.es, .browser.mjs,
+.json, .js, .jsx, .ts, .tsx, .es6, .es, .mjs
+```
+
+Same pattern applies to `node`, `web`, and `native` platforms.
+
+## Output Configuration
+
+### ESM Output
+
+```tsx
+{
+  format: 'es',
+  sourcemap: true,
+  esModule: true,
+}
+```
+
+### CJS Output
+
+```tsx
+{
+  format: 'cjs',
+  exports: 'named',
+  sourcemap: true,
+  esModule: true,
+  interop: 'compat',
+}
+```
+
+### UMD Output
+
+```tsx
+{
+  format: 'umd',
+  exports: 'named',
+  name: PKG.bundleName,   // camelCase package name
+  globals: swapGlobals(CONFIG.globals),
+  sourcemap: true,
+}
+```
+
+## Exports
+
+```tsx
+import { runBuild } from '@vitus-labs/tools-rolldown'
+```

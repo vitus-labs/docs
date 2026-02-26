@@ -1,0 +1,317 @@
+---
+title: API Reference
+description: Complete API reference for @vitus-labs/rocketstories.
+---
+
+## Factory Functions
+
+### init
+
+```tsx
+init(options?: InitOptions): (component: ComponentType) => RocketStoriesBuilder
+```
+
+Creates a curried factory with shared configuration. Returns a function that accepts a component and returns a story builder.
+
+| Option | Type | Description |
+|--------|------|-------------|
+| `theme` | `object` | Theme object for the decorator |
+| `decorators` | `Decorator[]` | Storybook decorators |
+| `storyOptions` | `StoryOptions` | Default layout options |
+| `controls` | `Record<string, Control>` | Default controls |
+
+### rocketstories
+
+```tsx
+rocketstories(component: ComponentType, options?: InitOptions): RocketStoriesBuilder
+```
+
+One-shot factory that creates a story builder directly for a component.
+
+## Builder Methods
+
+### .init()
+
+```tsx
+.init(): StorybookMeta
+```
+
+Returns the Storybook default export object containing `component`, `title`, and `decorators`.
+
+### .main()
+
+```tsx
+.main(): StoryObj
+```
+
+Returns the main story with auto-generated controls. For rocketstyle components, includes dimension and pseudo-state controls.
+
+### .dimension(name, options?)
+
+```tsx
+.dimension(name: string, options?: { ignore?: string[] }): StoryObj | null
+```
+
+Returns a story showcasing all values of a rocketstyle dimension. Returns `null` for non-rocketstyle components.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `name` | `string` | Dimension prop name (e.g., `'state'`, `'size'`) |
+| `options.ignore` | `string[]` | Dimension values to exclude |
+
+### .render(callback)
+
+```tsx
+.render(callback: (props: ComponentProps) => ReactNode): StoryObj
+```
+
+Returns a story with a custom render function.
+
+### .list(options)
+
+```tsx
+.list(options: ListOptions): StoryObj
+```
+
+Returns a story rendering multiple component instances as a list.
+
+| Option | Type | Description |
+|--------|------|-------------|
+| `data` | `any[]` | Array of items to render |
+| `valueName` | `string` | Prop name for primitive array items |
+| `itemKey` | `string \| ((item, index) => string)` | Key derivation |
+| `itemProps` | `object` | Extra props for each item |
+| `wrapComponent` | `ComponentType` | Wrapper component |
+| `wrapProps` | `object` | Props for wrapper |
+
+## Chaining Methods
+
+All methods return a new builder instance (immutable).
+
+### .attrs(props)
+
+```tsx
+.attrs(props: Record<string, any>): RocketStoriesBuilder
+```
+
+Merge default props for all stories.
+
+### .controls(config)
+
+```tsx
+.controls(config: Record<string, Control>): RocketStoriesBuilder
+```
+
+Define Storybook arg controls.
+
+### .storyOptions(options)
+
+```tsx
+.storyOptions(options: StoryOptions): RocketStoriesBuilder
+```
+
+Configure story layout.
+
+### .config(options)
+
+```tsx
+.config(options: ConfigOptions): RocketStoriesBuilder
+```
+
+Update configuration (name, prefix, decorators, storyOptions).
+
+### .decorators(decorators)
+
+```tsx
+.decorators(decorators: Decorator[]): RocketStoriesBuilder
+```
+
+Add or replace Storybook decorators.
+
+### .replaceComponent(component)
+
+```tsx
+.replaceComponent(component: ComponentType): RocketStoriesBuilder
+```
+
+Swap the showcased component while keeping configuration.
+
+## Types
+
+### StoryOptions
+
+```tsx
+interface StoryOptions {
+  direction?: 'inline' | 'rows'
+  alignX?: 'left' | 'center' | 'right' | 'spaceBetween'
+  alignY?: 'top' | 'center' | 'bottom' | 'spaceBetween'
+  gap?: number
+  pseudo?: boolean
+}
+```
+
+### Control
+
+```tsx
+interface Control {
+  type?: ControlType
+  value?: any
+  valueType?: string
+  description?: string
+  group?: string
+  options?: any[]
+  disable?: boolean
+}
+```
+
+### ControlType
+
+| Type | Storybook UI | When to Use |
+|------|-------------|-------------|
+| `'text'` | Text input | String values |
+| `'number'` | Number input | Numeric values |
+| `'range'` | Slider | Bounded numbers (pair with min/max) |
+| `'boolean'` | Toggle switch | true/false |
+| `'color'` | Color picker | Color strings |
+| `'select'` | Dropdown (single) | Choose one from `options` array |
+| `'multi-select'` | Multi-select dropdown | Choose multiple from `options` |
+| `'radio'` | Radio group | Single choice (stacked layout) |
+| `'inline-radio'` | Inline radio group | Single choice (horizontal layout) |
+| `'check'` | Checkbox group | Multiple choices (stacked layout) |
+| `'inline-check'` | Inline checkboxes | Multiple choices (horizontal layout) |
+| `'tag'` | Tag selector | HTML tag names |
+| `'object'` | JSON editor | Object values |
+| `'array'` | Array editor | Array values |
+| `'function'` | Disabled (shown as type) | Function references (not interactive) |
+| `'component'` | Disabled (shown as type) | Component references (not interactive) |
+
+### Auto-Generated Controls
+
+For rocketstyle components, controls are automatically generated:
+
+| Source | Control Type | Example |
+|--------|-------------|---------|
+| Single-select dimensions | `'select'` | `state: { type: 'select', options: ['primary', 'danger'] }` |
+| Multi-select dimensions | `'multi-select'` | `multiple: { type: 'multi-select', options: ['bold', 'italic'] }` |
+| Pseudo-states | `'boolean'` | `hover: { type: 'boolean' }` |
+
+Auto-generated controls are merged with manually defined controls — manual controls take precedence.
+
+### Configuration
+
+Full story configuration shape:
+
+```tsx
+interface Configuration {
+  component: RocketType | ElementType  // Component to showcase
+  attrs: Record<string, any>           // Default prop values
+  name: string                         // Display name (auto-detected)
+  prefix?: string                      // Story title prefix (e.g., 'Components/')
+  storyOptions: Partial<StoryOptions>  // Layout rendering options
+  controls: Record<string, Control>    // Storybook control definitions
+  decorators: Decorator[]              // HOCs wrapping stories
+}
+```
+
+### RocketStoryConfiguration
+
+Configuration narrowed to rocketstyle components (guarantees `component` is `RocketType`).
+
+### StoryConfiguration
+
+Configuration narrowed to regular React components (guarantees `component` is `ElementType`).
+
+### StoryComponent
+
+Functional component extended with Storybook metadata:
+
+```tsx
+type StoryComponent<P = {}> = FC<P> & Partial<{
+  args: Record<string, unknown>
+  argTypes: Record<string, unknown>
+  parameters: Record<string, unknown>
+}>
+```
+
+### IRocketStories
+
+The builder interface returned by `init()` and `rocketstories()`. All chain methods are immutable — each returns a new builder.
+
+### RocketType
+
+Type guard for rocketstyle components — must have `IS_ROCKETSTYLE`, `getStaticDimensions()`, and `getDefaultAttrs()`.
+
+### getStaticDimensions()
+
+Static method on rocketstyle components, called internally by rocketstories to introspect dimensions:
+
+```tsx
+component.getStaticDimensions(theme: object): {
+  dimensions: Record<string, Record<string, any>>  // dimension → { value1, value2, ... }
+  useBooleans: boolean                              // Boolean shorthand enabled
+  multiKeys: Record<string, true>                   // Multi-select dimensions
+}
+```
+
+Used to:
+- Generate Storybook control dropdowns automatically
+- Extract dimension values for `.dimension()` story rendering
+- Create code snippets in Storybook docs panel
+- Determine `'select'` vs `'multi-select'` control type
+
+## Decorator System
+
+Decorators are functions that wrap story components:
+
+```tsx
+type Decorator = (Story: ComponentType) => ReactNode
+```
+
+### Built-in Theme Decorator
+
+```tsx
+import Theme from '@vitus-labs/rocketstories/decorators/Theme'
+```
+
+Wraps each story in rocketstyle + unistyle providers. Reads theme from the global config set via `init({ theme })` and applies `'light'` mode by default.
+
+### Custom Decorators
+
+```tsx
+const LayoutDecorator = (Story) => (
+  <div style={{ maxWidth: 600, margin: '0 auto' }}>
+    <Story />
+  </div>
+)
+
+const stories = storyOf(Button).decorators([Theme, LayoutDecorator])
+```
+
+Decorators accumulate — calling `.decorators()` appends to any decorators from `init()`.
+
+## Exports
+
+```tsx
+import { init, rocketstories } from '@vitus-labs/rocketstories'
+import Theme from '@vitus-labs/rocketstories/decorators/Theme'
+
+import type {
+  IRocketStories,
+  Init,
+  Rocketstories,
+  Configuration,
+  RocketStoryConfiguration,
+  StoryConfiguration,
+  StoryComponent,
+  StorybookControl,
+  RocketType,
+  Control,
+  ControlTypes,
+  Controls,
+  PartialControls,
+  StoryOptions,
+  ExtractDimensions,
+  ExtractProps,
+  ElementType,
+} from '@vitus-labs/rocketstories'
+```

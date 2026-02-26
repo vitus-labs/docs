@@ -1,0 +1,292 @@
+---
+title: Attrs
+description: Immutable, chainable default-props factory for React components.
+---
+
+`@vitus-labs/attrs` is a composable attribute factory that lets you define default props, swap base components, attach HOCs, and add metadata through an immutable chaining API. Every method returns a new component instance — the original is never mutated.
+
+## Installation
+
+```package-install
+@vitus-labs/attrs
+```
+
+**Peer dependencies:** `react >= 19`, `@vitus-labs/core`
+
+## Try It Live
+
+This demo shows the attrs pattern — chaining default props that merge with explicit props:
+
+<LiveCode code={`function AttrsDemo() {
+  const [variant, setVariant] = React.useState('primary')
+  const [disabled, setDisabled] = React.useState(false)
+
+  // Simulated attrs chain:
+  // Base defaults (priority attrs)
+  const priorityAttrs = { role: 'button', tabIndex: 0 }
+  // Normal attrs
+  const normalAttrs = { type: 'button', className: 'btn' }
+  // Dynamic attrs (callback)
+  const dynamicAttrs = (props) => ({
+    'aria-disabled': props.disabled === true,
+    className: props.disabled ? 'btn btn-disabled' : \`btn btn-\${props.variant}\`,
+  })
+
+  // Merge order: priority → normal → dynamic → explicit props
+  const explicit = { variant, disabled }
+  const dynamic = dynamicAttrs(explicit)
+  const merged = { ...priorityAttrs, ...normalAttrs, ...dynamic, ...explicit }
+
+  const variantStyles = {
+    primary: { background: '#0d6efd', color: '#fff' },
+    secondary: { background: '#6c757d', color: '#fff' },
+    outline: { background: 'transparent', color: '#0d6efd', border: '2px solid #0d6efd' },
+  }
+
+  return (
+    <div style={{ fontFamily: 'system-ui' }}>
+      <div style={{ display: 'flex', gap: 12, marginBottom: 16, alignItems: 'center' }}>
+        <select value={variant} onChange={(e) => setVariant(e.target.value)}
+          style={{ padding: '6px 10px', borderRadius: 4, border: '1px solid #ccc', fontSize: 13 }}>
+          <option value="primary">primary</option>
+          <option value="secondary">secondary</option>
+          <option value="outline">outline</option>
+        </select>
+        <label style={{ fontSize: 13, display: 'flex', gap: 4, alignItems: 'center' }}>
+          <input type="checkbox" checked={disabled} onChange={(e) => setDisabled(e.target.checked)} />
+          disabled
+        </label>
+      </div>
+      <button style={{
+        ...variantStyles[variant],
+        padding: '10px 20px',
+        borderRadius: 6,
+        border: variant === 'outline' ? undefined : 'none',
+        cursor: disabled ? 'not-allowed' : 'pointer',
+        opacity: disabled ? 0.5 : 1,
+        fontSize: 14,
+        fontWeight: 500,
+      }}>
+        Attrs Button
+      </button>
+      <pre style={{
+        marginTop: 12, padding: 12, borderRadius: 6,
+        background: '#f8f9fa', fontSize: 11, lineHeight: 1.5,
+      }}>
+        {JSON.stringify(merged, null, 2)}
+      </pre>
+    </div>
+  )
+}
+
+render(<AttrsDemo />)
+`} noInline />
+
+## Quick Start
+
+```tsx
+import attrs from '@vitus-labs/attrs'
+import { Element } from '@vitus-labs/elements'
+
+const Button = attrs({ name: 'Button', component: Element })
+  .attrs({ tag: 'button', alignX: 'center', alignY: 'center' })
+
+// Usage
+<Button label="Click me" />
+```
+
+## Factory Function
+
+```tsx
+attrs({ name: string, component: ComponentType }): AttrsComponent
+```
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `name` | `string` | Yes | Component display name (shows in React DevTools and `data-attrs` debug attribute) |
+| `component` | `ElementType` | Yes | Base React component to wrap (class, function, or forwardRef) |
+
+Both parameters are validated in development — missing values throw descriptive errors with JSON-formatted details.
+
+## Immutability
+
+Every chaining method creates a **new component**. Parent components are never affected by modifications to derived components:
+
+```tsx
+const Base = attrs({ name: 'Base', component: Element })
+  .attrs({ tag: 'div' })
+
+const Card = Base.attrs({ tag: 'section' })
+const Link = Base.attrs({ tag: 'a' })
+
+// Base, Card, and Link are all independent components
+// Modifying Card's chain has zero effect on Base or Link
+```
+
+This is achieved by `cloneAndEnhance()` internally — each chain method clones the configuration, creates a fresh component, and returns the new instance.
+
+## Props Merge Order
+
+When a component renders, props are resolved in this order (last wins):
+
+```
+1. Priority attrs  (lowest precedence — resolved first)
+2. Normal attrs    (chain order, later .attrs() calls override earlier)
+3. Explicit props  (highest precedence — what you pass to <Component />)
+```
+
+### How It Works at Runtime
+
+1. **Strip undefined props** — `removeUndefinedProps()` removes keys with `undefined` values from explicit props so they don't shadow defaults
+2. **Resolve priority attrs** — Call all priority attrs callbacks with the filtered explicit props
+3. **Resolve normal attrs** — Call all normal attrs callbacks with `{ ...priorityAttrs, ...filteredProps }`
+4. **Merge** — `{ ...priorityAttrs, ...normalAttrs, ...filteredProps }`
+
+### Undefined vs Null Behavior
+
+| Value | Behavior |
+|-------|----------|
+| `undefined` | Stripped before merging — does NOT override defaults |
+| `null` | Preserved — explicitly overrides defaults |
+| `false` / `0` / `''` | Preserved — explicitly overrides defaults |
+
+```tsx
+const Button = attrs({ name: 'Button', component: Element })
+  .attrs({ label: 'Default' })
+
+<Button label={undefined} />   // Renders "Default" (undefined stripped)
+<Button label={null} />        // Renders null (null is explicit)
+<Button label="" />            // Renders "" (empty string is explicit)
+<Button label="Custom" />      // Renders "Custom"
+```
+
+## Type Extension
+
+Use generics to extend the component's prop types through the chain:
+
+```tsx
+const Button = attrs({ name: 'Button', component: Element })
+  .attrs<{ variant: 'primary' | 'secondary' }>({
+    variant: 'primary',
+    tag: 'button',
+  })
+  .attrs<{ size?: 'sm' | 'md' | 'lg' }>({})
+
+// TypeScript now knows about variant and size
+<Button variant="secondary" size="lg" label="Submit" />
+```
+
+Types are accumulated via `MergeTypes<[OA, EA]>` — a tuple merge that works like `Object.assign` for types, with later types overriding earlier ones.
+
+## Component Variants
+
+Create multiple variants from a shared base:
+
+```tsx
+const BaseButton = attrs({ name: 'BaseButton', component: Element })
+  .attrs({ tag: 'button', alignX: 'center', alignY: 'center' })
+
+const PrimaryButton = BaseButton
+  .config({ name: 'PrimaryButton' })
+  .attrs({ className: 'btn-primary' })
+
+const SecondaryButton = BaseButton
+  .config({ name: 'SecondaryButton' })
+  .attrs({ className: 'btn-secondary' })
+
+const IconButton = BaseButton
+  .config({ name: 'IconButton' })
+  .attrs((props) => ({
+    'aria-label': props.label || 'icon button',
+  }))
+```
+
+## Type Guard
+
+Identify attrs components at runtime:
+
+```tsx
+import { isAttrsComponent } from '@vitus-labs/attrs'
+
+isAttrsComponent(Button)      // true
+isAttrsComponent(PlainDiv)    // false
+isAttrsComponent(null)        // false
+```
+
+The check verifies the component is a non-null object with an own `IS_ATTRS` property (via `Object.hasOwn`).
+
+## Component Architecture
+
+Every attrs component has this internal layer structure:
+
+```
+Consumer Props + Ref
+    ↓
+attrsHoc (resolve priority/normal attrs, merge with explicit props)
+    ↓
+User-Composed HOCs (in reverse declaration order)
+    ↓
+EnhancedComponent (forwardRef — merges refs, filters props)
+    ↓
+Original Component
+```
+
+### Ref Forwarding
+
+Refs are forwarded through the entire HOC chain:
+
+```tsx
+const Button = attrs({ name: 'Button', component: Element })
+  .compose({ withFeature: someHoc })
+
+const ref = useRef(null)
+<Button ref={ref}>Click</Button>
+// ref.current points to the DOM node through all HOC layers
+```
+
+The system manages two ref sources internally:
+- `$attrsRef` — The consumer's ref (from the outermost `attrsHoc`)
+- `ref` — Intermediate HOC refs (from `compose` wrappers)
+
+Both are merged via `useImperativeHandle` into a single internal ref, ensuring all sources point to the same DOM node.
+
+### Debug Mode
+
+In development (`process.env.NODE_ENV !== 'production'`), attrs components add a `data-attrs` attribute to rendered elements:
+
+```html
+<!-- Dev output -->
+<div data-attrs="MyButton" ...>
+```
+
+This helps identify which attrs component rendered a given DOM node in browser DevTools.
+
+## All Exports
+
+```tsx
+import attrs, { isAttrsComponent } from '@vitus-labs/attrs'
+
+import type {
+  AttrsComponent,
+  Attrs,
+  AttrsComponentType,
+  ConfigAttrs,
+  AttrsCb,
+  GenericHoc,
+  ComposeParam,
+  IsAttrsComponent,
+} from '@vitus-labs/attrs'
+```
+
+| Export | Type | Description |
+|--------|------|-------------|
+| `attrs` | Function (default) | Factory to create attrs-enhanced components |
+| `isAttrsComponent` | Function | Runtime type guard |
+| `AttrsComponent` | Type | Full component type with chain methods and statics |
+| `Attrs` | Type | Factory function signature |
+| `AttrsComponentType` | Type | Component type returned by factory |
+| `ConfigAttrs` | Type | Parameters for `.config()` method |
+| `AttrsCb` | Type | Callback form of `.attrs()`: `(props) => Partial<Props>` |
+| `GenericHoc` | Type | HOC signature: `(component) => component` |
+| `ComposeParam` | Type | Parameters for `.compose()` method |
+| `IsAttrsComponent` | Type | Type guard signature |

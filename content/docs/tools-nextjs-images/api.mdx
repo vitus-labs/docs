@@ -1,0 +1,215 @@
+---
+title: API Reference
+description: Complete API reference for @vitus-labs/tools-nextjs-images.
+---
+
+## withOptimizedImages()
+
+```tsx
+withOptimizedImages(config?: Partial<OptimizedImagesConfig>):
+  (nextConfig?: NextConfig, nextComposePlugins?: NextComposePlugins) =>
+    NextConfig & { webpack: Function }
+```
+
+Curried factory function. First call configures image optimization, second call wraps Next.js config.
+
+```tsx
+// One-step
+export default withOptimizedImages({ mozjpeg: { quality: 80 } })()
+
+// Two-step
+const withImages = withOptimizedImages({ optimizeImages: true })
+export default withImages({ reactStrictMode: true })
+```
+
+### Webpack Integration
+
+The returned config includes a `webpack` function that:
+
+1. Detects build phase (production, export, development)
+2. Removes Next.js built-in image processing rules
+3. Detects installed optimizer packages
+4. Registers file/url/img loaders for each handled image format
+5. Adds resource query handlers (`?webp`, `?lqip`, `?sprite`, etc.)
+6. Chains with user's existing `webpack` function if present
+
+## OptimizedImagesConfig
+
+```tsx
+interface OptimizedImagesConfig {
+  optimizeImages: boolean
+  optimizeImagesInDev: boolean
+  handleImages: string[]
+  imagesFolder: string
+  imagesName: string
+  imagesPublicPath?: string
+  imagesOutputPath?: string
+  removeOriginalExtension: boolean
+  inlineImageLimit: number
+  defaultImageLoader: string
+
+  // Optimizer options
+  mozjpeg: Record<string, unknown>
+  optipng: Record<string, unknown>
+  pngquant: Record<string, unknown>
+  gifsicle: Record<string, unknown>
+  svgo: Record<string, unknown>
+  svgSpriteLoader: Record<string, unknown>
+  webp: Record<string, unknown>
+  responsive?: Record<string, unknown> & { adapter?: unknown }
+  lqip?: Record<string, unknown>
+  imageTrace?: Record<string, unknown>
+}
+```
+
+### Defaults
+
+```tsx
+{
+  optimizeImages: true,
+  optimizeImagesInDev: false,
+  handleImages: ['jpeg', 'png', 'svg', 'webp', 'gif'],
+  imagesFolder: 'images',
+  imagesName: '[name]-[hash].[ext]',
+  removeOriginalExtension: false,
+  inlineImageLimit: 8192,
+  defaultImageLoader: 'img-loader',
+  mozjpeg: {},
+  optipng: {},
+  pngquant: {},
+  gifsicle: { interlaced: true, optimizationLevel: 3 },
+  svgo: { plugins: [{ name: 'removeViewBox', active: false }] },
+  svgSpriteLoader: { symbolId: '[name]-[hash:8]' },
+  webp: {},
+}
+```
+
+## DetectedLoaders
+
+```tsx
+interface DetectedLoaders {
+  jpeg: string | false
+  gif: string | false
+  svg: string | false
+  svgSprite: string | false
+  webp: string | false
+  png: string | false
+  lqip: string | false
+  responsive: string | false
+  responsiveAdapter: string | false
+}
+```
+
+Detection uses `import.meta.resolve()` for ESM-compatible module resolution. PNG prefers `imagemin-optipng`, falls back to `imagemin-pngquant`. Responsive adapter prefers `sharp`, falls back to `jimp`.
+
+## Resource Query Handlers
+
+Each query registers a webpack rule with specific loaders:
+
+### ?url
+
+```tsx
+{ test: /\?url/, loaders: ['file-loader'], optimize: true }
+```
+
+Forces file URL output regardless of `inlineImageLimit`.
+
+### ?inline
+
+```tsx
+{ test: /\?inline/, loaders: ['url-loader'], optimize: true }
+```
+
+Forces data URI inlining regardless of file size.
+
+### ?include
+
+```tsx
+{ test: /\?include/, loaders: ['raw-loader'], optimize: true }
+```
+
+Returns raw file contents as a string.
+
+### ?original
+
+```tsx
+{ test: /\?original/, loaders: ['url-loader'], optimize: false }
+```
+
+Skips all optimization — returns file as-is.
+
+### ?lqip
+
+```tsx
+{ test: /\?lqip/, loaders: ['lqip-export-loader', 'lqip-loader', 'url-loader'], optimize: false }
+```
+
+Returns `{ src, preSrc }` where `preSrc` is a tiny base64 placeholder.
+
+### ?lqip-colors
+
+```tsx
+{ test: /\?lqip-colors/, loaders: ['lqip-export-loader', 'lqip-loader', 'url-loader'], optimize: false }
+```
+
+Returns `{ palette }` with extracted color data.
+
+### ?trace
+
+```tsx
+{ test: /\?trace/, loaders: ['image-trace-loader', 'url-loader'], optimize: true }
+```
+
+Returns an SVG trace outline as a data URI.
+
+### ?webp
+
+```tsx
+{ test: /\?webp/, loaders: ['url-loader', 'webp-loader'], optimize: true }
+```
+
+Converts JPEG/PNG to WebP format.
+
+### ?sprite
+
+```tsx
+{ test: /\?sprite/, loaders: ['svg-sprite-loader'], optimize: varies }
+```
+
+Generates SVG sprite symbol. If optimization is enabled, chains with img-loader.
+
+### ?size=N,N,N
+
+```tsx
+{ test: /\?size/, loaders: ['responsive-loader'], optimize: false }
+```
+
+Generates multiple image sizes for responsive `<img srcset>`.
+
+## Output Path Logic
+
+### Client Bundles
+
+```
+publicPath: `${assetPrefix}/_next/static/${imagesFolder}/`
+outputPath: `static/${imagesFolder}/`
+```
+
+### Server Bundles
+
+```
+outputPath: `../static/${imagesFolder}/`
+```
+
+The `assetPrefix` is read from Next.js config and prepended to public paths.
+
+## Exports
+
+```tsx
+import withOptimizedImages from '@vitus-labs/tools-nextjs-images'
+
+import type {
+  DetectedLoaders,
+  OptimizedImagesConfig,
+} from '@vitus-labs/tools-nextjs-images'
+```

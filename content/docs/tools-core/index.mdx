@@ -1,0 +1,242 @@
+---
+title: Tools Core
+description: Shared configuration loader, file discovery, and package metadata for the vitus-labs toolchain.
+---
+
+`@vitus-labs/tools-core` is the foundation of every `@vitus-labs/tools-*` package. It provides cascading configuration loading from `vl-tools.config.mjs` files, file discovery utilities, and pre-resolved package metadata constants.
+
+## Installation
+
+```package-install
+@vitus-labs/tools-core
+```
+
+## How It Works
+
+Every tool in the ecosystem (`tools-rolldown`, `tools-storybook`, `tools-nextjs`, etc.) calls `VL_CONFIG(key)` to load its configuration. The system:
+
+1. Searches upward from `process.cwd()` for `vl-tools.config.mjs` files
+2. Deep-merges all found configs (root-level first, closest wins)
+3. Returns a config object scoped to the requested key
+4. Each tool merges the result with its own base defaults
+
+```
+monorepo/
+├── vl-tools.config.mjs          ← root config (loaded first)
+├── packages/
+│   ├── my-lib/
+│   │   ├── vl-tools.config.mjs  ← package config (overrides root)
+│   │   └── src/
+│   └── my-app/
+│       └── src/
+```
+
+## Configuration File
+
+Create a `vl-tools.config.mjs` in your project or monorepo root:
+
+```js
+// vl-tools.config.mjs
+export default {
+  build: {
+    // tools-rolldown / tools-rollup config
+    outputDir: 'lib',
+    sourceDir: 'src',
+    replaceGlobals: true,
+  },
+  next: {
+    // tools-nextjs config
+    headers: true,
+    transpilePackages: ['@my-org/ui'],
+  },
+  storybook: {
+    // tools-storybook config
+    stories: ['src/**/*.stories.tsx'],
+  },
+  favicon: {
+    // tools-favicon config
+    icons: [{ input: 'logo.png', output: 'public/favicons', path: '/favicons' }],
+  },
+}
+```
+
+Each key corresponds to a tool's `CONFIG_KEY`:
+
+| Key | Tool Package |
+|-----|-------------|
+| `build` | `tools-rolldown`, `tools-rollup` |
+| `next` | `tools-nextjs` |
+| `storybook` | `tools-storybook` |
+| `favicon` | `tools-favicon` |
+
+## Pre-Resolved Constants
+
+These constants are computed once at import time and reused by all tools:
+
+### PKG
+
+Parsed `package.json` from `process.cwd()` with computed properties:
+
+```tsx
+import { PKG } from '@vitus-labs/tools-core'
+
+PKG.name            // '@vitus-labs/core'
+PKG.version         // '2.0.0-alpha.25'
+PKG.type            // 'module' | 'commonjs'
+PKG.main            // 'lib/index.cjs'
+PKG.module          // 'lib/index.js'
+PKG.exports         // { import, require, types }
+PKG.browser         // browser field (string | object)
+PKG.bundleName      // UMD global name (camelCase of package name)
+PKG.externalDependencies  // [...dependencies, ...peerDependencies]
+```
+
+`externalDependencies` is the union of all `dependencies` and `peerDependencies` keys — used by bundlers to mark packages as external.
+
+### TS_CONFIG
+
+Parsed `tsconfig.json` from `process.cwd()`:
+
+```tsx
+import { TS_CONFIG } from '@vitus-labs/tools-core'
+
+TS_CONFIG.compilerOptions.target      // 'ES2024'
+TS_CONFIG.compilerOptions.module      // 'Preserve'
+TS_CONFIG.include                     // ['src']
+TS_CONFIG.exclude                     // ['node_modules', ...]
+```
+
+### VL_CONFIG
+
+Factory function that loads and merges cascading `vl-tools.config.mjs` files:
+
+```tsx
+import { VL_CONFIG } from '@vitus-labs/tools-core'
+
+const buildConfig = VL_CONFIG('build')
+// Returns: { config: { ...merged config for 'build' key }, merge: fn }
+
+const merged = buildConfig.merge(baseDefaults)
+// Returns: { config: { ...deep merged result } }
+```
+
+## Utility Functions
+
+### defineConfig()
+
+Type-safe helper for authoring `vl-tools.config.mjs`:
+
+```tsx
+import { defineConfig } from '@vitus-labs/tools-core'
+
+export default defineConfig({
+  build: { outputDir: 'dist' },
+  next: { headers: true },
+})
+```
+
+### findFile()
+
+Searches upward from `process.cwd()` for a file by name:
+
+```tsx
+import { findFile } from '@vitus-labs/tools-core'
+
+const tsconfigPath = findFile('tsconfig.json')
+// '/Users/me/project/tsconfig.json'
+```
+
+### loadFileToJSON()
+
+Reads and parses a JSON file:
+
+```tsx
+import { loadFileToJSON } from '@vitus-labs/tools-core'
+
+const pkg = loadFileToJSON('package.json')
+```
+
+### loadConfigParam()
+
+Loads a specific key from a JSON config file:
+
+```tsx
+import { loadConfigParam } from '@vitus-labs/tools-core'
+
+const compilerOptions = loadConfigParam('tsconfig.json', 'compilerOptions')
+```
+
+### loadVLToolsConfig()
+
+Loads and merges all `vl-tools.config.mjs` files from `process.cwd()` upward:
+
+```tsx
+import { loadVLToolsConfig } from '@vitus-labs/tools-core'
+
+const fullConfig = await loadVLToolsConfig()
+// { build: { ... }, next: { ... }, storybook: { ... } }
+```
+
+### swapGlobals()
+
+Inverts a key-value mapping (used for UMD globals):
+
+```tsx
+import { swapGlobals } from '@vitus-labs/tools-core'
+
+swapGlobals({ react: 'React', 'react-dom': 'ReactDOM' })
+// { React: 'react', ReactDOM: 'react-dom' }
+```
+
+## Internal Utilities
+
+These are used internally but available for advanced use:
+
+| Function | Description |
+|----------|-------------|
+| `get(obj, path)` | Deep property access by dot-notation path |
+| `deepMerge(target, source)` | Recursive object merge (arrays replaced, objects merged) |
+| `findFileUp(name, dir?)` | Walk up directories looking for a file |
+| `loadModuleAsync(path)` | Dynamic ESM import with error handling |
+
+## Cascading Config Resolution
+
+The config system walks from `process.cwd()` toward the filesystem root:
+
+```
+/Users/me/monorepo/packages/my-lib/  ← cwd
+/Users/me/monorepo/packages/         ← checked
+/Users/me/monorepo/                  ← checked (root config found)
+/Users/me/                           ← stops at git root or filesystem root
+```
+
+All found `vl-tools.config.mjs` files are loaded and deep-merged. Root-level values are applied first, then closer configs override:
+
+```js
+// monorepo/vl-tools.config.mjs (root)
+export default {
+  build: { outputDir: 'lib', replaceGlobals: true },
+}
+
+// monorepo/packages/special/vl-tools.config.mjs (package)
+export default {
+  build: { outputDir: 'dist' },  // overrides root
+  // replaceGlobals: true still inherited from root
+}
+```
+
+## Exports
+
+```tsx
+import {
+  defineConfig,
+  findFile,
+  loadFileToJSON,
+  loadConfigParam,
+  loadVLToolsConfig,
+  swapGlobals,
+  PKG,
+  VL_CONFIG,
+  TS_CONFIG,
+} from '@vitus-labs/tools-core'
+```

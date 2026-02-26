@@ -1,0 +1,201 @@
+---
+title: Tools Vitest
+description: Shared Vitest configuration factory with sensible defaults for TypeScript + Vite projects.
+---
+
+`@vitus-labs/tools-vitest` provides a factory function for generating consistent [Vitest](https://vitest.dev/) configurations across a monorepo. It exports `createVitestConfig()` with opinionated defaults — globals enabled, V8 coverage at 90%, and automatic test discovery.
+
+## Installation
+
+```package-install
+@vitus-labs/tools-vitest
+```
+
+**Peer dependencies:** `vite >= 6`, `vitest >= 4`
+
+## Quick Start
+
+Create a `vitest.config.ts` in your package:
+
+```tsx
+import { createVitestConfig } from '@vitus-labs/tools-vitest'
+
+export default createVitestConfig()
+```
+
+That's it. You get globals, V8 coverage with 90% thresholds, and `src/**/*.test.{ts,tsx}` discovery.
+
+## Configuration Options
+
+```tsx
+createVitestConfig(options?: VitestConfigOptions): UserConfig
+```
+
+### VitestConfigOptions
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `environment` | `string` | `'node'` | Test environment: `'node'`, `'jsdom'`, `'happy-dom'` |
+| `css` | `boolean` | `false` | Enable full CSS processing (if `false`, CSS modules are non-scoped) |
+| `setupFiles` | `string[]` | — | Files to run before each test |
+| `aliases` | `Record<string, string>` | — | Path aliases resolved to absolute paths |
+| `plugins` | `PluginOption[]` | — | Vite plugins for test bundling |
+| `testTimeout` | `number` | 5000 | Test timeout in milliseconds |
+| `pool` | `'threads' \| 'forks' \| 'vmThreads' \| 'vmForks'` | `'threads'` | Worker pool strategy |
+| `include` | `string[]` | — | Extra test discovery patterns (appended to defaults) |
+| `exclude` | `string[]` | — | Extra exclusion patterns (appended to defaults) |
+| `coverageExclude` | `string[]` | — | Extra coverage exclusion patterns |
+| `coverageThresholds` | `CoverageThresholds` | All 90% | Override coverage thresholds |
+
+### CoverageThresholds
+
+```tsx
+interface CoverageThresholds {
+  statements?: number   // Default: 90
+  branches?: number     // Default: 90
+  functions?: number    // Default: 90
+  lines?: number        // Default: 90
+}
+```
+
+## Default Behavior
+
+### Test Discovery
+
+```
+include: ['src/**/*.test.ts', 'src/**/*.test.tsx']
+exclude: [...vitest defaults, 'lib/**']
+```
+
+Test files must live under `src/` and match `*.test.ts` or `*.test.tsx`. The `lib/` directory is always excluded.
+
+### Coverage
+
+```
+provider: 'v8'
+include: ['src/**/*.ts', 'src/**/*.tsx']
+exclude: ['src/**/*.test.ts', 'src/**/*.test.tsx', 'src/**/index.ts', 'src/bin/**']
+```
+
+- **V8 provider** — uses Node's built-in coverage (fast, no instrumentation)
+- **Index files excluded** — re-export barrels don't count toward coverage
+- **Bin scripts excluded** — CLI entry points excluded
+- **90% thresholds** — statements, branches, functions, and lines
+
+### Globals
+
+`describe`, `it`, `expect`, `vi`, `beforeEach`, `afterEach`, etc. are available without imports.
+
+### Mock Reset
+
+All mocks are automatically reset between tests (`mockReset: true`).
+
+## Examples
+
+### DOM Testing (React Components)
+
+```tsx
+import { createVitestConfig } from '@vitus-labs/tools-vitest'
+
+export default createVitestConfig({
+  environment: 'jsdom',
+  css: true,
+  setupFiles: ['@testing-library/jest-dom/vitest'],
+})
+```
+
+### Custom Path Aliases
+
+```tsx
+import { createVitestConfig } from '@vitus-labs/tools-vitest'
+
+export default createVitestConfig({
+  aliases: { '~/': 'src/' },
+})
+```
+
+Aliases are resolved to absolute paths using `process.cwd()`. The `~/` shorthand becomes `{cwd}/src`.
+
+### Relaxed Coverage Thresholds
+
+```tsx
+import { createVitestConfig } from '@vitus-labs/tools-vitest'
+
+export default createVitestConfig({
+  coverageThresholds: {
+    statements: 80,
+    branches: 70,
+  },
+  // functions and lines remain at 90% default
+})
+```
+
+### With Vite Plugins
+
+```tsx
+import { createVitestConfig } from '@vitus-labs/tools-vitest'
+import tsconfigPaths from 'vite-tsconfig-paths'
+
+export default createVitestConfig({
+  plugins: [tsconfigPaths()],
+})
+```
+
+### Legacy Shorthand
+
+A string array is treated as `coverageExclude`:
+
+```tsx
+// Equivalent to: { coverageExclude: ['src/storybook/**'] }
+export default createVitestConfig(['src/storybook/**'])
+```
+
+## Monorepo Setup
+
+Each package defines its own `vitest.config.ts`. The root workspace file ties them together:
+
+```tsx
+// vitest.workspace.ts (root)
+import { defineWorkspace } from 'vitest/config'
+
+export default defineWorkspace([
+  'packages/my-lib',
+  'packages/my-app',
+])
+```
+
+```tsx
+// packages/my-lib/vitest.config.ts
+import { createVitestConfig } from '@vitus-labs/tools-vitest'
+
+export default createVitestConfig({
+  environment: 'jsdom',
+})
+```
+
+```tsx
+// packages/my-app/vitest.config.ts
+import { createVitestConfig } from '@vitus-labs/tools-vitest'
+
+export default createVitestConfig({
+  environment: 'node',
+  coverageThresholds: { statements: 80 },
+})
+```
+
+## CSS Handling
+
+When `css: false` (default), CSS modules resolve to non-scoped class names during testing. This prevents tests from breaking when CSS class names change.
+
+When `css: true`, full CSS processing is enabled — useful when testing CSS-dependent logic.
+
+## Exports
+
+```tsx
+import { createVitestConfig } from '@vitus-labs/tools-vitest'
+
+import type {
+  VitestConfigOptions,
+  CoverageThresholds,
+} from '@vitus-labs/tools-vitest'
+```

@@ -1,0 +1,229 @@
+---
+title: Element
+description: Core 3-section flex layout component — the foundational building block.
+---
+
+Element is the primary building block of the UI system. It renders a flex container with three optional sections: **beforeContent**, **content** (children), and **afterContent**. When only content exists, unnecessary nesting is bypassed for optimal DOM structure.
+
+**Peer dependencies:** `@vitus-labs/core`, `@vitus-labs/unistyle`
+
+## Basic Usage
+
+```tsx
+import { Element } from '@vitus-labs/elements'
+
+// Simple content
+<Element tag="p" label="Hello World" />
+
+// Button with icon and label
+<Element
+  tag="button"
+  beforeContent={<Icon name="star" />}
+  gap={8}
+  alignX="center"
+  alignY="center"
+>
+  Favorite
+</Element>
+
+// Three-section layout
+<Element
+  beforeContent={<Avatar />}
+  afterContent={<Badge count={5} />}
+  gap={12}
+  alignX="spaceBetween"
+  alignY="center"
+>
+  <span>John Doe</span>
+</Element>
+```
+
+## Content Props
+
+Content is resolved with this priority: `children > content > label`
+
+| Prop | Type | Description |
+|------|------|-------------|
+| `children` | `ReactNode` | Highest priority content |
+| `content` | `Content` | Alternative to children (supports components, elements, render functions) |
+| `label` | `Content` | Fallback content |
+| `beforeContent` | `Content` | Rendered before main content |
+| `afterContent` | `Content` | Rendered after main content |
+
+The `Content` type accepts anything the `render()` utility from `@vitus-labs/core` handles: React elements, component types (created via `createElement`), render functions (`(props) => ReactNode`), primitives, arrays, and fragments.
+
+## DOM Structure
+
+### Simple Element (no beforeContent/afterContent)
+
+When no side content is provided, Element renders a single wrapper with content directly inside — no unnecessary nesting:
+
+```html
+<div class="vl-..." style="display: inline-flex; ...">
+  <!-- children / content / label -->
+</div>
+```
+
+Direction defaults to `contentDirection` (or `direction` fallback), alignment uses `contentAlignX`/`contentAlignY`.
+
+### Complex Element (has beforeContent or afterContent)
+
+When side content is present, three inner `<div>` (or `<span>` for inline tags) slots are rendered:
+
+```html
+<div class="vl-..." style="display: inline-flex; flex-direction: row; ...">
+  <div class="..." style="..."><!-- beforeContent --></div>
+  <div class="..." style="flex: 1; ..."><!-- children / content / label --></div>
+  <div class="..." style="..."><!-- afterContent --></div>
+</div>
+```
+
+The outer wrapper uses `direction`/`alignX`/`alignY`, while each slot has its own direction/alignment props.
+
+## Layout Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `tag` | `HTMLTags` | `'div'` | HTML element to render |
+| `block` | `boolean` (responsive) | — | `flex` (true) vs `inline-flex` (false) |
+| `direction` | `Direction` (responsive) | `'inline'` | Main flex direction |
+| `contentDirection` | `Direction` (responsive) | `'rows'` | Children wrapper direction |
+| `beforeContentDirection` | `Direction` (responsive) | `'inline'` | beforeContent wrapper direction |
+| `afterContentDirection` | `Direction` (responsive) | `'inline'` | afterContent wrapper direction |
+| `gap` | `number` (responsive) | — | Spacing between sections |
+| `alignX` | `AlignX` (responsive) | `'left'` | Horizontal alignment |
+| `alignY` | `AlignY` (responsive) | `'center'` | Vertical alignment |
+| `contentAlignX` / `contentAlignY` | Alignment (responsive) | — | Children wrapper alignment |
+| `beforeContentAlignX` / `beforeContentAlignY` | Alignment (responsive) | — | beforeContent alignment |
+| `afterContentAlignX` / `afterContentAlignY` | Alignment (responsive) | — | afterContent alignment |
+| `equalCols` | `boolean` (responsive) | — | Equal width/height for all sections |
+| `equalBeforeAfter` | `boolean` | — | Set both sidebars to the same size |
+
+### Direction Values
+
+| Value | CSS |
+|-------|-----|
+| `'inline'` | `flex-direction: row` |
+| `'rows'` | `flex-direction: column` |
+| `'reverseInline'` | `flex-direction: row-reverse` |
+| `'reverseRows'` | `flex-direction: column-reverse` |
+
+### Alignment Values
+
+**AlignX:** `'left'` | `'center'` | `'right'` | `'spaceBetween'` | `'spaceAround'` | `'block'`
+
+**AlignY:** `'top'` | `'center'` | `'bottom'` | `'spaceBetween'` | `'spaceAround'` | `'block'`
+
+## Styling Props
+
+| Prop | Type | Description |
+|------|------|-------------|
+| `css` | `ExtendCss` | Root element styles |
+| `contentCss` | `ExtendCss` | Children wrapper styles |
+| `beforeContentCss` | `ExtendCss` | beforeContent wrapper styles |
+| `afterContentCss` | `ExtendCss` | afterContent wrapper styles |
+
+## HTML Props
+
+| Prop | Type | Description |
+|------|------|-------------|
+| `tag` | `string` | HTML tag name |
+| `innerRef` | `Ref` | Alternative ref (avoids naming conflicts) |
+| `dangerouslySetInnerHTML` | `{ __html: string }` | Raw HTML injection |
+| All standard HTML attributes | — | onClick, className, style, aria-*, data-*, etc. |
+
+## Responsive Layout
+
+```tsx
+// Stack on mobile, inline on desktop
+<Element
+  direction={['rows', 'inline']}
+  alignX={['center', 'left']}
+  gap={[8, 16]}
+>
+  {children}
+</Element>
+
+// Breakpoint object
+<Element
+  gap={{ xs: 8, md: 12, lg: 16, xl: 20 }}
+  alignX={{ xs: 'center', md: 'left' }}
+>
+  {children}
+</Element>
+```
+
+## Special Handling
+
+### Void Elements
+
+For self-closing tags (`input`, `img`, `br`, `hr`, `embed`, etc.), Element renders just the wrapper without content sections:
+
+```tsx
+<Element tag="input" type="text" placeholder="Enter text" />
+// Renders: <input type="text" placeholder="Enter text" />
+```
+
+### Inline Elements
+
+When the tag is inline (`span`, `a`, `button`, `label`), content wrappers use `<span>` instead of `<div>` to maintain valid HTML nesting.
+
+### Browser Flexbox Fix
+
+For `<button>`, `<fieldset>`, and `<legend>` (which don't natively support flex), Element applies a two-layer DOM structure to achieve proper flex behavior.
+
+## equalBeforeAfter
+
+Measures both side sections and sets them to the larger dimension via `useLayoutEffect`. Useful for centered content with unequal side elements:
+
+```tsx
+<Element equalBeforeAfter alignX="center">
+  <Element beforeContent={<BackButton />}>
+    <Text tag="h1">Page Title</Text>
+  </Element>
+</Element>
+// Both beforeContent and afterContent get equal width
+// so the title is perfectly centered
+```
+
+Uses `getBoundingClientRect()` and direct style manipulation to set both slots to `Math.max(beforeSize, afterSize)`. Recalculates when `equalBeforeAfter`, `beforeContent`, `afterContent`, or `direction` change.
+
+## Ref Forwarding
+
+Element supports both `ref` (via `forwardRef`) and the `innerRef` prop:
+
+```tsx
+const ref = useRef(null)
+<Element ref={ref} tag="button">Click</Element>
+// or
+<Element innerRef={ref} tag="button">Click</Element>
+```
+
+When `equalBeforeAfter` is enabled, an internal ref is used for measurement. Both internal and external refs are merged via a callback ref to ensure both function correctly.
+
+## Reserved Props
+
+These props are consumed by Element and **not** forwarded to the DOM:
+
+```
+innerRef, tag, block, label, children, beforeContent, afterContent,
+equalCols, vertical, direction, alignX, alignY, css, contentCss,
+beforeContentCss, afterContentCss, contentDirection, contentAlignX,
+contentAlignY, beforeContentDirection, beforeContentAlignX,
+beforeContentAlignY, afterContentDirection, afterContentAlignX,
+afterContentAlignY
+```
+
+All other props (onClick, className, style, aria-*, data-*, etc.) are forwarded to the root DOM element.
+
+## Static Properties
+
+```tsx
+Element.displayName    // '@vitus-labs/elements/Element'
+Element.pkgName        // '@vitus-labs/elements'
+Element.VITUS_LABS__COMPONENT  // '@vitus-labs/elements/Element'
+```
+
+## API Reference
+
+<AutoTypeTable path="./src/types/elements.ts" name="ElementProps" />

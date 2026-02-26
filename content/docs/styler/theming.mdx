@@ -1,0 +1,224 @@
+---
+title: Theming
+description: Theme support with ThemeProvider and useTheme in @vitus-labs/styler.
+---
+
+`@vitus-labs/styler` provides a theming system via React Context. The `ThemeProvider` makes a theme object available to all styled components, and `useTheme()` provides direct access in hooks.
+
+## ThemeProvider
+
+Wraps your application and provides a theme object to all descendant styled components.
+
+```tsx
+import { ThemeProvider } from '@vitus-labs/styler'
+
+const theme = {
+  colors: {
+    primary: '#0d6efd',
+    secondary: '#6c757d',
+    background: '#ffffff',
+    text: '#212529',
+  },
+  spacing: {
+    sm: 8,
+    md: 16,
+    lg: 24,
+  },
+  borderRadius: 8,
+}
+
+function App() {
+  return (
+    <ThemeProvider theme={theme}>
+      <Main />
+    </ThemeProvider>
+  )
+}
+```
+
+### Props
+
+| Prop | Type | Description |
+|------|------|-------------|
+| `theme` | `DefaultTheme & Record<string, unknown>` | Theme object available to all descendant styled components |
+| `children` | `ReactNode` | Child elements |
+
+### How Theme Reaches Styled Components
+
+When a styled component has dynamic interpolations (function values), the component:
+1. Calls `useTheme()` to read the current theme from context
+2. Merges theme into the props object: `{ ...componentProps, theme }`
+3. Passes the merged object to each function interpolation
+
+```tsx
+const Card = styled.div`
+  background: ${(props) => props.theme.colors.background};
+  padding: ${(props) => props.theme.spacing.md}px;
+  border-radius: ${(props) => props.theme.borderRadius}px;
+`
+```
+
+Static styled components (no function interpolations) do **not** access theme context — they have zero per-render overhead.
+
+## useTheme Hook
+
+Access the theme object directly in any component:
+
+```tsx
+import { useTheme } from '@vitus-labs/styler'
+
+function StatusBadge({ status }) {
+  const theme = useTheme()
+
+  const color = status === 'active'
+    ? theme.colors.primary
+    : theme.colors.secondary
+
+  return (
+    <span style={{ color, fontWeight: 'bold' }}>
+      {status}
+    </span>
+  )
+}
+```
+
+### Signature
+
+```tsx
+useTheme<T extends Theme = Theme>(): T
+```
+
+The generic type parameter allows custom typing:
+
+```tsx
+interface MyTheme {
+  colors: { primary: string }
+  spacing: (n: number) => string
+}
+
+const theme = useTheme<MyTheme>()
+// theme.colors.primary is typed as string
+// theme.spacing is typed as (n: number) => string
+```
+
+### Default Value
+
+If `useTheme()` is called outside any `ThemeProvider`, it returns an empty object `{}` (the context's default value). It does **not** throw.
+
+## Nested Themes
+
+`ThemeProvider` instances can be nested. Child providers completely override the parent theme for their subtree:
+
+```tsx
+const lightTheme = { colors: { background: '#fff', text: '#000' } }
+const darkTheme = { colors: { background: '#1a1a1a', text: '#fff' } }
+
+function App() {
+  return (
+    <ThemeProvider theme={lightTheme}>
+      <Header />      {/* Uses lightTheme */}
+      <ThemeProvider theme={darkTheme}>
+        <Sidebar />   {/* Uses darkTheme */}
+      </ThemeProvider>
+      <Main />        {/* Uses lightTheme */}
+    </ThemeProvider>
+  )
+}
+```
+
+Theme providers do **not** merge — the inner theme completely replaces the outer one. If you need merged themes, do so manually:
+
+```tsx
+function MergedThemeProvider({ overrides, children }) {
+  const parentTheme = useTheme()
+  const merged = { ...parentTheme, ...overrides }
+  return <ThemeProvider theme={merged}>{children}</ThemeProvider>
+}
+```
+
+## TypeScript Support
+
+### Module Augmentation
+
+Define a `DefaultTheme` interface for type-safe theme access across all styled components:
+
+```tsx title="src/theme.d.ts"
+declare module '@vitus-labs/styler' {
+  export interface DefaultTheme {
+    colors: {
+      primary: string
+      secondary: string
+      background: string
+      text: string
+    }
+    spacing: {
+      sm: number
+      md: number
+      lg: number
+    }
+    borderRadius: number
+  }
+}
+```
+
+Once augmented, all interpolation functions receive typed `props.theme`:
+
+```tsx
+const Box = styled.div`
+  padding: ${(props) => props.theme.spacing.md}px;
+  // TypeScript knows spacing.md is a number ✓
+  // TypeScript errors on props.theme.nonexistent ✓
+`
+```
+
+### DefaultTheme
+
+The base interface is intentionally empty to allow augmentation:
+
+```tsx
+export interface DefaultTheme {}
+```
+
+This is the recommended pattern — augment once in a declaration file, and all styled components, `useTheme()` calls, and `createGlobalStyle` interpolations get full type safety.
+
+## Theme in Global Styles
+
+`createGlobalStyle` also receives theme:
+
+```tsx
+const GlobalStyles = createGlobalStyle`
+  body {
+    background: ${(props) => props.theme.colors.background};
+    color: ${(props) => props.theme.colors.text};
+    font-family: system-ui, sans-serif;
+  }
+`
+
+<ThemeProvider theme={theme}>
+  <GlobalStyles />
+  <App />
+</ThemeProvider>
+```
+
+## Theme in useCSS
+
+The `useCSS` hook automatically accesses theme from context:
+
+```tsx
+const card = css`
+  background: ${(props) => props.theme.colors.background};
+  border-radius: ${(props) => props.theme.borderRadius}px;
+`
+
+function Card({ children }) {
+  const className = useCSS(card)
+  // theme automatically merged from context
+  return <div className={className}>{children}</div>
+}
+```
+
+## API Reference
+
+### DefaultTheme
+
+<AutoTypeTable path="./src/types/styler.ts" name="DefaultTheme" />

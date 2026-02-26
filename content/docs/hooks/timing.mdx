@@ -1,0 +1,210 @@
+---
+title: Timing Hooks
+description: useDebouncedCallback, useDebouncedValue, useThrottledCallback, useInterval, useTimeout.
+---
+
+## useDebouncedCallback
+
+Returns a stable debounced callback with `cancel()` and `flush()` control methods.
+
+```tsx
+import { useDebouncedCallback } from '@vitus-labs/hooks'
+
+function SearchInput() {
+  const [results, setResults] = useState([])
+
+  const search = useDebouncedCallback(
+    async (query: string) => {
+      const data = await fetchResults(query)
+      setResults(data)
+    },
+    300
+  )
+
+  return (
+    <div>
+      <input onChange={(e) => search(e.target.value)} />
+      {/* Typing pauses for 300ms before search fires */}
+    </div>
+  )
+}
+```
+
+### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `callback` | `(...args) => any` | Function to debounce |
+| `delay` | `number` | Debounce delay in milliseconds |
+
+### Returns
+
+Debounced function with additional methods:
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `(...args)` | `void` | Call the debounced function |
+| `.cancel()` | `() => void` | Cancel pending execution |
+| `.flush()` | `() => void` | Execute immediately |
+
+```tsx
+const debouncedFn = useDebouncedCallback(fn, 300)
+
+debouncedFn('query')    // Schedule
+debouncedFn.cancel()    // Cancel pending
+debouncedFn.flush()     // Execute now
+```
+
+---
+
+## useDebouncedValue
+
+Returns a debounced version of a value that only updates after a period of inactivity.
+
+```tsx
+import { useDebouncedValue } from '@vitus-labs/hooks'
+
+function SearchWithPreview() {
+  const [input, setInput] = useState('')
+  const debouncedInput = useDebouncedValue(input, 300)
+
+  // debouncedInput updates 300ms after the last keystroke
+  useEffect(() => {
+    if (debouncedInput) fetchPreview(debouncedInput)
+  }, [debouncedInput])
+
+  return <input value={input} onChange={(e) => setInput(e.target.value)} />
+}
+```
+
+### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `value` | `T` | Value to debounce |
+| `delay` | `number` | Debounce delay in milliseconds |
+
+### Returns
+
+`T` — the debounced value.
+
+---
+
+## useThrottledCallback
+
+Returns a stable throttled callback that fires at most once per delay period.
+
+```tsx
+import { useThrottledCallback } from '@vitus-labs/hooks'
+
+function ScrollTracker() {
+  const handleScroll = useThrottledCallback(
+    () => {
+      const scrollY = window.scrollY
+      updateScrollProgress(scrollY)
+    },
+    100  // Max once per 100ms
+  )
+
+  useEffect(() => {
+    window.addEventListener('scroll', handleScroll)
+    return () => {
+      window.removeEventListener('scroll', handleScroll)
+      handleScroll.cancel()
+    }
+  }, [handleScroll])
+
+  return <div>Scroll progress tracked</div>
+}
+```
+
+### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `callback` | `(...args) => any` | Function to throttle |
+| `delay` | `number` | Throttle delay in milliseconds |
+
+### Returns
+
+Throttled function with `.cancel()` method:
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `(...args)` | `void` | Call the throttled function |
+| `.cancel()` | `() => void` | Cancel pending execution |
+
+---
+
+## useInterval
+
+Declarative `setInterval` wrapper with auto-cleanup. Pass `null` as delay to pause.
+
+```tsx
+import { useInterval } from '@vitus-labs/hooks'
+
+function Timer() {
+  const [count, setCount] = useState(0)
+  const [isRunning, setIsRunning] = useState(true)
+
+  useInterval(
+    () => setCount((c) => c + 1),
+    isRunning ? 1000 : null  // null pauses the interval
+  )
+
+  return (
+    <div>
+      Count: {count}
+      <button onClick={() => setIsRunning(!isRunning)}>
+        {isRunning ? 'Pause' : 'Resume'}
+      </button>
+    </div>
+  )
+}
+```
+
+### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `callback` | `() => void` | Function to call repeatedly |
+| `delay` | `number \| null` | Interval in ms, or `null` to pause |
+
+Always calls the latest callback (no stale closures). Cleans up on unmount.
+
+---
+
+## useTimeout
+
+Declarative `setTimeout` wrapper with `reset()` and `clear()` control.
+
+```tsx
+import { useTimeout } from '@vitus-labs/hooks'
+
+function Toast({ message, duration = 3000, onDismiss }) {
+  const { reset, clear } = useTimeout(onDismiss, duration)
+
+  return (
+    <div
+      onMouseEnter={clear}       // Pause on hover
+      onMouseLeave={reset}       // Resume on leave
+    >
+      {message}
+    </div>
+  )
+}
+```
+
+### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `callback` | `() => void` | Function to call after delay |
+| `delay` | `number \| null` | Delay in ms, or `null` to disable |
+
+### Returns
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `reset` | `() => void` | Restart the timer |
+| `clear` | `() => void` | Cancel pending timeout |

@@ -1,0 +1,286 @@
+---
+title: Overlay
+description: Advanced positioning system for dropdowns, tooltips, popovers, and modals.
+---
+
+Overlay is a complete positioning and interaction system for floating UI elements. It handles trigger/content refs, dynamic positioning with viewport edge flipping, event listeners, and nested overlay blocking.
+
+## Basic Usage
+
+```tsx
+import { Overlay } from '@vitus-labs/elements'
+
+// Dropdown
+<Overlay trigger={<button>Menu</button>}>
+  <div>Dropdown content</div>
+</Overlay>
+
+// Tooltip on hover
+<Overlay
+  type="tooltip"
+  openOn="hover"
+  closeOn="hover"
+  align="top"
+  trigger={<span>Hover me</span>}
+>
+  <div>Tooltip text</div>
+</Overlay>
+```
+
+## Props
+
+### Content
+
+| Prop | Type | Description |
+|------|------|-------------|
+| `trigger` | `ReactNode \| (props) => ReactNode` | Trigger element or render function |
+| `children` | `ReactNode \| (props) => ReactNode` | Content to show when open |
+| `DOMLocation` | `HTMLElement` | Portal target (default: `document.body`) |
+| `triggerRefName` | `string` | Ref prop name for trigger (default: `'ref'`) |
+| `contentRefName` | `string` | Ref prop name for content (default: `'ref'`) |
+
+### Behavior
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `isOpen` | `boolean` | `false` | Initial open state |
+| `openOn` | `'click' \| 'hover' \| 'manual'` | `'click'` | How to open |
+| `closeOn` | `'click' \| 'clickOnTrigger' \| 'clickOutsideContent' \| 'hover' \| 'manual'` | `'click'` | How to close |
+| `closeOnEsc` | `boolean` | `true` | Close on ESC key |
+| `disabled` | `boolean` | — | Disable completely |
+| `onOpen` | `() => void` | — | Called on open |
+| `onClose` | `() => void` | — | Called on close |
+
+### Positioning
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `type` | `'dropdown' \| 'tooltip' \| 'popover' \| 'modal' \| 'custom'` | `'dropdown'` | Positioning preset |
+| `position` | `'absolute' \| 'fixed' \| 'relative' \| 'static'` | `'fixed'` | CSS position |
+| `align` | `'top' \| 'bottom' \| 'left' \| 'right'` | `'bottom'` | Primary direction |
+| `alignX` | `'left' \| 'center' \| 'right'` | `'left'` | Horizontal alignment |
+| `alignY` | `'top' \| 'center' \| 'bottom'` | `'bottom'` | Vertical alignment |
+| `offsetX` | `number` | `0` | Horizontal margin |
+| `offsetY` | `number` | `0` | Vertical margin |
+| `throttleDelay` | `number` | `200` | Position recalculation throttle (ms) |
+| `parentContainer` | `HTMLElement` | — | Custom scroll container |
+
+## Render Props
+
+When using render functions, trigger and content receive interaction props:
+
+### Trigger Render Props
+
+```tsx
+<Overlay
+  trigger={(props) => (
+    <button ref={props.ref}>
+      {props.active ? 'Close' : 'Open'}
+    </button>
+  )}
+>
+  <div>Content</div>
+</Overlay>
+```
+
+| Prop | Type | Description |
+|------|------|-------------|
+| `active` | `boolean` | Whether content is visible |
+| `showContent` | `() => void` | Open the overlay |
+| `hideContent` | `() => void` | Close the overlay |
+
+### Content Render Props
+
+```tsx
+<Overlay trigger={<button>Open</button>}>
+  {(props) => (
+    <div ref={props.ref}>
+      Aligned: {props.align} / {props.alignX}
+      <button onClick={props.hideContent}>Close</button>
+    </div>
+  )}
+</Overlay>
+```
+
+| Prop | Type | Description |
+|------|------|-------------|
+| `active` | `boolean` | Whether content is visible |
+| `align` | `string` | Current primary direction (may flip) |
+| `alignX` | `string` | Current horizontal alignment |
+| `alignY` | `string` | Current vertical alignment |
+| `showContent` | `() => void` | Open |
+| `hideContent` | `() => void` | Close |
+
+## Positioning Types
+
+### Dropdown
+
+Positioned relative to trigger, below by default. Flips to top if not enough space.
+
+```tsx
+<Overlay type="dropdown" align="bottom" alignX="left">
+  ...
+</Overlay>
+```
+
+### Tooltip
+
+Similar to dropdown but typically used with hover:
+
+```tsx
+<Overlay type="tooltip" openOn="hover" closeOn="hover" align="top">
+  ...
+</Overlay>
+```
+
+### Modal
+
+Centered in viewport:
+
+```tsx
+<Overlay
+  type="modal"
+  openOn="click"
+  closeOn="clickOutsideContent"
+  closeOnEsc
+>
+  {(props) => (
+    <div style={{ background: 'white', padding: 24, borderRadius: 8 }}>
+      Modal content
+      <button onClick={props.hideContent}>Close</button>
+    </div>
+  )}
+</Overlay>
+```
+
+## Dynamic Positioning
+
+Overlay automatically flips direction when content would go off-screen:
+
+- If `align="bottom"` but there's no space below, flips to `"top"`
+- If `alignX="left"` but content overflows right, adjusts to `"right"`
+- Center alignment centers the content relative to the trigger
+
+### How Positioning Works
+
+1. **Content mounts in portal** — `contentRef` callback fires, signals ready
+2. **`getBoundingClientRect()`** — Measures trigger and content dimensions
+3. **Viewport check** — Tests if content fits in preferred direction (`fitsTop`, `fitsBottom`, `fitsLeft`, `fitsRight`)
+4. **Auto-flip** — If preferred direction doesn't fit, selects the best alternative
+5. **Offset application** — Adds `offsetX`/`offsetY` margins
+6. **Style assignment** — Sets `position`, `top`, `left`, `right`, `bottom` directly on the content element
+
+### Absolute vs Fixed Positioning
+
+- **`position: 'fixed'`** (default): Content positioned relative to the viewport
+- **`position: 'absolute'`**: Content positioned relative to its `offsetParent`. The system automatically subtracts the `offsetParent`'s viewport rect to compute correct placement.
+
+### Modal Body Scroll Lock
+
+When `type="modal"` and the overlay is active:
+- `document.body.style.overflow = 'hidden'` — prevents background scrolling
+- Reset to original on close
+
+### Performance
+
+- Position recalculation is **throttled** by `throttleDelay` (default: 200ms)
+- Scroll and resize listeners use `{ passive: true }` for better scrolling performance
+- `useLayoutEffect` + `requestAnimationFrame` — positions immediately, then re-measures after browser reflow
+- Throttled callbacks use the "latest ref" pattern to access current state without stale closures
+
+## Nested Overlays
+
+Child overlays automatically block parent from closing when interacting with nested content:
+
+```tsx
+<Overlay trigger={<button>Main Menu</button>}>
+  {(props) => (
+    <div ref={props.ref}>
+      <div>Item 1</div>
+      <Overlay trigger={<div>Submenu</div>} align="right">
+        {(subProps) => (
+          <div ref={subProps.ref}>
+            <div>Sub Item 1</div>
+            <div>Sub Item 2</div>
+          </div>
+        )}
+      </Overlay>
+    </div>
+  )}
+</Overlay>
+```
+
+## useOverlay Hook
+
+For full control without the Overlay component:
+
+```tsx
+import { useOverlay } from '@vitus-labs/elements'
+
+function CustomDropdown() {
+  const {
+    active,
+    triggerRef,
+    contentRef,  // callback ref!
+    showContent,
+    hideContent,
+    Provider,
+    ...ctx
+  } = useOverlay({
+    openOn: 'click',
+    closeOnEsc: true,
+  })
+
+  return (
+    <>
+      <button ref={triggerRef} onClick={showContent}>
+        Toggle
+      </button>
+      {active && (
+        <Portal>
+          <Provider {...ctx}>
+            <div ref={contentRef}>Content</div>
+          </Provider>
+        </Portal>
+      )}
+    </>
+  )
+}
+```
+
+**Important:** `contentRef` is a **callback ref** — assign it directly as `ref={contentRef}`.
+
+### useOverlay Return Value
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `triggerRef` | `RefObject<HTMLElement>` | Object ref for trigger element |
+| `contentRef` | `(node: HTMLElement) => void` | **Callback ref** for content element |
+| `active` | `boolean` | Current open/close state |
+| `align` | `string` | Resolved primary direction (after flipping) |
+| `alignX` | `string` | Resolved horizontal alignment (after flipping) |
+| `alignY` | `string` | Resolved vertical alignment (after flipping) |
+| `showContent` | `() => void` | Open the overlay |
+| `hideContent` | `() => void` | Close the overlay |
+| `blocked` | `boolean` | Whether a nested overlay is blocking close |
+| `setBlocked` | `() => void` | Signal that a child overlay is active |
+| `setUnblocked` | `() => void` | Signal that a child overlay closed |
+| `Provider` | `FC` | Context provider for nested overlay coordination |
+
+## Event Listeners
+
+When the overlay is active, these listeners are attached (web only):
+
+| Event | Target | Condition | Purpose |
+|-------|--------|-----------|---------|
+| `keydown` (ESC) | `window` | `closeOnEsc && active` | Close on Escape |
+| `resize` | `window` | `active` | Recalculate position |
+| `scroll` | `window` (passive) | `active` | Recalculate position |
+| `click` | `window` | `openOn='click'` or `closeOn` includes click | Open/close handling |
+| `mouseenter`/`mouseleave` | trigger + content | `openOn='hover'` or `closeOn='hover'` | Hover interaction with 100ms bridge |
+
+All listeners are cleaned up on unmount or when the overlay closes.
+
+## API Reference
+
+<AutoTypeTable path="./src/types/elements.ts" name="OverlayProps" />

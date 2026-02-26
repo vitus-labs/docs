@@ -1,0 +1,150 @@
+---
+title: State Hooks
+description: useControllableState, useToggle, usePrevious, useLatest.
+---
+
+## useControllableState
+
+Unified controlled/uncontrolled state pattern. When `value` is provided, the component is controlled. When `value` is `undefined`, internal state is used.
+
+```tsx
+import { useControllableState } from '@vitus-labs/hooks'
+
+function Input({ value, defaultValue = '', onChange }) {
+  const [state, setState] = useControllableState({
+    value,
+    defaultValue,
+    onChange,
+  })
+
+  return <input value={state} onChange={(e) => setState(e.target.value)} />
+}
+
+// Uncontrolled
+<Input defaultValue="hello" onChange={(v) => console.log(v)} />
+
+// Controlled
+<Input value={controlledValue} onChange={setControlledValue} />
+```
+
+### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `value` | `T \| undefined` | Controlled value (if provided, component is controlled) |
+| `defaultValue` | `T` | Initial value when uncontrolled |
+| `onChange` | `(value: T) => void` | Callback fired on every value change |
+
+### Returns
+
+`[T, (next: T | ((prev: T) => T)) => void]` — state value and setter function.
+
+The setter accepts either a direct value or an updater function (like `useState`).
+
+---
+
+## useToggle
+
+Boolean state with convenience methods. All callbacks are memoized and stable across rerenders.
+
+```tsx
+import { useToggle } from '@vitus-labs/hooks'
+
+function Modal() {
+  const [isOpen, toggle, open, close] = useToggle(false)
+
+  return (
+    <>
+      <button onClick={toggle}>Toggle</button>
+      <button onClick={open}>Open</button>
+      {isOpen && (
+        <div>
+          Modal content
+          <button onClick={close}>Close</button>
+        </div>
+      )}
+    </>
+  )
+}
+```
+
+### Parameters
+
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `initialValue` | `boolean` | `false` | Initial boolean value |
+
+### Returns
+
+`[boolean, () => void, () => void, () => void]`
+
+| Index | Name | Description |
+|-------|------|-------------|
+| 0 | `value` | Current boolean state |
+| 1 | `toggle` | Flip the value |
+| 2 | `setTrue` | Set to `true` |
+| 3 | `setFalse` | Set to `false` |
+
+---
+
+## usePrevious
+
+Returns the value from the previous render. Returns `undefined` on the first render.
+
+```tsx
+import { usePrevious } from '@vitus-labs/hooks'
+
+function Counter({ count }) {
+  const prevCount = usePrevious(count)
+
+  return (
+    <div>
+      Current: {count}, Previous: {prevCount ?? 'none'}
+      {prevCount !== undefined && count > prevCount && ' (increased)'}
+    </div>
+  )
+}
+```
+
+### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `value` | `T` | Any value to track |
+
+### Returns
+
+`T | undefined` — value from the previous render.
+
+---
+
+## useLatest
+
+Returns a ref that always holds the latest value. Useful to avoid stale closures in callbacks and effects without adding the value to dependency arrays.
+
+```tsx
+import { useLatest } from '@vitus-labs/hooks'
+
+function SearchInput({ onSearch }) {
+  const onSearchRef = useLatest(onSearch)
+
+  const debouncedSearch = useMemo(
+    () => debounce((query) => {
+      onSearchRef.current(query)  // Always calls the latest onSearch
+    }, 300),
+    []  // No deps needed — ref always current
+  )
+
+  return <input onChange={(e) => debouncedSearch(e.target.value)} />
+}
+```
+
+### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `value` | `T` | Any value |
+
+### Returns
+
+`{ readonly current: T }` — ref object with latest value.

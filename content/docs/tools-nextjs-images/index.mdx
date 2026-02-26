@@ -1,0 +1,228 @@
+---
+title: Tools Next.js Images
+description: Image optimization plugin for Next.js — WebP conversion, LQIP placeholders, responsive images, SVG sprites, and compression.
+---
+
+`@vitus-labs/tools-nextjs-images` is a Next.js webpack plugin that provides image optimization via import-time resource queries. Convert to WebP, generate low-quality placeholders, create responsive variants, build SVG sprites, and compress images — all through import syntax.
+
+## Installation
+
+```package-install
+@vitus-labs/tools-nextjs-images
+```
+
+**Peer dependency:** `next >= 14`
+
+**Optional optimizer packages** (install what you need):
+
+```bash
+# Compression
+bun add imagemin-mozjpeg imagemin-optipng imagemin-pngquant imagemin-gifsicle imagemin-svgo
+
+# WebP conversion
+bun add webp-loader
+
+# Responsive images
+bun add responsive-loader sharp  # or jimp instead of sharp
+
+# SVG sprites
+bun add svg-sprite-loader
+
+# Placeholders
+bun add lqip-loader image-trace-loader
+```
+
+## Quick Start
+
+```tsx
+// next.config.ts
+import withOptimizedImages from '@vitus-labs/tools-nextjs-images'
+
+export default withOptimizedImages()({
+  // Your standard Next.js config
+})
+```
+
+## Import Queries
+
+Use resource queries on imports to trigger different optimizations:
+
+```tsx
+// Standard optimized image
+import photo from './photo.jpg'
+
+// Convert to WebP
+import webp from './photo.jpg?webp'
+
+// Low-quality placeholder
+import { src, preSrc } from './photo.jpg?lqip'
+
+// Color palette extraction
+import { palette } from './photo.jpg?lqip-colors'
+
+// SVG trace placeholder
+import trace from './photo.jpg?trace'
+
+// Force file URL (no inlining)
+import url from './photo.jpg?url'
+
+// Force data URI inline
+import inline from './photo.jpg?inline'
+
+// Raw SVG content
+import svg from './icon.svg?include'
+
+// SVG sprite (React component)
+import Icon from './icon.svg?sprite'
+
+// Responsive variants
+import responsive from './photo.jpg?size=300,600,1200'
+
+// Skip optimization
+import original from './photo.jpg?original'
+```
+
+### Resource Query Reference
+
+| Query | Purpose | Optimized | Output |
+|-------|---------|-----------|--------|
+| (none) | Default processing | Yes | URL or data URI |
+| `?url` | Force file URL | Yes | URL string |
+| `?inline` | Force data URI | Yes | Data URI string |
+| `?include` | Raw content | Yes | String content |
+| `?original` | Skip optimization | No | URL or data URI |
+| `?webp` | Convert to WebP | Yes | URL string |
+| `?lqip` | Low-quality placeholder | No | `{ src, preSrc }` |
+| `?lqip-colors` | Palette extraction | No | `{ palette }` |
+| `?trace` | SVG trace placeholder | Yes | URL string |
+| `?sprite` | SVG sprite component | Varies | React component |
+| `?size=N,N,N` | Responsive variants | No | Responsive image object |
+
+## Configuration
+
+```tsx
+import withOptimizedImages from '@vitus-labs/tools-nextjs-images'
+
+export default withOptimizedImages({
+  // Core options
+  optimizeImages: true,          // Optimize in production (default: true)
+  optimizeImagesInDev: false,    // Optimize in development (default: false)
+  handleImages: ['jpeg', 'png', 'svg', 'webp', 'gif'],  // Formats to process
+  inlineImageLimit: 8192,        // Bytes threshold for data URI inlining
+  defaultImageLoader: 'img-loader',  // 'img-loader' or 'responsive-loader'
+
+  // Output
+  imagesFolder: 'images',       // Output folder name
+  imagesName: '[name]-[hash].[ext]',  // Filename pattern
+  removeOriginalExtension: false,     // Strip extension on format conversion
+
+  // Optimizer options (pass-through to underlying libraries)
+  mozjpeg: { quality: 80 },
+  optipng: {},
+  pngquant: {},
+  gifsicle: { interlaced: true, optimizationLevel: 3 },
+  svgo: { plugins: [{ name: 'removeViewBox', active: false }] },
+  webp: { quality: 80 },
+  svgSpriteLoader: { symbolId: '[name]-[hash:8]' },
+  responsive: { adapter: require('responsive-loader/sharp') },
+  lqip: {},
+  imageTrace: {},
+})({
+  // Standard Next.js config
+})
+```
+
+### OptimizedImagesConfig
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `optimizeImages` | `boolean` | `true` | Enable optimization in production |
+| `optimizeImagesInDev` | `boolean` | `false` | Enable optimization in development |
+| `handleImages` | `string[]` | `['jpeg', 'png', 'svg', 'webp', 'gif']` | Image formats to process |
+| `inlineImageLimit` | `number` | `8192` | Bytes threshold for data URI inlining |
+| `defaultImageLoader` | `string` | `'img-loader'` | Default loader: `'img-loader'` or `'responsive-loader'` |
+| `imagesFolder` | `string` | `'images'` | Output folder name within `_next/static/` |
+| `imagesName` | `string` | `'[name]-[hash].[ext]'` | Output filename pattern |
+| `removeOriginalExtension` | `boolean` | `false` | Strip original extension when converting |
+| `imagesPublicPath` | `string` | — | Override public path |
+| `imagesOutputPath` | `string` | — | Override output directory |
+
+### Optimizer Options
+
+| Option | Library | Formats |
+|--------|---------|---------|
+| `mozjpeg` | imagemin-mozjpeg | JPEG |
+| `optipng` | imagemin-optipng | PNG |
+| `pngquant` | imagemin-pngquant | PNG (alternative) |
+| `gifsicle` | imagemin-gifsicle | GIF |
+| `svgo` | imagemin-svgo | SVG |
+| `webp` | webp-loader | WebP conversion |
+| `svgSpriteLoader` | svg-sprite-loader | SVG sprites |
+| `responsive` | responsive-loader | JPEG, PNG responsive |
+| `lqip` | lqip-loader | JPEG, PNG placeholders |
+| `imageTrace` | image-trace-loader | JPEG, PNG, GIF traces |
+
+## Format Support Matrix
+
+| Format | Compress | WebP Convert | Responsive | Sprite | LQIP | Trace |
+|--------|----------|-------------|-----------|--------|------|-------|
+| JPEG | mozjpeg | `?webp` | `?size=` | — | `?lqip` | `?trace` |
+| PNG | optipng/pngquant | `?webp` | `?size=` | — | `?lqip` | `?trace` |
+| SVG | svgo | — | — | `?sprite` | — | — |
+| GIF | gifsicle | — | — | — | — | `?trace` |
+| WebP | webp-loader | Direct | — | — | — | — |
+
+## Detected Loaders
+
+The plugin auto-detects which optimizer packages are installed:
+
+```tsx
+interface DetectedLoaders {
+  jpeg: string | false      // 'imagemin-mozjpeg' or false
+  png: string | false       // 'imagemin-optipng' or 'imagemin-pngquant' or false
+  gif: string | false       // 'imagemin-gifsicle' or false
+  svg: string | false       // 'imagemin-svgo' or false
+  svgSprite: string | false // 'svg-sprite-loader' or false
+  webp: string | false      // 'webp-loader' or false
+  lqip: string | false      // 'lqip-loader' or false
+  responsive: string | false       // responsive-loader path or false
+  responsiveAdapter: string | false // 'sharp' or 'jimp' or false
+}
+```
+
+## Build Phase Behavior
+
+| Phase | Optimization |
+|-------|-------------|
+| Production build | `optimizeImages` setting (default: `true`) |
+| Static export | `optimizeImages` setting (default: `true`) |
+| Development server | `optimizeImagesInDev` setting (default: `false`) |
+
+When optimization is disabled, images are still processed (file-loader/url-loader) but no compression or conversion is applied.
+
+## SVG Sprite Components
+
+SVG sprites generated via `?sprite` become React components with metadata:
+
+```tsx
+import Icon from './icon.svg?sprite'
+
+// Render as component
+<Icon />
+
+// Access metadata
+Icon.viewBox  // '0 0 24 24'
+Icon.id       // 'icon-a1b2c3d4'
+Icon.url      // '#icon-a1b2c3d4'
+```
+
+## Exports
+
+```tsx
+import withOptimizedImages from '@vitus-labs/tools-nextjs-images'
+
+import type {
+  DetectedLoaders,
+  OptimizedImagesConfig,
+} from '@vitus-labs/tools-nextjs-images'
+```

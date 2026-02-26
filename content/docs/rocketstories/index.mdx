@@ -1,0 +1,368 @@
+---
+title: Rocketstories
+description: Zero-boilerplate Storybook story generation for rocketstyle and regular React components.
+---
+
+`@vitus-labs/rocketstories` auto-generates Storybook stories from component definitions. One factory call produces a default story with controls, dimension showcases for rocketstyle components, custom render stories, and list view stories — reducing story boilerplate by 80%+.
+
+## Installation
+
+```package-install
+@vitus-labs/rocketstories
+```
+
+**Peer dependencies:** `react >= 19`, `@storybook/react >= 10`, `@vitus-labs/core`, `@vitus-labs/rocketstyle`, `@vitus-labs/unistyle`
+
+## Quick Start
+
+```tsx title="Button.stories.tsx"
+import { init } from '@vitus-labs/rocketstories'
+import Theme from '@vitus-labs/rocketstories/decorators/Theme'
+import Button from './Button'
+
+const storyOf = init({
+  theme: { rootSize: 16 },
+  decorators: [Theme],
+})
+
+const stories = storyOf(Button)
+  .attrs({ label: 'Click me' })
+  .controls({
+    label: { type: 'text', description: 'Button label' },
+    disabled: { type: 'boolean' },
+  })
+  .storyOptions({ gap: 16, direction: 'rows' })
+
+export default stories.init()
+
+export const Default = stories.main()
+export const States = stories.dimension('state')
+export const Sizes = stories.dimension('size')
+```
+
+## Factory Functions
+
+### `init(options?)`
+
+Curried factory for pre-configuring shared options. Call once, reuse for every component.
+
+```tsx
+import { init } from '@vitus-labs/rocketstories'
+import Theme from '@vitus-labs/rocketstories/decorators/Theme'
+
+const storyOf = init({
+  storyOptions: { gap: 16, direction: 'rows', alignY: 'top' },
+  decorators: [Theme],
+  theme: { rootSize: 16 },
+})
+
+// Reuse across components
+const buttonStories = storyOf(Button)
+const inputStories = storyOf(Input)
+const selectStories = storyOf(Select)
+```
+
+### `rocketstories(component, options?)`
+
+One-shot factory that creates a story builder directly.
+
+```tsx
+import { rocketstories } from '@vitus-labs/rocketstories'
+
+const stories = rocketstories(Button, {
+  storyOptions: { gap: 24, direction: 'rows' },
+  decorators: [ThemeDecorator],
+  controls: { label: { type: 'text', value: 'Click' } },
+})
+```
+
+## Output Methods
+
+Each method returns a fully configured Storybook story ready to export.
+
+### `.init()`
+
+Returns the Storybook default export (title, component, decorators):
+
+```tsx
+export default stories.init()
+// → { component: Button, title: 'Button', decorators: [...] }
+```
+
+### `.main()`
+
+Renders the component in its default state with auto-generated controls:
+
+```tsx
+export const Default = stories.main()
+```
+
+For **rocketstyle components**, this auto-generates controls for all dimensions plus pseudo-states (hover, focus, pressed, active).
+
+### `.dimension(name, options?)`
+
+Renders all values of a rocketstyle dimension side by side. **Rocketstyle components only**.
+
+```tsx
+export const States = stories.dimension('state')
+export const Sizes = stories.dimension('size')
+export const Variants = stories.dimension('variant', { ignore: ['disabled'] })
+```
+
+Automatically detects available values from `component.getStaticDimensions()` and renders each one. Optional `ignore` array to skip specific values.
+
+### `.render(callback)`
+
+Custom render function for full control:
+
+```tsx
+export const CustomLayout = stories.render((props) => (
+  <div style={{ display: 'flex', gap: 16 }}>
+    <Button {...props} state="primary" label="Primary" />
+    <Button {...props} state="danger" label="Danger" />
+  </div>
+))
+```
+
+### `.list(options)`
+
+Renders multiple instances using `@vitus-labs/elements` List:
+
+```tsx
+export const ItemList = stories.list({
+  data: ['Apple', 'Banana', 'Cherry'],
+  valueName: 'label',
+})
+
+// Object arrays
+export const UserList = stories.list({
+  data: [
+    { label: 'Alice', id: 1 },
+    { label: 'Bob', id: 2 },
+  ],
+  itemKey: 'id',
+  itemProps: { size: 'lg' },
+})
+```
+
+## Chaining Methods
+
+All methods are **immutable** — each returns a new builder instance.
+
+### `.attrs(props)`
+
+Set default props for all stories:
+
+```tsx
+stories.attrs({ label: 'Button', disabled: false, size: 'md' })
+```
+
+### `.controls(config)`
+
+Define Storybook arg controls:
+
+```tsx
+stories.controls({
+  label: {
+    type: 'text',
+    value: 'Click me',
+    description: 'Button label text',
+  },
+  disabled: { type: 'boolean', value: false },
+  size: {
+    type: 'select',
+    options: ['sm', 'md', 'lg'],
+    value: 'md',
+  },
+})
+```
+
+**Available control types:** `'text'`, `'number'`, `'range'`, `'boolean'`, `'color'`, `'select'`, `'multi-select'`, `'radio'`, `'inline-radio'`, `'check'`, `'inline-check'`, `'object'`, `'array'`, `'tag'`, `'function'`, `'component'`
+
+### `.storyOptions(options)`
+
+Configure story layout:
+
+```tsx
+stories.storyOptions({
+  direction: 'inline',    // 'inline' | 'rows'
+  alignX: 'left',         // 'left' | 'center' | 'right' | 'spaceBetween'
+  alignY: 'top',          // 'top' | 'center' | 'bottom' | 'spaceBetween'
+  gap: 24,                // Spacing between items
+  pseudo: true,           // Show pseudo-state controls
+})
+```
+
+### `.config(options)`
+
+Update general configuration:
+
+```tsx
+stories.config({
+  name: 'CustomButtonName',
+  prefix: 'Components',
+  decorators: [NewDecorator],
+  storyOptions: { gap: 32 },
+})
+```
+
+### `.decorators(decorators)`
+
+Add or replace Storybook decorators:
+
+```tsx
+stories.decorators([ThemeDecorator, LayoutDecorator])
+```
+
+### `.replaceComponent(component)`
+
+Swap the component while keeping all configuration:
+
+```tsx
+const enhanced = stories.replaceComponent(EnhancedButton)
+```
+
+## Rocketstyle Integration
+
+For rocketstyle components, rocketstories automatically:
+
+1. **Detects dimensions** via `component.getStaticDimensions(theme)` — each becomes a `.dimension()` story
+2. **Generates pseudo-state controls** — hover, focus, pressed, active toggles in Storybook
+3. **Groups dimension values** — renders all values of a dimension side by side for visual comparison
+4. **Generates JSX code snippets** — displayed in Storybook's docs panel
+
+### Rocketstyle Example
+
+```tsx
+// Button is a rocketstyle component with .states() and .sizes()
+const stories = storyOf(Button)
+  .attrs({ label: 'Click me' })
+  .storyOptions({ gap: 16, direction: 'rows', pseudo: true })
+
+export default stories.init()
+export const Default = stories.main()
+
+// Auto-generates visual showcase of all states
+export const States = stories.dimension('state')
+// Shows: primary | secondary | danger side by side
+
+// Auto-generates visual showcase of all sizes
+export const Sizes = stories
+  .storyOptions({ direction: 'inline', gap: 24 })
+  .dimension('size')
+// Shows: sm | md | lg side by side
+```
+
+### Regular Components
+
+For non-rocketstyle components, `.main()`, `.render()`, and `.list()` work normally. `.dimension()` returns `null` since there are no dimensions to showcase.
+
+## Theme Decorator
+
+Built-in decorator that wraps stories with rocketstyle and unistyle providers:
+
+```tsx
+import Theme from '@vitus-labs/rocketstories/decorators/Theme'
+
+const storyOf = init({
+  theme: { rootSize: 16 },
+  decorators: [Theme],
+})
+```
+
+Reads theme from the global config set via `init({ theme })` and applies "light" mode by default.
+
+## Complete Example
+
+```tsx title="Card.stories.tsx"
+import { init } from '@vitus-labs/rocketstories'
+import Theme from '@vitus-labs/rocketstories/decorators/Theme'
+import Card from './Card'
+
+const storyOf = init({
+  theme: { rootSize: 16 },
+  decorators: [Theme],
+  storyOptions: { gap: 16, direction: 'rows' },
+})
+
+const stories = storyOf(Card)
+  .attrs({
+    label: 'Card Title',
+    children: 'Card content goes here.',
+  })
+  .controls({
+    label: { type: 'text', description: 'Card heading' },
+    children: { type: 'text', description: 'Card body' },
+    elevation: {
+      type: 'select',
+      options: ['flat', 'raised', 'floating'],
+      value: 'raised',
+    },
+  })
+
+export default stories.init()
+
+// Default story with controls
+export const Default = stories.main()
+
+// Dimension showcases
+export const Elevations = stories.dimension('elevation')
+export const Colors = stories
+  .storyOptions({ direction: 'inline' })
+  .dimension('color')
+
+// Custom composition
+export const CustomLayout = stories.render((props) => (
+  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+    <Card {...props} elevation="flat" label="Flat" />
+    <Card {...props} elevation="raised" label="Raised" />
+    <Card {...props} elevation="floating" label="Floating" />
+  </div>
+))
+
+// List of cards
+export const CardList = stories.list({
+  data: [
+    { label: 'Feature 1', children: 'Description 1' },
+    { label: 'Feature 2', children: 'Description 2' },
+    { label: 'Feature 3', children: 'Description 3' },
+  ],
+  itemKey: 'label',
+})
+```
+
+## Multi-Component Reuse
+
+```tsx
+// shared-stories.ts
+import { init } from '@vitus-labs/rocketstories'
+import Theme from '@vitus-labs/rocketstories/decorators/Theme'
+
+export const storyOf = init({
+  theme: { rootSize: 16, colors: { primary: '#0d6efd' } },
+  decorators: [Theme],
+  storyOptions: { gap: 16, direction: 'rows' },
+})
+```
+
+```tsx
+// Button.stories.tsx
+import { storyOf } from './shared-stories'
+import Button from './Button'
+
+const stories = storyOf(Button).attrs({ label: 'Click' })
+export default stories.init()
+export const Default = stories.main()
+export const States = stories.dimension('state')
+```
+
+```tsx
+// Input.stories.tsx
+import { storyOf } from './shared-stories'
+import Input from './Input'
+
+const stories = storyOf(Input).attrs({ placeholder: 'Type here...' })
+export default stories.init()
+export const Default = stories.main()
+export const Sizes = stories.dimension('size')
+```

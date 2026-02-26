@@ -1,0 +1,169 @@
+---
+title: API Reference
+description: Complete API reference for @vitus-labs/tools-rollup.
+---
+
+## runBuild()
+
+```tsx
+runBuild(): Promise<void>
+```
+
+Orchestrates the complete Rollup build pipeline. Same behavior as `tools-rolldown`'s `runBuild()` but uses Rollup instead of Rolldown.
+
+**Steps:**
+1. Clean output directory (`rimraf`)
+2. Create build pipeline from `package.json` fields
+3. Execute each build sequentially with Rollup
+4. Report file sizes and generate visualization
+
+```tsx
+import { runBuild } from '@vitus-labs/tools-rollup'
+
+await runBuild()
+```
+
+## Configuration Shape
+
+Identical to `tools-rolldown`:
+
+```tsx
+interface BuildConfig {
+  sourceDir: string
+  outputDir: string
+  typesDir: string
+  typescript: boolean
+  esModulesOnly: boolean
+  replaceGlobals: boolean
+  filesize: boolean
+  visualise: {
+    template: string
+    gzipSize: boolean
+    outputDir: string
+  } | false
+  extensions: string[]
+  include: string[]
+  external: string[]
+  exclude: string[]
+  globals: Record<string, string>
+}
+```
+
+### Default Configuration
+
+```tsx
+{
+  sourceDir: 'src',
+  outputDir: 'lib',
+  typesDir: 'lib/types',
+  typescript: true,
+  esModulesOnly: false,
+  replaceGlobals: true,
+  filesize: true,
+  visualise: {
+    template: 'network',
+    gzipSize: true,
+    outputDir: 'analysis',
+  },
+  extensions: ['.json', '.js', '.jsx', '.ts', '.tsx', '.es6', '.es', '.mjs'],
+  include: ['src'],
+  external: ['react/jsx-runtime'],
+  exclude: [
+    'lib',
+    'node_modules/**',
+    '**/__tests__/**',
+    '**/__specs__/**',
+    '**/__stories__/**',
+    '*.test.*',
+    '*.spec.*',
+    '*.stories.*',
+    'stories.*',
+    '*.story.*',
+  ],
+  globals: {
+    react: 'React',
+    ReactDOM: 'react-dom',
+    styled: 'styled-components',
+  },
+}
+```
+
+## Rollup Output Configuration
+
+### ESM
+
+```tsx
+{
+  format: 'es',
+  sourcemap: true,
+  esModule: true,
+  generatedCode: { reservedNamesAsProps: false },
+  interop: 'compat',
+  systemNullSetters: false,
+}
+```
+
+### CJS
+
+```tsx
+{
+  format: 'cjs',
+  exports: 'named',
+  sourcemap: true,
+  esModule: true,
+  interop: 'compat',
+}
+```
+
+### UMD
+
+```tsx
+{
+  format: 'umd',
+  exports: 'named',
+  name: PKG.bundleName,
+  globals: swapGlobals(CONFIG.globals),
+  sourcemap: true,
+}
+```
+
+## Global Type Definitions
+
+The package ships global type declarations for platform constants:
+
+```tsx
+// global/index.d.ts
+declare global {
+  const __BROWSER__: true
+  const __WEB__: true
+  const __NATIVE__: true
+  const __NODE__: true
+  const __CLIENT__: true
+}
+
+declare global {
+  interface Window {
+    __BROWSER__: true
+    __WEB__: true
+    __NATIVE__: true
+    __NODE__: true
+    __CLIENT__: true
+  }
+}
+```
+
+Reference these in your `tsconfig.json`:
+
+```json
+{
+  "compilerOptions": {
+    "types": ["@vitus-labs/tools-rollup/global"]
+  }
+}
+```
+
+## Exports
+
+```tsx
+import { runBuild } from '@vitus-labs/tools-rollup'
+```

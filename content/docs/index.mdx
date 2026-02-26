@@ -1,0 +1,72 @@
+---
+title: Vitus Labs
+description: A modular ecosystem for building, styling, testing, and shipping React applications.
+---
+
+Vitus Labs is a collection of packages spanning two areas: a **UI system** for building React interfaces, and **developer tools** for building, testing, linting, and shipping packages.
+
+## UI System
+
+Components, styling, layout, hooks, and theming for React applications.
+
+| Package | Description |
+|---------|-------------|
+| [@vitus-labs/core](/docs/core) | Configuration, initialization, and shared utilities |
+| [@vitus-labs/styler](/docs/styler) | High-performance CSS-in-JS engine (~3KB gzipped) |
+| [@vitus-labs/attrs](/docs/attrs) | Composable attribute factory for component configuration |
+| [@vitus-labs/elements](/docs/elements) | Base UI primitives: Element, List, Text, Overlay, Portal |
+| [@vitus-labs/rocketstyle](/docs/rocketstyle) | Advanced component styling with themes, pseudo-states, and dimensions |
+| [@vitus-labs/unistyle](/docs/unistyle) | Universal responsive styling utilities (170+ CSS properties) |
+| [@vitus-labs/coolgrid](/docs/coolgrid) | Responsive grid system with Container, Row, and Col |
+| [@vitus-labs/hooks](/docs/hooks) | Collection of 28 React hooks for common patterns |
+| [@vitus-labs/connectors](/docs/connectors) | CSS-in-JS engine adapters (styler, emotion, styled-components) |
+| [@vitus-labs/rocketstories](/docs/rocketstories) | Auto-generated Storybook stories from rocketstyle components |
+
+## Developer Tools
+
+Shared configurations and build tooling for the full development lifecycle.
+
+| Package | Description |
+|---------|-------------|
+| [@vitus-labs/tools-core](/docs/tools-core) | Cascading config loader, file discovery, and package metadata |
+| [@vitus-labs/tools-rolldown](/docs/tools-rolldown) | Rust-based bundler for library packages with DTS generation |
+| [@vitus-labs/tools-rollup](/docs/tools-rollup) | Rollup-based build tool (legacy alternative to Rolldown) |
+| [@vitus-labs/tools-vitest](/docs/tools-vitest) | Shared Vitest config factory with sensible defaults |
+| [@vitus-labs/tools-storybook](/docs/tools-storybook) | Preconfigured Storybook 10 with auto-discovery |
+| [@vitus-labs/tools-typescript](/docs/tools-typescript) | Shared tsconfig presets for libraries and Next.js apps |
+| [@vitus-labs/tools-lint](/docs/tools-lint) | Shared Biome config for formatting and linting |
+| [@vitus-labs/tools-nextjs](/docs/tools-nextjs) | Next.js config wrapper with security headers |
+| [@vitus-labs/tools-nextjs-images](/docs/tools-nextjs-images) | Image optimization plugin — WebP, LQIP, responsive, SVG sprites |
+| [@vitus-labs/tools-atlas](/docs/tools-atlas) | Dependency graph visualizer and monorepo health analyzer |
+| [@vitus-labs/tools-favicon](/docs/tools-favicon) | Multi-platform favicon and PWA manifest generator |
+
+## Quick Start
+
+Install the core UI packages:
+
+```package-install
+@vitus-labs/core @vitus-labs/styler @vitus-labs/connector-styler @vitus-labs/elements @vitus-labs/rocketstyle
+```
+
+Initialize the CSS-in-JS engine in your app entry point:
+
+```tsx
+import { init } from '@vitus-labs/core'
+import connector from '@vitus-labs/connector-styler'
+
+init({ ...connector, component: 'div', textComponent: 'span' })
+```
+
+Then start building components:
+
+```tsx
+import { Element } from '@vitus-labs/elements'
+
+function App() {
+  return (
+    <Element tag="main" padding={24}>
+      Hello, Vitus Labs!
+    </Element>
+  )
+}
+```

@@ -1,31 +1,48 @@
 {
-  "extends": "@vitus-labs/tools-typescript/nextjs",
   "compilerOptions": {
-    "rootDir": "./src",
-    "baseUrl": "./src",
+    "target": "ES2017",
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "react-jsx",
+    "incremental": true,
+    "baseUrl": ".",
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
     "paths": {
-      "~": [
-        "src"
+      "@/*": [
+        "./src/*"
       ],
-      "~/*": [
-        "./*"
-      ],
-      "components/*": [
-        "./components/*"
+      "fumadocs-mdx:collections/*": [
+        ".source/*"
       ]
-    },
-    "incremental": true
+    }
   },
   "include": [
-    "next-env.d.ts",
-    "@types/*.d.ts",
+    "**/*.mdx",
     "**/*.ts",
     "**/*.tsx",
-    "**/*.md",
-    "**/*.mdx"
+    ".source/**/*.ts",
+    ".source/**/*.tsx",
+    "next-env.d.ts",
+    ".next/types/**/*.ts",
+    ".next/dev/types/**/*.ts"
   ],
   "exclude": [
-    "node_modules",
-    "**/__stories__/**"
+    "node_modules"
   ]
 }

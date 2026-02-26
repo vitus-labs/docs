@@ -1,0 +1,304 @@
+---
+title: Coolgrid
+description: Flexible, responsive grid system with Container, Row, and Col components.
+---
+
+Coolgrid is a Bootstrap-inspired grid system for React with responsive breakpoints, context-based configuration cascading, and flexible column sizing.
+
+## Overview
+
+- **Three-tier hierarchy** — Container → Row → Col
+- **Context cascading** — props flow from parent to children, with override at each level
+- **Responsive values** — scalar, array, or breakpoint object syntax
+- **Flexible sizing** — percentage-based widths with gap compensation
+- **Hidden columns** — responsive visibility via `size={0}`
+- **Custom components** — inject your own elements at any level
+
+## Installation
+
+```package-install
+@vitus-labs/coolgrid
+```
+
+Requires `@vitus-labs/core`, `@vitus-labs/unistyle`, and a CSS engine connector.
+
+## Try It Live
+
+<LiveCode code={`function GridDemo() {
+  const [columns, setColumns] = React.useState(12)
+  const [gap, setGap] = React.useState(12)
+  const [colCount, setColCount] = React.useState(3)
+
+  const colSize = Math.floor(columns / colCount)
+  const colors = ['#dbeafe', '#fce7f3', '#d1fae5', '#fef3c7', '#e0e7ff', '#fde2e4']
+
+  return (
+    <div style={{ fontFamily: 'system-ui' }}>
+      <div style={{ display: 'flex', gap: 16, marginBottom: 16, flexWrap: 'wrap' }}>
+        <label style={{ fontSize: 13 }}>
+          Columns: {columns}
+          <input type="range" min={4} max={16} value={columns}
+            onChange={(e) => setColumns(Number(e.target.value))}
+            style={{ marginLeft: 4 }} />
+        </label>
+        <label style={{ fontSize: 13 }}>
+          Items: {colCount}
+          <input type="range" min={1} max={6} value={colCount}
+            onChange={(e) => setColCount(Number(e.target.value))}
+            style={{ marginLeft: 4 }} />
+        </label>
+        <label style={{ fontSize: 13 }}>
+          Gap: {gap}px
+          <input type="range" min={0} max={32} value={gap}
+            onChange={(e) => setGap(Number(e.target.value))}
+            style={{ marginLeft: 4 }} />
+        </label>
+      </div>
+      <div style={{
+        display: 'flex', flexWrap: 'wrap',
+        margin: \`0 -\${gap / 2}px\`,
+      }}>
+        {Array.from({ length: colCount }, (_, i) => (
+          <div key={i} style={{
+            width: \`\${(colSize / columns) * 100}%\`,
+            padding: \`0 \${gap / 2}px\`,
+            boxSizing: 'border-box',
+            marginBottom: gap,
+          }}>
+            <div style={{
+              background: colors[i % colors.length],
+              borderRadius: 6,
+              padding: '16px 12px',
+              textAlign: 'center',
+              fontSize: 13,
+              fontWeight: 500,
+            }}>
+              Col {colSize}/{columns}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+render(<GridDemo />)
+`} noInline />
+
+## Quick Start
+
+```tsx
+import { Provider } from '@vitus-labs/coolgrid'
+import { Container, Row, Col } from '@vitus-labs/coolgrid'
+
+<Provider theme={{ rootSize: 16, breakpoints: { xs: 0, sm: 576, md: 768, lg: 992, xl: 1200 } }}>
+  <Container>
+    <Row gap={16}>
+      <Col size={4}>Column 1</Col>
+      <Col size={4}>Column 2</Col>
+      <Col size={4}>Column 3</Col>
+    </Row>
+  </Container>
+</Provider>
+```
+
+## Default Theme
+
+Coolgrid ships with a Bootstrap-like default theme:
+
+```tsx
+import { theme } from '@vitus-labs/coolgrid'
+
+// theme =
+{
+  rootSize: 16,
+  breakpoints: {
+    xs: 0,
+    sm: 576,
+    md: 768,
+    lg: 992,
+    xl: 1200,
+  },
+  grid: {
+    columns: 12,
+    container: {
+      xs: '100%',
+      sm: 540,
+      md: 720,
+      lg: 960,
+      xl: 1140,
+    },
+  },
+}
+```
+
+## Responsive Value Formats
+
+All grid props support three responsive formats:
+
+### Single Value
+
+```tsx
+<Col size={6} />            // 6 columns at all breakpoints
+<Row gap={16} />            // 16px gap at all breakpoints
+```
+
+### Array (Mobile-First)
+
+```tsx
+<Col size={[12, 8, 6]} />   // xs: 12, sm: 8, md: 6, (lg/xl: 6)
+<Row gap={[8, 12, 16]} />   // xs: 8, sm: 12, md: 16
+```
+
+### Breakpoint Object
+
+```tsx
+<Col size={{ xs: 12, md: 6, lg: 4 }} />
+<Container width={{ xs: '100%', sm: 540, md: 720, lg: 960, xl: 1140 }} />
+```
+
+## Shared Configuration Props
+
+These props can be set at any level and cascade down through context:
+
+| Prop | Type | Description |
+|------|------|-------------|
+| `columns` | `ValueType` | Total columns in grid (default: 12) |
+| `size` | `ValueType` | Column width in grid units |
+| `gap` | `ValueType` | Space between columns (margin) |
+| `padding` | `ValueType` | Column inner padding |
+| `gutter` | `ValueType` | Space between rows |
+| `colCss` | `ExtraStyles` | Extra CSS applied to all Cols |
+| `rowCss` | `ExtraStyles` | Extra CSS applied to Rows |
+| `colComponent` | `ComponentType` | Custom Col component |
+| `rowComponent` | `ComponentType` | Custom Row component |
+| `contentAlignX` | `ContentAlignX` | Row horizontal alignment |
+
+### ContentAlignX Values
+
+`'left'` | `'center'` | `'right'` | `'spaceBetween'` | `'spaceAround'` | `'spaceEvenly'`
+
+## Context Cascading
+
+Props set on a parent are inherited by children. Each level can override:
+
+```tsx
+<Container columns={12} gap={16} padding={8}>
+  {/* Row inherits columns=12, gap=16, padding=8 */}
+  <Row>
+    {/* Col inherits everything from Container via Row */}
+    <Col size={6}>Inherits gap=16, padding=8</Col>
+    <Col size={6}>Inherits gap=16, padding=8</Col>
+  </Row>
+
+  {/* Row overrides gap */}
+  <Row gap={24}>
+    <Col size={4}>Now gap=24</Col>
+    <Col size={4}>Now gap=24</Col>
+    <Col size={4}>Now gap=24</Col>
+  </Row>
+</Container>
+```
+
+### Three-Layer Fallback
+
+Grid config is resolved by `useGridContext()` → `getGridContext()` from (highest priority first):
+1. Component props
+2. `theme.grid.*`
+3. `theme.coolgrid.*`
+
+This is done internally via `pickThemeProps()` which extracts grid-related keys from the theme context.
+
+### Helper Functions
+
+Coolgrid exports several utility functions used in the grid calculation:
+
+| Function | Description |
+|----------|-------------|
+| `isNumber(v)` | Type guard — `true` for finite numbers |
+| `hasValue(v)` | `true` if value is a positive number |
+| `isVisible(size)` | `true` if `size` is a positive number or `undefined` (auto); `false` for `size === 0` |
+| `hasWidth(size, columns)` | `true` if both size and columns are available for width calculation |
+| `omitCtxKeys(props)` | Strips grid context keys from props before passing to DOM |
+
+## Common Patterns
+
+### Responsive Layout
+
+```tsx
+<Container>
+  <Row gap={16}>
+    <Col size={{ xs: 12, md: 6, lg: 4 }}>Card 1</Col>
+    <Col size={{ xs: 12, md: 6, lg: 4 }}>Card 2</Col>
+    <Col size={{ xs: 12, md: 12, lg: 4 }}>Card 3</Col>
+  </Row>
+</Container>
+```
+
+### Hidden Columns
+
+Use `size={0}` to hide a column at specific breakpoints:
+
+```tsx
+<Row>
+  <Col size={{ xs: 0, md: 3 }}>Sidebar (hidden on mobile)</Col>
+  <Col size={{ xs: 12, md: 9 }}>Main content</Col>
+</Row>
+```
+
+### Nested Grids
+
+```tsx
+<Container columns={12}>
+  <Row>
+    <Col size={8}>
+      <Row>
+        <Col size={6}>Nested 1</Col>
+        <Col size={6}>Nested 2</Col>
+      </Row>
+    </Col>
+    <Col size={4}>Sidebar</Col>
+  </Row>
+</Container>
+```
+
+### Auto-Width Columns
+
+Columns without `size` grow to fill available space:
+
+```tsx
+<Row gap={16}>
+  <Col size={3}>Fixed 3 cols</Col>
+  <Col>Auto-expands to fill remaining space</Col>
+</Row>
+```
+
+### Row-Level Sizing
+
+Set size at the Row level — all children inherit:
+
+```tsx
+<Row size={{ xs: 12, md: 4 }}>
+  <Col>Each col is 4/12 on md+</Col>
+  <Col>Each col is 4/12 on md+</Col>
+  <Col>Each col is 4/12 on md+</Col>
+</Row>
+```
+
+### Custom Column Styling
+
+```tsx
+<Container
+  colCss={(css) => css`
+    background: #f0f0f0;
+    border-radius: 4px;
+    min-height: 100px;
+  `}
+>
+  <Row gap={16}>
+    <Col size={4}>Styled</Col>
+    <Col size={4}>Styled</Col>
+    <Col size={4}>Styled</Col>
+  </Row>
+</Container>
+```

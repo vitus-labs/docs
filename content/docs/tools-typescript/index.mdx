@@ -1,0 +1,177 @@
+---
+title: Tools TypeScript
+description: Shared TypeScript configuration presets for libraries and Next.js applications.
+---
+
+`@vitus-labs/tools-typescript` provides two opinionated TypeScript configuration presets — one for building libraries, one for Next.js applications. Both target ES2024 with strict type checking.
+
+## Installation
+
+```package-install
+@vitus-labs/tools-typescript
+```
+
+**Peer dependency:** TypeScript >= 5
+
+## Presets
+
+### lib — Library Development
+
+For packages published to npm. Generates declaration files and source maps. Uses `module: Preserve` so bundlers (Rolldown, Rollup) choose the output format.
+
+```json
+// tsconfig.json
+{
+  "extends": "@vitus-labs/tools-typescript/lib"
+}
+```
+
+### nextjs — Next.js Applications
+
+For Next.js apps with SSR/SSG. Uses `jsx: preserve` (Next.js handles JSX transform) and enables incremental builds for fast development.
+
+```json
+// tsconfig.json
+{
+  "extends": "@vitus-labs/tools-typescript/nextjs"
+}
+```
+
+## Comparison
+
+| Setting | lib | nextjs |
+|---------|-----|--------|
+| `target` | ES2024 | ES2024 |
+| `module` | Preserve | ESNext |
+| `moduleResolution` | Bundler | Bundler |
+| `jsx` | react-jsx | preserve |
+| `strict` | true | true |
+| `noUncheckedIndexedAccess` | true | true |
+| `declaration` | true | — |
+| `declarationMap` | true | — |
+| `sourceMap` | true | — |
+| `inlineSources` | true | — |
+| `incremental` | — | true |
+| `lib` | ES2024, dom | ES2024, dom, dom.iterable |
+| `include` | `src` | `next-env.d.ts`, `**/*.ts`, `**/*.tsx` |
+| `exclude` | node_modules, `__stories__`, lib | node_modules |
+
+## Shared Principles
+
+Both presets enforce:
+
+- **`strict: true`** — all strict type-checking flags enabled
+- **`noUncheckedIndexedAccess: true`** — indexed access returns `T | undefined`
+- **`moduleDetection: force`** — treats all files as modules
+- **`verbatimModuleSyntax: true`** — preserves import/export syntax exactly as written
+- **`forceConsistentCasingInFileNames: true`** — prevents cross-platform file casing issues
+- **`skipLibCheck: true`** — skips `.d.ts` checking for faster builds
+- **`resolveJsonModule: true`** — JSON imports supported
+- **`allowJs: true`** — JavaScript files allowed in TypeScript projects
+- **`noEmit: true`** — no JS output (bundler or Next.js handles compilation)
+- **`esModuleInterop: true`** — CommonJS/ESM interop compatibility
+
+## lib Preset Details
+
+```json
+{
+  "compilerOptions": {
+    "target": "ES2024",
+    "module": "Preserve",
+    "moduleResolution": "Bundler",
+    "moduleDetection": "force",
+    "verbatimModuleSyntax": true,
+    "jsx": "react-jsx",
+    "lib": ["ES2024", "dom"],
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
+    "allowJs": true,
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "inlineSources": true,
+    "noEmit": true
+  },
+  "include": ["src"],
+  "exclude": ["node_modules", "__stories__", "lib"]
+}
+```
+
+**When to use:** Building reusable libraries that publish `.d.ts` files and source maps to npm.
+
+**Key behaviors:**
+- `module: Preserve` — lets the downstream bundler decide ESM vs CJS output format
+- `jsx: react-jsx` — uses the modern JSX transform (React 17+, no `import React` needed)
+- `declaration: true` + `declarationMap: true` — generates `.d.ts` files with source maps for IDE "Go to Definition"
+- `inlineSources: true` — embeds original source in source maps for debugging
+- Excludes `__stories__` and `lib` directories
+
+## nextjs Preset Details
+
+```json
+{
+  "compilerOptions": {
+    "target": "ES2024",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "moduleDetection": "force",
+    "verbatimModuleSyntax": true,
+    "jsx": "preserve",
+    "lib": ["ES2024", "dom", "dom.iterable"],
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
+    "allowJs": true,
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "noEmit": true,
+    "incremental": true
+  },
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx"],
+  "exclude": ["node_modules"]
+}
+```
+
+**When to use:** Next.js applications where Next.js handles transpilation via SWC.
+
+**Key behaviors:**
+- `module: ESNext` — native ES modules; Next.js transpiler handles format conversion
+- `jsx: preserve` — JSX left as-is for Next.js SWC/Babel to transform
+- `incremental: true` — speeds up repeated `tsc` runs during development
+- `dom.iterable` in `lib` — includes DOM iteration APIs (e.g., `NodeList.forEach`)
+- Includes `next-env.d.ts` for Next.js generated types
+
+## Extending Presets
+
+Override any setting in your project's `tsconfig.json`:
+
+```json
+{
+  "extends": "@vitus-labs/tools-typescript/lib",
+  "compilerOptions": {
+    "types": ["node", "vitest/globals"],
+    "outDir": "lib",
+    "rootDir": "src",
+    "declarationDir": "./lib/types"
+  },
+  "include": ["src"],
+  "exclude": ["node_modules", "__stories__", "lib"]
+}
+```
+
+In a monorepo, each package selects the appropriate preset:
+
+```
+monorepo/
+├── packages/
+│   └── my-lib/
+│       └── tsconfig.json → extends "@vitus-labs/tools-typescript/lib"
+└── apps/
+    └── my-app/
+        └── tsconfig.json → extends "@vitus-labs/tools-typescript/nextjs"
+```

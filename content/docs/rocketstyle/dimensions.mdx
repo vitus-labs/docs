@@ -1,0 +1,300 @@
+---
+title: Dimensions
+description: Dimension system — styling categories that map to component props.
+---
+
+Dimensions are the core concept of Rocketstyle. They define styling categories (states, sizes, variants, etc.) that map to component props and resolve to theme values at render time.
+
+## How Dimensions Work
+
+1. **Dimension Key** — the configuration name (e.g., `states`, `sizes`)
+2. **Prop Name** — the actual React prop (e.g., `state`, `size`)
+3. **Dimension Values** — available options defined in the theme callback
+4. **Resolution** — active dimension values are merged into `$rocketstyle`
+
+```tsx
+const Button = rocketstyle()({
+  name: 'Button',
+  component: BaseButton,
+})
+  .states((theme) => ({
+    primary: { backgroundColor: 'blue', color: 'white' },
+    secondary: { backgroundColor: 'gray', color: 'black' },
+    danger: { backgroundColor: 'red', color: 'white' },
+  }))
+  .sizes((theme) => ({
+    sm: { fontSize: '12px', padding: '4px 8px' },
+    md: { fontSize: '14px', padding: '8px 16px' },
+    lg: { fontSize: '16px', padding: '12px 24px' },
+  }))
+
+// At render time, $rocketstyle is computed from active dimensions:
+<Button state="primary" size="lg" />
+// $rocketstyle = { backgroundColor: 'blue', color: 'white', fontSize: '16px', padding: '12px 24px' }
+```
+
+## Dimension Types
+
+### String Dimension (Simple)
+
+Maps a dimension key to a prop name:
+
+```tsx
+dimensions: {
+  sizes: 'size',        // Prop: size="sm"
+  colors: 'color',      // Prop: color="primary"
+  variants: 'variant',  // Prop: variant="outlined"
+}
+```
+
+### Object Dimension (Advanced)
+
+Provides additional configuration:
+
+```tsx
+dimensions: {
+  tags: {
+    propName: 'tag',     // The React prop name
+    multi: true,         // Allows multiple simultaneous values
+  },
+}
+```
+
+When `multi: true`, the prop accepts an array:
+
+```tsx
+<Component tag={['rounded', 'elevated', 'bordered']} />
+```
+
+All matching dimension values are merged together in order.
+
+## Default Dimensions
+
+Rocketstyle ships with four default dimensions:
+
+| Dimension Key | Prop Name | Multi | Purpose |
+|---------------|-----------|-------|---------|
+| `states` | `state` | `false` | Component state (primary, secondary, danger) |
+| `sizes` | `size` | `false` | Component size (sm, md, lg) |
+| `variants` | `variant` | `false` | Visual variant (outlined, filled, ghost) |
+| `multiple` | `multiple` | `true` | Multi-select dimension |
+
+## Custom Dimensions
+
+Override the defaults entirely by passing `dimensions` to the factory:
+
+```tsx
+const Card = rocketstyle({
+  dimensions: {
+    colors: 'color',
+    shapes: 'shape',
+    elevations: 'elevation',
+    decorations: {
+      propName: 'decoration',
+      multi: true,
+    },
+  },
+})({
+  name: 'Card',
+  component: 'div',
+})
+  .colors((theme) => ({
+    primary: { backgroundColor: theme.colors?.primary },
+    secondary: { backgroundColor: theme.colors?.secondary },
+  }))
+  .shapes((theme) => ({
+    rounded: { borderRadius: '8px' },
+    pill: { borderRadius: '9999px' },
+    square: { borderRadius: '0' },
+  }))
+  .elevations((theme) => ({
+    flat: { boxShadow: 'none' },
+    raised: { boxShadow: '0 2px 4px rgba(0,0,0,0.1)' },
+    floating: { boxShadow: '0 8px 24px rgba(0,0,0,0.15)' },
+  }))
+  .decorations((theme) => ({
+    bordered: { border: '1px solid #ddd' },
+    striped: { backgroundImage: 'repeating-linear-gradient(...)' },
+  }))
+
+// Usage
+<Card color="primary" shape="rounded" elevation="raised" />
+<Card color="primary" decoration={['bordered', 'striped']} />
+```
+
+Each dimension key automatically becomes a chainable method on the component.
+
+## Dimension Callbacks
+
+Dimension methods accept a callback that receives the full theme context:
+
+```tsx
+.states((theme, mode, css) => ({
+  primary: {
+    backgroundColor: mode('blue', 'lightblue'),
+    color: mode('white', 'black'),
+  },
+}))
+```
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `theme` | `object` | Current theme from context |
+| `mode` | `ThemeModeCallback` | `(light, dark) => value` — light/dark mode selector |
+| `css` | `function` | Tagged template for CSS fragments |
+
+Values returned from `mode()` are internally stored as callback functions and resolved lazily when the mode is known. See [Themes & Styles](/docs/rocketstyle/themes-styles) for details.
+
+## Boolean Shorthand
+
+When `useBooleans: true` (default), dimension values become boolean props:
+
+```tsx
+// These are equivalent:
+<Button state="primary" size="lg" />
+<Button primary lg />
+```
+
+### Resolution Algorithm
+
+**Phase 1 — Explicit values:**
+For each dimension, check if the explicit prop is set (`state="primary"`, `size="lg"`). Only `string` and `number` values are accepted. For multi-key dimensions, arrays are also accepted.
+
+**Phase 2 — Boolean shorthand (when useBooleans is true):**
+For dimensions without an explicit value, scan all props in reverse order (last wins):
+
+```tsx
+// Single-select: last matching boolean wins
+<Button primary secondary />
+// → state = 'secondary' (last prop wins)
+
+// Multi-select: all matching booleans collected
+<Badge bordered striped />
+// → decoration = ['bordered', 'striped']
+```
+
+Only props whose values are truthy and whose names match a known dimension option are considered. Standard HTML boolean attributes (`disabled`, `checked`, `hidden`, `required`, etc.) are excluded from shorthand matching.
+
+### Disabling Boolean Shorthand
+
+```tsx
+const Component = rocketstyle({
+  useBooleans: false,
+})({
+  name: 'Component',
+  component: 'div',
+})
+
+// Only explicit prop syntax works:
+<Component state="primary" />
+// <Component primary /> would NOT work
+```
+
+## Dimension Resolution Flow
+
+```
+1. Read dimension props from component usage
+   <Button state="primary" size="lg" />
+
+2. Match against defined dimension values
+   states.primary → { backgroundColor: 'blue', color: 'white' }
+   sizes.lg → { fontSize: '16px', padding: '12px 24px' }
+
+3. Merge base theme + dimension themes (in dimension order)
+   baseTheme: { fontFamily: 'sans-serif', borderRadius: '4px' }
+   + states.primary
+   + sizes.lg
+
+4. Result → $rocketstyle
+   {
+     fontFamily: 'sans-serif',
+     borderRadius: '4px',
+     backgroundColor: 'blue',
+     color: 'white',
+     fontSize: '16px',
+     padding: '12px 24px'
+   }
+```
+
+Later dimension values override earlier ones. Within multi-select dimensions, values are merged in array order.
+
+## Multi-Select Dimensions
+
+When `multi: true`, all selected values are merged in order:
+
+```tsx
+const Badge = rocketstyle({
+  dimensions: {
+    decorations: { propName: 'decoration', multi: true },
+  },
+})({
+  name: 'Badge',
+  component: 'span',
+})
+  .decorations((theme) => ({
+    bold: { fontWeight: 'bold' },
+    italic: { fontStyle: 'italic' },
+    uppercase: { textTransform: 'uppercase' },
+    underline: { textDecoration: 'underline' },
+  }))
+
+// Multiple decorations applied simultaneously
+<Badge decoration={['bold', 'uppercase']}>NEW</Badge>
+// $rocketstyle = { fontWeight: 'bold', textTransform: 'uppercase' }
+
+// With boolean shorthand
+<Badge bold uppercase>NEW</Badge>
+// Same result
+```
+
+## Internal: getDimensionsMap
+
+The `getDimensionsMap()` function builds two lookup structures from dimension themes:
+
+```tsx
+getDimensionsMap({ themes, useBooleans }) → { keysMap, keywords }
+```
+
+- **`keysMap`** — nested object: `{ dimensionPropName: { optionName: true, ... }, ... }`
+- **`keywords`** — flat lookup: `{ dimensionPropName: true, optionName: true, ... }`
+
+When `useBooleans: false`, option names are not added to `keywords` (only dimension prop names are).
+
+These structures enable O(1) lookup when resolving which dimension a prop belongs to.
+
+## Internal: calculateStylingAttrs
+
+The `calculateStylingAttrs()` function resolves active dimension values from props:
+
+```tsx
+calculateStylingAttrs({ useBooleans, multiKeys })
+  ({ props, dimensions }) → rocketstate
+```
+
+Returns an object like `{ state: 'primary', size: 'lg', variant: undefined }` that drives theme merging in `getTheme()`.
+
+## Nullable Values
+
+Dimension values that are `null`, `undefined`, or `false` are stripped by `removeNullableValues()` before the dimension map is built. This means conditional dimension options work:
+
+```tsx
+.states((theme) => ({
+  primary: { backgroundColor: 'blue' },
+  danger: theme.enableDanger ? { backgroundColor: 'red' } : null,
+  // 'danger' is excluded when theme.enableDanger is falsy
+}))
+```
+
+## API Reference
+
+### Dimensions
+
+<AutoTypeTable path="./src/types/rocketstyle.ts" name="Dimensions" />
+
+### DimensionValue
+
+<AutoTypeTable path="./src/types/rocketstyle.ts" name="DimensionValue" />
+
+### DimensionCallbackParam
+
+<AutoTypeTable path="./src/types/rocketstyle.ts" name="DimensionCallbackParam" />

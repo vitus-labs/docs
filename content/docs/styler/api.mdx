@@ -1,0 +1,341 @@
+---
+title: API Reference
+description: Complete API reference for @vitus-labs/styler.
+---
+
+## Exports
+
+```tsx
+import {
+  css,
+  styled,
+  keyframes,
+  createGlobalStyle,
+  ThemeProvider,
+  useTheme,
+  useCSS,
+  sheet,
+  createSheet,
+} from '@vitus-labs/styler'
+
+import type {
+  CSSResult,
+  Interpolation,
+  StyledOptions,
+  StyleSheetOptions,
+  DefaultTheme,
+} from '@vitus-labs/styler'
+```
+
+## Styling Functions
+
+### css
+
+```tsx
+css(strings: TemplateStringsArray, ...values: Interpolation[]): CSSResult
+```
+
+Tagged template for composable CSS fragments. Returns a lazy `CSSResult` that resolves when consumed by `styled`, `useCSS`, or `toString()`.
+
+### styled
+
+```tsx
+styled(tag: string | ComponentType, options?: StyledOptions):
+  (strings: TemplateStringsArray, ...values: Interpolation[]) => ForwardRefComponent
+```
+
+Also available as `styled.div`, `styled.button`, etc. via Proxy.
+
+Creates a React component that:
+1. Resolves interpolations with component props + theme
+2. Hashes the resolved CSS string (FNV-1a, base-36)
+3. Injects the style rule if not already present (dedup via cache)
+4. Applies the generated class name (`vl-<hash>`) to the element
+5. Filters `$`-prefixed transient props from DOM output
+6. Forwards ref to the underlying element
+
+**Static path** (no function interpolations): CSS resolved once at creation time, zero per-render overhead.
+**Dynamic path** (function interpolations): CSS resolved per render, useRef cache avoids rehashing when unchanged.
+
+### keyframes
+
+```tsx
+keyframes(strings: TemplateStringsArray, ...values: Interpolation[]): KeyframesResult
+```
+
+Returns a `KeyframesResult` with:
+- `.name: string` — Animation name (`vl-kf-<hash>`)
+- `.toString(): string` — Returns `.name` for use in CSS interpolations
+
+The `@keyframes` rule is injected immediately and synchronously. No dynamic interpolation support (keyframes are always static). Deduplicated by animation name.
+
+### createGlobalStyle
+
+```tsx
+createGlobalStyle(strings: TemplateStringsArray, ...values: Interpolation[]): FC
+```
+
+Returns a React component. When mounted:
+- **Static path:** CSS injected once at creation; component renders nothing on client
+- **Dynamic path:** CSS resolved per render with `{ ...props, theme }`, injected via `useInsertionEffect`
+- **SSR:** Renders `<style precedence="low">` for FOUC-free delivery
+- CSS is **unscoped** (no `.vl-*` class wrapper)
+- Deduplicated by hash of resolved CSS
+
+## Theme
+
+### ThemeProvider
+
+```tsx
+ThemeProvider: FC<{ theme: DefaultTheme & Record<string, unknown>; children: ReactNode }>
+```
+
+React Context provider that makes a theme object available to all descendant `styled` components via `props.theme`.
+
+### useTheme
+
+```tsx
+useTheme<T extends Theme = Theme>(): T
+```
+
+Hook to read the current theme from the nearest `ThemeProvider`. Returns `{}` if called outside any provider.
+
+## Hooks
+
+### useCSS
+
+```tsx
+useCSS(template: CSSResult, props?: Record<string, any>, boost?: boolean): string
+```
+
+Resolves a `CSSResult` to a class name string. Theme is automatically merged from context.
+
+- Same injection mechanism as `styled()` (useInsertionEffect + dedup cache)
+- `props` — Additional props passed to function interpolations
+- `boost` — Double the selector for raised specificity
+
+```tsx
+const highlight = css`
+  color: red;
+  font-weight: bold;
+`
+
+function Label({ children }) {
+  const className = useCSS(highlight)
+  return <span className={className}>{children}</span>
+}
+```
+
+## StyleSheet API
+
+### sheet
+
+```tsx
+import { sheet } from '@vitus-labs/styler'
+```
+
+The global `StyleSheet` singleton used by all `styled` components and hooks. On the client, manages a single `<style data-vl>` DOM element.
+
+### createSheet
+
+```tsx
+createSheet(options?: StyleSheetOptions): StyleSheet
+```
+
+Creates an isolated `StyleSheet` instance. Use for SSR per-request isolation.
+
+### Sheet Methods
+
+| Method | Returns | Description |
+|--------|---------|-------------|
+| `insert(cssText, boost?)` | `string` | Inject scoped CSS, returns class name. Dedup via cache. |
+| `insertKeyframes(name, body)` | `void` | Inject `@keyframes` rule. Dedup by name. |
+| `insertGlobal(cssText)` | `void` | Inject unscoped global CSS. Dedup by hash. |
+| `getClassName(cssText)` | `string` | Compute class name without injecting (render-phase safe). |
+| `prepare(cssText, boost?)` | `{ className, rules }` | Compute class + full rule text without injecting. For SSR `<style precedence>`. |
+| `getStyleTag()` | `string` | Complete `<style data-vl="">...</style>` tag with collected CSS. |
+| `getStyles()` | `string` | Raw collected CSS rules string (no `<style>` wrapper). |
+| `has(className)` | `boolean` | O(1) cache lookup for dedup check. |
+| `reset()` | `void` | Clear ssrBuffer + cache. Call between server requests. |
+| `clearCache()` | `void` | Clear dedup cache only. Useful for HMR. |
+| `clearAll()` | `void` | Clear cache + ssrBuffer + remove all DOM rules. Full HMR reset. |
+| `cacheSize` (getter) | `number` | Current number of cached entries. |
+
+### SSR Pattern
+
+```tsx
+import { createSheet } from '@vitus-labs/styler'
+
+// Per-request isolation
+const sheet = createSheet()
+
+// Render your app...
+const html = renderToString(<App />)
+
+// Extract collected CSS
+const styleTag = sheet.getStyleTag()
+// → '<style data-vl="">...all CSS rules...</style>'
+
+// Or raw CSS for custom injection
+const css = sheet.getStyles()
+
+// Send to client
+response.send(`<!DOCTYPE html><html><head>${styleTag}</head><body>${html}</body></html>`)
+
+// Reset for next request
+sheet.reset()
+```
+
+### Hydration
+
+On the client:
+1. `StyleSheet` mounts, finds existing `<style data-vl="">` in DOM
+2. Parses existing rules into the dedup cache (prevents re-injection)
+3. Reuses the DOM element for future insertions
+4. `useInsertionEffect` skips insertion for already-cached classes
+
+### React 19 Style Precedence
+
+On the server, styled components render `<style href={className} precedence="medium">` elements alongside their DOM output. React 19's streaming renderer hoists these to `<head>` automatically, providing FOUC-free delivery without manual style collection.
+
+Precedence levels:
+- **`medium`** — Component styles (from `styled()` and `useCSS()`)
+- **`low`** — Global styles (from `createGlobalStyle()`)
+
+### @layer Support
+
+Wrap all scoped CSS in a CSS `@layer`:
+
+```tsx
+const sheet = createSheet({ layer: 'components' })
+// All CSS: @layer components { .vl-abc { ... } }
+```
+
+### Cache Eviction
+
+- Default max cache size: **10,000 entries**
+- When exceeded, oldest 10% of entries are evicted (Map insertion order)
+- Configurable via `createSheet({ maxCacheSize: 5000 })`
+
+## Types
+
+### CSSResult
+
+```tsx
+class CSSResult {
+  readonly strings: TemplateStringsArray
+  readonly values: Interpolation[]
+  toString(): string
+}
+```
+
+The return type of `css()`. A lazy container storing template strings and interpolation values. Resolves to CSS when consumed.
+
+### Interpolation
+
+```tsx
+type Interpolation =
+  | string
+  | number
+  | boolean
+  | null
+  | undefined
+  | CSSResult
+  | Interpolation[]
+  | ((props: {
+      theme?: DefaultTheme & Record<string, any>
+      [key: string]: any
+    }) => Interpolation)
+```
+
+Values accepted in tagged template interpolation positions. The type is **recursive** — arrays can contain any interpolation type, functions can return any interpolation type.
+
+### StyledOptions
+
+```tsx
+interface StyledOptions {
+  /** Custom prop filter. Return true to forward the prop to the DOM element. */
+  shouldForwardProp?: (prop: string) => boolean
+  /** Double the class selector for raised specificity (0,2,0). */
+  boost?: boolean
+}
+```
+
+### StyleSheetOptions
+
+```tsx
+interface StyleSheetOptions {
+  /** Maximum cached rules before eviction (default: 10000). */
+  maxCacheSize?: number
+  /** CSS @layer name to wrap scoped rules in. */
+  layer?: string
+}
+```
+
+### DefaultTheme
+
+```tsx
+interface DefaultTheme {}
+```
+
+Empty by default. Extend via module augmentation for type-safe theme access.
+
+## Architecture
+
+### Resolution Flow
+
+1. **Definition** — `css` or `styled` captures template strings and interpolation references
+2. **Resolution** — At render time, function interpolations called with `{ ...props, theme }`
+3. **Normalization** — Single-pass cleanup: strip comments, collapse whitespace, remove redundant semicolons
+4. **Hashing** — FNV-1a hash of normalized CSS → base-36 string
+5. **Deduplication** — Cache lookup; if hash exists, reuse class name
+6. **At-rule splitting** — Extract @media/@supports/@container to top-level rules
+7. **Injection** — `useInsertionEffect` on client, `<style precedence>` on SSR
+8. **Application** — Generated class name (`vl-<hash>`) applied to element
+
+### Hash Algorithm
+
+FNV-1a (32-bit) with base-36 encoding:
+
+```tsx
+// Streaming API (for incremental hashing)
+import { HASH_INIT, hashUpdate, hashFinalize } from '@vitus-labs/styler'
+
+let h = HASH_INIT        // 2166136261 (FNV offset basis)
+h = hashUpdate(h, 'abc') // Feed string segment
+h = hashUpdate(h, 'def') // Continue feeding
+const result = hashFinalize(h) // → base-36 string
+
+// One-shot API
+import { hash } from '@vitus-labs/styler'
+hash('abcdef') // Same result as streaming above
+```
+
+### Client Injection
+
+A single `<style data-vl>` element is used for all injected rules. `useInsertionEffect` ensures rules are inserted synchronously before layout/paint, preventing FOUC.
+
+### Performance
+
+| Metric | Value |
+|--------|-------|
+| Bundle size | ~3.06KB gzipped |
+| Static path | O(1) per render |
+| Dynamic path | O(n) per render (n = CSS string length) |
+| Cache lookup | O(1) via Map |
+| CSS insertion | O(1) amortized (CSSOM insertRule) |
+| DOM elements | 1 shared `<style>` for all components |
+
+## Auto-Generated Types
+
+### StyledOptions
+
+<AutoTypeTable path="./src/types/styler.ts" name="StyledOptions" />
+
+### StyleSheetOptions
+
+<AutoTypeTable path="./src/types/styler.ts" name="StyleSheetOptions" />
+
+### CSSResult
+
+<AutoTypeTable path="./src/types/styler.ts" name="CSSResult" />

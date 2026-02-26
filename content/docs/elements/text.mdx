@@ -1,0 +1,109 @@
+---
+title: Text
+description: Semantic text rendering primitive with inherited styles.
+---
+
+Text is a lightweight component for rendering semantic text content. It inherits color, font-weight, and line-height from its parent, making it easy to integrate into any layout.
+
+## Usage
+
+```tsx
+import { Text } from '@vitus-labs/elements'
+
+// Heading
+<Text tag="h1">Page Title</Text>
+
+// Paragraph
+<Text paragraph>This is a paragraph of text.</Text>
+
+// Styled span
+<Text tag="span" css={(css) => css`color: red; font-weight: bold;`}>
+  Important
+</Text>
+```
+
+## Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `children` | `ReactNode` | — | Content (highest priority) |
+| `label` | `Content` | — | Alternative to children |
+| `tag` | `string` | `'span'` | HTML tag (`h1`-`h6`, `span`, `em`, `strong`, `p`, etc.) |
+| `paragraph` | `boolean` | `false` | Auto-renders as `<p>` tag |
+| `css` | `ExtendCss` | — | Custom styles |
+
+## Key Differences from Element
+
+- No layout sections (no beforeContent/afterContent)
+- No flex layout management
+- Focused on semantic text HTML
+- Lighter weight — renders as a single styled element
+- Has `isText: true` static flag for parent component detection
+- Base CSS: `color: inherit; font-weight: inherit; line-height: 1;` — blends seamlessly into any parent context
+
+## Tag Priority
+
+The rendered HTML tag is determined by:
+
+1. `paragraph={true}` → renders as `<p>`
+2. `tag="h1"` → renders as the specified tag
+3. Neither set → renders as the styled component's default (typically `<span>`)
+
+## Ref Forwarding
+
+Text uses `forwardRef` for direct DOM access:
+
+```tsx
+const ref = useRef<HTMLHeadingElement>(null)
+<Text ref={ref} tag="h1">Title</Text>
+// ref.current → <h1> DOM element
+```
+
+## Static Properties
+
+```tsx
+Text.displayName    // '@vitus-labs/elements/Text'
+Text.pkgName        // '@vitus-labs/elements'
+Text.VITUS_LABS__COMPONENT  // '@vitus-labs/elements/Text'
+Text.isText         // true (marker for parent detection)
+```
+
+## Semantic Tags
+
+```tsx
+<Text tag="h1">Main Title</Text>
+<Text tag="h2">Subtitle</Text>
+<Text tag="em">Emphasized</Text>
+<Text tag="strong">Important</Text>
+<Text tag="code">inline code</Text>
+<Text tag="small">Fine print</Text>
+<Text tag="mark">Highlighted</Text>
+```
+
+## Paragraph Shorthand
+
+```tsx
+// These are equivalent:
+<Text paragraph>Content</Text>
+<Text tag="p">Content</Text>
+```
+
+## Custom Styling
+
+```tsx
+<Text
+  tag="h2"
+  css={(css) => css`
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 0.5em;
+    color: ${(props) => props.theme.colors.heading};
+  `}
+>
+  Section Title
+</Text>
+```
+
+## API Reference
+
+<AutoTypeTable path="./src/types/elements.ts" name="TextProps" />

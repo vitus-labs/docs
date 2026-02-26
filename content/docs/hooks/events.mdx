@@ -1,0 +1,157 @@
+---
+title: Event Hooks
+description: useHover, useFocus, useFocusTrap, useKeyboard.
+---
+
+## useHover
+
+Simple hover-state hook. Returns boolean and stable handler functions ready to spread onto elements.
+
+```tsx
+import { useHover } from '@vitus-labs/hooks'
+
+function HoverCard() {
+  const { hover, onMouseEnter, onMouseLeave } = useHover()
+
+  return (
+    <div
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
+      style={{
+        background: hover ? '#f0f0f0' : 'white',
+        transform: hover ? 'scale(1.02)' : 'scale(1)',
+        transition: 'all 0.2s',
+      }}
+    >
+      Hover me
+    </div>
+  )
+}
+```
+
+### Parameters
+
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `initialValue` | `boolean` | `false` | Initial hover state |
+
+### Returns
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `hover` | `boolean` | Current hover state |
+| `onMouseEnter` | `() => void` | Stable callback → sets `hover = true` |
+| `onMouseLeave` | `() => void` | Stable callback → sets `hover = false` |
+
+---
+
+## useFocus
+
+Simple focus-state hook for form elements.
+
+```tsx
+import { useFocus } from '@vitus-labs/hooks'
+
+function StyledInput() {
+  const { focused, onFocus, onBlur } = useFocus()
+
+  return (
+    <div style={{ borderColor: focused ? 'blue' : '#ccc' }}>
+      <input onFocus={onFocus} onBlur={onBlur} placeholder="Type here..." />
+    </div>
+  )
+}
+```
+
+### Parameters
+
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `initialValue` | `boolean` | `false` | Initial focus state |
+
+### Returns
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `focused` | `boolean` | Current focus state |
+| `onFocus` | `() => void` | Stable callback → sets `focused = true` |
+| `onBlur` | `() => void` | Stable callback → sets `focused = false` |
+
+---
+
+## useFocusTrap
+
+Traps keyboard focus within a container. Tab cycles forward through focusable elements, Shift+Tab cycles backward. When reaching the last element, focus wraps to the first.
+
+```tsx
+import { useFocusTrap } from '@vitus-labs/hooks'
+
+function Dialog({ isOpen, onClose }) {
+  const dialogRef = useRef<HTMLDivElement>(null)
+  useFocusTrap(dialogRef, isOpen)
+
+  if (!isOpen) return null
+
+  return (
+    <div ref={dialogRef} role="dialog" aria-modal="true">
+      <h2>Dialog Title</h2>
+      <input placeholder="Name" />
+      <input placeholder="Email" />
+      <button onClick={onClose}>Close</button>
+      {/* Tab cycles between the 3 focusable elements above */}
+    </div>
+  )
+}
+```
+
+### Parameters
+
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `ref` | `RefObject<HTMLElement>` | — | Container ref |
+| `enabled` | `boolean` | `true` | Enable/disable trap |
+
+### Focusable Elements
+
+The trap targets these elements within the container:
+- `a[href]`
+- `button:not([disabled])`
+- `input:not([disabled])`
+- `select:not([disabled])`
+- `textarea:not([disabled])`
+- `[tabindex]:not([tabindex="-1"])`
+
+---
+
+## useKeyboard
+
+Listens for a specific keyboard key press on the window.
+
+```tsx
+import { useKeyboard } from '@vitus-labs/hooks'
+
+function Modal({ isOpen, onClose }) {
+  useKeyboard('Escape', () => {
+    if (isOpen) onClose()
+  })
+
+  // ...
+}
+
+function App() {
+  useKeyboard('/', () => {
+    document.querySelector<HTMLInputElement>('#search')?.focus()
+  })
+
+  // ...
+}
+```
+
+### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `key` | `string` | Key name to listen for (e.g., `'Escape'`, `'Enter'`, `'a'`) |
+| `handler` | `(event: KeyboardEvent) => void` | Callback when key is pressed |
+
+Matches against `event.key`. Always calls the latest handler (no stale closures). Attached to window `keydown` event.

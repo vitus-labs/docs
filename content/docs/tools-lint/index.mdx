@@ -1,0 +1,197 @@
+---
+title: Tools Lint
+description: Shared Biome configuration for consistent formatting and linting across the vitus-labs ecosystem.
+---
+
+`@vitus-labs/tools-lint` provides a shareable [Biome](https://biomejs.dev/) configuration preset for JavaScript, TypeScript, JSON, and CSS. It enforces consistent formatting and strict linting rules while allowing per-project overrides.
+
+## Installation
+
+```package-install
+@vitus-labs/tools-lint
+```
+
+## Usage
+
+Extend the shared config in your project's `biome.json`:
+
+```json
+{
+  "$schema": "https://biomejs.dev/schemas/2.4.4/schema.json",
+  "extends": ["@vitus-labs/tools-lint/biome"]
+}
+```
+
+Run linting:
+
+```bash
+# Check all files
+biome check .
+
+# Auto-fix issues
+biome check . --fix
+
+# Format only
+biome format .
+```
+
+## Formatting Rules
+
+### JavaScript / TypeScript
+
+| Setting | Value | Example |
+|---------|-------|---------|
+| Quote style | Single | `'hello'` |
+| JSX quotes | Double | `<Button type="submit" />` |
+| Semicolons | As needed | `const x = 1` (no trailing `;`) |
+| Trailing commas | All | `{ a, b, c, }` |
+| Bracket spacing | Yes | `{ a }` not `{a}` |
+| Arrow parens | Always | `(x) => x` not `x => x` |
+| Indent | 2 spaces | — |
+| Line width | 80 chars | — |
+| Line endings | LF | Unix-style |
+
+### JSON
+
+| Setting | Value |
+|---------|-------|
+| Trailing commas | None (spec-compliant) |
+| Indent | 2 spaces |
+
+### CSS
+
+| Setting | Value |
+|---------|-------|
+| Quotes | Single |
+| Indent | 2 spaces |
+| Linting | Enabled |
+
+## Linting Rules
+
+Rules are organized by category. The preset enables Biome's `recommended` baseline plus custom overrides.
+
+### Correctness
+
+| Rule | Severity | Description |
+|------|----------|-------------|
+| `noUnusedVariables` | error | Remove unused variables |
+| `noUnusedImports` | error | Remove unused imports |
+| `noUndeclaredVariables` | error | Catch undefined variable references |
+| `useHookAtTopLevel` | error | Enforce React Rules of Hooks |
+
+### Style
+
+| Rule | Severity | Description |
+|------|----------|-------------|
+| `noParameterAssign` | error | Prevent function parameter reassignment |
+| `useConsistentArrayType` | error | Enforce `Type[]` shorthand over `Array<Type>` |
+| `noNonNullAssertion` | warn | Flag `value!` non-null assertions |
+| `useDefaultParameterLast` | off | Allows any parameter ordering |
+| `noUnusedTemplateLiteral` | off | Allows template syntax for strings |
+| `useFilenamingConvention` | off | Flexible file naming |
+| `useNamingConvention` | off | No variable naming conventions enforced |
+
+### Complexity
+
+| Rule | Severity | Description |
+|------|----------|-------------|
+| `noExcessiveCognitiveComplexity` | warn | Flag overly complex logic |
+| `useFlatMap` | error | Use `.flatMap()` over `.map().flat()` |
+| `noForEach` | off | `.forEach()` is allowed |
+
+### Suspicious
+
+| Rule | Severity | Description |
+|------|----------|-------------|
+| `noExplicitAny` | off | `any` type is allowed |
+| `noArrayIndexKey` | warn | Flag array index as React key |
+| `noConsole` | warn | Flag console usage |
+| `noEmptyBlockStatements` | warn | Flag empty `{}` blocks |
+
+### Security
+
+| Rule | Severity | Description |
+|------|----------|-------------|
+| `noDangerouslySetInnerHtml` | error | Prevent XSS via `dangerouslySetInnerHTML` |
+
+### Accessibility
+
+| Rule | Severity | Description |
+|------|----------|-------------|
+| `useAltText` | error | Require `alt` on `<img>` |
+| `useAnchorContent` | error | Require text in `<a>` elements |
+| `useButtonType` | warn | Require `type` on `<button>` |
+
+### Performance
+
+| Rule | Severity | Description |
+|------|----------|-------------|
+| `noAccumulatingSpread` | off | Allows `{...a, ...b}` patterns |
+
+### Nursery (Experimental)
+
+| Rule | Severity | Description |
+|------|----------|-------------|
+| `noShadow` | warn | Flag variable shadowing |
+
+## Global Variables
+
+The preset declares build-time injected globals to prevent linter errors:
+
+| Variable | Purpose |
+|----------|---------|
+| `__BROWSER__` | Runtime platform flag |
+| `__NATIVE__` | Runtime platform flag |
+| `__NODE__` | Runtime platform flag |
+| `__WEB__` | Runtime platform flag |
+| `__CLIENT__` | Client-side execution flag |
+| `__VERSION__` | Build version injection |
+| `__VITUS_LABS_STORIES__` | Storybook environment flag |
+
+## Import Organization
+
+The preset enables automatic import organization:
+
+```json
+"assist": {
+  "actions": {
+    "source": {
+      "organizeImports": "on"
+    }
+  }
+}
+```
+
+Triggered via `biome check --fix` — sorts imports alphabetically and removes duplicates.
+
+## Overriding Rules
+
+Each project can extend and override specific rules without affecting others. Biome deep-merges rule objects:
+
+```json
+{
+  "extends": ["@vitus-labs/tools-lint/biome"],
+  "javascript": {
+    "globals": ["vi", "describe", "it", "expect"]
+  },
+  "linter": {
+    "rules": {
+      "suspicious": {
+        "noConsole": "off"
+      },
+      "nursery": {
+        "noShadow": "off"
+      }
+    }
+  }
+}
+```
+
+Common overrides:
+
+| Context | Override | Why |
+|---------|---------|-----|
+| CLI tools | `noConsole: "off"` | Console output is intentional |
+| Test files | Add `vi`, `describe`, `it`, `expect` to `globals` | Vitest global APIs |
+| Legacy code | `noShadow: "off"` | Many valid shadowing cases |
+| Content sites | `noDangerouslySetInnerHtml: "warn"` | CMS/markdown rendering |

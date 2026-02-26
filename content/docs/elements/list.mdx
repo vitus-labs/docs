@@ -1,0 +1,195 @@
+---
+title: List
+description: Data-driven list renderer with extended item props and optional Element wrapper.
+---
+
+List is a data-driven component that renders arrays of items with a specified component. Each item receives extended props with positional metadata (index, first, last, odd, even).
+
+## Basic Usage
+
+```tsx
+import { List } from '@vitus-labs/elements'
+
+// Simple string array
+<List
+  component={({ children }) => <li>{children}</li>}
+  data={['Apple', 'Banana', 'Cherry']}
+  valueName="children"
+/>
+
+// Object array
+<List
+  component={({ name, email }) => (
+    <div>{name} ({email})</div>
+  )}
+  data={[
+    { name: 'Alice', email: 'alice@example.com' },
+    { name: 'Bob', email: 'bob@example.com' },
+  ]}
+  itemKey="name"
+/>
+
+// React children (highest priority)
+<List>
+  <li>Item 1</li>
+  <li>Item 2</li>
+</List>
+```
+
+## Props
+
+| Prop | Type | Description |
+|------|------|-------------|
+| `children` | `ReactNode` | React children (takes priority over data) |
+| `data` | `any[]` | Array of data items to render |
+| `component` | `ComponentType` | Component to render each item |
+| `valueName` | `string` | Prop name for simple array items (strings/numbers) |
+| `itemKey` | `string \| ((item, index) => string)` | Key derivation for each item |
+| `itemProps` | `object \| (extendedProps) => object` | Extra props for each item |
+| `wrapComponent` | `ComponentType` | Optional wrapper around each item |
+| `wrapProps` | `object \| (extendedProps) => object` | Props for the wrapper |
+| `rootElement` | `boolean` | Wrap list in Element container (default: `false`) |
+
+When `rootElement={true}`, all Element props are also available (tag, direction, gap, alignX, alignY, css, etc.).
+
+## Extended Item Props
+
+Each rendered item receives these additional props:
+
+| Prop | Type | Description |
+|------|------|-------------|
+| `index` | `number` | 0-based position |
+| `position` | `number` | 1-based position |
+| `first` | `boolean` | `true` if first item |
+| `last` | `boolean` | `true` if last item |
+| `odd` | `boolean` | `true` if position is odd (1, 3, 5...) |
+| `even` | `boolean` | `true` if position is even (2, 4, 6...) |
+
+## With Root Element
+
+Wrap the list in an Element container for layout control:
+
+```tsx
+<List
+  rootElement
+  component={Card}
+  data={products}
+  gap={16}
+  direction="rows"
+  alignX="spaceBetween"
+  tag="nav"
+  css={(css) => css`padding: 24px;`}
+/>
+```
+
+**Without rootElement** (default): Items render as a fragment.
+
+**With rootElement**: Items render inside an Element with full layout props.
+
+## Item Props Callback
+
+Pass dynamic props to each item based on its position:
+
+```tsx
+<List
+  component={Card}
+  data={items}
+  itemProps={({ index, first, last, odd }) => ({
+    highlighted: odd,
+    className: first ? 'first-item' : last ? 'last-item' : '',
+    style: { animationDelay: `${index * 100}ms` },
+  })}
+/>
+```
+
+## Wrapper Component
+
+Wrap each item in a container:
+
+```tsx
+<List
+  component={Item}
+  data={items}
+  wrapComponent={({ children, ...props }) => (
+    <div className="item-wrapper" {...props}>{children}</div>
+  )}
+  wrapProps={({ odd }) => ({
+    className: odd ? 'odd-row' : 'even-row',
+  })}
+/>
+```
+
+## Data Modes
+
+List classifies data arrays internally:
+- **Simple** — All items are `string` or `number` (nullish items filtered out)
+- **Complex** — All items are objects
+- **Mixed** — Returns `null` (invalid, won't render)
+
+### Simple Arrays
+
+For arrays of primitives, use `valueName` to specify which prop receives the value:
+
+```tsx
+<List
+  component={Tag}
+  data={['React', 'TypeScript', 'CSS']}
+  valueName="label"
+/>
+// Each Tag receives: { label: 'React' }, { label: 'TypeScript' }, etc.
+```
+
+### Object Arrays
+
+Object properties are spread directly onto the component:
+
+```tsx
+<List
+  component={UserRow}
+  data={[
+    { id: 1, name: 'Alice', role: 'Admin' },
+    { id: 2, name: 'Bob', role: 'User' },
+  ]}
+  itemKey="id"
+/>
+// UserRow receives: { id: 1, name: 'Alice', role: 'Admin', index: 0, ... }
+```
+
+## Per-Item Component Override
+
+In object arrays, each item can specify its own component via a `component` property:
+
+```tsx
+<List
+  component={DefaultCard}
+  data={[
+    { id: 1, name: 'Alice', component: SpecialCard },
+    { id: 2, name: 'Bob' },  // uses DefaultCard
+  ]}
+  itemKey="id"
+/>
+```
+
+The `component` property is consumed by the iterator and not passed to the rendered component.
+
+## Rendering Priority
+
+1. **`children`** — If provided, children are rendered (data/component ignored)
+2. **`data` + `component`** — Data-driven rendering
+
+When `children` are used, each child receives extended props (index, first, last, etc.) and can be wrapped with `wrapComponent`.
+
+## Without rootElement (Default)
+
+Items render as a flat fragment — no wrapping `<div>`:
+
+```tsx
+<List component={Item} data={items} />
+// Renders: <Item /><Item /><Item /> (no wrapper)
+```
+
+Only Iterator-specific props (`children`, `component`, `data`, `itemKey`, `valueName`, `itemProps`, `wrapComponent`, `wrapProps`) are used. Element layout props are ignored.
+
+## API Reference
+
+<AutoTypeTable path="./src/types/elements.ts" name="ListProps" />

@@ -1,0 +1,215 @@
+---
+title: Tools Rolldown
+description: Rolldown-based build tool for library packages — ESM/CJS/UMD output with DTS generation and platform globals.
+---
+
+`@vitus-labs/tools-rolldown` is the primary build tool for the vitus-labs ecosystem. It uses [Rolldown](https://rolldown.rs/) (a Rust-based bundler) to produce optimized library bundles with automatic TypeScript declaration generation.
+
+## Installation
+
+```package-install
+@vitus-labs/tools-rolldown
+```
+
+## Quick Start
+
+Add a build script to your `package.json`:
+
+```json
+{
+  "scripts": {
+    "build": "vl_rolldown_build"
+  }
+}
+```
+
+Run it:
+
+```bash
+bun run build
+```
+
+The tool reads your `package.json` fields (`main`, `module`, `exports`) and generates the appropriate output files in `lib/`.
+
+## How It Works
+
+1. Reads `package.json` to determine output formats and entry points
+2. Loads config from `vl-tools.config.mjs` (via `tools-core`)
+3. Generates a build pipeline based on `exports`/`main`/`module` fields
+4. Bundles with Rolldown, generates DTS with `rolldown-plugin-dts`
+5. Injects platform globals (`__WEB__`, `__NATIVE__`, etc.)
+6. Outputs source maps, file size stats, and bundle visualization
+
+## CLI Commands
+
+### vl_rolldown_build
+
+Production build — generates all output formats defined in `package.json`.
+
+```bash
+vl_rolldown_build
+```
+
+### vl_rolldown_watch
+
+Watch mode — rebuilds on file changes (development).
+
+```bash
+vl_rolldown_watch
+```
+
+## Configuration
+
+Configure via `vl-tools.config.mjs` under the `build` key:
+
+```js
+// vl-tools.config.mjs
+export default {
+  build: {
+    sourceDir: 'src',           // Input directory (default: 'src')
+    outputDir: 'lib',           // Output directory (default: 'lib')
+    replaceGlobals: true,       // Inject platform globals (default: true)
+    typescript: true,           // Generate .d.ts files (default: true)
+    filesize: true,             // Show file sizes in console (default: true)
+    visualise: {                // Bundle visualization
+      template: 'network',     // 'network' | 'treemap' | 'sunburst'
+      gzipSize: true,
+      outputDir: 'analysis',
+    },
+    external: ['react/jsx-runtime'],  // Additional external packages
+    exclude: [                  // Patterns to exclude from bundle
+      'lib', 'node_modules/**',
+      '**/__tests__/**', '**/__stories__/**',
+      '*.test.*', '*.stories.*',
+    ],
+  },
+}
+```
+
+## Output Format Detection
+
+The tool reads your `package.json` to determine what to build:
+
+### exports Field (Preferred)
+
+```json
+{
+  "exports": {
+    ".": {
+      "import": "./lib/index.js",
+      "require": "./lib/index.cjs",
+      "types": "./lib/index.d.ts"
+    }
+  }
+}
+```
+
+| Condition | Format | Platform |
+|-----------|--------|----------|
+| `import` | ESM | universal |
+| `require` | CJS | universal |
+| `node` | ESM | node |
+| `default` | ESM | universal |
+
+### main / module Fields (Fallback)
+
+```json
+{
+  "main": "lib/index.cjs",
+  "module": "lib/index.js"
+}
+```
+
+- `main` → CJS (or ESM if `type: "module"`)
+- `module` → ESM
+- `react-native` → ESM with native platform
+
+### Browser Field
+
+If `browser` differs from `main`, separate builds are generated:
+
+```json
+{
+  "main": "lib/index.js",
+  "browser": {
+    "./lib/index.js": "./lib/browser.js"
+  }
+}
+```
+
+## Platform Globals
+
+When `replaceGlobals: true` (default), these constants are injected at build time:
+
+| Global | Type | Description |
+|--------|------|-------------|
+| `__VERSION__` | `string` | Package version from `package.json` |
+| `__WEB__` | `boolean` | `true` for web/node/browser platforms |
+| `__NATIVE__` | `boolean` | `true` for React Native |
+| `__BROWSER__` | `boolean` | `true` for browser-only |
+| `__NODE__` | `boolean` | `true` for Node.js |
+| `__CLIENT__` | `boolean` | `true` for browser + native |
+
+Platform assignment depends on the build variant:
+
+| Platform | `__WEB__` | `__NATIVE__` | `__BROWSER__` | `__NODE__` | `__CLIENT__` |
+|----------|-----------|-------------|---------------|-----------|-------------|
+| universal | — | — | — | — | — |
+| browser | true | false | true | false | true |
+| node | true | false | false | true | false |
+| native | false | true | false | false | true |
+| web | true | false | false | false | false |
+
+## Type Generation
+
+When `typescript: true`, the first build in the pipeline generates a rolled-up `.d.ts` file using `rolldown-plugin-dts`. The output path is read from `package.json`:
+
+```json
+{
+  "exports": {
+    ".": {
+      "types": "./lib/index.d.ts"
+    }
+  }
+}
+```
+
+Only one `.d.ts` file is generated per build (for the first build variant).
+
+## External Dependencies
+
+All `dependencies` and `peerDependencies` from `package.json` are automatically marked as external (not bundled). Additional externals can be added via config:
+
+```js
+export default {
+  build: {
+    external: ['react/jsx-runtime', 'some-other-package'],
+  },
+}
+```
+
+## Bundle Visualization
+
+When `visualise` is configured, an interactive HTML visualization is generated:
+
+```
+lib/analysis/index.html
+```
+
+Templates: `'network'` (default), `'treemap'`, `'sunburst'`
+
+## Build Pipeline
+
+The tool generates multiple builds sequentially. A typical library with ESM + CJS + types produces:
+
+```
+[1/2] Creating build: lib/index.js (ES Module)
+[2/2] Creating build: lib/index.cjs (CommonJS)
+```
+
+Each build:
+1. Resolves node modules with platform-specific extensions
+2. Replaces platform globals
+3. Generates source maps
+4. Reports file sizes
+5. Produces visualization (first build only)
