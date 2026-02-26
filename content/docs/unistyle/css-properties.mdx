@@ -1,0 +1,189 @@
+---
+title: CSS Properties
+description: 170+ CSS property mappings with unit conversion, shorthands, and special handlers.
+---
+
+Unistyle maps theme properties to CSS through a descriptor-based system. Each CSS property has a descriptor that defines how to process the value.
+
+## Descriptor Types
+
+### `simple` — Pass-Through
+
+Values used directly as CSS. No unit conversion.
+
+```tsx
+{ display: 'flex', position: 'relative', color: 'red', fontFamily: 'sans-serif' }
+// → display: flex; position: relative; color: red; font-family: sans-serif;
+```
+
+**Properties:** `display`, `position`, `boxSizing`, `float`, `flexDirection`, `flexWrap`, `alignItems`, `justifyContent`, `color`, `fontFamily`, `fontWeight`, `fontStyle`, `textAlign`, `textDecoration`, `textTransform`, `whiteSpace`, `overflow`, `overflowX`, `overflowY`, `visibility`, `cursor`, `pointerEvents`, `userSelect`, `objectFit`, `objectPosition`, `listStyleType`, `listStylePosition`, `backgroundAttachment`, `backgroundClip`, `backgroundOrigin`, `backgroundPosition`, `backgroundRepeat`, `backgroundSize`, `borderCollapse`, `tableLayout`, `verticalAlign`, `resize`, `wordBreak`, `wordWrap`, `textOverflow`, `appearance`, `touchAction`, `willChange`, and many more.
+
+### `convert` — Number to rem
+
+Numbers are converted to rem using `rootSize`. String values pass through unchanged.
+
+```tsx
+{ fontSize: 16, gap: 24, lineHeight: 1.5 }
+// With rootSize=16:
+// → font-size: 1rem; gap: 1.5rem; line-height: 1.5rem;
+
+{ fontSize: '2em', gap: 'auto' }
+// → font-size: 2em; gap: auto;
+```
+
+**Properties:** `fontSize`, `gap`, `rowGap`, `columnGap`, `gridAutoRows`, `gridAutoColumns`, `lineHeight`, `letterSpacing`
+
+### `convert_fallback` — Fallback Chain + Conversion
+
+Picks the first non-null value from a fallback chain, then converts:
+
+| CSS Property | Fallback Chain |
+|-------------|----------------|
+| `width` | `width` → `size` |
+| `height` | `height` → `size` |
+| `min-width` | `minWidth` → `minSize` |
+| `min-height` | `minHeight` → `minSize` |
+| `max-width` | `maxWidth` → `maxSize` |
+| `max-height` | `maxHeight` → `maxSize` |
+
+```tsx
+{ size: 200, minSize: 100 }
+// → width: 12.5rem; height: 12.5rem; min-width: 6.25rem; min-height: 6.25rem;
+
+{ width: 300, height: 200 }  // width/height override size
+// → width: 18.75rem; height: 12.5rem;
+```
+
+### `edge` — Spacing Shorthands
+
+Handles margin, padding, inset, and border properties with full/x/y/side expansion.
+
+#### Input Keys
+
+| Key | Sides Affected |
+|-----|----------------|
+| `margin` | All four sides |
+| `marginX` | Left + Right |
+| `marginY` | Top + Bottom |
+| `marginTop` | Top only |
+| `marginRight` | Right only |
+| `marginBottom` | Bottom only |
+| `marginLeft` | Left only |
+
+Same pattern for `padding`, `inset`, `borderWidth`, `borderStyle`, `borderColor`.
+
+#### Priority Resolution
+
+1. Start with `full` value for all sides
+2. `x` overrides left and right
+3. `y` overrides top and bottom
+4. Individual sides override everything
+
+```tsx
+{ padding: 16, paddingX: 24, paddingTop: 32 }
+// → padding: 2rem 1.5rem 1rem 1.5rem;
+//   (top: 32→2rem, right: 24→1.5rem, bottom: 16→1rem, left: 24→1.5rem)
+```
+
+#### Shorthand Optimization
+
+Output is optimized to the shortest valid CSS shorthand:
+
+| Pattern | CSS Output |
+|---------|------------|
+| All sides equal | `padding: 1rem;` |
+| Top=Bottom, Left=Right | `padding: 1rem 1.5rem;` |
+| Top, Left=Right, Bottom | `padding: 1rem 1.5rem 2rem;` |
+| All different | `padding: 1rem 1.5rem 2rem 0.5rem;` |
+| Some sides undefined | Individual properties |
+
+#### Logical Properties
+
+CSS Logical Properties are also supported:
+
+```tsx
+{ marginInline: 16, paddingBlock: 8 }
+// → margin-inline: 1rem; padding-block: 0.5rem;
+
+{ marginInlineStart: 16, paddingBlockEnd: 8 }
+// → margin-inline-start: 1rem; padding-block-end: 0.5rem;
+```
+
+### `border_radius` — Corner Shorthands
+
+| Key | Corners Affected |
+|-----|-----------------|
+| `borderRadius` | All four corners |
+| `borderRadiusTop` | Top-left + Top-right |
+| `borderRadiusBottom` | Bottom-left + Bottom-right |
+| `borderRadiusLeft` | Top-left + Bottom-left |
+| `borderRadiusRight` | Top-right + Bottom-right |
+| `borderRadiusTopLeft` | Top-left only |
+| `borderRadiusTopRight` | Top-right only |
+| `borderRadiusBottomLeft` | Bottom-left only |
+| `borderRadiusBottomRight` | Bottom-right only |
+
+```tsx
+{ borderRadius: 8 }
+// → border-radius: 0.5rem;
+
+{ borderRadius: 8, borderRadiusTopLeft: 16, borderRadiusBottomRight: 0 }
+// → border-radius: 1rem 0.5rem 0rem 0.5rem;
+```
+
+### `special` — Custom Handlers
+
+| Key | Output |
+|-----|--------|
+| `fullScreen` | `position: fixed; top: 0; left: 0; right: 0; bottom: 0;` |
+| `backgroundImage` | `background-image: url(<value>);` |
+| `animation` | Combines `keyframe` + `animation` props |
+| `hideEmpty` | `&:empty { display: none; }` |
+| `clearFix` | `&::after { clear: both; content: ''; display: table; }` |
+| `extendCss` | Custom CSS (function or string) |
+
+```tsx
+{ fullScreen: true }
+// → position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+
+{ hideEmpty: true }
+// → &:empty { display: none; }
+
+{ extendCss: (css) => css`&:hover { opacity: 0.8; }` }
+// → &:hover { opacity: 0.8; }
+```
+
+## Complete Property Categories
+
+### Position & Layout
+`display`, `position`, `boxSizing`, `float`, `all`, `zIndex`, `overflow`, `overflowX`, `overflowY`
+
+### Sizing
+`width`, `height`, `size`, `minWidth`, `minHeight`, `minSize`, `maxWidth`, `maxHeight`, `maxSize`, `aspectRatio`, `inlineSize`, `blockSize`, `minInlineSize`, `maxInlineSize`, `minBlockSize`, `maxBlockSize`
+
+### Spacing
+`margin` (full/x/y/sides), `padding` (full/x/y/sides), `inset` (full/x/y/sides), logical margin/padding/inset variants
+
+### Flexbox
+`flex`, `flexBasis`, `flexDirection`, `flexFlow`, `flexGrow`, `flexShrink`, `flexWrap`, `alignItems`, `alignContent`, `alignSelf`, `justifyContent`, `justifyItems`, `justifySelf`, `placeContent`, `placeItems`, `placeSelf`, `gap`, `rowGap`, `columnGap`, `order`
+
+### Grid
+`grid`, `gridArea`, `gridTemplateColumns`, `gridTemplateRows`, `gridTemplateAreas`, `gridAutoColumns`, `gridAutoRows`, `gridAutoFlow`, `gridColumn`, `gridColumnStart`, `gridColumnEnd`, `gridRow`, `gridRowStart`, `gridRowEnd`
+
+### Typography
+`fontFamily`, `fontSize`, `fontWeight`, `fontStyle`, `fontVariant`, `lineHeight`, `letterSpacing`, `textAlign`, `textDecoration`, `textTransform`, `textShadow`, `textOverflow`, `textIndent`, `wordBreak`, `wordWrap`, `wordSpacing`, `whiteSpace`, `writingMode`, `direction`, `hyphens`
+
+### Colors & Background
+`color`, `background`, `backgroundColor`, `backgroundImage`, `backgroundAttachment`, `backgroundClip`, `backgroundOrigin`, `backgroundPosition`, `backgroundRepeat`, `backgroundSize`, `opacity`
+
+### Borders
+`border`, `borderWidth` (full/x/y/sides), `borderStyle` (full/x/y/sides), `borderColor` (full/x/y/sides), `borderRadius` (full/corners), `borderSpacing`, `borderCollapse`
+
+### Visual Effects
+`boxShadow`, `filter`, `backdropFilter`, `mixBlendMode`, `backgroundBlendMode`, `outline`, `outlineColor`, `outlineOffset`, `outlineStyle`, `outlineWidth`, `backfaceVisibility`, `isolation`
+
+### Animations
+`animation`, `animationDelay`, `animationDirection`, `animationDuration`, `animationFillMode`, `animationIterationCount`, `animationName`, `animationPlayState`, `animationTimingFunction`, `keyframe`, `transition`, `transitionDelay`, `transitionDuration`, `transitionProperty`, `transitionTimingFunction`, `transform`, `transformOrigin`, `translate`, `rotate`, `scale`
+
+### Interaction
+`cursor`, `pointerEvents`, `userSelect`, `touchAction`, `scrollbarColor`, `scrollbarWidth`, `scrollbarGutter`, `caretColor`, `accentColor`, `colorScheme`

@@ -1,0 +1,72 @@
+---
+title: Hooks
+description: 27 React hooks for UI state, DOM interactions, events, timing, theming, and accessibility.
+---
+
+A comprehensive collection of 27 React hooks covering UI state management, DOM interactions, event handling, timing, theming, and accessibility.
+
+## Installation
+
+```package-install
+@vitus-labs/hooks
+```
+
+## Hook Categories
+
+### State Management
+
+| Hook | Description |
+|------|-------------|
+| [`useControllableState`](/docs/hooks/state#usecontrollablestate) | Unified controlled/uncontrolled pattern |
+| [`useToggle`](/docs/hooks/state#usetoggle) | Boolean toggle with convenience methods |
+| [`usePrevious`](/docs/hooks/state#useprevious) | Previous render value |
+| [`useLatest`](/docs/hooks/state#uselatest) | Always-current value ref |
+
+### DOM & Measurement
+
+| Hook | Description |
+|------|-------------|
+| [`useElementSize`](/docs/hooks/dom#useelementsize) | Track element dimensions via ResizeObserver |
+| [`useIntersection`](/docs/hooks/dom#useintersection) | Observe element visibility |
+| [`useClickOutside`](/docs/hooks/dom#useclickoutside) | Detect clicks outside an element |
+| [`useMergedRef`](/docs/hooks/dom#usemergedref) | Combine multiple refs into one |
+| [`useScrollLock`](/docs/hooks/dom#usescrolllock) | Lock page scroll |
+| [`useWindowResize`](/docs/hooks/dom#usewindowresize) | Track viewport dimensions |
+
+### Events & Interaction
+
+| Hook | Description |
+|------|-------------|
+| [`useHover`](/docs/hooks/events#usehover) | Mouse hover state |
+| [`useFocus`](/docs/hooks/events#usefocus) | Focus/blur state |
+| [`useFocusTrap`](/docs/hooks/events#usefocustrap) | Trap keyboard focus in container |
+| [`useKeyboard`](/docs/hooks/events#usekeyboard) | Listen for key presses |
+
+### Timing
+
+| Hook | Description |
+|------|-------------|
+| [`useDebouncedCallback`](/docs/hooks/timing#usedebouncedcallback) | Debounce function calls |
+| [`useDebouncedValue`](/docs/hooks/timing#usedebouncedvalue) | Debounce a value |
+| [`useThrottledCallback`](/docs/hooks/timing#usethrottledcallback) | Throttle function calls |
+| [`useInterval`](/docs/hooks/timing#useinterval) | Declarative setInterval |
+| [`useTimeout`](/docs/hooks/timing#usetimeout) | Declarative setTimeout |
+
+### Theme & Responsive
+
+| Hook | Description |
+|------|-------------|
+| [`useBreakpoint`](/docs/hooks/theme#usebreakpoint) | Active breakpoint name |
+| [`useMediaQuery`](/docs/hooks/theme#usemediaquery) | CSS media query matching |
+| [`useThemeValue`](/docs/hooks/theme#usethemevalue) | Deep-read theme values |
+| [`useRootSize`](/docs/hooks/theme#userootsize) | Root font size + px/rem conversion |
+| [`useSpacing`](/docs/hooks/theme#usespacing) | Spacing scale function |
+
+### Accessibility & SSR
+
+| Hook | Description |
+|------|-------------|
+| [`useColorScheme`](/docs/hooks/accessibility#usecolorscheme) | OS color scheme preference |
+| [`useReducedMotion`](/docs/hooks/accessibility#usereducedmotion) | Motion preference |
+| [`useIsomorphicLayoutEffect`](/docs/hooks/accessibility#useisomorphiclayouteffect) | SSR-safe layout effect |
+| [`useUpdateEffect`](/docs/hooks/accessibility#useupdateeffect) | Skip-initial-mount effect |

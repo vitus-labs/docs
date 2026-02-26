@@ -1,0 +1,201 @@
+---
+title: Dimensions
+description: Dimension system — styling categories that map to component props.
+---
+
+Dimensions are the core concept of Rocketstyle. They define styling categories (states, sizes, variants, etc.) that map to component props and resolve to theme values at render time.
+
+## How Dimensions Work
+
+1. **Dimension Key** — the configuration name (e.g., `states`, `sizes`)
+2. **Prop Name** — the actual React prop (e.g., `state`, `size`)
+3. **Dimension Values** — available options defined in the theme callback
+4. **Resolution** — active dimension values are merged into `$rocketstyle`
+
+```tsx
+const Button = rocketstyle()({
+  name: 'Button',
+  component: BaseButton,
+})
+  .states((theme) => ({
+    primary: { backgroundColor: 'blue', color: 'white' },
+    secondary: { backgroundColor: 'gray', color: 'black' },
+    danger: { backgroundColor: 'red', color: 'white' },
+  }))
+  .sizes((theme) => ({
+    sm: { fontSize: '12px', padding: '4px 8px' },
+    md: { fontSize: '14px', padding: '8px 16px' },
+    lg: { fontSize: '16px', padding: '12px 24px' },
+  }))
+
+// At render time, $rocketstyle is computed from active dimensions:
+<Button state="primary" size="lg" />
+// $rocketstyle = { backgroundColor: 'blue', color: 'white', fontSize: '16px', padding: '12px 24px' }
+```
+
+## Dimension Types
+
+### String Dimension (Simple)
+
+Maps a dimension key to a prop name:
+
+```tsx
+dimensions: {
+  sizes: 'size',        // Prop: size="sm"
+  colors: 'color',      // Prop: color="primary"
+  variants: 'variant',  // Prop: variant="outlined"
+}
+```
+
+### Object Dimension (Advanced)
+
+Provides additional configuration:
+
+```tsx
+dimensions: {
+  tags: {
+    propName: 'tag',     // The React prop name
+    multi: true,         // Allows multiple simultaneous values
+  },
+}
+```
+
+When `multi: true`, the prop accepts an array:
+
+```tsx
+<Component tag={['rounded', 'elevated', 'bordered']} />
+```
+
+All matching dimension values are merged together.
+
+## Default Dimensions
+
+Rocketstyle ships with four default dimensions:
+
+| Dimension Key | Prop Name | Multi | Purpose |
+|---------------|-----------|-------|---------|
+| `states` | `state` | `false` | Component state (primary, secondary, danger) |
+| `sizes` | `size` | `false` | Component size (sm, md, lg) |
+| `variants` | `variant` | `false` | Visual variant (outlined, filled, ghost) |
+| `multiple` | `multiple` | `true` | Multi-select dimension |
+
+## Custom Dimensions
+
+Override the defaults entirely:
+
+```tsx
+const Card = rocketstyle({
+  dimensions: {
+    colors: 'color',
+    shapes: 'shape',
+    elevations: 'elevation',
+    decorations: {
+      propName: 'decoration',
+      multi: true,
+    },
+  },
+})({
+  name: 'Card',
+  component: 'div',
+})
+  .colors((theme) => ({
+    primary: { backgroundColor: theme.colors?.primary },
+    secondary: { backgroundColor: theme.colors?.secondary },
+  }))
+  .shapes((theme) => ({
+    rounded: { borderRadius: '8px' },
+    pill: { borderRadius: '9999px' },
+    square: { borderRadius: '0' },
+  }))
+  .elevations((theme) => ({
+    flat: { boxShadow: 'none' },
+    raised: { boxShadow: '0 2px 4px rgba(0,0,0,0.1)' },
+    floating: { boxShadow: '0 8px 24px rgba(0,0,0,0.15)' },
+  }))
+  .decorations((theme) => ({
+    bordered: { border: '1px solid #ddd' },
+    striped: { backgroundImage: 'repeating-linear-gradient(...)' },
+  }))
+
+// Usage
+<Card color="primary" shape="rounded" elevation="raised" />
+<Card color="primary" decoration={['bordered', 'striped']} />
+```
+
+## Boolean Shorthand
+
+When `useBooleans: true` (default), dimension values become boolean props:
+
+```tsx
+// These are equivalent:
+<Button state="primary" size="lg" />
+<Button primary lg />
+
+// For multi-select dimensions, each boolean adds to the array
+<Component rounded elevated bordered />
+```
+
+### Disabling Boolean Shorthand
+
+```tsx
+const Component = rocketstyle({
+  useBooleans: false,
+})({
+  name: 'Component',
+  component: 'div',
+})
+
+// Only explicit prop syntax works:
+<Component state="primary" />
+// <Component primary /> would NOT work
+```
+
+## Dimension Resolution Flow
+
+```
+1. Read dimension props from component usage
+   <Button state="primary" size="lg" />
+
+2. Match against defined dimension values
+   states.primary → { backgroundColor: 'blue', color: 'white' }
+   sizes.lg → { fontSize: '16px', padding: '12px 24px' }
+
+3. Merge base theme + dimension themes
+   baseTheme: { fontFamily: 'sans-serif', borderRadius: '4px' }
+   + states.primary + sizes.lg
+
+4. Result → $rocketstyle
+   {
+     fontFamily: 'sans-serif',
+     borderRadius: '4px',
+     backgroundColor: 'blue',
+     color: 'white',
+     fontSize: '16px',
+     padding: '12px 24px'
+   }
+```
+
+## Multi-Select Dimensions
+
+When `multi: true`, all selected values are merged in order:
+
+```tsx
+const Badge = rocketstyle({
+  dimensions: {
+    styles: { propName: 'style', multi: true },
+  },
+})({
+  name: 'Badge',
+  component: 'span',
+})
+  .styles((theme) => ({
+    bold: { fontWeight: 'bold' },
+    italic: { fontStyle: 'italic' },
+    uppercase: { textTransform: 'uppercase' },
+    underline: { textDecoration: 'underline' },
+  }))
+
+// Multiple styles applied simultaneously
+<Badge style={['bold', 'uppercase']}>NEW</Badge>
+// $rocketstyle = { fontWeight: 'bold', textTransform: 'uppercase' }
+```

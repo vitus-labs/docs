@@ -1,0 +1,19 @@
+{
+  "root": true,
+  "title": "Documentation",
+  "pages": [
+    "index",
+    "---Getting Started---",
+    "getting-started",
+    "---Packages---",
+    "core",
+    "styler",
+    "attrs",
+    "elements",
+    "rocketstyle",
+    "unistyle",
+    "coolgrid",
+    "hooks",
+    "connectors"
+  ]
+}

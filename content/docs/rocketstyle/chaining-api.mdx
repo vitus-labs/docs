@@ -1,0 +1,274 @@
+---
+title: Chaining API
+description: All chainable methods — .config(), .attrs(), .theme(), .styles(), .compose(), .statics().
+---
+
+Every chaining method returns a new component instance, enabling immutable composition and extension.
+
+## Method Overview
+
+```tsx
+const Component = rocketstyle()(config)
+  .config(options)         // Override configuration
+  .attrs(propsOrFn)        // Default props
+  .theme(fn)               // Base theme
+  .styles(fn)              // CSS styles
+  .compose(hocs)           // Add/remove HOCs
+  .statics(staticValues)   // Static properties
+  .[dimensionKey](fn)      // Dimension-specific theme (e.g., .states(), .sizes())
+```
+
+## .config()
+
+Override component configuration:
+
+```tsx
+.config({
+  name?: string,               // Change display name
+  component?: ComponentType,   // Replace wrapped component
+  provider?: boolean,          // Enable pseudo-state broadcasting
+  consumer?: ConsumerCallback, // Consume parent provider context
+  DEBUG?: boolean,             // Log debug info to console
+  inversed?: boolean,          // Invert theme mode
+  passProps?: string[],        // Pass styling props to wrapped component
+  styled?: boolean,            // Wrap with styled component
+})
+```
+
+### Examples
+
+```tsx
+// Enable provider for pseudo-state broadcasting
+const ParentButton = Button.config({ provider: true })
+
+// Enable debug logging
+const DebugButton = Button.config({ DEBUG: true })
+
+// Invert theme mode
+const InvertedCard = Card.config({ inversed: true })
+
+// Pass specific styling props to the wrapped component
+const CustomButton = Button.config({
+  passProps: ['backgroundColor', 'color'],
+})
+```
+
+## .attrs()
+
+Set default props, with optional priority and filtering:
+
+### Static Attrs
+
+```tsx
+.attrs({
+  type: 'button',
+  className: 'btn',
+  disabled: false,
+})
+```
+
+### Dynamic Attrs (Callback)
+
+```tsx
+.attrs((props, theme, helpers) => ({
+  disabled: props.loading ?? false,
+  'aria-busy': props.loading ?? false,
+  className: props.variant === 'primary' ? 'btn-primary' : 'btn-default',
+}))
+```
+
+#### Callback Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `props` | `Partial<ComponentProps>` | Current component props |
+| `theme` | `object` | Current theme from context |
+| `helpers` | `object` | `{ mode, isDark, isLight, createElement }` |
+
+### Priority Attrs
+
+Priority attrs are evaluated first and can be overridden by normal attrs and explicit props:
+
+```tsx
+// Priority attrs (evaluated first)
+.attrs({ priority: true }, { type: 'button', role: 'button' })
+
+// Normal attrs (override priority)
+.attrs({ type: 'submit' })
+
+// Resolution: type = 'submit' (normal overrides priority)
+// When user passes type="reset": type = 'reset' (props override everything)
+```
+
+### Props Resolution Order
+
+```
+Priority Attrs (lowest priority)
+  ↓
+Normal Attrs (override priority)
+  ↓
+Explicit Props (highest priority — always wins)
+```
+
+### Filter Props
+
+Prevent internal props from reaching the wrapped component:
+
+```tsx
+.attrs(
+  { className: 'internal' },
+  { filter: ['internalState', 'computedValue'] }
+)
+// internalState and computedValue won't be passed to the DOM
+```
+
+## .theme()
+
+Define the base theme available to all dimensions:
+
+```tsx
+.theme((theme, mode, css) => ({
+  fontFamily: theme.fontFamily?.base,
+  borderRadius: '4px',
+  transition: 'all 0.2s ease',
+}))
+```
+
+See [Themes & Styles](/docs/rocketstyle/themes-styles) for full details.
+
+## .styles()
+
+Define CSS styles consuming `$rocketstyle` and `$rocketstate`:
+
+```tsx
+.styles((css) => css`
+  font-family: ${({ $rocketstyle }) => $rocketstyle.fontFamily};
+  border-radius: ${({ $rocketstyle }) => $rocketstyle.borderRadius};
+`)
+```
+
+See [Themes & Styles](/docs/rocketstyle/themes-styles) for full details.
+
+## .compose()
+
+Add or remove Higher-Order Components:
+
+### Adding HOCs
+
+```tsx
+const withAnimation = (Component) => (props) => (
+  <motion.div animate={{ opacity: 1 }}>
+    <Component {...props} />
+  </motion.div>
+)
+
+const withTooltip = (Component) => (props) => (
+  <Tooltip title={props.tooltipText}>
+    <Component {...props} />
+  </Tooltip>
+)
+
+const AnimatedButton = Button.compose({
+  withAnimation,
+  withTooltip,
+})
+```
+
+### Removing HOCs
+
+Pass `false`, `null`, or `undefined` to remove a previously composed HOC:
+
+```tsx
+const PlainButton = AnimatedButton.compose({
+  withTooltip: false,   // Removes withTooltip
+  // withAnimation remains
+})
+```
+
+### HOC Execution Order
+
+HOCs are applied in reverse order (last listed wraps outermost):
+
+```tsx
+.compose({
+  first: hocA,    // Innermost wrapper
+  second: hocB,   // Outermost wrapper
+})
+// Result: hocB(hocA(Component))
+```
+
+## .statics()
+
+Attach static metadata to the component:
+
+```tsx
+const Button = rocketstyle()({
+  name: 'Button',
+  component: 'button',
+}).statics({
+  isButton: true,
+  version: '1.0.0',
+  variants: ['primary', 'secondary', 'danger'],
+  getLabel: (variant) => variant.toUpperCase(),
+})
+
+// Access via .meta
+Button.meta.isButton       // true
+Button.meta.version        // '1.0.0'
+Button.meta.getLabel('primary') // 'PRIMARY'
+```
+
+## Extending Components
+
+Each chain method returns a new instance, so you can extend base components:
+
+```tsx
+// Base component
+const BaseButton = rocketstyle()({
+  name: 'BaseButton',
+  component: 'button',
+})
+  .theme((theme) => ({
+    fontFamily: theme.fontFamily?.base,
+    borderRadius: '4px',
+  }))
+  .styles((css) => css`
+    cursor: pointer;
+    border: none;
+    font-family: ${({ $rocketstyle }) => $rocketstyle.fontFamily};
+    border-radius: ${({ $rocketstyle }) => $rocketstyle.borderRadius};
+  `)
+
+// Extended: Primary button with states
+const PrimaryButton = BaseButton
+  .states((theme) => ({
+    primary: { backgroundColor: 'blue', color: 'white' },
+  }))
+  .attrs({ state: 'primary' })
+
+// Extended: Icon button with sizes
+const IconButton = BaseButton
+  .sizes((theme) => ({
+    sm: { width: '24px', height: '24px' },
+    md: { width: '32px', height: '32px' },
+    lg: { width: '40px', height: '40px' },
+  }))
+  .attrs({ size: 'md' })
+```
+
+## Chaining Order
+
+While methods can be called in any order, the recommended pattern is:
+
+```tsx
+rocketstyle()(config)
+  .config(...)      // 1. Configuration first
+  .attrs(...)       // 2. Default props
+  .theme(...)       // 3. Base theme
+  .states(...)      // 4. Dimension themes
+  .sizes(...)
+  .variants(...)
+  .styles(...)      // 5. CSS styles last
+  .compose(...)     // 6. HOCs (optional)
+  .statics(...)     // 7. Static metadata (optional)
+```

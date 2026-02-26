@@ -1,0 +1,294 @@
+---
+title: Utilities
+description: Object manipulation, function composition, and React helpers exported from @vitus-labs/core.
+---
+
+`@vitus-labs/core` re-exports a set of utility functions used throughout the UI system. They are also available for use in your application code.
+
+## Object Utilities
+
+### omit
+
+Creates a new object excluding specified keys.
+
+```tsx
+import { omit } from '@vitus-labs/core'
+
+omit({ a: 1, b: 2, c: 3 }, ['b'])     // { a: 1, c: 3 }
+omit({ x: 10, y: 20 })                // { x: 10, y: 20 } (shallow copy)
+omit(null)                             // {}
+```
+
+**Signature:**
+```tsx
+omit<T>(obj: T | null | undefined, keys?: readonly (string | keyof T)[]): Partial<T>
+```
+
+### pick
+
+Creates a new object with only the specified keys. Complement to `omit`.
+
+```tsx
+import { pick } from '@vitus-labs/core'
+
+pick({ a: 1, b: 2, c: 3 }, ['a', 'c'])  // { a: 1, c: 3 }
+pick({ a: 1 }, ['a', 'b', 'c'])         // { a: 1 } (missing keys skipped)
+```
+
+**Signature:**
+```tsx
+pick<T>(obj: T | null | undefined, keys?: readonly (string | keyof T)[]): Partial<T>
+```
+
+### get
+
+Retrieves a nested value using dot/bracket path notation.
+
+```tsx
+import { get } from '@vitus-labs/core'
+
+const data = { a: { b: { c: 42 } }, items: [10, 20, 30] }
+
+get(data, 'a.b.c')              // 42
+get(data, 'items[1]')           // 20
+get(data, 'x.y', 'fallback')   // 'fallback'
+get({ a: 0 }, 'a', 'default')  // 0 (falsy values preserved)
+```
+
+**Signature:**
+```tsx
+get(obj: any, path: string | string[], defaultValue?: any): any
+```
+
+**Path syntax:** Dot notation (`a.b.c`), bracket notation (`items[0]`), mixed (`data.items[2].name`), or array form (`['a', 'b', 'c']`).
+
+### set
+
+Sets a nested value by path, auto-creating intermediate objects/arrays. **Mutates the input object.** Blocks prototype-pollution attacks.
+
+```tsx
+import { set } from '@vitus-labs/core'
+
+const obj = {}
+set(obj, 'a.b.c', 42)           // { a: { b: { c: 42 } } }
+set({}, 'items[0]', 'first')    // { items: ['first'] }
+
+// Prototype pollution blocked
+set({}, '__proto__.polluted', true)  // No effect
+```
+
+**Signature:**
+```tsx
+set(obj: Record<string, any>, path: string | string[], value: any): Record<string, any>
+```
+
+### merge
+
+Deep merges source objects into target. **Mutates the target.** Arrays are replaced (not merged). Only plain objects are recursed into.
+
+```tsx
+import { merge } from '@vitus-labs/core'
+
+const target = { a: { x: 1 }, b: 2 }
+merge(target, { a: { y: 2 }, c: 3 }, { a: { z: 3 } })
+// target → { a: { x: 1, y: 2, z: 3 }, b: 2, c: 3 }
+
+// Arrays are replaced
+merge({ items: [1] }, { items: [2, 3] })
+// → { items: [2, 3] }
+```
+
+**Signature:**
+```tsx
+merge<T>(target: T, ...sources: Record<string, any>[]): T
+```
+
+### isEmpty
+
+Type-safe emptiness check for objects, arrays, null, and undefined.
+
+```tsx
+import { isEmpty } from '@vitus-labs/core'
+
+isEmpty(null)          // true
+isEmpty(undefined)     // true
+isEmpty({})            // true
+isEmpty([])            // true
+isEmpty({ a: 1 })     // false
+isEmpty([1, 2])        // false
+```
+
+**Signature:**
+```tsx
+isEmpty<T>(param: T): boolean
+```
+
+The return type uses conditional types to return literal `true`/`false` based on the input type, enabling TypeScript narrowing after the call.
+
+### isEqual
+
+Deep equality check for plain objects, arrays, and primitives. Does not handle Date, RegExp, Map, Set, or circular references.
+
+```tsx
+import { isEqual } from '@vitus-labs/core'
+
+isEqual({ a: { b: 1 } }, { a: { b: 1 } })  // true
+isEqual([1, 2, 3], [1, 2, 3])               // true
+isEqual({ a: 1 }, { a: 1, b: 2 })           // false
+```
+
+**Signature:**
+```tsx
+isEqual(a: unknown, b: unknown): boolean
+```
+
+## Function Utilities
+
+### compose
+
+Right-to-left function composition. `compose(f, g, h)(x)` equals `f(g(h(x)))`.
+
+```tsx
+import { compose } from '@vitus-labs/core'
+
+const double = (x: number) => x * 2
+const addOne = (x: number) => x + 1
+
+const transform = compose(addOne, double)
+transform(3)  // double(3) = 6, then addOne(6) = 7
+```
+
+**Signature:**
+```tsx
+compose<T extends ArityOneFn[]>(...fns: T): (p: FirstFnParameterType<T>) => LastFnReturnType<T>
+```
+
+### throttle
+
+Limits function execution to at most once per `wait` milliseconds. Both leading and trailing calls enabled by default.
+
+```tsx
+import { throttle } from '@vitus-labs/core'
+
+const handleResize = throttle(() => {
+  console.log('resized')
+}, 200)
+
+window.addEventListener('resize', handleResize)
+
+// Cancel pending trailing call
+handleResize.cancel()
+
+// Options
+const leadingOnly = throttle(fn, 100, { trailing: false })
+const trailingOnly = throttle(fn, 100, { leading: false })
+```
+
+**Signature:**
+```tsx
+throttle<T extends (...args: any[]) => any>(
+  fn: T,
+  wait?: number,
+  options?: { leading?: boolean; trailing?: boolean }
+): T & { cancel: () => void }
+```
+
+## React Utilities
+
+### render
+
+Flexible React element renderer that handles primitives, components, elements, arrays, fragments, and render functions.
+
+```tsx
+import { render } from '@vitus-labs/core'
+
+// Primitives — returned as-is
+render('hello')     // 'hello'
+render(42)          // 42
+
+// Component type — created with props
+render(MyComponent, { label: 'hi' })
+// → createElement(MyComponent, { label: 'hi' })
+
+// Valid element — cloned with additional props
+render(<MyComponent label="original" />, { label: 'new' })
+// → cloneElement(el, { label: 'new' })
+
+// Render function — called with props
+render((props) => <div>{props.label}</div>, { label: 'hello' })
+// → <div>hello</div>
+
+// Falsy values → null
+render(null)     // null
+render(false)    // null
+```
+
+**Signature:**
+```tsx
+render<T>(content?: ReactNode | ComponentType | RenderProps<T>, attachProps?: T): ReactElement | null
+```
+
+### useStableValue
+
+React hook that returns a referentially stable version of a value. The reference only updates when the value changes (deep equality).
+
+```tsx
+import { useStableValue } from '@vitus-labs/core'
+
+function MyComponent({ config }) {
+  const stableConfig = useStableValue(config)
+
+  useEffect(() => {
+    // Runs only when config actually changes
+  }, [stableConfig])
+}
+```
+
+**Signature:**
+```tsx
+useStableValue<T>(value: T): T
+```
+
+### hoistNonReactStatics
+
+Copies non-React static properties from a source component to a target component. Used in HOC patterns to preserve static methods.
+
+```tsx
+import { hoistNonReactStatics } from '@vitus-labs/core'
+
+function withFeature(Component) {
+  const Wrapped = (props) => <Component {...props} feature />
+  hoistNonReactStatics(Wrapped, Component)
+  return Wrapped
+}
+```
+
+Automatically skips React-specific statics (`propTypes`, `defaultProps`, `displayName`, `contextType`, etc.) and handles `forwardRef` / `memo` components.
+
+**Signature:**
+```tsx
+hoistNonReactStatics<T, S>(target: T, source: S, excludeList?: Record<string, true>): T
+```
+
+## All Exports
+
+| Export | Type | Description |
+|--------|------|-------------|
+| `init` | Function | Initialize CSS-in-JS engine |
+| `config` | Configuration | Singleton with css, styled, etc. |
+| `Provider` | Component | Dual-layer theme provider |
+| `context` | React Context | Internal context object |
+| `omit` | Function | Exclude keys from object |
+| `pick` | Function | Include only specified keys |
+| `get` | Function | Get nested value by path |
+| `set` | Function | Set nested value by path |
+| `merge` | Function | Deep merge objects |
+| `throttle` | Function | Limit function execution rate |
+| `compose` | Function | Right-to-left function composition |
+| `isEmpty` | Function | Type-safe emptiness check |
+| `isEqual` | Function | Deep equality check |
+| `render` | Function | Flexible React element renderer |
+| `useStableValue` | Hook | Stabilize value reference |
+| `hoistNonReactStatics` | Function | Copy static properties |
+| `HTML_TAGS` | Constant | All HTML tag names |
+| `HTML_TEXT_TAGS` | Constant | Text-only HTML tags |

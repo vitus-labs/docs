@@ -1,0 +1,139 @@
+---
+title: Row
+description: Flex-wrap row container with gap compensation and alignment.
+---
+
+Row is a flex container that holds Columns. It handles gap compensation via negative margins and provides horizontal alignment.
+
+## Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `children` | `ReactNode` | — | Column content |
+| `component` | `ComponentType` | `'div'` | Custom row element |
+| `css` | `ExtraStyles` | — | Extra CSS (overrides cascaded `rowCss`) |
+| `contentAlignX` | `ContentAlignX` | — | Horizontal alignment of columns |
+| `columns` | `ValueType` | Inherited | Total columns |
+| `size` | `ValueType` | Inherited | Default column size (cascades to Cols) |
+| `gap` | `ValueType` | Inherited | Space between columns |
+| `padding` | `ValueType` | Inherited | Column padding (cascades) |
+| `gutter` | `ValueType` | Inherited | Space between this and adjacent rows |
+| `colCss` | `ExtraStyles` | Inherited | CSS for child columns (cascades) |
+| `colComponent` | `ComponentType` | Inherited | Custom Col component (cascades) |
+
+## Styling
+
+Row renders as a flex-wrap container:
+
+```css
+display: flex;
+flex-wrap: wrap;
+flex-direction: row;
+align-self: stretch;
+box-sizing: border-box;
+```
+
+## Gap Compensation
+
+Row applies negative margins to offset column spacing:
+
+```
+spacingX = (gap / 2) * -1         // Horizontal: negative to offset column margins
+spacingY = gutter ? gutter - gap/2 : gap/2  // Vertical: accounts for inter-row spacing
+margin: ${spacingY}px ${spacingX}px;
+```
+
+This creates the classic CSS grid pattern where columns have consistent gaps while Row edges align with the Container.
+
+## Column Alignment
+
+```tsx
+<Row contentAlignX="center">
+  <Col size={4}>Centered content</Col>
+</Row>
+
+<Row contentAlignX="spaceBetween">
+  <Col size={3}>Left</Col>
+  <Col size={3}>Right</Col>
+</Row>
+
+<Row contentAlignX="spaceAround">
+  <Col size={2}>A</Col>
+  <Col size={2}>B</Col>
+  <Col size={2}>C</Col>
+</Row>
+```
+
+### ContentAlignX Values
+
+| Value | CSS | Description |
+|-------|-----|-------------|
+| `left` | `flex-start` | Align columns to start |
+| `center` | `center` | Center columns |
+| `right` | `flex-end` | Align columns to end |
+| `spaceBetween` | `space-between` | Equal space between columns |
+| `spaceAround` | `space-around` | Equal space around columns |
+| `spaceEvenly` | `space-evenly` | Equal space between and around columns |
+
+## Examples
+
+### Row with Gap and Gutter
+
+```tsx
+<Container>
+  <Row gap={16} gutter={8}>
+    <Col size={4}>Row 1, Col 1</Col>
+    <Col size={4}>Row 1, Col 2</Col>
+    <Col size={4}>Row 1, Col 3</Col>
+  </Row>
+  <Row gap={16} gutter={8}>
+    <Col size={6}>Row 2, Col 1</Col>
+    <Col size={6}>Row 2, Col 2</Col>
+  </Row>
+</Container>
+```
+
+### Row Override
+
+```tsx
+<Container gap={16}>
+  <Row>
+    {/* Inherits gap=16 */}
+    <Col size={6}>Normal gap</Col>
+    <Col size={6}>Normal gap</Col>
+  </Row>
+  <Row gap={0}>
+    {/* Override: no gap */}
+    <Col size={6}>No gap</Col>
+    <Col size={6}>No gap</Col>
+  </Row>
+  <Row gap={32}>
+    {/* Override: wider gap */}
+    <Col size={6}>Wide gap</Col>
+    <Col size={6}>Wide gap</Col>
+  </Row>
+</Container>
+```
+
+### Row-Level Sizing
+
+Set a default size for all children:
+
+```tsx
+<Row size={{ xs: 12, md: 4 }}>
+  <Col>Each col is 4/12 on md+</Col>
+  <Col>Each col is 4/12 on md+</Col>
+  <Col>Each col is 4/12 on md+</Col>
+</Row>
+```
+
+### Standalone Row
+
+Rows can work without a Container:
+
+```tsx
+<Row gap={16} columns={12}>
+  <Col size={6}>Left</Col>
+  <Col size={6}>Right</Col>
+</Row>
+```

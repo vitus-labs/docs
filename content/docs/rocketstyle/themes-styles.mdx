@@ -1,0 +1,267 @@
+---
+title: Themes & Styles
+description: Theme callbacks, CSS styles, light/dark mode switching, and $rocketstyle/$rocketstate props.
+---
+
+Rocketstyle separates **theme** (data) from **styles** (CSS). Themes define values, styles consume them.
+
+## .theme() — Base Theme
+
+Defines the base theme object available to all dimensions:
+
+```tsx
+const Button = rocketstyle()({
+  name: 'Button',
+  component: 'button',
+})
+  .theme((theme, mode, css) => ({
+    fontFamily: theme.fontFamily?.base ?? 'sans-serif',
+    borderRadius: '4px',
+    transition: 'all 0.2s ease',
+  }))
+```
+
+### Callback Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `theme` | `object` | Current theme from context |
+| `mode` | `(light, dark) => value` | Light/dark mode selector |
+| `css` | `function` | Tagged template for CSS fragments |
+
+## Dimension Theme Methods
+
+Each dimension key becomes a chainable method that defines dimension-specific values:
+
+```tsx
+.states((theme, mode, css) => ({
+  primary: {
+    backgroundColor: mode('blue', 'lightblue'),
+    color: mode('white', 'black'),
+  },
+  secondary: {
+    backgroundColor: mode('gray', 'darkgray'),
+    color: mode('black', 'white'),
+  },
+  danger: {
+    backgroundColor: 'red',
+    color: 'white',
+  },
+}))
+
+.sizes((theme, mode, css) => ({
+  sm: { fontSize: '12px', padding: '4px 8px' },
+  md: { fontSize: '14px', padding: '8px 16px' },
+  lg: { fontSize: '16px', padding: '12px 24px' },
+}))
+
+.variants((theme, mode, css) => ({
+  outlined: { border: '2px solid currentColor', backgroundColor: 'transparent' },
+  ghost: { backgroundColor: 'transparent', border: 'none' },
+}))
+```
+
+## .styles() — CSS Styles
+
+Defines the actual CSS that consumes `$rocketstyle` and `$rocketstate`:
+
+```tsx
+.styles((css) => css`
+  cursor: pointer;
+  border: none;
+  outline: none;
+  font-family: ${({ $rocketstyle }) => $rocketstyle.fontFamily};
+  font-size: ${({ $rocketstyle }) => $rocketstyle.fontSize};
+  padding: ${({ $rocketstyle }) => $rocketstyle.padding};
+  background-color: ${({ $rocketstyle }) => $rocketstyle.backgroundColor};
+  color: ${({ $rocketstyle }) => $rocketstyle.color};
+  border-radius: ${({ $rocketstyle }) => $rocketstyle.borderRadius};
+  transition: ${({ $rocketstyle }) => $rocketstyle.transition};
+
+  &:hover {
+    opacity: 0.9;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+`)
+```
+
+## $rocketstyle Prop
+
+The computed theme object, merged from base theme + active dimension themes:
+
+```tsx
+// Given:
+.theme(() => ({ borderRadius: '4px' }))
+.states(() => ({ primary: { backgroundColor: 'blue', color: 'white' } }))
+.sizes(() => ({ lg: { fontSize: '16px' } }))
+
+// When rendered as:
+<Button state="primary" size="lg" />
+
+// $rocketstyle =
+{
+  borderRadius: '4px',
+  backgroundColor: 'blue',
+  color: 'white',
+  fontSize: '16px',
+}
+```
+
+## $rocketstate Prop
+
+Contains the current dimension values and pseudo-states:
+
+```tsx
+.styles((css) => css`
+  ${({ $rocketstate }) => {
+    // Dimension values
+    console.log($rocketstate.state)   // 'primary'
+    console.log($rocketstate.size)    // 'lg'
+    console.log($rocketstate.variant) // undefined
+
+    // Pseudo-states
+    console.log($rocketstate.pseudo.hover)    // true/false
+    console.log($rocketstate.pseudo.focus)    // true/false
+    console.log($rocketstate.pseudo.pressed)  // true/false
+    console.log($rocketstate.pseudo.active)   // true/false
+    console.log($rocketstate.pseudo.disabled) // true/false
+    console.log($rocketstate.pseudo.readOnly) // true/false
+  }}
+`)
+```
+
+### Conditional Styling with $rocketstate
+
+```tsx
+.styles((css) => css`
+  ${({ $rocketstate }) => {
+    const { hover, focus, disabled } = $rocketstate.pseudo
+
+    if (disabled) {
+      return css`
+        opacity: 0.5;
+        cursor: not-allowed;
+        pointer-events: none;
+      `
+    }
+
+    if (hover) {
+      return css`background-color: darkblue;`
+    }
+
+    if (focus) {
+      return css`box-shadow: 0 0 0 2px rgba(0, 0, 255, 0.3);`
+    }
+  }}
+`)
+```
+
+## Light/Dark Mode
+
+### mode() Callback
+
+Used in `.theme()` and dimension callbacks to switch values based on the current color mode:
+
+```tsx
+.theme((theme, mode) => ({
+  backgroundColor: mode('#ffffff', '#1a1a1a'),
+  color: mode('#000000', '#ffffff'),
+  borderColor: mode('#e0e0e0', '#333333'),
+}))
+
+.states((theme, mode) => ({
+  primary: {
+    backgroundColor: mode('#0066cc', '#3399ff'),
+    color: mode('#ffffff', '#000000'),
+  },
+}))
+```
+
+### Setting the Mode
+
+```tsx
+import { Provider } from '@vitus-labs/rocketstyle'
+
+<Provider theme={myTheme} mode="dark">
+  <App />
+</Provider>
+```
+
+### Inversed Mode
+
+Nested providers can flip the mode:
+
+```tsx
+<Provider mode="light">
+  <LightSection />
+
+  <Provider inversed>
+    {/* Dark mode (inverted from parent light) */}
+    <DarkSection />
+
+    <Provider inversed>
+      {/* Back to light mode (double inversion) */}
+      <LightAgain />
+    </Provider>
+  </Provider>
+</Provider>
+```
+
+## Theme Caching
+
+Rocketstyle uses multi-tier `WeakMap` caching to prevent unnecessary theme recalculation:
+
+- **Base theme cache** — per theme object
+- **Dimension theme cache** — per theme + dimension combination
+- **Mode-specific caches** — separate light/dark caches
+
+This means the expensive theme computation runs only once per unique theme reference.
+
+## Complete Example
+
+```tsx
+const Card = rocketstyle()({
+  name: 'Card',
+  component: 'div',
+})
+  .theme((theme, mode) => ({
+    background: mode('#ffffff', '#2a2a2a'),
+    color: mode('#1a1a1a', '#f0f0f0'),
+    borderColor: mode('#e0e0e0', '#444444'),
+    borderRadius: '8px',
+    transition: 'all 0.2s ease',
+  }))
+  .states((theme, mode) => ({
+    default: {},
+    highlighted: {
+      borderColor: mode('#0066cc', '#3399ff'),
+      boxShadow: mode(
+        '0 0 0 1px #0066cc',
+        '0 0 0 1px #3399ff'
+      ),
+    },
+    error: {
+      borderColor: 'red',
+      boxShadow: '0 0 0 1px red',
+    },
+  }))
+  .sizes((theme) => ({
+    sm: { padding: '12px', fontSize: '14px' },
+    md: { padding: '16px', fontSize: '16px' },
+    lg: { padding: '24px', fontSize: '18px' },
+  }))
+  .styles((css) => css`
+    border: 1px solid ${({ $rocketstyle }) => $rocketstyle.borderColor};
+    border-radius: ${({ $rocketstyle }) => $rocketstyle.borderRadius};
+    background: ${({ $rocketstyle }) => $rocketstyle.background};
+    color: ${({ $rocketstyle }) => $rocketstyle.color};
+    padding: ${({ $rocketstyle }) => $rocketstyle.padding};
+    font-size: ${({ $rocketstyle }) => $rocketstyle.fontSize};
+    transition: ${({ $rocketstyle }) => $rocketstyle.transition};
+    box-shadow: ${({ $rocketstyle }) => $rocketstyle.boxShadow ?? 'none'};
+  `)
+```

@@ -1,0 +1,141 @@
+---
+title: Attrs
+description: Immutable, chainable default-props factory for React components.
+---
+
+`@vitus-labs/attrs` is a composable attribute factory that lets you define default props, swap base components, attach HOCs, and add metadata through an immutable chaining API. Every method returns a new component instance — the original is never mutated.
+
+## Installation
+
+```package-install
+@vitus-labs/attrs
+```
+
+## Quick Start
+
+```tsx
+import attrs from '@vitus-labs/attrs'
+import { Element } from '@vitus-labs/elements'
+
+const Button = attrs({ name: 'Button', component: Element })
+  .attrs({ tag: 'button', alignX: 'center', alignY: 'center' })
+
+// Usage
+<Button label="Click me" />
+```
+
+## Factory Function
+
+```tsx
+attrs({ name: string, component: ComponentType }): AttrsComponent
+```
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `name` | `string` | Yes | Component display name (shows in React DevTools) |
+| `component` | `ComponentType` | Yes | Base React component to wrap |
+
+Both parameters are validated in development — missing values throw descriptive errors.
+
+## Immutability
+
+Every chaining method creates a **new component**. Parent components are never affected by modifications to derived components:
+
+```tsx
+const Base = attrs({ name: 'Base', component: Element })
+  .attrs({ tag: 'div' })
+
+const Card = Base.attrs({ tag: 'section' })
+const Link = Base.attrs({ tag: 'a' })
+
+// Base, Card, and Link are all independent components
+```
+
+## Props Merge Order
+
+When a component renders, props are resolved in this order (last wins):
+
+```
+1. Priority attrs  (lowest precedence)
+2. Normal attrs    (chain order, later overrides earlier)
+3. Explicit props  (highest precedence — what you pass to <Component />)
+```
+
+**Undefined values** are stripped before merging, so they don't shadow defaults:
+
+```tsx
+const Button = attrs({ name: 'Button', component: Element })
+  .attrs({ label: 'Default' })
+
+<Button label={undefined} />   // Renders "Default" (undefined stripped)
+<Button label={null} />        // Renders null (null is explicit)
+<Button label="Custom" />      // Renders "Custom"
+```
+
+## Type Extension
+
+Use generics to extend the component's prop types through the chain:
+
+```tsx
+const Button = attrs({ name: 'Button', component: Element })
+  .attrs<{ variant: 'primary' | 'secondary' }>({
+    variant: 'primary',
+    tag: 'button',
+  })
+  .attrs<{ size?: 'sm' | 'md' | 'lg' }>({})
+
+// TypeScript now knows about variant and size
+<Button variant="secondary" size="lg" label="Submit" />
+```
+
+## Component Variants
+
+Create multiple variants from a shared base:
+
+```tsx
+const BaseButton = attrs({ name: 'BaseButton', component: Element })
+  .attrs({ tag: 'button', alignX: 'center', alignY: 'center' })
+
+const PrimaryButton = BaseButton
+  .config({ name: 'PrimaryButton' })
+  .attrs({ className: 'btn-primary' })
+
+const SecondaryButton = BaseButton
+  .config({ name: 'SecondaryButton' })
+  .attrs({ className: 'btn-secondary' })
+
+const IconButton = BaseButton
+  .config({ name: 'IconButton' })
+  .attrs((props) => ({
+    'aria-label': props.label || 'icon button',
+  }))
+```
+
+## Type Guard
+
+Identify attrs components at runtime:
+
+```tsx
+import { isAttrsComponent } from '@vitus-labs/attrs'
+
+isAttrsComponent(Button)      // true
+isAttrsComponent(PlainDiv)    // false
+```
+
+Components created by `attrs()` are marked with `IS_ATTRS: true` as a static property.
+
+## Debug Mode
+
+In development, attrs components add a `data-attrs` attribute to rendered elements:
+
+```tsx
+const Button = attrs({ name: 'MyButton', component: Element })
+
+// Dev output: <div data-attrs="MyButton" ...>
+```
+
+Enable explicit debug mode via `.config()`:
+
+```tsx
+const DebugButton = Button.config({ DEBUG: true })
+```

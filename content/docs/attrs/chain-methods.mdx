@@ -1,0 +1,248 @@
+---
+title: Chain Methods
+description: Complete reference for attrs chaining API — .attrs(), .config(), .compose(), .statics(), .getDefaultAttrs().
+---
+
+## .attrs(param, config?)
+
+Add default props to the component. Can be called multiple times — defaults stack left-to-right.
+
+### Object Form
+
+```tsx
+const Button = attrs({ name: 'Button', component: Element })
+  .attrs({ tag: 'button', className: 'btn' })
+  .attrs({ alignX: 'center', alignY: 'center' })
+```
+
+### Callback Form
+
+Compute defaults dynamically based on current props:
+
+```tsx
+const Button = attrs({ name: 'Button', component: Element })
+  .attrs((props) => ({
+    'aria-label': props.label || 'unnamed',
+    'aria-disabled': props.disabled === true,
+    tabIndex: props.disabled ? -1 : 0,
+  }))
+```
+
+The callback receives **merged props** (priority attrs + earlier attrs + explicit props with undefined stripped).
+
+### Config Options
+
+```tsx
+.attrs(param, {
+  priority?: boolean,
+  filter?: string[],
+})
+```
+
+| Option | Default | Description |
+|--------|---------|-------------|
+| `priority` | `false` | When `true`, these attrs resolve first (lower precedence than normal attrs and explicit props) |
+| `filter` | `[]` | Prop names to strip before reaching the underlying component |
+
+### Priority Attrs
+
+Priority attrs are resolved **before** normal attrs. They provide a baseline that can be overridden:
+
+```tsx
+const Input = attrs({ name: 'Input', component: Element })
+  .attrs({ tabIndex: 0 }, { priority: true })  // baseline
+  .attrs({ tag: 'input' })                      // normal
+
+// tabIndex=0 unless overridden by explicit props
+```
+
+### Filtered Props
+
+Strip internal-only props that shouldn't reach the DOM:
+
+```tsx
+const Card = attrs({ name: 'Card', component: Element })
+  .attrs(
+    (props) => ({
+      className: props.variant === 'elevated' ? 'shadow-lg' : '',
+    }),
+    { filter: ['variant'] }  // variant won't reach Element
+  )
+
+<Card variant="elevated" />
+// Element receives { className: 'shadow-lg' } — no variant prop
+```
+
+## .config(options)
+
+Update the component's configuration — name, base component, or debug mode.
+
+```tsx
+.config({
+  name?: string,
+  component?: ComponentType,
+  DEBUG?: boolean,
+})
+```
+
+### Rename
+
+```tsx
+const Primary = Button.config({ name: 'PrimaryButton' })
+// React DevTools shows "PrimaryButton"
+```
+
+### Swap Component
+
+```tsx
+const AsAnchor = Button.config({ component: AnchorElement })
+// Now renders using AnchorElement instead of Element
+```
+
+### Debug Mode
+
+```tsx
+const Debug = Button.config({ DEBUG: true })
+// Adds data-attrs attribute in development
+```
+
+All accumulated `.attrs()`, `.statics()`, and `.compose()` are preserved when reconfiguring.
+
+## .compose(hocMap)
+
+Attach named Higher-Order Components. HOCs wrap the component in reverse declaration order.
+
+```tsx
+.compose({
+  [hocName: string]: GenericHoc | null | undefined | false,
+})
+```
+
+### Adding HOCs
+
+```tsx
+const Button = attrs({ name: 'Button', component: Element })
+  .compose({
+    withTheme: (Component) => (props) => (
+      <ThemeProvider><Component {...props} /></ThemeProvider>
+    ),
+    withTracking: trackingHoc,
+  })
+```
+
+### Removing HOCs
+
+Set a HOC to `null`, `undefined`, or `false` to remove it:
+
+```tsx
+const Untracked = Button.compose({ withTracking: false })
+// withTracking removed, withTheme preserved
+```
+
+### Application Order
+
+HOCs are applied in **reverse** declaration order:
+```
+// Declaration: { a: hocA, b: hocB, c: hocC }
+// Application: hocA(hocB(hocC(Component)))
+// Outermost wrapper: hocA
+```
+
+## .statics(metadata)
+
+Attach metadata accessible via the `.meta` property.
+
+```tsx
+.statics({
+  [key: string]: any,
+})
+```
+
+### Usage
+
+```tsx
+const Button = attrs({ name: 'Button', component: Element })
+  .statics({
+    category: 'action',
+    sizes: ['sm', 'md', 'lg'],
+    variants: ['primary', 'secondary', 'danger'],
+  })
+
+Button.meta.category   // 'action'
+Button.meta.sizes      // ['sm', 'md', 'lg']
+```
+
+### Chaining
+
+Statics merge across chains (later values override):
+
+```tsx
+const Enhanced = Button.statics({ variants: ['primary', 'ghost'] })
+
+Enhanced.meta.category   // 'action' (inherited)
+Enhanced.meta.variants   // ['primary', 'ghost'] (overridden)
+```
+
+## .getDefaultAttrs(props)
+
+Compute the merged default props for given input props. Non-mutating query method.
+
+```tsx
+const Button = attrs({ name: 'Button', component: Element })
+  .attrs(() => ({ tag: 'button' }))
+  .attrs((props) => ({
+    className: props.disabled ? 'disabled' : 'enabled',
+  }))
+
+Button.getDefaultAttrs({ disabled: true })
+// { tag: 'button', className: 'disabled' }
+
+Button.getDefaultAttrs({})
+// { tag: 'button', className: 'enabled' }
+```
+
+## Component Properties
+
+Each `AttrsComponent` exposes:
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `IS_ATTRS` | `true` | Static marker for identification |
+| `displayName` | `string` | Component name |
+| `meta` | `Record<string, any>` | Statics defined via `.statics()` |
+| `$$originTypes` | Type only | Original component props type |
+| `$$extendedTypes` | Type only | Extended props from `.attrs()` calls |
+| `$$types` | Type only | All combined props |
+
+## Ref Forwarding
+
+Refs are forwarded through the entire HOC chain. Both standard `ref` and the `innerRef` alternative work:
+
+```tsx
+const Button = attrs({ name: 'Button', component: Element })
+  .compose({ withFeature: someHoc })
+
+const ref = useRef(null)
+
+<Button ref={ref}>Click</Button>
+// ref.current points to the DOM node through all HOC layers
+```
+
+The system manages two ref sources internally (`$attrsRef` for consumer refs, `ref` for intermediate HOC refs) and merges them via `useImperativeHandle`.
+
+## All Exports
+
+```tsx
+import attrs, { isAttrsComponent } from '@vitus-labs/attrs'
+
+import type {
+  AttrsComponent,
+  Attrs,
+  AttrsComponentType,
+  ConfigAttrs,
+  AttrsCb,
+  GenericHoc,
+  ComposeParam,
+  IsAttrsComponent,
+} from '@vitus-labs/attrs'
+```

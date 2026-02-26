@@ -1,0 +1,81 @@
+---
+title: Text
+description: Semantic text rendering primitive with inherited styles.
+---
+
+Text is a lightweight component for rendering semantic text content. It inherits color, font-weight, and line-height from its parent, making it easy to integrate into any layout.
+
+## Usage
+
+```tsx
+import { Text } from '@vitus-labs/elements'
+
+// Heading
+<Text tag="h1">Page Title</Text>
+
+// Paragraph
+<Text paragraph>This is a paragraph of text.</Text>
+
+// Styled span
+<Text tag="span" css={(css) => css`color: red; font-weight: bold;`}>
+  Important
+</Text>
+```
+
+## Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `children` | `ReactNode` | — | Content (highest priority) |
+| `label` | `Content` | — | Alternative to children |
+| `tag` | `string` | `'span'` | HTML tag (`h1`-`h6`, `span`, `em`, `strong`, `p`, etc.) |
+| `paragraph` | `boolean` | `false` | Auto-renders as `<p>` tag |
+| `css` | `ExtendCss` | — | Custom styles |
+
+## Key Differences from Element
+
+- No layout sections (no beforeContent/afterContent)
+- No flex layout management
+- Focused on semantic text HTML
+- Lighter weight
+- Has `isText: true` static flag for parent detection
+
+## Semantic Tags
+
+```tsx
+<Text tag="h1">Main Title</Text>
+<Text tag="h2">Subtitle</Text>
+<Text tag="em">Emphasized</Text>
+<Text tag="strong">Important</Text>
+<Text tag="code">inline code</Text>
+<Text tag="small">Fine print</Text>
+<Text tag="mark">Highlighted</Text>
+```
+
+## Paragraph Shorthand
+
+```tsx
+// These are equivalent:
+<Text paragraph>Content</Text>
+<Text tag="p">Content</Text>
+```
+
+## Custom Styling
+
+```tsx
+<Text
+  tag="h2"
+  css={(css) => css`
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 0.5em;
+    color: ${(props) => props.theme.colors.heading};
+  `}
+>
+  Section Title
+</Text>
+```
+
+## API Reference
+
+<AutoTypeTable path="./src/types/elements.ts" name="TextProps" />

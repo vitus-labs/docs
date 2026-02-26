@@ -1,0 +1,53 @@
+---
+title: Vitus Labs UI System
+description: A comprehensive UI system for building React applications with type-safe, composable, and themeable components.
+---
+
+## Overview
+
+Vitus Labs UI System is a collection of packages for building modern React applications. It provides a complete toolkit from CSS-in-JS styling to composable UI components, animations, and layout grids.
+
+## Packages
+
+| Package | Description |
+|---------|-------------|
+| [@vitus-labs/core](/docs/core) | Configuration, initialization, and shared utilities |
+| [@vitus-labs/styler](/docs/styler) | High-performance CSS-in-JS engine (~3KB gzipped) |
+| [@vitus-labs/attrs](/docs/attrs) | Composable attribute factory for component configuration |
+| [@vitus-labs/elements](/docs/elements) | Base UI primitives: Element, List, Text, Overlay, Portal |
+| [@vitus-labs/rocketstyle](/docs/rocketstyle) | Advanced component styling with themes, pseudo-states, and dimensions |
+| [@vitus-labs/unistyle](/docs/unistyle) | Universal responsive styling utilities |
+| [@vitus-labs/coolgrid](/docs/coolgrid) | Responsive grid system with Container, Row, and Col |
+| [@vitus-labs/hooks](/docs/hooks) | Collection of 28+ React hooks for common patterns |
+| [@vitus-labs/kinetic](/docs/kinetic) | Animation and transition system |
+| [@vitus-labs/kinetic-presets](/docs/kinetic-presets) | Pre-built animation presets and factories |
+| [@vitus-labs/connectors](/docs/connectors) | CSS-in-JS engine connectors (styler, emotion, styled-components) |
+
+## Quick Start
+
+```package-install
+@vitus-labs/core @vitus-labs/styler @vitus-labs/connector-styler @vitus-labs/elements @vitus-labs/rocketstyle
+```
+
+Initialize the CSS-in-JS engine in your app entry point:
+
+```tsx
+import { init } from '@vitus-labs/core'
+import connector from '@vitus-labs/connector-styler'
+
+init({ ...connector, component: 'div', textComponent: 'span' })
+```
+
+Then start building components:
+
+```tsx
+import { Element } from '@vitus-labs/elements'
+
+function App() {
+  return (
+    <Element tag="main" padding={24}>
+      Hello, Vitus Labs!
+    </Element>
+  )
+}
+```

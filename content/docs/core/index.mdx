@@ -1,0 +1,152 @@
+---
+title: Core
+description: Configuration, initialization, and shared utilities for the Vitus Labs UI System.
+---
+
+`@vitus-labs/core` is the foundational package that bridges all other packages with a pluggable CSS-in-JS engine. It provides the `init()` function for engine configuration, a singleton `config` object, a dual-layer `Provider`, and a set of utility functions.
+
+## Installation
+
+```package-install
+@vitus-labs/core
+```
+
+## Initialization
+
+The `init()` function connects a CSS-in-JS engine to the entire UI system. Call it once at your app entry point before any component renders.
+
+```tsx title="src/init.ts"
+import { init } from '@vitus-labs/core'
+import connector from '@vitus-labs/connector-styler'
+
+init({
+  ...connector,
+  component: 'div',        // default HTML element
+  textComponent: 'span',   // default text element
+})
+```
+
+### Parameters
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `css` | `(strings: TemplateStringsArray, ...values: any[]) => any` | Yes | Tagged template for CSS fragments |
+| `styled` | `(tag: any, options?: any) => (strings: TemplateStringsArray, ...values: any[]) => any` | Yes | Component factory for styled elements |
+| `provider` | `FC<{ theme: any; children: ReactNode }>` | Yes | ThemeProvider component |
+| `keyframes` | `(strings: TemplateStringsArray, ...values: any[]) => any` | No | @keyframes animation factory |
+| `createGlobalStyle` | `(strings: TemplateStringsArray, ...values: any[]) => any` | No | Global CSS injection factory |
+| `useTheme` | `() => any` | No | Hook to read the current theme |
+| `component` | `ComponentType \| HTMLTags` | No | Default component type (default: `'div'`) |
+| `textComponent` | `ComponentType \| HTMLTags` | No | Default text element type (default: `'span'`) |
+
+## Config Singleton
+
+The `config` object uses a **lazy delegate pattern** that allows safe destructuring at module level, even before `init()` is called:
+
+```tsx
+import { config } from '@vitus-labs/core'
+
+// Safe — delegates resolve lazily at render time
+const { css, styled } = config
+
+const highlight = css`
+  color: red;
+  font-weight: bold;
+`
+
+const Box = styled.div`
+  padding: 16px;
+  ${highlight}
+`
+```
+
+### Properties
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `css` | Stable delegate | Tagged template for CSS. Returns a thunk if engine not yet initialized. |
+| `styled` | Proxy delegate | Component factory. Supports `styled('div')` and `styled.div` syntax. |
+| `component` | `string \| ComponentType` | Default component type (set via `init()`) |
+| `textComponent` | `string \| ComponentType` | Default text element type |
+| `ExternalProvider` | `FC \| null` | The engine's ThemeProvider (read-only getter) |
+| `keyframes` | `Function \| null` | @keyframes factory (read-only getter) |
+| `createGlobalStyle` | `Function \| null` | Global CSS factory (read-only getter) |
+| `useTheme` | `Function \| null` | Theme hook (read-only getter) |
+
+## Provider
+
+A dual-layer theme provider that wraps children with both the internal Vitus Labs context and the external CSS-in-JS engine's ThemeProvider.
+
+```tsx
+import { Provider } from '@vitus-labs/core'
+
+<Provider
+  theme={{
+    rootSize: 16,
+    breakpoints: { xs: 0, sm: 640, md: 1024, lg: 1280 },
+    colors: { primary: '#0d6efd' },
+  }}
+>
+  <App />
+</Provider>
+```
+
+### Props
+
+| Prop | Type | Description |
+|------|------|-------------|
+| `theme` | `{ rootSize?: number; breakpoints?: Record<string, number>; [key: string]: any }` | Theme object passed to both contexts |
+| `children` | `ReactNode` | Child elements |
+| `...props` | `Record<string, any>` | Extra props passed into internal context |
+
+### Behavior
+
+- **No theme or empty theme**: Renders children directly with no context overhead
+- **Theme + ExternalProvider configured**: Wraps with both internal VitusLabs context and the CSS engine's ThemeProvider
+- **Theme + No ExternalProvider**: Wraps with internal context only
+- Uses `useStableValue()` internally to prevent unnecessary context updates when theme hasn't changed
+
+## CSSEngineConnector Interface
+
+Every connector package must satisfy this interface:
+
+```tsx
+interface CSSEngineConnector {
+  // Required
+  css: (strings: TemplateStringsArray, ...values: any[]) => any
+  styled: ((tag: any, options?: any) => (strings: TemplateStringsArray, ...values: any[]) => any) & Record<string, any>
+  provider: FC<{ theme: any; children: ReactNode }>
+
+  // Optional
+  keyframes?: (strings: TemplateStringsArray, ...values: any[]) => any
+  createGlobalStyle?: (strings: TemplateStringsArray, ...values: any[]) => any
+  useTheme?: () => any
+}
+```
+
+Three official connectors are available:
+
+- `@vitus-labs/connector-styler` — Custom lightweight engine (~3KB gzipped)
+- `@vitus-labs/connector-emotion` — Emotion adapter with styled-components composition pattern
+- `@vitus-labs/connector-styled-components` — Direct pass-through for styled-components
+
+## HTML Utilities
+
+```tsx
+import { HTML_TAGS, HTML_TEXT_TAGS } from '@vitus-labs/core'
+```
+
+| Export | Type | Description |
+|--------|------|-------------|
+| `HTML_TAGS` | `string[]` | All standard HTML tag names (`'a'`, `'div'`, `'section'`, etc.) |
+| `HTML_TEXT_TAGS` | `string[]` | Tags that semantically contain text (`'b'`, `'em'`, `'strong'`, etc.) |
+
+### Types
+
+```tsx
+type HTMLTags = 'a' | 'abbr' | 'address' | ... | 'video'
+type HTMLTextTags = 'b' | 'em' | 'i' | 'strong' | ...
+
+// Extract React props for a specific tag
+type HTMLTagAttrsByTag<T extends HTMLTags> = HTMLElementAttrs[T]
+```

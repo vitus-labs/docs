@@ -1,0 +1,248 @@
+---
+title: Provider & Consumer
+description: Pseudo-state tracking, provider/consumer pattern, and theme context.
+---
+
+Rocketstyle includes a provider/consumer system for broadcasting pseudo-states between parent and child components, plus theme context management.
+
+## Pseudo-States
+
+Rocketstyle automatically tracks these pseudo-states:
+
+| State | Type | Description |
+|-------|------|-------------|
+| `hover` | `boolean` | Mouse is over the element |
+| `focus` | `boolean` | Element has keyboard focus |
+| `pressed` | `boolean` | Mouse button is held down |
+| `active` | `boolean` | Element is in active state |
+| `disabled` | `boolean` | Element is disabled |
+| `readOnly` | `boolean` | Element is read-only |
+
+### Accessing Pseudo-States in Styles
+
+```tsx
+.styles((css) => css`
+  ${({ $rocketstate }) => {
+    const { hover, focus, pressed, disabled } = $rocketstate.pseudo
+
+    if (disabled) {
+      return css`
+        opacity: 0.5;
+        cursor: not-allowed;
+      `
+    }
+
+    if (hover && !disabled) {
+      return css`background-color: darkblue;`
+    }
+
+    if (focus) {
+      return css`outline: 2px solid blue;`
+    }
+  }}
+`)
+```
+
+### Manual Pseudo-State Control
+
+Override pseudo-states via props:
+
+```tsx
+<Button hover={true} />     // Force hover appearance
+<Button disabled={true} />  // Force disabled state
+<Button focus={true} />     // Force focus appearance
+```
+
+## Provider Component
+
+Enable a component to broadcast its pseudo-states to children:
+
+```tsx
+const FormField = rocketstyle()({
+  name: 'FormField',
+  component: 'div',
+}).config({
+  provider: true,  // Enables pseudo-state broadcasting
+})
+```
+
+When `provider: true`, the component:
+1. Wraps children with a `LocalProvider`
+2. Tracks its own hover/focus/pressed states
+3. Makes these states available to consumer children
+
+## Consumer Component
+
+Enable a component to read its parent's pseudo-states:
+
+```tsx
+const FormLabel = rocketstyle()({
+  name: 'FormLabel',
+  component: 'label',
+}).config({
+  consumer: (ctx) =>
+    ctx((parentProps) => ({
+      parentHover: parentProps.pseudo?.hover,
+      parentFocus: parentProps.pseudo?.focus,
+      parentDisabled: parentProps.pseudo?.disabled,
+    })),
+})
+```
+
+### Consumer Callback
+
+The consumer callback receives a `ctx` function that accepts a mapper:
+
+```tsx
+consumer: (ctx) => ctx((parentProps) => mappedProps)
+```
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `parentProps` | `object` | Parent component's current state |
+| `parentProps.pseudo` | `PseudoState` | Parent's pseudo-states |
+
+The returned object is merged into the consumer's props.
+
+## Provider/Consumer Example
+
+### Form Field with Label Highlight
+
+```tsx
+// Parent: broadcasts pseudo-states
+const FormField = rocketstyle()({
+  name: 'FormField',
+  component: 'div',
+})
+  .config({ provider: true })
+  .styles((css) => css`
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  `)
+
+// Child: consumes parent's pseudo-states
+const FormLabel = rocketstyle()({
+  name: 'FormLabel',
+  component: 'label',
+})
+  .config({
+    consumer: (ctx) =>
+      ctx(({ pseudo }) => ({
+        isFieldHovered: pseudo?.hover,
+        isFieldFocused: pseudo?.focus,
+      })),
+  })
+  .styles((css) => css`
+    font-size: 14px;
+    color: ${({ $rocketstate }) =>
+      $rocketstate.isFieldFocused
+        ? 'blue'
+        : $rocketstate.isFieldHovered
+          ? '#333'
+          : '#666'};
+  `)
+
+// Usage
+<FormField>
+  <FormLabel>Email</FormLabel>
+  <input type="email" />
+</FormField>
+// When FormField is hovered, FormLabel changes color
+// When input inside FormField is focused, FormLabel turns blue
+```
+
+### Interactive Card
+
+```tsx
+const Card = rocketstyle()({
+  name: 'Card',
+  component: 'div',
+})
+  .config({ provider: true })
+  .theme((theme, mode) => ({
+    background: mode('#fff', '#2a2a2a'),
+    borderColor: mode('#e0e0e0', '#444'),
+  }))
+  .styles((css) => css`
+    border: 1px solid ${({ $rocketstyle }) => $rocketstyle.borderColor};
+    background: ${({ $rocketstyle }) => $rocketstyle.background};
+    padding: 16px;
+    border-radius: 8px;
+  `)
+
+const CardAction = rocketstyle()({
+  name: 'CardAction',
+  component: 'button',
+})
+  .config({
+    consumer: (ctx) =>
+      ctx(({ pseudo }) => ({
+        cardHovered: pseudo?.hover,
+      })),
+  })
+  .styles((css) => css`
+    opacity: ${({ $rocketstate }) =>
+      $rocketstate.cardHovered ? 1 : 0};
+    transition: opacity 0.2s;
+  `)
+
+// Action buttons appear when card is hovered
+<Card>
+  <h3>Card Title</h3>
+  <p>Card content here</p>
+  <CardAction>Edit</CardAction>
+  <CardAction>Delete</CardAction>
+</Card>
+```
+
+## Theme Provider
+
+Wrap your application with the rocketstyle Provider:
+
+```tsx
+import { Provider } from '@vitus-labs/rocketstyle'
+
+const theme = {
+  rootSize: 16,
+  colors: {
+    primary: '#0066cc',
+    secondary: '#6c757d',
+    danger: '#dc3545',
+  },
+  fontFamily: {
+    base: 'Inter, sans-serif',
+    mono: 'JetBrains Mono, monospace',
+  },
+}
+
+<Provider theme={theme} mode="light">
+  <App />
+</Provider>
+```
+
+### Provider Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `theme` | `object` | — | Theme object passed to all rocketstyle components |
+| `mode` | `'light' \| 'dark'` | `'light'` | Current color mode |
+| `inversed` | `boolean` | `false` | Invert the mode from parent provider |
+| `children` | `ReactNode` | — | Child components |
+
+### Nested Providers
+
+```tsx
+<Provider theme={theme} mode="light">
+  <LightContent />
+
+  <Provider mode="dark">
+    <DarkSidebar />
+  </Provider>
+
+  <Provider inversed>
+    {/* Inverted: becomes dark */}
+    <Footer />
+  </Provider>
+</Provider>
+```

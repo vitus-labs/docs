@@ -1,0 +1,176 @@
+---
+title: Theme Hooks
+description: useBreakpoint, useMediaQuery, useThemeValue, useRootSize, useSpacing.
+---
+
+## useBreakpoint
+
+Returns the name of the currently active breakpoint from the theme context. Uses `matchMedia` for live viewport tracking.
+
+```tsx
+import { useBreakpoint } from '@vitus-labs/hooks'
+
+function ResponsiveComponent() {
+  const breakpoint = useBreakpoint()  // 'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'xxl'
+
+  switch (breakpoint) {
+    case 'xs':
+    case 'sm':
+      return <MobileView />
+    case 'md':
+      return <TabletView />
+    default:
+      return <DesktopView />
+  }
+}
+```
+
+### Returns
+
+`string | undefined` — active breakpoint name, or `undefined` if no Provider is available.
+
+Requires a Provider with `theme.breakpoints` defined.
+
+---
+
+## useMediaQuery
+
+Subscribes to a CSS media query and returns whether it currently matches.
+
+```tsx
+import { useMediaQuery } from '@vitus-labs/hooks'
+
+function Layout() {
+  const isMobile = useMediaQuery('(max-width: 768px)')
+  const isLandscape = useMediaQuery('(orientation: landscape)')
+  const prefersLight = useMediaQuery('(prefers-color-scheme: light)')
+
+  return (
+    <div>
+      {isMobile ? <MobileNav /> : <DesktopNav />}
+      {isLandscape && <LandscapeWarning />}
+    </div>
+  )
+}
+```
+
+### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `query` | `string` | CSS media query string |
+
+### Returns
+
+`boolean` — `true` if the query matches, `false` otherwise. Returns `false` on the server.
+
+---
+
+## useThemeValue
+
+Deep-reads a value from the current theme context using a dot-separated path.
+
+```tsx
+import { useThemeValue } from '@vitus-labs/hooks'
+
+function ThemedComponent() {
+  const primaryColor = useThemeValue<string>('colors.primary')
+  const gridColumns = useThemeValue<number>('grid.columns')
+  const fontBase = useThemeValue<string>('fontFamily.base')
+
+  return (
+    <div style={{ color: primaryColor, fontFamily: fontBase }}>
+      Grid: {gridColumns} columns
+    </div>
+  )
+}
+```
+
+### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `path` | `string` | Dot-separated path (e.g., `'colors.primary'`) |
+
+### Returns
+
+`T | undefined` — theme value at path, or `undefined` if not found.
+
+Uses `get` from `@vitus-labs/core` for nested property access.
+
+---
+
+## useRootSize
+
+Reads `rootSize` from the theme context and provides px/rem conversion utilities.
+
+```tsx
+import { useRootSize } from '@vitus-labs/hooks'
+
+function SpacingDemo() {
+  const { rootSize, pxToRem, remToPx } = useRootSize()
+
+  return (
+    <div>
+      <p>Root size: {rootSize}px</p>
+      <p>24px = {pxToRem(24)}</p>  {/* "1.5rem" */}
+      <p>2rem = {remToPx(2)}px</p> {/* 32 */}
+      <div style={{ padding: pxToRem(16) }}>Padded content</div>
+    </div>
+  )
+}
+```
+
+### Returns
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `rootSize` | `number` | Base font size in px (defaults to 16) |
+| `pxToRem` | `(px: number) => string` | Convert px to rem string |
+| `remToPx` | `(rem: number) => number` | Convert rem to px number |
+
+---
+
+## useSpacing
+
+Returns a spacing function based on `rootSize` from the theme. Default base unit is `rootSize / 2` (usually 8px).
+
+```tsx
+import { useSpacing } from '@vitus-labs/hooks'
+
+function SpacedLayout() {
+  const spacing = useSpacing()
+
+  return (
+    <div style={{ padding: spacing(2) }}>   {/* "16px" */}
+      <h1 style={{ marginBottom: spacing(3) }}>Title</h1>  {/* "24px" */}
+      <p style={{ marginBottom: spacing(1) }}>Text</p>     {/* "8px" */}
+      <button style={{ padding: `${spacing(1)} ${spacing(2)}` }}>
+        Click me
+      </button>
+    </div>
+  )
+}
+```
+
+### Parameters
+
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `base` | `number` | `rootSize / 2` | Base spacing unit in px |
+
+### Returns
+
+`(multiplier: number) => string` — spacing function.
+
+```tsx
+const spacing = useSpacing()     // base = 8 (when rootSize = 16)
+spacing(0.5)  // "4px"
+spacing(1)    // "8px"
+spacing(2)    // "16px"
+spacing(3)    // "24px"
+
+const spacing = useSpacing(10)   // custom base
+spacing(1)    // "10px"
+spacing(2)    // "20px"
+```

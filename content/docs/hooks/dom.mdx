@@ -1,0 +1,187 @@
+---
+title: DOM Hooks
+description: useElementSize, useIntersection, useClickOutside, useMergedRef, useScrollLock, useWindowResize.
+---
+
+## useElementSize
+
+Tracks an element's dimensions using `ResizeObserver`. Returns a callback ref and the current size.
+
+```tsx
+import { useElementSize } from '@vitus-labs/hooks'
+
+function ResizablePanel() {
+  const [ref, { width, height }] = useElementSize()
+
+  return (
+    <div ref={ref} style={{ resize: 'both', overflow: 'auto' }}>
+      Width: {width}px, Height: {height}px
+    </div>
+  )
+}
+```
+
+### Returns
+
+`[(node: Element | null) => void, { width: number; height: number }]`
+
+| Index | Type | Description |
+|-------|------|-------------|
+| 0 | Callback ref | Attach to the element |
+| 1 | `{ width, height }` | Current dimensions (initial: `{ 0, 0 }`) |
+
+Reads initial dimensions from `getBoundingClientRect()` and updates via `ResizeObserver`.
+
+---
+
+## useIntersection
+
+Observes element intersection with viewport or a root element using `IntersectionObserver`.
+
+```tsx
+import { useIntersection } from '@vitus-labs/hooks'
+
+function LazyImage({ src, alt }) {
+  const [ref, entry] = useIntersection({ threshold: 0.1 })
+
+  return (
+    <div ref={ref}>
+      {entry?.isIntersecting ? (
+        <img src={src} alt={alt} />
+      ) : (
+        <div style={{ height: 200, background: '#eee' }} />
+      )}
+    </div>
+  )
+}
+```
+
+### Parameters
+
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `threshold` | `number \| number[]` | `0` | Visibility percentage (0-1) |
+| `rootMargin` | `string` | `'0px'` | Margin around root |
+| `root` | `Element \| null` | `null` | Root element (null = viewport) |
+
+### Returns
+
+`[(node: Element | null) => void, IntersectionObserverEntry | null]`
+
+The entry object contains: `isIntersecting`, `intersectionRatio`, `boundingClientRect`, `intersectionRect`, `rootBounds`, `target`, `time`.
+
+---
+
+## useClickOutside
+
+Detects clicks and touch events outside a referenced element. Useful for closing dropdowns, modals, or popovers.
+
+```tsx
+import { useClickOutside } from '@vitus-labs/hooks'
+
+function Dropdown({ onClose }) {
+  const ref = useRef<HTMLDivElement>(null)
+  useClickOutside(ref, onClose)
+
+  return (
+    <div ref={ref}>
+      Dropdown content — clicking outside closes it
+    </div>
+  )
+}
+```
+
+### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `ref` | `RefObject<Element>` | Ref to the element |
+| `handler` | `(event: Event) => void` | Callback when click/touch occurs outside |
+
+Listens to both `mousedown` and `touchstart` events on `document`.
+
+---
+
+## useMergedRef
+
+Merges multiple refs (callback or object refs) into a single stable callback ref.
+
+```tsx
+import { useMergedRef } from '@vitus-labs/hooks'
+import { forwardRef, useRef } from 'react'
+
+const Input = forwardRef((props, forwardedRef) => {
+  const localRef = useRef<HTMLInputElement>(null)
+  const mergedRef = useMergedRef(forwardedRef, localRef)
+
+  return <input ref={mergedRef} {...props} />
+})
+```
+
+### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `...refs` | `(Ref<T> \| undefined)[]` | Any number of refs |
+
+### Returns
+
+`(node: T | null) => void` — merged callback ref.
+
+Handles null refs gracefully. Supports mixing callback refs and object refs.
+
+---
+
+## useScrollLock
+
+Locks page scroll by setting `overflow: hidden` on `document.body`. Restores original value on disable or unmount.
+
+```tsx
+import { useScrollLock } from '@vitus-labs/hooks'
+
+function Modal({ isOpen, children }) {
+  useScrollLock(isOpen)
+
+  if (!isOpen) return null
+  return <div className="modal">{children}</div>
+}
+```
+
+### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `enabled` | `boolean` | Lock scroll when `true` |
+
+---
+
+## useWindowResize
+
+Tracks browser viewport dimensions with configurable throttling.
+
+```tsx
+import { useWindowResize } from '@vitus-labs/hooks'
+
+function ResponsiveLayout() {
+  const { width, height } = useWindowResize({ throttleDelay: 200 })
+
+  return (
+    <div>
+      {width > 768 ? <DesktopLayout /> : <MobileLayout />}
+      <footer>Viewport: {width} x {height}</footer>
+    </div>
+  )
+}
+```
+
+### Parameters
+
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `params.throttleDelay` | `number` | `200` | Throttle delay (ms) |
+| `params.onChange` | `({ width, height }) => void` | — | Callback on resize |
+| `initialValues` | `{ width?, height? }` | — | Initial values before mount |
+
+### Returns
+
+`{ width: number; height: number }` — current viewport dimensions.

@@ -1,0 +1,139 @@
+---
+title: Theming
+description: Theme support with ThemeProvider and useTheme in @vitus-labs/styler.
+---
+
+`@vitus-labs/styler` provides a theming system via React Context. The `ThemeProvider` makes a theme object available to all styled components, and `useTheme()` provides direct access in hooks.
+
+## ThemeProvider
+
+Wraps your application and provides a theme object to all descendant styled components.
+
+```tsx
+import { ThemeProvider } from '@vitus-labs/styler'
+
+const theme = {
+  colors: {
+    primary: '#0d6efd',
+    secondary: '#6c757d',
+    background: '#ffffff',
+    text: '#212529',
+  },
+  spacing: {
+    sm: 8,
+    md: 16,
+    lg: 24,
+  },
+  borderRadius: 8,
+}
+
+function App() {
+  return (
+    <ThemeProvider theme={theme}>
+      <Main />
+    </ThemeProvider>
+  )
+}
+```
+
+## Accessing Theme in Styled Components
+
+The `theme` object is available via props in styled component interpolations:
+
+```tsx
+import { styled } from '@vitus-labs/styler'
+
+const Card = styled.div`
+  background: ${(props) => props.theme.colors.background};
+  padding: ${(props) => props.theme.spacing.md}px;
+  border-radius: ${(props) => props.theme.borderRadius}px;
+  color: ${(props) => props.theme.colors.text};
+`
+
+const Button = styled.button`
+  background: ${(props) => props.theme.colors.primary};
+  color: white;
+  padding: ${(props) => props.theme.spacing.sm}px ${(props) => props.theme.spacing.md}px;
+  border: none;
+  border-radius: ${(props) => props.theme.borderRadius}px;
+  cursor: pointer;
+
+  &:hover {
+    opacity: 0.9;
+  }
+`
+```
+
+## useTheme Hook
+
+Access the theme object directly in any component:
+
+```tsx
+import { useTheme } from '@vitus-labs/styler'
+
+function StatusBadge({ status }) {
+  const theme = useTheme()
+
+  const color = status === 'active'
+    ? theme.colors.primary
+    : theme.colors.secondary
+
+  return (
+    <span style={{ color, fontWeight: 'bold' }}>
+      {status}
+    </span>
+  )
+}
+```
+
+## Nested Themes
+
+ThemeProvider instances can be nested. Child providers override the parent theme:
+
+```tsx
+const lightTheme = { colors: { background: '#fff', text: '#000' } }
+const darkTheme = { colors: { background: '#1a1a1a', text: '#fff' } }
+
+function App() {
+  return (
+    <ThemeProvider theme={lightTheme}>
+      <Header />
+      <ThemeProvider theme={darkTheme}>
+        <Sidebar />  {/* Uses dark theme */}
+      </ThemeProvider>
+      <Main />  {/* Uses light theme */}
+    </ThemeProvider>
+  )
+}
+```
+
+## TypeScript Support
+
+Define a `DefaultTheme` interface for type-safe theme access:
+
+```tsx
+import type { DefaultTheme } from '@vitus-labs/styler'
+
+declare module '@vitus-labs/styler' {
+  export interface DefaultTheme {
+    colors: {
+      primary: string
+      secondary: string
+      background: string
+      text: string
+    }
+    spacing: {
+      sm: number
+      md: number
+      lg: number
+    }
+    borderRadius: number
+  }
+}
+
+// Now theme properties are fully typed in interpolations
+const Box = styled.div`
+  padding: ${(props) => props.theme.spacing.md}px;
+  // TypeScript knows spacing.md is a number
+`
+```

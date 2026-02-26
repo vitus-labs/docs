@@ -1,0 +1,182 @@
+---
+title: Rocketstyle
+description: Dimension-based component styling system with theming, pseudo-states, and chainable API.
+---
+
+Rocketstyle is a powerful styling system for building React components with dimension-based theming, pseudo-state management, light/dark mode switching, and a chainable configuration API.
+
+## Overview
+
+Rocketstyle wraps any React component and adds:
+
+- **Dimensions** — styling categories (states, sizes, variants) that map to component props
+- **Theme integration** — automatic theme injection via React Context with light/dark mode
+- **Pseudo-state tracking** — automatic hover, focus, pressed, disabled detection
+- **Provider/Consumer** — parent components broadcast pseudo-states to children
+- **Chainable API** — fluent interface for composing themes, attrs, styles, and HOCs
+
+## Installation
+
+```package-install
+@vitus-labs/rocketstyle
+```
+
+Requires `@vitus-labs/core` and a CSS engine connector.
+
+## Quick Start
+
+```tsx
+import { init } from '@vitus-labs/core'
+import * as styler from '@vitus-labs/connector-styler'
+import rocketstyle from '@vitus-labs/rocketstyle'
+
+init(styler)
+
+const Button = rocketstyle()({
+  name: 'Button',
+  component: 'button',
+})
+  .theme((theme) => ({
+    fontFamily: theme.fontFamily?.base,
+    borderRadius: '4px',
+  }))
+  .states((theme) => ({
+    primary: {
+      backgroundColor: 'blue',
+      color: 'white',
+    },
+    secondary: {
+      backgroundColor: 'gray',
+      color: 'black',
+    },
+  }))
+  .sizes((theme) => ({
+    sm: { fontSize: '12px', padding: '4px 8px' },
+    md: { fontSize: '14px', padding: '8px 16px' },
+    lg: { fontSize: '16px', padding: '12px 24px' },
+  }))
+  .styles((css) => css`
+    cursor: pointer;
+    border: none;
+    font-family: ${({ $rocketstyle }) => $rocketstyle.fontFamily};
+    font-size: ${({ $rocketstyle }) => $rocketstyle.fontSize};
+    padding: ${({ $rocketstyle }) => $rocketstyle.padding};
+    background-color: ${({ $rocketstyle }) => $rocketstyle.backgroundColor};
+    color: ${({ $rocketstyle }) => $rocketstyle.color};
+    border-radius: ${({ $rocketstyle }) => $rocketstyle.borderRadius};
+
+    &:hover {
+      opacity: 0.9;
+    }
+  `)
+
+// Usage
+<Button state="primary" size="lg">Click me</Button>
+
+// Boolean shorthand (useBooleans enabled by default)
+<Button primary lg>Click me</Button>
+```
+
+## Factory Function
+
+```tsx
+rocketstyle(options)(config)
+```
+
+### Options
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `dimensions` | `Record<string, string \| DimensionConfig>` | See below | Custom dimension definitions |
+| `useBooleans` | `boolean` | `true` | Enable boolean shorthand props |
+
+### Default Dimensions
+
+```tsx
+{
+  states: 'state',          // Maps to `state` prop
+  sizes: 'size',            // Maps to `size` prop
+  variants: 'variant',      // Maps to `variant` prop
+  multiple: {               // Multi-select dimension
+    propName: 'multiple',
+    multi: true             // Accepts array values
+  }
+}
+```
+
+### Config
+
+| Option | Type | Description |
+|--------|------|-------------|
+| `name` | `string` | **Required.** Component display name |
+| `component` | `ComponentType \| string` | **Required.** React component or HTML tag to wrap |
+
+### Custom Dimensions
+
+```tsx
+const Card = rocketstyle({
+  dimensions: {
+    colors: 'color',
+    shapes: {
+      propName: 'shape',
+      multi: true,         // Allows array: shape={['rounded', 'elevated']}
+    },
+  },
+})({
+  name: 'Card',
+  component: 'div',
+})
+  .colors((theme) => ({
+    primary: { backgroundColor: 'blue' },
+    secondary: { backgroundColor: 'gray' },
+  }))
+  .shapes((theme) => ({
+    rounded: { borderRadius: '8px' },
+    elevated: { boxShadow: '0 2px 8px rgba(0,0,0,0.1)' },
+  }))
+```
+
+### Reserved Dimension Names
+
+These names cannot be used as dimension keys: `light`, `dark`, `theme`, `styles`, `compose`, `attrs`, `provider`, `consumer`, `DEBUG`, `name`, `component`, `inversed`, `passProps`, `styled`.
+
+## Boolean Shorthand
+
+When `useBooleans` is enabled (default), dimension values can be used as boolean props:
+
+```tsx
+// These are equivalent:
+<Button state="primary" size="lg" />
+<Button primary lg />
+
+// Multi-select with booleans (when multi: true)
+<Button multiple={['tagA', 'tagB']} />
+```
+
+## Type Utilities
+
+```tsx
+// Extract rocketstyle dimension props
+type ButtonDimensions = typeof Button['$$rocketstyle']
+
+// Extract original component props
+type OriginProps = typeof Button['$$originTypes']
+
+// Get all combined props
+type AllProps = typeof Button['$$types']
+
+// Check if component is rocketstyle
+import { isRocketComponent } from '@vitus-labs/rocketstyle'
+isRocketComponent(Button) // true
+```
+
+## Runtime Helpers
+
+```tsx
+// Get static dimensions for a theme
+Button.getStaticDimensions(theme)
+// Returns: { dimensions, keywords, useBooleans, multiKeys }
+
+// Get resolved default attrs
+Button.getDefaultAttrs(props, theme, mode)
+```

@@ -1,25 +1,11 @@
-import withPlugins from 'next-compose-plugins'
-import optimizedImages from 'next-optimized-images-2'
+import { createMDX } from 'fumadocs-mdx/next'
 
-const PLUGINS = [
-  [
-    optimizedImages({
-      optimizeInDev: true,
-    }),
-  ],
-]
-
-export default withPlugins(PLUGINS, {
-  output: 'export',
-  poweredByHeader: false,
-  pageExtensions: ['js', 'jsx', 'ts', 'tsx', 'md', 'mdx'],
-  compiler: {
-    // removeConsole: true,
-    styledComponents: true,
-  },
-  images: {
-    unoptimized: true,
-    disableStaticImages: true,
-  },
+/** @type {import('next').NextConfig} */
+const config = {
   reactStrictMode: true,
-})
+  output: 'export',
+}
+
+const withMDX = createMDX()
+
+export default withMDX(config)

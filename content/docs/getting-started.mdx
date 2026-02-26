@@ -1,0 +1,83 @@
+---
+title: Getting Started
+description: Install and configure Vitus Labs UI System in your React project.
+---
+
+## Installation
+
+Install the core packages:
+
+```package-install
+@vitus-labs/core @vitus-labs/styler @vitus-labs/connector-styler @vitus-labs/elements @vitus-labs/rocketstyle
+```
+
+## Configuration
+
+Initialize the CSS-in-JS engine at the root of your application. This connects the styling engine to all Vitus Labs components.
+
+```tsx title="src/init.ts"
+import { init } from '@vitus-labs/core'
+import connector from '@vitus-labs/connector-styler'
+
+init({
+  ...connector,
+  component: 'div',
+  textComponent: 'span',
+})
+```
+
+Import this file early in your app entry point (e.g., `_app.tsx`, `layout.tsx`, or `main.tsx`).
+
+## Framework Integration
+
+### Next.js (App Router)
+
+```tsx title="src/app/layout.tsx"
+import '@/init' // Initialize vitus-labs
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="en">
+      <body>{children}</body>
+    </html>
+  )
+}
+```
+
+### Vite
+
+```tsx title="src/main.tsx"
+import './init' // Initialize vitus-labs
+import { createRoot } from 'react-dom/client'
+import App from './App'
+
+createRoot(document.getElementById('root')!).render(<App />)
+```
+
+## Your First Component
+
+```tsx
+import { Element } from '@vitus-labs/elements'
+
+function Card({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <Element
+      tag="article"
+      padding={24}
+      style={{ borderRadius: 8, border: '1px solid #e0e0e0' }}
+    >
+      <Element tag="h2" marginBottom={12}>
+        {title}
+      </Element>
+      {children}
+    </Element>
+  )
+}
+```
+
+## What's Next?
+
+- Learn about the [styling engine](/docs/styler) — high-performance CSS-in-JS
+- Explore [Elements](/docs/elements) — base UI primitives
+- Build composable components with [Rocketstyle](/docs/rocketstyle)
+- Add animations with [Kinetic](/docs/kinetic)

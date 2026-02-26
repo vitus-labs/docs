@@ -1,0 +1,174 @@
+---
+title: Col
+description: Grid column with responsive sizing, gap distribution, and visibility control.
+---
+
+Col is the leaf component of the grid. It calculates percentage-based widths from the grid column count and handles gap distribution.
+
+## Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `children` | `ReactNode` | — | Column content |
+| `component` | `ComponentType` | `'div'` | Custom column element |
+| `css` | `ExtraStyles` | — | Extra CSS (overrides cascaded `colCss`) |
+| `size` | `ValueType` | — | Column width in grid units |
+| `padding` | `ValueType` | Inherited | Inner padding |
+| `gap` | `ValueType` | Inherited | Gap between columns |
+| `columns` | `ValueType` | Inherited | Total columns (default: 12) |
+
+## Styling
+
+Col renders as a flex column container:
+
+```css
+display: flex;
+flex-direction: column;
+position: relative;
+box-sizing: border-box;
+```
+
+## Width Calculation
+
+### With Explicit Size
+
+```
+width = (size / columns) * 100%
+flex-basis = calc(width% - gap px)
+max-width = calc(width% - gap px)
+flex-grow = 0
+flex-shrink = 0
+```
+
+Example with `size={6}`, `columns={12}`, `gap={16}`:
+```css
+flex-basis: calc(50% - 16px);
+max-width: calc(50% - 16px);
+flex-grow: 0;
+flex-shrink: 0;
+```
+
+### Without Size (Auto-Width)
+
+```css
+flex-basis: 0;
+flex-grow: 1;
+/* Grows to fill available space */
+```
+
+## Gap and Padding Distribution
+
+Gap and padding are distributed evenly on all sides:
+
+```css
+margin: ${gap / 2}px;       /* Gap distributed on all sides */
+padding: ${padding / 2}px;  /* Padding distributed on all sides */
+```
+
+## Hidden Columns
+
+Set `size={0}` to hide a column:
+
+```css
+/* When size={0} */
+position: fixed;
+left: -9999px;
+margin: 0;
+padding: 0;
+```
+
+### Responsive Visibility
+
+```tsx
+<Row>
+  {/* Sidebar: hidden on mobile (xs), visible from md */}
+  <Col size={{ xs: 0, md: 3 }}>
+    <Sidebar />
+  </Col>
+
+  {/* Main: full-width on mobile, 9/12 from md */}
+  <Col size={{ xs: 12, md: 9 }}>
+    <MainContent />
+  </Col>
+</Row>
+```
+
+## Examples
+
+### Fixed and Flexible Columns
+
+```tsx
+<Row gap={16}>
+  <Col size={3}>Fixed 3/12</Col>
+  <Col>Auto-expands</Col>
+  <Col size={2}>Fixed 2/12</Col>
+</Row>
+```
+
+### Responsive Column Sizes
+
+```tsx
+<Row gap={16}>
+  {/* Full-width on mobile, half on tablet, third on desktop */}
+  <Col size={{ xs: 12, md: 6, lg: 4 }}>
+    <Card>Product 1</Card>
+  </Col>
+  <Col size={{ xs: 12, md: 6, lg: 4 }}>
+    <Card>Product 2</Card>
+  </Col>
+  <Col size={{ xs: 12, md: 12, lg: 4 }}>
+    <Card>Product 3</Card>
+  </Col>
+</Row>
+```
+
+### Array Syntax
+
+```tsx
+<Row gap={16}>
+  <Col size={[12, 6, 4]}>
+    {/* xs: 12, sm: 6, md: 4 */}
+    Content
+  </Col>
+</Row>
+```
+
+### Column Padding
+
+```tsx
+<Row gap={16} padding={24}>
+  <Col size={6}>
+    {/* 12px padding on each side (24/2) */}
+    Padded content
+  </Col>
+  <Col size={6} padding={8}>
+    {/* Override: 4px padding on each side */}
+    Less padding
+  </Col>
+</Row>
+```
+
+### Custom Column Element
+
+```tsx
+<Col size={6} component="article" css={(css) => css`
+  background: #f5f5f5;
+  border-radius: 8px;
+  min-height: 200px;
+`}>
+  <h2>Article Title</h2>
+  <p>Article content</p>
+</Col>
+```
+
+### Equal-Width Columns
+
+```tsx
+{/* Without size, all columns share space equally */}
+<Row gap={16}>
+  <Col>Equal</Col>
+  <Col>Equal</Col>
+  <Col>Equal</Col>
+  <Col>Equal</Col>
+</Row>
+```

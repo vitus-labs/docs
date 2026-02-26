@@ -1,0 +1,127 @@
+---
+title: Unistyle
+description: Responsive CSS property mapping and design system utilities.
+---
+
+Unistyle is a data-driven CSS property mapping and responsive design system. It provides 170+ CSS property mappings with automatic unit conversion, responsive breakpoints, and semantic alignment utilities.
+
+## Overview
+
+- **170+ CSS property mappings** organized by descriptor type
+- **Responsive design engine** with mobile-first media queries
+- **Automatic unit conversion** — numbers to rem, px to rem
+- **Semantic alignment** — `alignX`, `alignY`, `direction` mapped to flex properties
+- **Spacing shorthands** — margin, padding, border with full/x/y/side syntax
+- **Theme Provider** with pre-computed breakpoints and media queries
+
+## Installation
+
+```package-install
+@vitus-labs/unistyle
+```
+
+Requires `@vitus-labs/core` and a CSS engine connector.
+
+## Quick Example
+
+```tsx
+import { makeItResponsive, styles } from '@vitus-labs/unistyle'
+import { config } from '@vitus-labs/core'
+
+const Box = config.styled('div')`
+  ${makeItResponsive({
+    key: '$box',
+    css: config.css,
+    styles: (props) => styles({
+      theme: props.theme,
+      css: config.css,
+      rootSize: 16,
+    }),
+  })}
+`
+
+// Responsive styling
+<Box $box={{
+  display: 'flex',
+  fontSize: [12, 14, 16],              // xs: 12, sm: 14, md: 16
+  padding: { xs: 8, md: 16, lg: 24 },  // Breakpoint object
+  gap: 16,                              // Static value
+  alignItems: 'center',
+}} />
+```
+
+## Exports
+
+### Responsive Utilities
+
+| Export | Description |
+|--------|-------------|
+| `makeItResponsive()` | Core responsive engine — returns styled interpolation |
+| `breakpoints` | Default breakpoint config |
+| `sortBreakpoints()` | Sort breakpoint keys by pixel value |
+| `createMediaQueries()` | Build breakpoint → `@media` template functions |
+| `transformTheme()` | Pivot theme from property-centric to breakpoint-centric |
+| `normalizeTheme()` | Expand arrays/objects to full breakpoint maps |
+
+### CSS Utilities
+
+| Export | Description |
+|--------|-------------|
+| `styles()` | Process 170+ CSS property descriptors |
+| `alignContent()` | Convert semantic alignment to flex properties |
+| `extendCss()` | Evaluate custom CSS (callback or string) |
+| `ALIGN_CONTENT_DIRECTION` | Direction value mappings |
+| `ALIGN_CONTENT_MAP_X` | X-axis alignment mappings |
+| `ALIGN_CONTENT_MAP_Y` | Y-axis alignment mappings |
+
+### Unit Utilities
+
+| Export | Description |
+|--------|-------------|
+| `stripUnit()` | Remove CSS unit suffix from a value |
+| `value()` | Convert number to CSS value with unit conversion |
+| `values()` | Pick first non-null value, convert, join arrays |
+
+### Context
+
+| Export | Description |
+|--------|-------------|
+| `Provider` | Theme provider enriched with breakpoints and media queries |
+| `context` | React context from `@vitus-labs/core` |
+
+## Provider Setup
+
+```tsx
+import { Provider } from '@vitus-labs/unistyle'
+
+const theme = {
+  rootSize: 16,
+  breakpoints: {
+    xs: 0,
+    sm: 576,
+    md: 768,
+    lg: 992,
+    xl: 1200,
+    xxl: 1440,
+  },
+  // ... your theme values
+}
+
+<Provider theme={theme}>
+  <App />
+</Provider>
+```
+
+The Provider enriches the theme with pre-computed `__VITUS_LABS__` data:
+
+```tsx
+theme.__VITUS_LABS__ = {
+  sortedBreakpoints: ['xs', 'sm', 'md', 'lg', 'xl', 'xxl'],
+  media: {
+    xs: (css) => css`...`,        // No @media wrapper
+    sm: (css) => css`@media ...`,  // min-width: 36em
+    md: (css) => css`@media ...`,  // min-width: 48em
+    // ...
+  },
+}
+```

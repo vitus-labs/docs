@@ -1,0 +1,150 @@
+---
+title: Accessibility & SSR Hooks
+description: useColorScheme, useReducedMotion, useIsomorphicLayoutEffect, useUpdateEffect.
+---
+
+## useColorScheme
+
+Returns the user's OS-level color scheme preference. Reacts to system changes in real-time.
+
+```tsx
+import { useColorScheme } from '@vitus-labs/hooks'
+
+function App() {
+  const scheme = useColorScheme()  // 'light' or 'dark'
+
+  return (
+    <Provider theme={scheme === 'dark' ? darkTheme : lightTheme}>
+      <Layout />
+    </Provider>
+  )
+}
+```
+
+### Returns
+
+`'light' | 'dark'` — based on `prefers-color-scheme` media query.
+
+Pairs well with rocketstyle's `mode` prop:
+
+```tsx
+<Provider theme={theme} mode={useColorScheme()}>
+  <App />
+</Provider>
+```
+
+---
+
+## useReducedMotion
+
+Returns `true` when the user has enabled "prefers-reduced-motion" in their OS settings.
+
+```tsx
+import { useReducedMotion } from '@vitus-labs/hooks'
+
+function AnimatedCard({ children }) {
+  const reducedMotion = useReducedMotion()
+
+  return (
+    <div
+      style={{
+        animation: reducedMotion ? 'none' : 'slideIn 0.3s ease',
+        transition: reducedMotion ? 'none' : 'all 0.2s ease',
+      }}
+    >
+      {children}
+    </div>
+  )
+}
+```
+
+### Returns
+
+`boolean` — `true` when `prefers-reduced-motion: reduce` matches.
+
+Use this to:
+- Disable or simplify animations
+- Skip auto-playing videos
+- Reduce parallax effects
+- Provide static alternatives to animated content
+
+---
+
+## useIsomorphicLayoutEffect
+
+Uses `useLayoutEffect` on the client and `useEffect` on the server. Avoids the React SSR warning about `useLayoutEffect` during server rendering.
+
+```tsx
+import { useIsomorphicLayoutEffect } from '@vitus-labs/hooks'
+
+function MeasuredComponent() {
+  const ref = useRef<HTMLDivElement>(null)
+  const [height, setHeight] = useState(0)
+
+  useIsomorphicLayoutEffect(() => {
+    if (ref.current) {
+      setHeight(ref.current.getBoundingClientRect().height)
+    }
+  }, [])
+
+  return <div ref={ref}>Height: {height}px</div>
+}
+```
+
+### Parameters
+
+Same as `useLayoutEffect` / `useEffect`:
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `effect` | `EffectCallback` | Effect function |
+| `deps` | `DependencyList` | Optional dependency array |
+
+---
+
+## useUpdateEffect
+
+Like `useEffect` but skips the initial mount — only fires on updates.
+
+```tsx
+import { useUpdateEffect } from '@vitus-labs/hooks'
+
+function FilteredList({ filters }) {
+  const [results, setResults] = useState(initialResults)
+
+  // Only re-fetch when filters change, NOT on initial mount
+  useUpdateEffect(() => {
+    fetchResults(filters).then(setResults)
+  }, [filters])
+
+  return <List data={results} />
+}
+```
+
+### Parameters
+
+Same as `useEffect`:
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `effect` | `EffectCallback` | Effect function |
+| `deps` | `DependencyList` | Optional dependency array |
+
+### Common Use Cases
+
+```tsx
+// Log only when value changes (not on mount)
+useUpdateEffect(() => {
+  analytics.track('value-changed', { value })
+}, [value])
+
+// Show "unsaved changes" only after initial render
+useUpdateEffect(() => {
+  setHasUnsavedChanges(true)
+}, [formData])
+
+// Sync external state only on updates
+useUpdateEffect(() => {
+  externalStore.update(localState)
+}, [localState])
+```

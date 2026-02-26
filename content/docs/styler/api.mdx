@@ -1,0 +1,190 @@
+---
+title: API Reference
+description: Complete API reference for @vitus-labs/styler.
+---
+
+## Exports
+
+```tsx
+import {
+  css,
+  styled,
+  keyframes,
+  createGlobalStyle,
+  ThemeProvider,
+  useTheme,
+  useCSS,
+  sheet,
+  createSheet,
+} from '@vitus-labs/styler'
+
+import type {
+  CSSResult,
+  Interpolation,
+  StyledOptions,
+  StyleSheetOptions,
+  DefaultTheme,
+} from '@vitus-labs/styler'
+```
+
+## Runtime Exports
+
+### css
+
+```tsx
+css(strings: TemplateStringsArray, ...values: Interpolation[]): CSSResult
+```
+
+Tagged template for composable CSS fragments. Returns a `CSSResult` — a lazy object that resolves to a CSS string when consumed by `styled` or another `css` call.
+
+### styled
+
+```tsx
+styled(tag: string | ComponentType, options?: StyledOptions):
+  (strings: TemplateStringsArray, ...values: Interpolation[]) => ForwardRefComponent
+```
+
+Also available as `styled.div`, `styled.button`, etc. via Proxy.
+
+Creates a React component that:
+- Resolves interpolations with component props + theme
+- Hashes the resolved CSS string (FNV-1a)
+- Injects the style rule if not already present
+- Applies the generated class name to the element
+- Filters `$`-prefixed transient props from DOM output
+
+### keyframes
+
+```tsx
+keyframes(strings: TemplateStringsArray, ...values: Interpolation[]): string
+```
+
+Returns a generated keyframe name. The @keyframes rule is injected immediately.
+
+### createGlobalStyle
+
+```tsx
+createGlobalStyle(strings: TemplateStringsArray, ...values: Interpolation[]): FC
+```
+
+Returns a React component. When mounted, injects the CSS as a global style. When unmounted, removes it.
+
+### ThemeProvider
+
+```tsx
+ThemeProvider: FC<{ theme: DefaultTheme; children: ReactNode }>
+```
+
+React Context provider that makes a theme object available to all descendant `styled` components via `props.theme`.
+
+### useTheme
+
+```tsx
+useTheme(): DefaultTheme
+```
+
+Hook to read the current theme from the nearest `ThemeProvider`.
+
+### useCSS
+
+```tsx
+useCSS(cssResult: CSSResult, props?: Record<string, any>): string
+```
+
+Hook that resolves a `CSSResult` to a class name string. Useful when you need to apply styles without using `styled()`.
+
+```tsx
+import { css, useCSS } from '@vitus-labs/styler'
+
+const highlight = css`
+  color: red;
+  font-weight: bold;
+`
+
+function Label({ children }) {
+  const className = useCSS(highlight)
+  return <span className={className}>{children}</span>
+}
+```
+
+### sheet / createSheet
+
+For server-side rendering, `sheet` is the global style sheet instance and `createSheet` creates new instances.
+
+```tsx
+import { sheet, createSheet } from '@vitus-labs/styler'
+
+// Access collected styles for SSR
+const collectedCSS = sheet.getCSS()
+
+// Create isolated sheet
+const customSheet = createSheet({ key: 'my-app' })
+```
+
+## Types
+
+### CSSResult
+
+The return type of `css()`. A lazy object containing template strings and interpolation values. Resolves to a CSS string when consumed.
+
+### Interpolation
+
+```tsx
+type Interpolation =
+  | string
+  | number
+  | boolean
+  | null
+  | undefined
+  | CSSResult
+  | ((props: any) => string | number | CSSResult | null | undefined)
+```
+
+Values accepted in tagged template interpolation positions.
+
+### StyledOptions
+
+```tsx
+interface StyledOptions {
+  shouldForwardProp?: (prop: string) => boolean
+}
+```
+
+Options for `styled()` factory.
+
+### StyleSheetOptions
+
+```tsx
+interface StyleSheetOptions {
+  key?: string
+}
+```
+
+Options for `createSheet()`.
+
+### DefaultTheme
+
+```tsx
+interface DefaultTheme {}
+```
+
+Empty by default. Extend via module augmentation for type-safe theme access.
+
+## Architecture
+
+### Resolution Flow
+
+1. **Definition** — `css` or `styled` captures template strings and interpolation references
+2. **Resolution** — At render time, function interpolations are called with `{ ...props, theme }`
+3. **Hashing** — Resolved CSS string is hashed with FNV-1a
+4. **Deduplication** — If hash exists in cache, reuse class name
+5. **Injection** — New CSS rule inserted via `useInsertionEffect` (client) or `<style precedence>` (SSR)
+6. **Application** — Generated class name applied to the element
+
+### Client Injection
+
+A single `<style data-vl>` element is used for all injected rules. `useInsertionEffect` ensures rules are inserted before layout/paint, preventing FOUC.
+
+### SSR Support
+
+On the server (React 19), styles are emitted as `<style precedence="vl">` elements that are hoisted to `<head>` by React's streaming renderer. No manual style collection needed.

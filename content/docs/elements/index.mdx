@@ -1,0 +1,125 @@
+---
+title: Elements
+description: Base UI primitives for building React interfaces — Element, Text, List, Overlay, and Portal.
+---
+
+`@vitus-labs/elements` provides the foundational building blocks for the UI system. Every higher-level component (rocketstyle, coolgrid) is built on top of these primitives.
+
+## Installation
+
+```package-install
+@vitus-labs/elements
+```
+
+## Components
+
+| Component | Purpose |
+|-----------|---------|
+| [Element](/docs/elements/element) | Core 3-section flex layout (beforeContent / content / afterContent) |
+| [Text](/docs/elements/text) | Semantic text rendering primitive |
+| [List](/docs/elements/list) | Data-driven list renderer with extended item props |
+| [Overlay](/docs/elements/overlay) | Positioning system for dropdowns, tooltips, popovers, modals |
+| [Portal](/docs/elements/portal) | DOM portal for rendering outside the component hierarchy |
+| Util | Non-rendering wrapper that injects className/style into children |
+
+## Responsive Values
+
+All layout props across Element, Text, and List support responsive values in three formats:
+
+```tsx
+// Single value
+<Element gap={10} />
+
+// Array (mobile-first, one per breakpoint)
+<Element gap={[8, 12, 16, 20]} />
+
+// Breakpoint object
+<Element gap={{ xs: 8, md: 12, lg: 16 }} />
+```
+
+## CSS Props
+
+Components accept CSS via `ExtendCss` in multiple formats:
+
+```tsx
+// Template literal
+<Element css={css`padding: 16px;`} />
+
+// Callback (access to css function)
+<Element css={(css) => css`
+  padding: 16px;
+  background: ${(props) => props.theme.bg};
+`} />
+
+// Responsive
+<Element css={{
+  xs: `padding: 8px;`,
+  md: `padding: 16px;`,
+}} />
+```
+
+## Quick Example
+
+```tsx
+import { Element, Text, List } from '@vitus-labs/elements'
+
+function Card({ icon, title, items }) {
+  return (
+    <Element
+      tag="article"
+      direction="rows"
+      gap={16}
+      css={(css) => css`
+        padding: 24px;
+        border-radius: 8px;
+        border: 1px solid #e0e0e0;
+      `}
+    >
+      <Element beforeContent={icon} gap={8} alignY="center">
+        <Text tag="h3">{title}</Text>
+      </Element>
+
+      <List
+        rootElement
+        component={({ children }) => <Text>{children}</Text>}
+        data={items}
+        valueName="children"
+        gap={4}
+        direction="rows"
+      />
+    </Element>
+  )
+}
+```
+
+## Exports
+
+```tsx
+import {
+  Element,
+  Text,
+  List,
+  Overlay,
+  Portal,
+  Util,
+  Provider,
+  useOverlay,
+  OverlayProvider,
+} from '@vitus-labs/elements'
+
+import type {
+  ElementProps,
+  TextProps,
+  ListProps,
+  OverlayProps,
+  PortalProps,
+  UtilProps,
+  UseOverlayProps,
+  AlignX,
+  AlignY,
+  Direction,
+  Content,
+  ExtendCss,
+  VLStatic,
+} from '@vitus-labs/elements'
+```
