@@ -66,7 +66,7 @@ When `multi: true`, the prop accepts an array:
 <Component tag={['rounded', 'elevated', 'bordered']} />
 ```
 
-All matching dimension values are merged together.
+All matching dimension values are merged together in order.
 
 ## Default Dimensions
 
@@ -81,7 +81,7 @@ Rocketstyle ships with four default dimensions:
 
 ## Custom Dimensions
 
-Override the defaults entirely:
+Override the defaults entirely by passing `dimensions` to the factory:
 
 ```tsx
 const Card = rocketstyle({
@@ -122,6 +122,29 @@ const Card = rocketstyle({
 <Card color="primary" decoration={['bordered', 'striped']} />
 ```
 
+Each dimension key automatically becomes a chainable method on the component.
+
+## Dimension Callbacks
+
+Dimension methods accept a callback that receives the full theme context:
+
+```tsx
+.states((theme, mode, css) => ({
+  primary: {
+    backgroundColor: mode('blue', 'lightblue'),
+    color: mode('white', 'black'),
+  },
+}))
+```
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `theme` | `object` | Current theme from context |
+| `mode` | `ThemeModeCallback` | `(light, dark) => value` — light/dark mode selector |
+| `css` | `function` | Tagged template for CSS fragments |
+
+Values returned from `mode()` are internally stored as callback functions and resolved lazily when the mode is known. See [Themes & Styles](/docs/rocketstyle/themes-styles) for details.
+
 ## Boolean Shorthand
 
 When `useBooleans: true` (default), dimension values become boolean props:
@@ -130,10 +153,27 @@ When `useBooleans: true` (default), dimension values become boolean props:
 // These are equivalent:
 <Button state="primary" size="lg" />
 <Button primary lg />
-
-// For multi-select dimensions, each boolean adds to the array
-<Component rounded elevated bordered />
 ```
+
+### Resolution Algorithm
+
+**Phase 1 — Explicit values:**
+For each dimension, check if the explicit prop is set (`state="primary"`, `size="lg"`). Only `string` and `number` values are accepted. For multi-key dimensions, arrays are also accepted.
+
+**Phase 2 — Boolean shorthand (when useBooleans is true):**
+For dimensions without an explicit value, scan all props in reverse order (last wins):
+
+```tsx
+// Single-select: last matching boolean wins
+<Button primary secondary />
+// → state = 'secondary' (last prop wins)
+
+// Multi-select: all matching booleans collected
+<Badge bordered striped />
+// → decoration = ['bordered', 'striped']
+```
+
+Only props whose values are truthy and whose names match a known dimension option are considered. Standard HTML boolean attributes (`disabled`, `checked`, `hidden`, `required`, etc.) are excluded from shorthand matching.
 
 ### Disabling Boolean Shorthand
 
@@ -160,9 +200,10 @@ const Component = rocketstyle({
    states.primary → { backgroundColor: 'blue', color: 'white' }
    sizes.lg → { fontSize: '16px', padding: '12px 24px' }
 
-3. Merge base theme + dimension themes
+3. Merge base theme + dimension themes (in dimension order)
    baseTheme: { fontFamily: 'sans-serif', borderRadius: '4px' }
-   + states.primary + sizes.lg
+   + states.primary
+   + sizes.lg
 
 4. Result → $rocketstyle
    {
@@ -175,6 +216,8 @@ const Component = rocketstyle({
    }
 ```
 
+Later dimension values override earlier ones. Within multi-select dimensions, values are merged in array order.
+
 ## Multi-Select Dimensions
 
 When `multi: true`, all selected values are merged in order:
@@ -182,20 +225,76 @@ When `multi: true`, all selected values are merged in order:
 ```tsx
 const Badge = rocketstyle({
   dimensions: {
-    styles: { propName: 'style', multi: true },
+    decorations: { propName: 'decoration', multi: true },
   },
 })({
   name: 'Badge',
   component: 'span',
 })
-  .styles((theme) => ({
+  .decorations((theme) => ({
     bold: { fontWeight: 'bold' },
     italic: { fontStyle: 'italic' },
     uppercase: { textTransform: 'uppercase' },
     underline: { textDecoration: 'underline' },
   }))
 
-// Multiple styles applied simultaneously
-<Badge style={['bold', 'uppercase']}>NEW</Badge>
+// Multiple decorations applied simultaneously
+<Badge decoration={['bold', 'uppercase']}>NEW</Badge>
 // $rocketstyle = { fontWeight: 'bold', textTransform: 'uppercase' }
+
+// With boolean shorthand
+<Badge bold uppercase>NEW</Badge>
+// Same result
 ```
+
+## Internal: getDimensionsMap
+
+The `getDimensionsMap()` function builds two lookup structures from dimension themes:
+
+```tsx
+getDimensionsMap({ themes, useBooleans }) → { keysMap, keywords }
+```
+
+- **`keysMap`** — nested object: `{ dimensionPropName: { optionName: true, ... }, ... }`
+- **`keywords`** — flat lookup: `{ dimensionPropName: true, optionName: true, ... }`
+
+When `useBooleans: false`, option names are not added to `keywords` (only dimension prop names are).
+
+These structures enable O(1) lookup when resolving which dimension a prop belongs to.
+
+## Internal: calculateStylingAttrs
+
+The `calculateStylingAttrs()` function resolves active dimension values from props:
+
+```tsx
+calculateStylingAttrs({ useBooleans, multiKeys })
+  ({ props, dimensions }) → rocketstate
+```
+
+Returns an object like `{ state: 'primary', size: 'lg', variant: undefined }` that drives theme merging in `getTheme()`.
+
+## Nullable Values
+
+Dimension values that are `null`, `undefined`, or `false` are stripped by `removeNullableValues()` before the dimension map is built. This means conditional dimension options work:
+
+```tsx
+.states((theme) => ({
+  primary: { backgroundColor: 'blue' },
+  danger: theme.enableDanger ? { backgroundColor: 'red' } : null,
+  // 'danger' is excluded when theme.enableDanger is falsy
+}))
+```
+
+## API Reference
+
+### Dimensions
+
+<AutoTypeTable path="./src/types/rocketstyle.ts" name="Dimensions" />
+
+### DimensionValue
+
+<AutoTypeTable path="./src/types/rocketstyle.ts" name="DimensionValue" />
+
+### DimensionCallbackParam
+
+<AutoTypeTable path="./src/types/rocketstyle.ts" name="DimensionCallbackParam" />

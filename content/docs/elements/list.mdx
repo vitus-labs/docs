@@ -121,6 +121,11 @@ Wrap each item in a container:
 
 ## Data Modes
 
+List classifies data arrays internally:
+- **Simple** — All items are `string` or `number` (nullish items filtered out)
+- **Complex** — All items are objects
+- **Mixed** — Returns `null` (invalid, won't render)
+
 ### Simple Arrays
 
 For arrays of primitives, use `valueName` to specify which prop receives the value:
@@ -149,6 +154,41 @@ Object properties are spread directly onto the component:
 />
 // UserRow receives: { id: 1, name: 'Alice', role: 'Admin', index: 0, ... }
 ```
+
+## Per-Item Component Override
+
+In object arrays, each item can specify its own component via a `component` property:
+
+```tsx
+<List
+  component={DefaultCard}
+  data={[
+    { id: 1, name: 'Alice', component: SpecialCard },
+    { id: 2, name: 'Bob' },  // uses DefaultCard
+  ]}
+  itemKey="id"
+/>
+```
+
+The `component` property is consumed by the iterator and not passed to the rendered component.
+
+## Rendering Priority
+
+1. **`children`** — If provided, children are rendered (data/component ignored)
+2. **`data` + `component`** — Data-driven rendering
+
+When `children` are used, each child receives extended props (index, first, last, etc.) and can be wrapped with `wrapComponent`.
+
+## Without rootElement (Default)
+
+Items render as a flat fragment — no wrapping `<div>`:
+
+```tsx
+<List component={Item} data={items} />
+// Renders: <Item /><Item /><Item /> (no wrapper)
+```
+
+Only Iterator-specific props (`children`, `component`, `data`, `itemKey`, `valueName`, `itemProps`, `wrapComponent`, `wrapProps`) are used. Element layout props are ignored.
 
 ## API Reference
 

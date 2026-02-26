@@ -3,20 +3,43 @@ title: Provider & Consumer
 description: Pseudo-state tracking, provider/consumer pattern, and theme context.
 ---
 
-Rocketstyle includes a provider/consumer system for broadcasting pseudo-states between parent and child components, plus theme context management.
+Rocketstyle includes a provider/consumer system for broadcasting pseudo-states between parent and child components, plus theme context management for light/dark mode.
 
 ## Pseudo-States
 
 Rocketstyle automatically tracks these pseudo-states:
 
-| State | Type | Description |
-|-------|------|-------------|
-| `hover` | `boolean` | Mouse is over the element |
-| `focus` | `boolean` | Element has keyboard focus |
-| `pressed` | `boolean` | Mouse button is held down |
-| `active` | `boolean` | Element is in active state |
-| `disabled` | `boolean` | Element is disabled |
-| `readOnly` | `boolean` | Element is read-only |
+| State | Type | Auto-Tracked | Description |
+|-------|------|-------------|-------------|
+| `hover` | `boolean` | Yes (mouseenter/mouseleave) | Mouse is over the element |
+| `focus` | `boolean` | Yes (focus/blur) | Element has keyboard focus |
+| `pressed` | `boolean` | Yes (mousedown/mouseup) | Mouse button is held down |
+| `active` | `boolean` | No (manual only) | Element is in active state |
+| `disabled` | `boolean` | No (manual only) | Element is disabled |
+| `readOnly` | `boolean` | No (manual only) | Element is read-only |
+
+### usePseudoState Hook
+
+The `usePseudoState` hook manages automatic tracking internally:
+
+```tsx
+const { state, events } = usePseudoState({
+  onMouseEnter,   // Wraps user callback
+  onMouseLeave,
+  onMouseDown,
+  onMouseUp,
+  onFocus,
+  onBlur,
+})
+// state: { hover: boolean, focus: boolean, pressed: boolean }
+// events: { onMouseEnter, onMouseLeave, onMouseDown, onMouseUp, onFocus, onBlur }
+```
+
+Each wrapped event handler:
+1. Updates the internal pseudo-state
+2. Calls the user-provided callback (if any)
+
+Special behavior: `onMouseLeave` also resets `pressed` to `false` (in addition to `hover`).
 
 ### Accessing Pseudo-States in Styles
 
@@ -53,6 +76,16 @@ Override pseudo-states via props:
 <Button focus={true} />     // Force focus appearance
 ```
 
+Manual props merge with auto-tracked states — explicit props take priority. The pseudo-state object is constructed as:
+
+```tsx
+{
+  ...contextPseudo,              // From parent provider (if consumer)
+  ...pick(props, pseudoKeys),    // hover, active, focus, pressed
+  ...pick(props, metaKeys),      // disabled, readOnly
+}
+```
+
 ## Provider Component
 
 Enable a component to broadcast its pseudo-states to children:
@@ -66,10 +99,35 @@ const FormField = rocketstyle()({
 })
 ```
 
-When `provider: true`, the component:
-1. Wraps children with a `LocalProvider`
-2. Tracks its own hover/focus/pressed states
-3. Makes these states available to consumer children
+### How Provider Works
+
+When `provider: true`, the component is wrapped with a `createLocalProvider` HOC that:
+
+1. Intercepts mouse/focus events via `usePseudoState()`
+2. Merges tracked pseudo-states into `$rocketstate`
+3. Wraps children with `<LocalProvider value={updatedState}>`
+4. Passes the wrapped events to the underlying component
+
+```tsx
+// Simplified internal structure:
+const ProviderHOC = (WrappedComponent) =>
+  forwardRef((props, ref) => {
+    const { state: pseudoState, events } = usePseudoState(props)
+
+    const updatedState = {
+      ...$rocketstate,
+      pseudo: { ...$rocketstate.pseudo, ...pseudoState },
+    }
+
+    return (
+      <LocalProvider value={updatedState}>
+        <WrappedComponent {...props} {...events} ref={ref} $rocketstate={updatedState} />
+      </LocalProvider>
+    )
+  })
+```
+
+The `useStableValue()` hook ensures the context value reference is stable (only changes when content changes), preventing unnecessary re-renders in consumers.
 
 ## Consumer Component
 
@@ -89,20 +147,37 @@ const FormLabel = rocketstyle()({
 })
 ```
 
-### Consumer Callback
-
-The consumer callback receives a `ctx` function that accepts a mapper:
+### Consumer Callback Signature
 
 ```tsx
-consumer: (ctx) => ctx((parentProps) => mappedProps)
+consumer: (ctx) => ctx((parentState) => mappedProps)
 ```
+
+The callback receives a `ctx` function. You call `ctx` with a mapper function that:
+- Receives the parent's full `$rocketstate` (dimension values + pseudo-states)
+- Returns an object that is merged into the consumer's props
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `parentProps` | `object` | Parent component's current state |
-| `parentProps.pseudo` | `PseudoState` | Parent's pseudo-states |
+| `parentState.pseudo` | `Partial<PseudoState>` | Parent's pseudo-states |
+| `parentState.[dimension]` | `string \| string[]` | Parent's active dimension values |
 
-The returned object is merged into the consumer's props.
+### useLocalContext Hook
+
+Internally, the consumer reads the context via `useLocalContext`:
+
+```tsx
+const useLocalContext = (consumer) => {
+  const ctx = useContext(context)
+
+  if (!consumer) return { pseudo: {} }
+
+  const result = consumer((callback) => callback(ctx))
+  return { pseudo: {}, ...result }
+}
+```
+
+When no consumer is configured, returns `{ pseudo: {} }` — no parent state is read.
 
 ## Provider/Consumer Example
 
@@ -152,7 +227,7 @@ const FormLabel = rocketstyle()({
 // When input inside FormField is focused, FormLabel turns blue
 ```
 
-### Interactive Card
+### Interactive Card with Reveal Actions
 
 ```tsx
 const Card = rocketstyle()({
@@ -196,6 +271,34 @@ const CardAction = rocketstyle()({
 </Card>
 ```
 
+### Consumer with Dimension Values
+
+Consumers can also read parent dimension values, not just pseudo-states:
+
+```tsx
+const TabBar = rocketstyle()({
+  name: 'TabBar',
+  component: 'div',
+})
+  .config({ provider: true })
+  .states((theme) => ({
+    primary: { borderColor: 'blue' },
+    secondary: { borderColor: 'gray' },
+  }))
+
+const TabItem = rocketstyle()({
+  name: 'TabItem',
+  component: 'button',
+})
+  .config({
+    consumer: (ctx) =>
+      ctx(({ state, pseudo }) => ({
+        parentState: state,          // 'primary' or 'secondary'
+        parentHover: pseudo?.hover,
+      })),
+  })
+```
+
 ## Theme Provider
 
 Wrap your application with the rocketstyle Provider:
@@ -228,7 +331,20 @@ const theme = {
 | `theme` | `object` | — | Theme object passed to all rocketstyle components |
 | `mode` | `'light' \| 'dark'` | `'light'` | Current color mode |
 | `inversed` | `boolean` | `false` | Invert the mode from parent provider |
+| `provider` | `ComponentType` | Core Provider | Custom provider component |
 | `children` | `ReactNode` | — | Child components |
+
+### How Provider Works Internally
+
+The Provider:
+1. Reads the parent context (if nested)
+2. Merges parent context with current props (current wins)
+3. Resolves mode — if `inversed`, flips `{ light: 'dark', dark: 'light' }`
+4. Wraps children with the resolved context, including:
+   - `theme` object
+   - `mode` string
+   - `isDark` / `isLight` boolean flags
+   - `provider` component reference
 
 ### Nested Providers
 
@@ -243,6 +359,44 @@ const theme = {
   <Provider inversed>
     {/* Inverted: becomes dark */}
     <Footer />
+
+    <Provider inversed>
+      {/* Double inversion: back to light */}
+      <InnerContent />
+    </Provider>
   </Provider>
 </Provider>
 ```
+
+Nested providers inherit the parent theme unless explicitly overridden. Mode can be set explicitly or toggled via `inversed`.
+
+### Context Object
+
+The rocketstyle context (`context` export) provides:
+
+```tsx
+import { context } from '@vitus-labs/rocketstyle'
+
+// Context value shape:
+{
+  theme: object,              // Global theme
+  mode: 'light' | 'dark',    // Current mode
+  isDark: boolean,
+  isLight: boolean,
+  provider: ComponentType,    // Provider component reference
+}
+```
+
+## API Reference
+
+### RocketProviderState
+
+<AutoTypeTable path="./src/types/rocketstyle.ts" name="RocketProviderState" />
+
+### ConsumerCtxCBValue
+
+<AutoTypeTable path="./src/types/rocketstyle.ts" name="ConsumerCtxCBValue" />
+
+### ConfigAttrs
+
+<AutoTypeTable path="./src/types/rocketstyle.ts" name="ConfigAttrs" />

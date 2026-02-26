@@ -75,9 +75,48 @@ function Card({ title, children }: { title: string; children: React.ReactNode })
 }
 ```
 
+## Try It Live
+
+Edit the code below to see changes in real time:
+
+<LiveCode code={`function Greeting() {
+  const [name, setName] = React.useState('World')
+
+  return (
+    <div style={{ fontFamily: 'system-ui', padding: 16 }}>
+      <input
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+        placeholder="Enter your name"
+        style={{
+          padding: '8px 12px',
+          borderRadius: 6,
+          border: '1px solid #ccc',
+          fontSize: 14,
+          marginBottom: 12,
+          display: 'block',
+          width: '100%',
+          boxSizing: 'border-box',
+        }}
+      />
+      <div style={{
+        padding: '12px 16px',
+        borderRadius: 8,
+        background: '#f0f4ff',
+        color: '#1a365d',
+        fontWeight: 500,
+      }}>
+        Hello, {name}!
+      </div>
+    </div>
+  )
+}
+
+render(<Greeting />)
+`} noInline />
+
 ## What's Next?
 
 - Learn about the [styling engine](/docs/styler) — high-performance CSS-in-JS
 - Explore [Elements](/docs/elements) — base UI primitives
 - Build composable components with [Rocketstyle](/docs/rocketstyle)
-- Add animations with [Kinetic](/docs/kinetic)

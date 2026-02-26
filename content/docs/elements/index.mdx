@@ -20,7 +20,7 @@ description: Base UI primitives for building React interfaces — Element, Text,
 | [List](/docs/elements/list) | Data-driven list renderer with extended item props |
 | [Overlay](/docs/elements/overlay) | Positioning system for dropdowns, tooltips, popovers, modals |
 | [Portal](/docs/elements/portal) | DOM portal for rendering outside the component hierarchy |
-| Util | Non-rendering wrapper that injects className/style into children |
+| [Util](#util) | Non-rendering wrapper that injects className/style into children |
 
 ## Responsive Values
 
@@ -58,6 +58,73 @@ Components accept CSS via `ExtendCss` in multiple formats:
 }} />
 ```
 
+## Try It Live
+
+<LiveCode code={`function FlexDemo() {
+  const [direction, setDirection] = React.useState('row')
+  const [gap, setGap] = React.useState(12)
+  const [alignItems, setAlignItems] = React.useState('center')
+
+  const items = ['Element A', 'Element B', 'Element C']
+
+  return (
+    <div style={{ fontFamily: 'system-ui' }}>
+      <div style={{ display: 'flex', gap: 16, marginBottom: 16, flexWrap: 'wrap' }}>
+        <label style={{ fontSize: 13 }}>
+          Direction:
+          <select value={direction} onChange={(e) => setDirection(e.target.value)}
+            style={{ marginLeft: 4, padding: '4px 8px', borderRadius: 4, border: '1px solid #ccc' }}>
+            <option value="row">inline (row)</option>
+            <option value="column">rows (column)</option>
+          </select>
+        </label>
+        <label style={{ fontSize: 13 }}>
+          Gap: {gap}px
+          <input type="range" min={0} max={32} value={gap}
+            onChange={(e) => setGap(Number(e.target.value))}
+            style={{ marginLeft: 4 }} />
+        </label>
+        <label style={{ fontSize: 13 }}>
+          Align:
+          <select value={alignItems} onChange={(e) => setAlignItems(e.target.value)}
+            style={{ marginLeft: 4, padding: '4px 8px', borderRadius: 4, border: '1px solid #ccc' }}>
+            <option value="flex-start">top / left</option>
+            <option value="center">center</option>
+            <option value="flex-end">bottom / right</option>
+            <option value="stretch">stretch</option>
+          </select>
+        </label>
+      </div>
+      <div style={{
+        display: 'flex',
+        flexDirection: direction,
+        gap: gap,
+        alignItems: alignItems,
+        padding: 16,
+        borderRadius: 8,
+        border: '2px dashed #ccc',
+        minHeight: 120,
+      }}>
+        {items.map((item, i) => (
+          <div key={i} style={{
+            padding: '12px 20px',
+            borderRadius: 6,
+            background: ['#dbeafe', '#fce7f3', '#d1fae5'][i],
+            color: ['#1e40af', '#be185d', '#065f46'][i],
+            fontWeight: 500,
+            fontSize: 14,
+          }}>
+            {item}
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+render(<FlexDemo />)
+`} noInline />
+
 ## Quick Example
 
 ```tsx
@@ -92,6 +159,41 @@ function Card({ icon, title, items }) {
 }
 ```
 
+## Util
+
+A non-rendering wrapper that injects `className` and `style` into its single child without adding any DOM nodes:
+
+```tsx
+import { Util } from '@vitus-labs/elements'
+
+<Util className="highlight" style={{ color: 'red' }}>
+  <span>Styled child</span>
+</Util>
+// Renders: <span class="highlight" style="color: red;">Styled child</span>
+```
+
+| Prop | Type | Description |
+|------|------|-------------|
+| `children` | `ReactNode` | Single child element |
+| `className` | `string \| string[]` | CSS class(es) to inject (arrays are joined) |
+| `style` | `object` | Inline styles to merge |
+
+Uses `render()` from `@vitus-labs/core` to clone the child with the injected props.
+
+## VLStatic Interface
+
+Every component in this package implements the `VLStatic` interface:
+
+```tsx
+interface VLStatic {
+  displayName?: string
+  pkgName?: string
+  VITUS_LABS__COMPONENT?: `@vitus-labs/${string}`
+}
+```
+
+This enables identification and metadata access across the ecosystem. For example, `rocketstyle` uses `VITUS_LABS__COMPONENT` to verify that components originate from `@vitus-labs/elements`.
+
 ## Exports
 
 ```tsx
@@ -115,11 +217,20 @@ import type {
   PortalProps,
   UtilProps,
   UseOverlayProps,
+  IteratorProps,
   AlignX,
   AlignY,
   Direction,
   Content,
   ExtendCss,
+  Responsive,
+  ResponsiveBoolType,
   VLStatic,
+  VLForwardedComponent,
+  VLComponent,
+  PropsCallback,
+  ObjectValue,
+  ExtendedProps,
+  ElementType,
 } from '@vitus-labs/elements'
 ```

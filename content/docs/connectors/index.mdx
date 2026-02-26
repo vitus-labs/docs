@@ -104,9 +104,16 @@ init({ css, styled, provider, keyframes, createGlobalStyle, useTheme })
 **Implementation:** Adapter wrapping Emotion's APIs to match styled-components' CSS composition pattern.
 
 The adapter handles:
-- **Static templates** → returns plain string (fast path)
-- **Dynamic templates** (with function interpolations) → returns `(props) => string` that Emotion's styled resolves at render time
+- **Static templates** → returns plain string (fast path, no overhead)
+- **Static values** (all interpolations are strings/numbers) → builds string directly (second fast path)
+- **Dynamic templates** (with function interpolations) → returns `(props) => string` thunk that Emotion's styled resolves at render time
 - **`createGlobalStyle`** → wraps Emotion's `<Global>` component to match the styled-components API
+
+Internally, the adapter uses a `resolveValue()` helper that recursively resolves interpolation values:
+- `null`/`false`/`true` → empty string
+- Functions → called with props, then recursed
+- Arrays → each element recursed and joined
+- Primitives → converted to string
 
 **Peer dependencies:** `@emotion/react >= 11`, `@emotion/styled >= 11`
 
@@ -175,3 +182,9 @@ init(connector)
 ```
 
 No component code changes required.
+
+## API Reference
+
+### CSSEngineConnector
+
+<AutoTypeTable path="./src/types/core.ts" name="CSSEngineConnector" />

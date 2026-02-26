@@ -5,15 +5,31 @@ description: Complete reference for attrs chaining API — .attrs(), .config(), 
 
 ## .attrs(param, config?)
 
-Add default props to the component. Can be called multiple times — defaults stack left-to-right.
+Add default props to the component. Can be called multiple times — defaults stack left-to-right (later calls override earlier ones).
+
+### Signature
+
+```tsx
+.attrs<P extends TObj | unknown = unknown>(
+  param: Partial<Props> | ((props: Partial<Props>) => Partial<Props>),
+  config?: {
+    priority?: boolean
+    filter?: string[]
+  }
+): AttrsComponent
+```
 
 ### Object Form
+
+Static default props merged into the component:
 
 ```tsx
 const Button = attrs({ name: 'Button', component: Element })
   .attrs({ tag: 'button', className: 'btn' })
   .attrs({ alignX: 'center', alignY: 'center' })
 ```
+
+Objects are internally normalized to callbacks: `{ tag: 'button' }` becomes `() => ({ tag: 'button' })`.
 
 ### Callback Form
 
@@ -28,7 +44,7 @@ const Button = attrs({ name: 'Button', component: Element })
   }))
 ```
 
-The callback receives **merged props** (priority attrs + earlier attrs + explicit props with undefined stripped).
+The callback receives **merged props** (priority attrs + earlier attrs + explicit props, with `undefined` values stripped).
 
 ### Config Options
 
@@ -46,15 +62,20 @@ The callback receives **merged props** (priority attrs + earlier attrs + explici
 
 ### Priority Attrs
 
-Priority attrs are resolved **before** normal attrs. They provide a baseline that can be overridden:
+Priority attrs are resolved **before** normal attrs. They provide a baseline that can be overridden by both normal attrs and explicit props:
 
 ```tsx
 const Input = attrs({ name: 'Input', component: Element })
   .attrs({ tabIndex: 0 }, { priority: true })  // baseline
   .attrs({ tag: 'input' })                      // normal
 
-// tabIndex=0 unless overridden by explicit props
+// tabIndex=0 unless overridden by explicit props or normal attrs
 ```
+
+**Merge order:**
+1. Priority attrs callbacks called with filtered explicit props
+2. Normal attrs callbacks called with `{ ...priorityResult, ...filteredExplicitProps }`
+3. Final: `{ ...priorityResult, ...normalResult, ...filteredExplicitProps }`
 
 ### Filtered Props
 
@@ -73,6 +94,37 @@ const Card = attrs({ name: 'Card', component: Element })
 // Element receives { className: 'shadow-lg' } — no variant prop
 ```
 
+Filters accumulate across chain calls — each `.attrs()` with a `filter` adds to the list.
+
+### Type Extension
+
+Use the generic parameter to extend the prop type:
+
+```tsx
+const Button = attrs({ name: 'Button', component: Element })
+  .attrs<{ variant: 'primary' | 'secondary' }>({
+    variant: 'primary',
+    tag: 'button',
+  })
+  .attrs<{ size?: 'sm' | 'md' | 'lg' }>({})
+
+// TypeScript accumulates: Element props + { variant } + { size? }
+```
+
+### Multiple Chains
+
+Each `.attrs()` call appends to the chain. Later callbacks can reference values set by earlier ones:
+
+```tsx
+const Button = attrs({ name: 'Button', component: Element })
+  .attrs(() => ({ color: 'blue' }))
+  .attrs(() => ({ size: 'lg' }))
+  .attrs((props) => ({
+    // Can access props.color and props.size from earlier chains
+    className: `${props.color}-${props.size}`,
+  }))
+```
+
 ## .config(options)
 
 Update the component's configuration — name, base component, or debug mode.
@@ -80,33 +132,47 @@ Update the component's configuration — name, base component, or debug mode.
 ```tsx
 .config({
   name?: string,
-  component?: ComponentType,
+  component?: ElementType,
   DEBUG?: boolean,
-})
+}): AttrsComponent
 ```
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `name` | `string` | Updates `displayName`. If omitted, keeps existing name. |
+| `component` | `ElementType` | Replaces the wrapped component. Props type (OA) re-extracted from new component. |
+| `DEBUG` | `boolean` | Debug flag (reserved for future use). |
 
 ### Rename
 
 ```tsx
 const Primary = Button.config({ name: 'PrimaryButton' })
 // React DevTools shows "PrimaryButton"
+// data-attrs="PrimaryButton" in development
 ```
 
 ### Swap Component
 
-```tsx
-const AsAnchor = Button.config({ component: AnchorElement })
-// Now renders using AnchorElement instead of Element
-```
-
-### Debug Mode
+Replace the underlying component while keeping all accumulated attrs, statics, and HOCs:
 
 ```tsx
-const Debug = Button.config({ DEBUG: true })
-// Adds data-attrs attribute in development
+const BaseButton = attrs({ name: 'Button', component: Element })
+  .attrs({ tag: 'button', alignX: 'center' })
+
+const LinkButton = BaseButton.config({ component: AnchorElement })
+// Renders AnchorElement with the same attrs chain
 ```
 
-All accumulated `.attrs()`, `.statics()`, and `.compose()` are preserved when reconfiguring.
+### displayName Derivation
+
+The component name is derived in priority order:
+1. `options.name` (explicit name from `attrs()` or `.config()`)
+2. `options.component.displayName` (React standard)
+3. `options.component.name` (function/class name)
+
+### Empty Config
+
+`.config({})` returns a new component instance with identical behavior — useful for ensuring immutability.
 
 ## .compose(hocMap)
 
@@ -115,8 +181,10 @@ Attach named Higher-Order Components. HOCs wrap the component in reverse declara
 ```tsx
 .compose({
   [hocName: string]: GenericHoc | null | undefined | false,
-})
+}): AttrsComponent
 ```
+
+Where `GenericHoc = (component: ElementType) => ElementType`.
 
 ### Adding HOCs
 
@@ -139,13 +207,43 @@ const Untracked = Button.compose({ withTracking: false })
 // withTracking removed, withTheme preserved
 ```
 
+```tsx
+const Minimal = Button.compose({ withTracking: null, withTheme: undefined })
+// Both removed
+```
+
+### Overriding HOCs
+
+Keys identify HOCs — later `.compose()` calls can replace earlier HOCs by key:
+
+```tsx
+const Base = attrs({ name: 'Base', component: Element })
+  .compose({ wrapper: withDivWrapper })
+
+const Override = Base.compose({ wrapper: withSpanWrapper })
+// 'wrapper' HOC replaced with withSpanWrapper
+```
+
 ### Application Order
 
-HOCs are applied in **reverse** declaration order:
+HOCs are applied in **reverse** declaration order. The first-declared HOC becomes the outermost wrapper:
+
 ```
 // Declaration: { a: hocA, b: hocB, c: hocC }
-// Application: hocA(hocB(hocC(Component)))
-// Outermost wrapper: hocA
+// Application: hocA(hocB(hocC(EnhancedComponent)))
+// Outermost wrapper: hocA (runs first on render)
+// Innermost wrapper: hocC (runs last, closest to component)
+```
+
+The built-in `attrsHoc` (resolves attrs/priorityAttrs) is always outermost — it runs before any user-composed HOCs.
+
+### Multiple .compose() Calls
+
+```tsx
+const Button = attrs({ name: 'Button', component: Element })
+  .compose({ withOuter: outerHoc })
+  .compose({ withInner: innerHoc })
+// Applied as: attrsHoc → withOuter → withInner → EnhancedComponent
 ```
 
 ## .statics(metadata)
@@ -155,7 +253,7 @@ Attach metadata accessible via the `.meta` property.
 ```tsx
 .statics({
   [key: string]: any,
-})
+}): AttrsComponent
 ```
 
 ### Usage
@@ -183,9 +281,27 @@ Enhanced.meta.category   // 'action' (inherited)
 Enhanced.meta.variants   // ['primary', 'ghost'] (overridden)
 ```
 
+### Immutability
+
+Each `.statics()` call creates a new component with its own `meta` object:
+
+```tsx
+const A = attrs({ name: 'A', component: Element }).statics({ x: 1 })
+const B = A.statics({ y: 2 })
+
+A.meta  // { x: 1 }
+B.meta  // { x: 1, y: 2 }
+```
+
 ## .getDefaultAttrs(props)
 
-Compute the merged default props for given input props. Non-mutating query method.
+Compute the merged default props for given input props. This is a **non-mutating query method** — it doesn't render anything.
+
+```tsx
+.getDefaultAttrs(props: Record<string, any>): Record<string, any>
+```
+
+### Usage
 
 ```tsx
 const Button = attrs({ name: 'Button', component: Element })
@@ -201,48 +317,59 @@ Button.getDefaultAttrs({})
 // { tag: 'button', className: 'enabled' }
 ```
 
+### Behavior
+
+- Executes all **normal** attrs callbacks in chain order with the provided props
+- Merges results left-to-right (later callbacks override earlier ones)
+- Does **NOT** include priority attrs (only resolves the normal `.attrs()` chain)
+- Does **NOT** apply prop filtering
+- Does **NOT** include the provided props in the result — only returns what attrs callbacks produce
+- Returns `{}` if no attrs are defined
+
 ## Component Properties
 
 Each `AttrsComponent` exposes:
 
 | Property | Type | Description |
 |----------|------|-------------|
-| `IS_ATTRS` | `true` | Static marker for identification |
-| `displayName` | `string` | Component name |
-| `meta` | `Record<string, any>` | Statics defined via `.statics()` |
-| `$$originTypes` | Type only | Original component props type |
-| `$$extendedTypes` | Type only | Extended props from `.attrs()` calls |
-| `$$types` | Type only | All combined props |
+| `IS_ATTRS` | `true` | Static marker for runtime identification via `isAttrsComponent()` |
+| `displayName` | `string` | Component name for React DevTools |
+| `meta` | `Record<string, any>` | User-defined statics from `.statics()` chains |
+| `$$originTypes` | Type only | Original component props type (not accessible at runtime) |
+| `$$extendedTypes` | Type only | Extended props from `.attrs()` calls (not accessible at runtime) |
+| `$$types` | Type only | All combined props: `MergeTypes<[OA, EA]>` (not accessible at runtime) |
 
 ## Ref Forwarding
 
-Refs are forwarded through the entire HOC chain. Both standard `ref` and the `innerRef` alternative work:
+Refs are forwarded through the entire HOC chain:
 
 ```tsx
 const Button = attrs({ name: 'Button', component: Element })
   .compose({ withFeature: someHoc })
 
 const ref = useRef(null)
-
 <Button ref={ref}>Click</Button>
 // ref.current points to the DOM node through all HOC layers
 ```
 
-The system manages two ref sources internally (`$attrsRef` for consumer refs, `ref` for intermediate HOC refs) and merges them via `useImperativeHandle`.
+### Ref Merging
 
-## All Exports
+The system manages two ref sources:
+- **`$attrsRef`** — The consumer's ref (captured by `attrsHoc`)
+- **`ref`** — Intermediate HOC refs (from `compose` wrappers that use `forwardRef`)
 
-```tsx
-import attrs, { isAttrsComponent } from '@vitus-labs/attrs'
+Both are merged via `useImperativeHandle` into a single internal ref inside the `EnhancedComponent`, ensuring all ref sources point to the same DOM node.
 
-import type {
-  AttrsComponent,
-  Attrs,
-  AttrsComponentType,
-  ConfigAttrs,
-  AttrsCb,
-  GenericHoc,
-  ComposeParam,
-  IsAttrsComponent,
-} from '@vitus-labs/attrs'
-```
+## API Reference
+
+### ConfigAttrs
+
+<AutoTypeTable path="./src/types/attrs.ts" name="ConfigAttrs" />
+
+### AttrsCb
+
+<AutoTypeTable path="./src/types/attrs.ts" name="AttrsCb" />
+
+### ComposeParam
+
+<AutoTypeTable path="./src/types/attrs.ts" name="ComposeParam" />

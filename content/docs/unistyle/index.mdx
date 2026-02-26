@@ -118,10 +118,31 @@ The Provider enriches the theme with pre-computed `__VITUS_LABS__` data:
 theme.__VITUS_LABS__ = {
   sortedBreakpoints: ['xs', 'sm', 'md', 'lg', 'xl', 'xxl'],
   media: {
-    xs: (css) => css`...`,        // No @media wrapper
+    xs: (css) => css`...`,        // No @media wrapper (value=0)
     sm: (css) => css`@media ...`,  // min-width: 36em
     md: (css) => css`@media ...`,  // min-width: 48em
     // ...
   },
 }
 ```
+
+### How the Provider Works
+
+1. Reads `theme.breakpoints` — object mapping names to pixel values
+2. Sorts breakpoints by pixel value ascending via `sortBreakpoints()`
+3. Creates `media` object via `createMediaQueries()` — converts pixels to `em` for accessibility (respects browser font-size settings), then creates tagged-template wrappers
+4. Attaches both to `theme.__VITUS_LABS__` (internal namespace)
+5. Memoizes the enriched theme (recomputes only when the theme reference changes)
+6. Wraps children with the core Provider passing the enriched theme
+
+The smallest breakpoint (typically `xs: 0`) produces no `@media` wrapper — its styles are the baseline. All other breakpoints use `@media only screen and (min-width: <em>)`.
+
+## API Reference
+
+### TProvider
+
+<AutoTypeTable path="./src/types/unistyle.ts" name="TProvider" />
+
+### AlignContent
+
+<AutoTypeTable path="./src/types/unistyle.ts" name="AlignContent" />

@@ -22,6 +22,69 @@ Coolgrid is a Bootstrap-inspired grid system for React with responsive breakpoin
 
 Requires `@vitus-labs/core`, `@vitus-labs/unistyle`, and a CSS engine connector.
 
+## Try It Live
+
+<LiveCode code={`function GridDemo() {
+  const [columns, setColumns] = React.useState(12)
+  const [gap, setGap] = React.useState(12)
+  const [colCount, setColCount] = React.useState(3)
+
+  const colSize = Math.floor(columns / colCount)
+  const colors = ['#dbeafe', '#fce7f3', '#d1fae5', '#fef3c7', '#e0e7ff', '#fde2e4']
+
+  return (
+    <div style={{ fontFamily: 'system-ui' }}>
+      <div style={{ display: 'flex', gap: 16, marginBottom: 16, flexWrap: 'wrap' }}>
+        <label style={{ fontSize: 13 }}>
+          Columns: {columns}
+          <input type="range" min={4} max={16} value={columns}
+            onChange={(e) => setColumns(Number(e.target.value))}
+            style={{ marginLeft: 4 }} />
+        </label>
+        <label style={{ fontSize: 13 }}>
+          Items: {colCount}
+          <input type="range" min={1} max={6} value={colCount}
+            onChange={(e) => setColCount(Number(e.target.value))}
+            style={{ marginLeft: 4 }} />
+        </label>
+        <label style={{ fontSize: 13 }}>
+          Gap: {gap}px
+          <input type="range" min={0} max={32} value={gap}
+            onChange={(e) => setGap(Number(e.target.value))}
+            style={{ marginLeft: 4 }} />
+        </label>
+      </div>
+      <div style={{
+        display: 'flex', flexWrap: 'wrap',
+        margin: \`0 -\${gap / 2}px\`,
+      }}>
+        {Array.from({ length: colCount }, (_, i) => (
+          <div key={i} style={{
+            width: \`\${(colSize / columns) * 100}%\`,
+            padding: \`0 \${gap / 2}px\`,
+            boxSizing: 'border-box',
+            marginBottom: gap,
+          }}>
+            <div style={{
+              background: colors[i % colors.length],
+              borderRadius: 6,
+              padding: '16px 12px',
+              textAlign: 'center',
+              fontSize: 13,
+              fontWeight: 500,
+            }}>
+              Col {colSize}/{columns}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+render(<GridDemo />)
+`} noInline />
+
 ## Quick Start
 
 ```tsx
@@ -139,10 +202,24 @@ Props set on a parent are inherited by children. Each level can override:
 
 ### Three-Layer Fallback
 
-Grid config is resolved from (highest priority first):
+Grid config is resolved by `useGridContext()` → `getGridContext()` from (highest priority first):
 1. Component props
 2. `theme.grid.*`
 3. `theme.coolgrid.*`
+
+This is done internally via `pickThemeProps()` which extracts grid-related keys from the theme context.
+
+### Helper Functions
+
+Coolgrid exports several utility functions used in the grid calculation:
+
+| Function | Description |
+|----------|-------------|
+| `isNumber(v)` | Type guard — `true` for finite numbers |
+| `hasValue(v)` | `true` if value is a positive number |
+| `isVisible(size)` | `true` if `size` is a positive number or `undefined` (auto); `false` for `size === 0` |
+| `hasWidth(size, columns)` | `true` if both size and columns are available for width calculation |
+| `omitCtxKeys(props)` | Strips grid context keys from props before passing to DOM |
 
 ## Common Patterns
 

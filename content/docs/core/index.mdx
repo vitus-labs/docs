@@ -3,7 +3,7 @@ title: Core
 description: Configuration, initialization, and shared utilities for the Vitus Labs UI System.
 ---
 
-`@vitus-labs/core` is the foundational package that bridges all other packages with a pluggable CSS-in-JS engine. It provides the `init()` function for engine configuration, a singleton `config` object, a dual-layer `Provider`, and a set of utility functions.
+`@vitus-labs/core` is the foundational package that bridges all other packages with a pluggable CSS-in-JS engine. It provides the `init()` function for engine configuration, a singleton `config` object with lazy delegation, a dual-layer `Provider`, utility functions, and TypeScript types used across the ecosystem.
 
 ## Installation
 
@@ -11,9 +11,11 @@ description: Configuration, initialization, and shared utilities for the Vitus L
 @vitus-labs/core
 ```
 
+**Peer dependencies:** `react >= 19`, `react-dom >= 19`
+
 ## Initialization
 
-The `init()` function connects a CSS-in-JS engine to the entire UI system. Call it once at your app entry point before any component renders.
+The `init()` function connects a CSS-in-JS engine to the entire UI system. Call it **once** at your app entry point before any component renders.
 
 ```tsx title="src/init.ts"
 import { init } from '@vitus-labs/core'
@@ -21,9 +23,24 @@ import connector from '@vitus-labs/connector-styler'
 
 init({
   ...connector,
-  component: 'div',        // default HTML element
+  component: 'div',        // default HTML element for elements/rocketstyle
   textComponent: 'span',   // default text element
 })
+```
+
+### init() Signature
+
+```tsx
+init(props: InitConfig): void
+```
+
+Where `InitConfig` is:
+
+```tsx
+type InitConfig = Partial<CSSEngineConnector & {
+  component: ComponentType | HTMLTags
+  textComponent: ComponentType | HTMLTags
+}>
 ```
 
 ### Parameters
@@ -38,6 +55,27 @@ init({
 | `useTheme` | `() => any` | No | Hook to read the current theme |
 | `component` | `ComponentType \| HTMLTags` | No | Default component type (default: `'div'`) |
 | `textComponent` | `ComponentType \| HTMLTags` | No | Default text element type (default: `'span'`) |
+
+### Behavior
+
+- **Only updates provided fields** — omitted fields remain unchanged
+- **Safe to call multiple times** — useful for engine swapping or updating platform defaults
+- **Synchronous and immediate** — all updates take effect before the function returns
+- **Stable delegates** — the `config.css` and `config.styled` functions remain the same reference after `init()`. Only their internal engine references are updated.
+
+### Error Handling
+
+If `css()` or `styled()` are called before an engine is set, they throw:
+
+```
+[@vitus-labs/core] CSS engine not configured. Call init() with a connector before rendering.
+
+  import { init } from '@vitus-labs/core'
+  import * as connector from '@vitus-labs/connector-styler'
+  init(connector)
+```
+
+This error only occurs at **render time**, not at module load time, because the delegates use lazy resolution.
 
 ## Config Singleton
 
@@ -60,18 +98,71 @@ const Box = styled.div`
 `
 ```
 
+### How Lazy Delegation Works
+
+#### `config.css` — Stable Delegate with Thunk Pattern
+
+The `css` property is a stable function reference that behaves differently depending on whether the engine has been initialized:
+
+- **Engine available** (after `init()`): Delegates immediately to the engine's `css()` function and returns the result.
+- **Engine not available** (before `init()`): Returns a **thunk** (zero-argument function) that resolves the CSS at render time.
+
+```tsx
+// Before init() — returns a thunk
+const styles = css`color: red;`
+// typeof styles === 'function'
+
+// All CSS-in-JS engines treat functions as interpolations,
+// so the thunk is transparently resolved when used:
+const Box = styled.div`
+  ${styles}  // thunk is called during render, engine resolves CSS
+`
+```
+
+This is why module-level `css` calls work before `init()` — the thunk defers engine invocation until render time, when the engine is guaranteed to be available.
+
+#### `config.styled` — Lazy Proxy Factory
+
+The `styled` property uses a `Proxy` to support both call syntax and property access:
+
+```tsx
+// Both syntaxes supported:
+const Box = styled('div')`padding: 16px;`
+const Box = styled.div`padding: 16px;`
+```
+
+**Dual-path architecture:**
+
+1. **Fast path** (engine already initialized): Creates the styled component immediately at definition time.
+2. **Lazy path** (engine not yet initialized): Returns a `forwardRef` wrapper that defers component creation to first render.
+
+```tsx
+// Lazy component lifecycle:
+const Box = styled.div`padding: 16px;`
+// → Box is a forwardRef wrapper (engine not available yet)
+
+init(connector)
+// → Engine is now set
+
+<Box />
+// → First render: creates real styled component from engine
+// → Subsequent renders: reuses cached real component
+```
+
+The lazy components properly forward refs and preserve all props.
+
 ### Properties
 
 | Property | Type | Description |
 |----------|------|-------------|
 | `css` | Stable delegate | Tagged template for CSS. Returns a thunk if engine not yet initialized. |
 | `styled` | Proxy delegate | Component factory. Supports `styled('div')` and `styled.div` syntax. |
-| `component` | `string \| ComponentType` | Default component type (set via `init()`) |
-| `textComponent` | `string \| ComponentType` | Default text element type |
-| `ExternalProvider` | `FC \| null` | The engine's ThemeProvider (read-only getter) |
-| `keyframes` | `Function \| null` | @keyframes factory (read-only getter) |
-| `createGlobalStyle` | `Function \| null` | Global CSS factory (read-only getter) |
-| `useTheme` | `Function \| null` | Theme hook (read-only getter) |
+| `component` | `string \| ComponentType` | Default component type (`'div'` unless changed via `init()`) |
+| `textComponent` | `string \| ComponentType` | Default text element type (`'span'` unless changed) |
+| `ExternalProvider` | `FC \| null` | Read-only getter. The engine's ThemeProvider. |
+| `keyframes` | `Function \| null` | Read-only getter. @keyframes factory. |
+| `createGlobalStyle` | `Function \| null` | Read-only getter. Global CSS factory. |
+| `useTheme` | `Function \| null` | Read-only getter. Theme hook. |
 
 ## Provider
 
@@ -97,14 +188,37 @@ import { Provider } from '@vitus-labs/core'
 |------|------|-------------|
 | `theme` | `{ rootSize?: number; breakpoints?: Record<string, number>; [key: string]: any }` | Theme object passed to both contexts |
 | `children` | `ReactNode` | Child elements |
-| `...props` | `Record<string, any>` | Extra props passed into internal context |
+| `...props` | `Record<string, any>` | Extra props merged into the internal context value |
 
-### Behavior
+### Conditional Rendering
 
-- **No theme or empty theme**: Renders children directly with no context overhead
-- **Theme + ExternalProvider configured**: Wraps with both internal VitusLabs context and the CSS engine's ThemeProvider
-- **Theme + No ExternalProvider**: Wraps with internal context only
-- Uses `useStableValue()` internally to prevent unnecessary context updates when theme hasn't changed
+The Provider optimizes rendering based on what's configured:
+
+| Theme | ExternalProvider | Result |
+|-------|-----------------|--------|
+| Empty/null/undefined | — | Children rendered directly, no wrapper |
+| Present | Configured | Children wrapped with both internal context + engine ThemeProvider |
+| Present | Not configured | Children wrapped with internal context only |
+
+### Stability
+
+The Provider uses `useStableValue()` internally to memoize the context value `{ theme, ...props }`. This prevents unnecessary re-renders in consumers when the theme object has the same content but a different reference (e.g., from parent re-renders with inline objects).
+
+The `ExternalProvider` reference is cached via `useMemo(() => config.ExternalProvider, [])` — looked up once on mount.
+
+## Context
+
+The internal React context is exported for advanced use cases:
+
+```tsx
+import { context } from '@vitus-labs/core'
+
+// Read the current context value
+const value = useContext(context)
+// → { theme: { rootSize: 16, ... }, ...extraProviderProps }
+```
+
+The context is created with `createContext<any>({})` — its initial value is an empty object. The shape of the context value is `{ theme, ...extraProps }` where `extraProps` are any additional props passed to the `Provider`.
 
 ## CSSEngineConnector Interface
 
@@ -114,7 +228,8 @@ Every connector package must satisfy this interface:
 interface CSSEngineConnector {
   // Required
   css: (strings: TemplateStringsArray, ...values: any[]) => any
-  styled: ((tag: any, options?: any) => (strings: TemplateStringsArray, ...values: any[]) => any) & Record<string, any>
+  styled: ((tag: any, options?: any) => (strings: TemplateStringsArray, ...values: any[]) => any)
+    & Record<string, any>
   provider: FC<{ theme: any; children: ReactNode }>
 
   // Optional
@@ -126,9 +241,13 @@ interface CSSEngineConnector {
 
 Three official connectors are available:
 
-- `@vitus-labs/connector-styler` — Custom lightweight engine (~3KB gzipped)
-- `@vitus-labs/connector-emotion` — Emotion adapter with styled-components composition pattern
-- `@vitus-labs/connector-styled-components` — Direct pass-through for styled-components
+| Connector | Package | Size | Notes |
+|-----------|---------|------|-------|
+| Styler | `@vitus-labs/connector-styler` | ~3KB gzip | Custom lightweight engine, recommended |
+| Emotion | `@vitus-labs/connector-emotion` | Wraps @emotion | Adapter matching styled-components composition |
+| styled-components | `@vitus-labs/connector-styled-components` | Wraps SC | Direct pass-through |
+
+Only CSS-in-JS libraries supporting styled-components-style composition (CSS-in-CSS nesting via `css` tagged templates) are fully compatible.
 
 ## HTML Utilities
 
@@ -136,17 +255,89 @@ Three official connectors are available:
 import { HTML_TAGS, HTML_TEXT_TAGS } from '@vitus-labs/core'
 ```
 
+### HTML_TAGS
+
+An array of **102 standard HTML tag names** as a `const` tuple:
+
+```tsx
+const HTML_TAGS = ['a', 'abbr', 'address', ..., 'video', 'wbr'] as const
+type HTMLTags = (typeof HTML_TAGS)[number]
+// → 'a' | 'abbr' | 'address' | ... | 'video' | 'wbr'
+```
+
+### HTML_TEXT_TAGS
+
+A subset of **37 text-level semantic tags** for elements that semantically contain text:
+
+```tsx
+const HTML_TEXT_TAGS = ['abbr', 'b', 'bdi', 'bdo', 'big', 'blockquote', 'cite', 'code',
+  'del', 'div', 'dl', 'dt', 'em', 'figcaption', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
+  'i', 'ins', 'kbd', 'label', 'legend', 'li', 'p', 'pre', 'q', 'rp', 'rt', 's',
+  'small', 'span', 'strong', 'sub', 'summary', 'sup', 'time', 'u'] as const
+type HTMLTextTags = (typeof HTML_TEXT_TAGS)[number]
+```
+
+### HTMLElementAttrs
+
+Maps each HTML tag name to its full React props type:
+
+```tsx
+type HTMLTagAttrsByTag<T extends HTMLTags> = HTMLElementAttrs[T]
+
+// Usage:
+type DivProps = HTMLTagAttrsByTag<'div'>
+// → React.DetailedHTMLProps<React.HTMLAttributes<HTMLDivElement>, HTMLDivElement>
+
+type InputProps = HTMLTagAttrsByTag<'input'>
+// → React.DetailedHTMLProps<React.InputHTMLAttributes<HTMLInputElement>, HTMLInputElement>
+
+type SVGProps = HTMLTagAttrsByTag<'svg'>
+// → React.SVGProps<SVGSVGElement>
+```
+
+This mapping covers all 102 tags with proper element-specific attribute types (e.g., `input` gets `InputHTMLAttributes`, `form` gets `FormHTMLAttributes`, `svg` gets `SVGProps`).
+
+## All Exports
+
+### Values
+
 | Export | Type | Description |
 |--------|------|-------------|
-| `HTML_TAGS` | `string[]` | All standard HTML tag names (`'a'`, `'div'`, `'section'`, etc.) |
-| `HTML_TEXT_TAGS` | `string[]` | Tags that semantically contain text (`'b'`, `'em'`, `'strong'`, etc.) |
+| `init` | Function | Initialize CSS-in-JS engine |
+| `config` | Configuration | Singleton with css, styled, etc. |
+| `Provider` | Component | Dual-layer theme provider |
+| `context` | React Context | Internal context object |
+| `omit` | Function | Exclude keys from object |
+| `pick` | Function | Include only specified keys |
+| `get` | Function | Get nested value by path |
+| `set` | Function | Set nested value by path (mutates) |
+| `merge` | Function | Deep merge objects (mutates target) |
+| `throttle` | Function | Limit function execution rate |
+| `compose` | Function | Right-to-left function composition |
+| `isEmpty` | Function | Type-safe emptiness check |
+| `isEqual` | Function | Deep equality check |
+| `render` | Function | Flexible React element renderer |
+| `useStableValue` | Hook | Stabilize value reference via deep equality |
+| `hoistNonReactStatics` | Function | Copy static properties between components |
+| `HTML_TAGS` | `string[]` | All 102 HTML tag names |
+| `HTML_TEXT_TAGS` | `string[]` | 37 text-level semantic tags |
 
 ### Types
 
-```tsx
-type HTMLTags = 'a' | 'abbr' | 'address' | ... | 'video'
-type HTMLTextTags = 'b' | 'em' | 'i' | 'strong' | ...
+| Export | Description |
+|--------|-------------|
+| `CSSEngineConnector` | Interface for CSS-in-JS engine connectors |
+| `Breakpoints` | `Record<string, number>` — breakpoint name → pixel value |
+| `BreakpointKeys` | `keyof Breakpoints` — union of breakpoint names |
+| `HTMLTags` | Union of all 102 HTML tag names |
+| `HTMLTextTags` | Union of 37 text semantic tags |
+| `HTMLElementAttrs` | Maps tag names to React prop types |
+| `HTMLTagAttrsByTag<T>` | Generic helper to look up attrs for a tag |
+| `IsEmpty` | Return type of `isEmpty()` with conditional narrowing |
+| `Render` | Type of `render()` function |
 
-// Extract React props for a specific tag
-type HTMLTagAttrsByTag<T extends HTMLTags> = HTMLElementAttrs[T]
-```
+## API Reference
+
+### CSSEngineConnector
+
+<AutoTypeTable path="./src/types/core.ts" name="CSSEngineConnector" />

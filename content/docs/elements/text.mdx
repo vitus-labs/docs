@@ -37,8 +37,36 @@ import { Text } from '@vitus-labs/elements'
 - No layout sections (no beforeContent/afterContent)
 - No flex layout management
 - Focused on semantic text HTML
-- Lighter weight
-- Has `isText: true` static flag for parent detection
+- Lighter weight — renders as a single styled element
+- Has `isText: true` static flag for parent component detection
+- Base CSS: `color: inherit; font-weight: inherit; line-height: 1;` — blends seamlessly into any parent context
+
+## Tag Priority
+
+The rendered HTML tag is determined by:
+
+1. `paragraph={true}` → renders as `<p>`
+2. `tag="h1"` → renders as the specified tag
+3. Neither set → renders as the styled component's default (typically `<span>`)
+
+## Ref Forwarding
+
+Text uses `forwardRef` for direct DOM access:
+
+```tsx
+const ref = useRef<HTMLHeadingElement>(null)
+<Text ref={ref} tag="h1">Title</Text>
+// ref.current → <h1> DOM element
+```
+
+## Static Properties
+
+```tsx
+Text.displayName    // '@vitus-labs/elements/Text'
+Text.pkgName        // '@vitus-labs/elements'
+Text.VITUS_LABS__COMPONENT  // '@vitus-labs/elements/Text'
+Text.isText         // true (marker for parent detection)
+```
 
 ## Semantic Tags
 

@@ -11,29 +11,72 @@ description: High-performance CSS-in-JS engine for Vitus Labs UI System (~3KB gz
 @vitus-labs/styler
 ```
 
+**Peer dependencies:** `react >= 19`, `react-dom >= 19`
+
 ## Key Features
 
 - **~3KB gzipped** — Minimal bundle impact
-- **Static/dynamic split** — Templates with no function interpolations compute class once at module level
+- **Static/dynamic split** — Templates without function interpolations compute class once at definition time (zero per-render cost)
 - **FNV-1a hashing** — Deterministic class names, automatic deduplication
 - **CSS-in-CSS composition** — Nest `css` results inside `styled` or other `css` calls
 - **React 19 SSR** — `<style precedence>` on server, `useInsertionEffect` on client
-- **Transient props** — `$`-prefixed props are consumed by styles but not forwarded to DOM
+- **Transient props** — `$`-prefixed props consumed by styles but never forwarded to DOM
+- **Polymorphic `as` prop** — Render as any element or component
+- **Specificity boost** — Double selector option for library component overrides
+- **@layer support** — CSS cascade layer wrapping
+- **Bounded cache** — Configurable max cache size with automatic eviction
+
+## Try It Live
+
+<LiveCode code={`function StyledDemo() {
+  const [color, setColor] = React.useState('#0d6efd')
+  const [radius, setRadius] = React.useState(8)
+
+  return (
+    <div style={{ fontFamily: 'system-ui' }}>
+      <div style={{ display: 'flex', gap: 12, marginBottom: 12 }}>
+        <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 14 }}>
+          Color:
+          <input type="color" value={color} onChange={(e) => setColor(e.target.value)} />
+        </label>
+        <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 14 }}>
+          Radius: {radius}px
+          <input type="range" min={0} max={24} value={radius} onChange={(e) => setRadius(Number(e.target.value))} />
+        </label>
+      </div>
+      <button style={{
+        background: color,
+        color: 'white',
+        border: 'none',
+        borderRadius: radius,
+        padding: '10px 20px',
+        fontSize: 14,
+        cursor: 'pointer',
+        fontWeight: 500,
+      }}>
+        Styled Button
+      </button>
+    </div>
+  )
+}
+
+render(<StyledDemo />)
+`} noInline />
 
 ## css()
 
-Tagged template for composable CSS fragments. Returns a `CSSResult` object that resolves lazily.
+Tagged template for composable CSS fragments. Returns a **lazy `CSSResult`** object — no CSS resolution happens at creation time.
 
 ```tsx
 import { css } from '@vitus-labs/styler'
 
-// Static — computed once at definition
+// Static — stored as-is, resolved when consumed
 const highlight = css`
   color: red;
   font-weight: bold;
 `
 
-// Dynamic — resolved per render with props
+// Dynamic — function interpolations resolved at render time with props + theme
 const dynamic = css`
   color: ${(props) => props.$color || 'blue'};
   padding: ${(props) => props.$size}px;
@@ -44,31 +87,80 @@ const combined = css`
   ${highlight}
   border: 1px solid gray;
 `
+
+// Array interpolation — flattened automatically
+const responsive = css`
+  ${[
+    css`color: red;`,
+    css`margin: 0;`,
+  ]}
+`
+// Resolves to: "color: red;margin: 0;"
 ```
+
+### CSSResult
+
+`css()` returns a `CSSResult` instance that stores the raw template strings and interpolation values:
+
+```tsx
+class CSSResult {
+  readonly strings: TemplateStringsArray
+  readonly values: Interpolation[]
+
+  // Resolve with empty props (useful for testing/debugging)
+  toString(): string
+}
+```
+
+- **No computation at creation time** — only stores references
+- **Resolved when consumed** by `styled`, `useCSS`, or `toString()`
+- **Instance check:** `value instanceof CSSResult` detects nested CSS for composition
+- **Thunk pattern:** When used as interpolation before engine init, returns a thunk resolved at render
 
 ### Interpolation Types
 
 | Type | Behavior |
 |------|----------|
 | `string` / `number` | Inserted directly into CSS |
-| `CSSResult` (from another `css` call) | Composed — CSS is flattened |
-| `(props) => value` | Dynamic — resolved at render time with component props |
-| `null` / `undefined` / `false` | Skipped silently |
+| `CSSResult` (from another `css` call) | Recursively resolved and flattened |
+| `Interpolation[]` (array) | Each element resolved and concatenated |
+| `(props) => Interpolation` | Called at render time with `{ ...componentProps, theme }` |
+| `true` / `false` | Converted to empty string (enables `${condition && css\`...\`}`) |
+| `null` / `undefined` | Converted to empty string |
+
+```tsx
+type Interpolation =
+  | string
+  | number
+  | boolean
+  | null
+  | undefined
+  | CSSResult
+  | Interpolation[]   // recursive
+  | ((props: { theme?: DefaultTheme; [key: string]: any }) => Interpolation)
+```
+
+### CSS Normalization
+
+Resolved CSS goes through a single-pass normalization that:
+- Strips `/* block comments */` and `// line comments` (preserves `://` in URLs)
+- Collapses whitespace to single spaces
+- Removes redundant semicolons (after `{`, `}`, other `;`)
 
 ## styled()
 
-Component factory that creates styled React components with automatic class name management.
+Component factory that creates styled React components with automatic class name management, ref forwarding, and prop filtering.
 
 ```tsx
 import { styled } from '@vitus-labs/styler'
 
-// Tag shorthand
+// Tag shorthand via Proxy
 const Box = styled.div`
   padding: 16px;
   border-radius: 8px;
 `
 
-// Direct call
+// Direct call syntax
 const Card = styled('section')`
   background: white;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
@@ -78,45 +170,75 @@ const Card = styled('section')`
 const StyledButton = styled(MyButton)`
   cursor: pointer;
 `
+
+// With options
+const Custom = styled('div', {
+  shouldForwardProp: (prop) => !prop.startsWith('custom'),
+  boost: true,
+})`
+  padding: 16px;
+`
 ```
 
-### Dynamic Props
+### Options
+
+```tsx
+styled(tag: string | ComponentType, options?: StyledOptions)
+```
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `shouldForwardProp` | `(prop: string) => boolean` | — | Control which props reach the DOM element |
+| `boost` | `boolean` | `false` | Double the selector (`.vl-abc.vl-abc`) for specificity (0,2,0) |
+
+### Dynamic Props & Transient Props
+
+Props prefixed with `$` are automatically filtered from DOM output:
 
 ```tsx
 const Button = styled.button`
   background: ${(props) => props.$variant === 'primary' ? '#0d6efd' : '#6c757d'};
   color: white;
   padding: ${(props) => props.$size === 'large' ? '12px 24px' : '8px 16px'};
-
-  &:hover {
-    opacity: 0.9;
-  }
 `
 
-// Usage — $variant and $size consumed by styles, not forwarded to DOM
-<Button $variant="primary" $size="large">
-  Click me
-</Button>
+<Button $variant="primary" $size="large">Click me</Button>
+// Renders: <button class="vl-abc123">Click me</button>
+// $variant and $size consumed by styles, NOT forwarded to <button>
 ```
 
-### Transient Props
+### Polymorphic `as` Prop
 
-Props prefixed with `$` are automatically filtered from the DOM output. This prevents unknown prop warnings while making styling data available to interpolation functions.
+Override the rendered element type at the call site:
 
 ```tsx
-const Text = styled.span`
-  color: ${(props) => props.$color};
-  font-size: ${(props) => props.$fontSize}px;
+const Box = styled.div`
+  padding: 16px;
 `
 
-<Text $color="red" $fontSize={18}>Hello</Text>
-// Renders: <span class="vl-abc123">Hello</span>
-// $color and $fontSize NOT passed to the <span> element
+<Box as="section" />      // renders <section>
+<Box as="article" />      // renders <article>
+<Box as={MyComponent} />  // renders <MyComponent>
+```
+
+The `as` prop works in both static and dynamic paths and is never forwarded to the underlying element.
+
+### Ref Forwarding
+
+All styled components forward refs via `React.forwardRef`:
+
+```tsx
+const Input = styled.input`
+  border: 1px solid gray;
+`
+
+const ref = useRef<HTMLInputElement>(null)
+<Input ref={ref} />  // ref points to the <input> DOM element
 ```
 
 ### shouldForwardProp
 
-For finer control over which props reach the DOM:
+For custom prop filtering logic:
 
 ```tsx
 const Input = styled('input', {
@@ -124,21 +246,90 @@ const Input = styled('input', {
 })`
   border-color: ${(props) => props.hasError ? 'red' : 'gray'};
 `
+
+<Input hasError />
+// hasError used by styles but NOT forwarded to <input>
 ```
 
-### Options
+`shouldForwardProp` only applies to **DOM elements** (string tags). When wrapping React components, all props are forwarded.
+
+### Default Prop Filtering
+
+For DOM elements without custom `shouldForwardProp`:
+
+| Prop Pattern | Forwarded? |
+|--------------|-----------|
+| `$`-prefixed (e.g., `$color`) | No — transient props |
+| `as` | No — consumed for polymorphism |
+| `data-*` | Yes |
+| `aria-*` | Yes |
+| Known HTML attributes | Yes |
+| Unknown props | No — prevents React warnings |
+
+### Class Name Merging
+
+User-provided `className` is merged with the generated class:
 
 ```tsx
-styled(tag, options?)
+<Box className="extra">Hello</Box>
+// Renders: <div class="vl-abc123 extra">Hello</div>
 ```
 
-| Option | Type | Description |
-|--------|------|-------------|
-| `shouldForwardProp` | `(prop: string) => boolean` | Control which props are forwarded to the DOM element |
+### Specificity Boost
+
+Double the selector to raise specificity from (0,1,0) to (0,2,0):
+
+```tsx
+const Override = styled('div', { boost: true })`
+  color: red;
+`
+// Generates: .vl-abc.vl-abc { color: red; }
+// Overrides inner library components regardless of CSS source order
+```
+
+## Static vs Dynamic Paths
+
+The engine automatically detects whether a template has dynamic interpolations and uses the optimal path:
+
+### Static Path
+
+When **no interpolation values are functions** (or nested CSSResults containing functions):
+
+1. CSS resolved **once** at component creation time (module evaluation)
+2. Class name computed and CSS injected immediately
+3. **Zero per-render overhead** — no theme context access, no resolution
+4. Component simply applies the pre-computed class name
+
+```tsx
+// Static — class computed once, shared across all instances
+const Box = styled.div`
+  padding: 16px;
+  margin: 8px;
+  background: white;
+`
+```
+
+### Dynamic Path
+
+When **any interpolation is a function**:
+
+1. Theme accessed via `useTheme()` on every render
+2. CSS resolved with `{ ...componentProps, theme }`
+3. **useRef cache** — CSS string comparison avoids rehashing when content unchanged
+4. `useInsertionEffect` injects CSS synchronously before paint
+5. Dedup cache prevents duplicate style injection
+
+```tsx
+// Dynamic — resolved per render, cached by CSS string comparison
+const Box = styled.div`
+  padding: ${(props) => props.$p}px;
+  color: ${(props) => props.theme.colors.primary};
+`
+```
 
 ## keyframes()
 
-Create CSS @keyframes animations.
+Create CSS @keyframes animations. Injection is synchronous and immediate.
 
 ```tsx
 import { keyframes, styled } from '@vitus-labs/styler'
@@ -153,9 +344,18 @@ const FadeInBox = styled.div`
 `
 ```
 
+### Behavior
+
+- Returns a `KeyframesResult` with a `.name` property (`vl-kf-<hash>`)
+- String coercion returns the animation name for use in CSS interpolations
+- Deterministic naming via FNV-1a hash of the CSS body
+- **No dynamic interpolations** — keyframes are always static
+- Injected as `@keyframes vl-kf-<hash> { ... }` into the global sheet
+- Deduplicated by animation name
+
 ## createGlobalStyle()
 
-Inject global CSS styles. Returns a React component that injects styles when mounted.
+Inject unscoped global CSS. Returns a React component.
 
 ```tsx
 import { createGlobalStyle } from '@vitus-labs/styler'
@@ -164,7 +364,6 @@ const GlobalStyles = createGlobalStyle`
   * {
     box-sizing: border-box;
     margin: 0;
-    padding: 0;
   }
 
   body {
@@ -173,7 +372,6 @@ const GlobalStyles = createGlobalStyle`
   }
 `
 
-// Mount in your app root
 function App() {
   return (
     <>
@@ -183,6 +381,61 @@ function App() {
   )
 }
 ```
+
+### Behavior
+
+- Returns a React **component** (not a CSSResult)
+- Component props are merged with theme for interpolation resolution
+- **Unscoped** — CSS injected without any `.vl-*` class wrapper
+- Static path: CSS resolved once at creation, component renders nothing on client
+- Dynamic path: CSS resolved per render, injected via `useInsertionEffect`
+- SSR: Renders `<style precedence="low">` — lower precedence than component styles (`medium`)
+- Deduplicated by hash of resolved CSS
+
+## useCSS()
+
+Hook that resolves a `CSSResult` to a class name string. Use when you need styling without creating a styled component wrapper.
+
+```tsx
+import { css, useCSS } from '@vitus-labs/styler'
+
+const highlight = css`
+  color: red;
+  font-weight: bold;
+`
+
+function Label({ children }) {
+  const className = useCSS(highlight)
+  return <span className={className}>{children}</span>
+}
+```
+
+### Signature
+
+```tsx
+useCSS(
+  template: CSSResult,
+  props?: Record<string, any>,
+  boost?: boolean
+): string  // class name
+```
+
+### Dynamic Styles
+
+```tsx
+const badge = css`
+  background: ${(props) => props.variant === 'success' ? 'green' : 'gray'};
+  padding: 4px 8px;
+  border-radius: 4px;
+`
+
+function Badge({ variant, children }) {
+  const className = useCSS(badge, { variant })
+  return <span className={className}>{children}</span>
+}
+```
+
+Theme is automatically merged from context. Same caching and injection mechanism as `styled()`.
 
 ## CSS Nesting
 
@@ -212,31 +465,44 @@ const Card = styled.div`
 `
 ```
 
-## Performance
+### At-Rule Splitting
 
-### Static vs Dynamic Paths
+`@media`, `@supports`, and `@container` at-rules are automatically extracted from the CSS body and emitted as separate top-level rules with the selector wrapped inside. This works around CSSOM spec limitations:
 
-**Static templates** (no function interpolations) are computed once at module evaluation:
 ```tsx
-// Static — class computed once, shared across all instances
-const Box = styled.div`
-  padding: 16px;
-  margin: 8px;
+const Responsive = styled.div`
+  font-size: 14px;
+  @media (min-width: 600px) {
+    font-size: 18px;
+  }
 `
+// Emits two rules:
+// .vl-abc { font-size: 14px; }
+// @media (min-width: 600px) { .vl-abc { font-size: 18px; } }
 ```
 
-**Dynamic templates** (with function interpolations) resolve on every render:
+Non-splittable at-rules (`@keyframes`, `@font-face`) are left in place.
+
+## Deduplication & Caching
+
+- Same CSS always produces the same FNV-1a hash → same class name
+- If two components generate identical CSS, the rule is injected **once** and both share the class name
+- Dynamic path uses a `useRef` cache per component instance — string comparison skips rehashing when CSS unchanged between renders
+- Global `StyleSheet` cache bounded by `maxCacheSize` (default 10,000) with 10% eviction on overflow
+
+## HMR Support
+
+For development with hot module replacement:
+
 ```tsx
-// Dynamic — resolved per render, but deduplication prevents duplicate injection
-const Box = styled.div`
-  padding: ${(props) => props.$p}px;
-`
+import { sheet } from '@vitus-labs/styler'
+
+if (import.meta.hot) {
+  import.meta.hot.accept(() => {
+    sheet.clearAll()  // Purge all cached + injected styles
+  })
+}
 ```
 
-### Deduplication
-
-Same CSS always produces the same hash. If two components generate identical CSS, the style rule is injected only once and both share the class name.
-
-### Cache
-
-On the client, a CSS string comparison cache skips rehashing when resolved CSS hasn't changed between renders. The `useInsertionEffect` hook (React 18+) ensures concurrent-mode safe injection with no FOUC.
+- `sheet.clearCache()` — Clear dedup cache only (keep injected CSS)
+- `sheet.clearAll()` — Clear cache + ssrBuffer + remove all DOM rules

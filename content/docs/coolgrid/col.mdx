@@ -65,9 +65,15 @@ margin: ${gap / 2}px;       /* Gap distributed on all sides */
 padding: ${padding / 2}px;  /* Padding distributed on all sides */
 ```
 
+## Visibility Logic
+
+The `isVisible()` function determines if a column should render:
+- `isVisible(size)` returns `true` when `size` is a positive number or `undefined` (auto-width)
+- Returns `false` when `size === 0`
+
 ## Hidden Columns
 
-Set `size={0}` to hide a column:
+Set `size={0}` to hide a column. The column is moved off-screen rather than removed from the DOM:
 
 ```css
 /* When size={0} */
@@ -76,6 +82,8 @@ left: -9999px;
 margin: 0;
 padding: 0;
 ```
+
+This keeps the component mounted (preserving state) while removing it from the visual layout.
 
 ### Responsive Visibility
 

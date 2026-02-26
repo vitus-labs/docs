@@ -3,7 +3,9 @@ title: Element
 description: Core 3-section flex layout component — the foundational building block.
 ---
 
-Element is the primary building block of the UI system. It renders a flex container with three optional sections: **beforeContent**, **content** (children), and **afterContent**. When only content exists, unnecessary nesting is bypassed.
+Element is the primary building block of the UI system. It renders a flex container with three optional sections: **beforeContent**, **content** (children), and **afterContent**. When only content exists, unnecessary nesting is bypassed for optimal DOM structure.
+
+**Peer dependencies:** `@vitus-labs/core`, `@vitus-labs/unistyle`
 
 ## Basic Usage
 
@@ -43,10 +45,40 @@ Content is resolved with this priority: `children > content > label`
 | Prop | Type | Description |
 |------|------|-------------|
 | `children` | `ReactNode` | Highest priority content |
-| `content` | `Content` | Alternative to children |
+| `content` | `Content` | Alternative to children (supports components, elements, render functions) |
 | `label` | `Content` | Fallback content |
 | `beforeContent` | `Content` | Rendered before main content |
 | `afterContent` | `Content` | Rendered after main content |
+
+The `Content` type accepts anything the `render()` utility from `@vitus-labs/core` handles: React elements, component types (created via `createElement`), render functions (`(props) => ReactNode`), primitives, arrays, and fragments.
+
+## DOM Structure
+
+### Simple Element (no beforeContent/afterContent)
+
+When no side content is provided, Element renders a single wrapper with content directly inside — no unnecessary nesting:
+
+```html
+<div class="vl-..." style="display: inline-flex; ...">
+  <!-- children / content / label -->
+</div>
+```
+
+Direction defaults to `contentDirection` (or `direction` fallback), alignment uses `contentAlignX`/`contentAlignY`.
+
+### Complex Element (has beforeContent or afterContent)
+
+When side content is present, three inner `<div>` (or `<span>` for inline tags) slots are rendered:
+
+```html
+<div class="vl-..." style="display: inline-flex; flex-direction: row; ...">
+  <div class="..." style="..."><!-- beforeContent --></div>
+  <div class="..." style="flex: 1; ..."><!-- children / content / label --></div>
+  <div class="..." style="..."><!-- afterContent --></div>
+</div>
+```
+
+The outer wrapper uses `direction`/`alignX`/`alignY`, while each slot has its own direction/alignment props.
 
 ## Layout Props
 
@@ -142,7 +174,7 @@ For `<button>`, `<fieldset>`, and `<legend>` (which don't natively support flex)
 
 ## equalBeforeAfter
 
-Measures both side sections and sets them to the larger dimension. Useful for centered content with unequal side elements:
+Measures both side sections and sets them to the larger dimension via `useLayoutEffect`. Useful for centered content with unequal side elements:
 
 ```tsx
 <Element equalBeforeAfter alignX="center">
@@ -152,6 +184,44 @@ Measures both side sections and sets them to the larger dimension. Useful for ce
 </Element>
 // Both beforeContent and afterContent get equal width
 // so the title is perfectly centered
+```
+
+Uses `getBoundingClientRect()` and direct style manipulation to set both slots to `Math.max(beforeSize, afterSize)`. Recalculates when `equalBeforeAfter`, `beforeContent`, `afterContent`, or `direction` change.
+
+## Ref Forwarding
+
+Element supports both `ref` (via `forwardRef`) and the `innerRef` prop:
+
+```tsx
+const ref = useRef(null)
+<Element ref={ref} tag="button">Click</Element>
+// or
+<Element innerRef={ref} tag="button">Click</Element>
+```
+
+When `equalBeforeAfter` is enabled, an internal ref is used for measurement. Both internal and external refs are merged via a callback ref to ensure both function correctly.
+
+## Reserved Props
+
+These props are consumed by Element and **not** forwarded to the DOM:
+
+```
+innerRef, tag, block, label, children, beforeContent, afterContent,
+equalCols, vertical, direction, alignX, alignY, css, contentCss,
+beforeContentCss, afterContentCss, contentDirection, contentAlignX,
+contentAlignY, beforeContentDirection, beforeContentAlignX,
+beforeContentAlignY, afterContentDirection, afterContentAlignX,
+afterContentAlignY
+```
+
+All other props (onClick, className, style, aria-*, data-*, etc.) are forwarded to the root DOM element.
+
+## Static Properties
+
+```tsx
+Element.displayName    // '@vitus-labs/elements/Element'
+Element.pkgName        // '@vitus-labs/elements'
+Element.VITUS_LABS__COMPONENT  // '@vitus-labs/elements/Element'
 ```
 
 ## API Reference

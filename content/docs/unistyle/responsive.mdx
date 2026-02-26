@@ -82,7 +82,7 @@ Expands arrays and objects to full breakpoint maps:
 }
 ```
 
-**Fast path:** If no arrays/objects detected, skips normalization entirely.
+**Fast path:** If no arrays or objects are detected among the values, normalization is skipped entirely — scalars pass through unchanged, avoiding the overhead of creating full breakpoint maps.
 
 ### 2. Transform
 
@@ -170,13 +170,19 @@ const ResponsiveBox = config.styled('div')`
 | `styles` | `function` | Style processor callback |
 | `normalize` | `boolean` | Enable/disable normalization (default: `true`) |
 
+### No-Breakpoint Fast Path
+
+When the theme has no breakpoints at all (no `__VITUS_LABS__` data), `makeItResponsive` skips the entire normalize/transform/optimize pipeline and renders plain CSS directly — a single pass through the styles function.
+
 ### Caching
 
 `makeItResponsive` uses a `WeakMap` to cache optimized themes per component:
 
 - **Key:** Theme prop object reference
-- **Hit criteria:** Same object + same sorted breakpoints
-- **Result:** Expensive transform pipeline runs only once per unique theme
+- **Hit criteria:** Same object reference + same sorted breakpoints
+- **Result:** The expensive normalize → transform → optimize pipeline runs only once per unique theme object
+
+When the theme prop reference doesn't change between renders, all breakpoint processing is skipped and the cached result is reused.
 
 ## Responsive Alignment
 
@@ -217,3 +223,17 @@ Configure custom breakpoints via the Provider:
   padding: { mobile: 8, desktop: 24 },
 }} />
 ```
+
+## API Reference
+
+### Breakpoints
+
+<AutoTypeTable path="./src/types/unistyle.ts" name="Breakpoints" />
+
+### Value
+
+<AutoTypeTable path="./src/types/unistyle.ts" name="Value" />
+
+### MakeItResponsive
+
+<AutoTypeTable path="./src/types/unistyle.ts" name="MakeItResponsive" />

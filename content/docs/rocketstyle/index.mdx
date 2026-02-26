@@ -3,17 +3,7 @@ title: Rocketstyle
 description: Dimension-based component styling system with theming, pseudo-states, and chainable API.
 ---
 
-Rocketstyle is a powerful styling system for building React components with dimension-based theming, pseudo-state management, light/dark mode switching, and a chainable configuration API.
-
-## Overview
-
-Rocketstyle wraps any React component and adds:
-
-- **Dimensions** — styling categories (states, sizes, variants) that map to component props
-- **Theme integration** — automatic theme injection via React Context with light/dark mode
-- **Pseudo-state tracking** — automatic hover, focus, pressed, disabled detection
-- **Provider/Consumer** — parent components broadcast pseudo-states to children
-- **Chainable API** — fluent interface for composing themes, attrs, styles, and HOCs
+Rocketstyle is a dimension-based styling system for React. It wraps any component and adds named styling dimensions (states, sizes, variants), theme integration with light/dark mode, pseudo-state tracking, provider/consumer patterns, and a chainable configuration API.
 
 ## Installation
 
@@ -21,7 +11,77 @@ Rocketstyle wraps any React component and adds:
 @vitus-labs/rocketstyle
 ```
 
-Requires `@vitus-labs/core` and a CSS engine connector.
+Requires `@vitus-labs/core` and a CSS engine connector (`@vitus-labs/connector-styler`).
+
+## Try It Live
+
+This demo shows the dimension-based styling concept — select a state and size to see how styles compose:
+
+<LiveCode code={`function DimensionDemo() {
+  const [state, setState] = React.useState('primary')
+  const [size, setSize] = React.useState('md')
+
+  const states = {
+    primary: { backgroundColor: '#0d6efd', color: '#fff' },
+    secondary: { backgroundColor: '#6c757d', color: '#fff' },
+    danger: { backgroundColor: '#dc3545', color: '#fff' },
+    success: { backgroundColor: '#198754', color: '#fff' },
+  }
+
+  const sizes = {
+    sm: { fontSize: 12, padding: '6px 12px' },
+    md: { fontSize: 14, padding: '10px 20px' },
+    lg: { fontSize: 16, padding: '14px 28px' },
+  }
+
+  const merged = { ...states[state], ...sizes[size] }
+
+  return (
+    <div style={{ fontFamily: 'system-ui' }}>
+      <div style={{ display: 'flex', gap: 16, marginBottom: 16, flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', gap: 4, alignItems: 'center', fontSize: 13 }}>
+          State:
+          {Object.keys(states).map((s) => (
+            <button key={s} onClick={() => setState(s)} style={{
+              padding: '4px 10px', borderRadius: 4, fontSize: 12, cursor: 'pointer',
+              border: state === s ? '2px solid #333' : '1px solid #ccc',
+              background: state === s ? '#f0f0f0' : '#fff',
+            }}>{s}</button>
+          ))}
+        </div>
+        <div style={{ display: 'flex', gap: 4, alignItems: 'center', fontSize: 13 }}>
+          Size:
+          {Object.keys(sizes).map((s) => (
+            <button key={s} onClick={() => setSize(s)} style={{
+              padding: '4px 10px', borderRadius: 4, fontSize: 12, cursor: 'pointer',
+              border: size === s ? '2px solid #333' : '1px solid #ccc',
+              background: size === s ? '#f0f0f0' : '#fff',
+            }}>{s}</button>
+          ))}
+        </div>
+      </div>
+      <button style={{
+        ...merged,
+        border: 'none',
+        borderRadius: 6,
+        cursor: 'pointer',
+        fontWeight: 500,
+        transition: 'all 0.2s',
+      }}>
+        Button ({state} / {size})
+      </button>
+      <pre style={{
+        marginTop: 12, padding: 12, borderRadius: 6,
+        background: '#f8f9fa', fontSize: 12, lineHeight: 1.5,
+      }}>
+        {JSON.stringify(merged, null, 2)}
+      </pre>
+    </div>
+  )
+}
+
+render(<DimensionDemo />)
+`} noInline />
 
 ## Quick Start
 
@@ -70,7 +130,7 @@ const Button = rocketstyle()({
     }
   `)
 
-// Usage
+// Usage — explicit prop syntax
 <Button state="primary" size="lg">Click me</Button>
 
 // Boolean shorthand (useBooleans enabled by default)
@@ -79,16 +139,25 @@ const Button = rocketstyle()({
 
 ## Factory Function
 
+The factory uses a curried call pattern:
+
 ```tsx
-rocketstyle(options)(config)
+rocketstyle(options?)(config)
 ```
 
-### Options
+### Options (First Call)
 
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
 | `dimensions` | `Record<string, string \| DimensionConfig>` | See below | Custom dimension definitions |
 | `useBooleans` | `boolean` | `true` | Enable boolean shorthand props |
+
+### Config (Second Call)
+
+| Option | Type | Description |
+|--------|------|-------------|
+| `name` | `string` | **Required.** Component display name |
+| `component` | `ComponentType \| string` | **Required.** React component or HTML tag to wrap |
 
 ### Default Dimensions
 
@@ -104,14 +173,9 @@ rocketstyle(options)(config)
 }
 ```
 
-### Config
-
-| Option | Type | Description |
-|--------|------|-------------|
-| `name` | `string` | **Required.** Component display name |
-| `component` | `ComponentType \| string` | **Required.** React component or HTML tag to wrap |
-
 ### Custom Dimensions
+
+Override the defaults entirely:
 
 ```tsx
 const Card = rocketstyle({
@@ -136,9 +200,49 @@ const Card = rocketstyle({
   }))
 ```
 
+Each custom dimension key becomes a chainable method automatically.
+
+### Validation
+
+In development mode, the factory validates:
+1. `component` is provided
+2. `name` is provided
+3. `dimensions` is not empty
+4. Dimension names don't conflict with reserved keys
+
+Throws a JSON-structured error if validation fails.
+
 ### Reserved Dimension Names
 
-These names cannot be used as dimension keys: `light`, `dark`, `theme`, `styles`, `compose`, `attrs`, `provider`, `consumer`, `DEBUG`, `name`, `component`, `inversed`, `passProps`, `styled`.
+These names cannot be used as dimension keys:
+
+```
+light, dark, theme, styles, compose, attrs,
+provider, consumer, DEBUG, name, component,
+inversed, passProps, styled
+```
+
+## Render Pipeline
+
+When a rocketstyle component renders, it follows this sequence:
+
+```
+1. Ref handling         — merge forwarded ref + internal $rocketstyleRef
+2. Local context        — read parent provider state via useLocalContext()
+3. Theme resolution     — get theme + mode from context, apply inversed flag
+4. Base theme cache     — WeakMap lookup → getThemeFromChain() if miss
+5. Dimension themes     — WeakMap lookup → getDimensionThemes() if miss
+6. Mode resolution      — resolve mode callbacks in base + dimension themes
+7. Dimension map        — build keysMap + keywords for boolean resolution
+8. Props merge          — { ...localCtx, ...props } (explicit props win)
+9. Pseudo-state merge   — combine context pseudo + explicit pseudo props
+10. Styling attrs       — resolve active dimension values from props
+11. $rocketstyle        — merge base theme + active dimension themes
+12. Final props         — strip reserved props, add $rocketstyle/$rocketstate
+13. Render              — <StyledComponent {...finalProps} />
+```
+
+Steps 4-6 use WeakMap caching — the expensive theme computation runs only once per unique theme reference.
 
 ## Boolean Shorthand
 
@@ -148,9 +252,29 @@ When `useBooleans` is enabled (default), dimension values can be used as boolean
 // These are equivalent:
 <Button state="primary" size="lg" />
 <Button primary lg />
+```
 
-// Multi-select with booleans (when multi: true)
-<Button multiple={['tagA', 'tagB']} />
+### Resolution Rules
+
+- Explicit props take priority: `state="primary"` always wins over boolean `secondary`
+- Boolean shorthand only activates when the explicit prop is not set
+- For single-select dimensions, **last boolean prop wins** (props keys are reversed)
+- For multi-select dimensions (`multi: true`), all matching booleans are collected into an array
+- Standard HTML boolean attributes (disabled, checked, hidden, etc.) are excluded from shorthand matching
+
+### Disabling Boolean Shorthand
+
+```tsx
+const Component = rocketstyle({
+  useBooleans: false,
+})({
+  name: 'Component',
+  component: 'div',
+})
+
+// Only explicit prop syntax works:
+<Component state="primary" />
+// <Component primary /> would NOT work
 ```
 
 ## Type Utilities
@@ -162,6 +286,9 @@ type ButtonDimensions = typeof Button['$$rocketstyle']
 // Extract original component props
 type OriginProps = typeof Button['$$originTypes']
 
+// Extract extended props from .attrs() chains
+type ExtendedProps = typeof Button['$$extendedTypes']
+
 // Get all combined props
 type AllProps = typeof Button['$$types']
 
@@ -170,13 +297,99 @@ import { isRocketComponent } from '@vitus-labs/rocketstyle'
 isRocketComponent(Button) // true
 ```
 
-## Runtime Helpers
+## Static Properties
+
+Every rocketstyle component has these properties:
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `IS_ROCKETSTYLE` | `true` | Marker for identification |
+| `displayName` | `string` | Component name from config |
+| `meta` | `object` | User-defined statics from `.statics()` |
+| `getStaticDimensions` | `(theme) => DimensionInfo` | Get dimension map for a theme |
+| `getDefaultAttrs` | `(props, theme, mode) => attrs` | Compute attrs without rendering |
+| `$$rocketstyle` | Type-only | Dimension props type |
+| `$$originTypes` | Type-only | Original component props type |
+| `$$extendedTypes` | Type-only | Extended props from `.attrs()` |
+| `$$types` | Type-only | All combined props type |
+
+### getStaticDimensions
+
+Returns the dimension configuration resolved against a theme:
 
 ```tsx
-// Get static dimensions for a theme
-Button.getStaticDimensions(theme)
-// Returns: { dimensions, keywords, useBooleans, multiKeys }
-
-// Get resolved default attrs
-Button.getDefaultAttrs(props, theme, mode)
+const info = Button.getStaticDimensions(theme)
+// {
+//   dimensions: { state: { primary: true, secondary: true }, size: { sm: true, md: true, lg: true } },
+//   keywords: { state: true, primary: true, secondary: true, size: true, sm: true, md: true, lg: true },
+//   useBooleans: true,
+//   multiKeys: { multiple: true },
+// }
 ```
+
+## Debug Mode
+
+Enable per-component debug logging:
+
+```tsx
+const Button = rocketstyle()({
+  name: 'Button',
+  component: 'button',
+}).config({ DEBUG: true })
+```
+
+In development, this logs on every render:
+- Component name
+- Resolved `$rocketstyle` values
+- Resolved `$rocketstate` values
+- Active dimension selections
+- Theme mode
+
+All components also get a `data-rocketstyle` attribute in development with the component name.
+
+## Exports
+
+```tsx
+import rocketstyle, {
+  Provider,
+  context,
+  isRocketComponent,
+} from '@vitus-labs/rocketstyle'
+
+import type {
+  RocketStyleComponent,
+  RocketComponentType,
+  RocketProviderState,
+  ConsumerCtxCBValue,
+  ConsumerCtxCb,
+  ConsumerCb,
+  Dimensions,
+  DimensionValue,
+  DimensionCallbackParam,
+  ExtractDimensionProps,
+  DimensionProps,
+  ExtractDimensions,
+  StylesDefault,
+  StylesCb,
+  RocketStyleInterpolationProps,
+  ConfigAttrs,
+  AttrsCb,
+  ThemeCb,
+  ThemeModeCallback,
+  ThemeModeKeys,
+  GenericHoc,
+  ComposeParam,
+  DefaultProps,
+  IsRocketComponent,
+  ThemeMode,
+  TProvider,
+  IRocketStyleComponent,
+  Rocketstyle,
+} from '@vitus-labs/rocketstyle'
+```
+
+## API Reference
+
+<AutoTypeTable path="./src/types/rocketstyle.ts" name="Dimensions" />
+
+<AutoTypeTable path="./src/types/rocketstyle.ts" name="DimensionValue" />

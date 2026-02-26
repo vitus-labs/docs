@@ -11,6 +11,58 @@ A comprehensive collection of 27 React hooks covering UI state management, DOM i
 @vitus-labs/hooks
 ```
 
+## Try It Live
+
+<LiveCode code={`function HooksDemo() {
+  const [count, setCount] = React.useState(0)
+  const [debouncedCount, setDebouncedCount] = React.useState(0)
+  const prevCount = React.useRef(0)
+
+  // Simulated useDebounce
+  React.useEffect(() => {
+    const timer = setTimeout(() => setDebouncedCount(count), 300)
+    return () => clearTimeout(timer)
+  }, [count])
+
+  // Simulated usePrevious
+  React.useEffect(() => {
+    prevCount.current = count
+  })
+
+  // Simulated useToggle
+  const [isOn, setIsOn] = React.useState(false)
+
+  return (
+    <div style={{ fontFamily: 'system-ui', display: 'flex', flexDirection: 'column', gap: 16 }}>
+      <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+        <button onClick={() => setCount(c => c + 1)} style={{
+          padding: '8px 16px', borderRadius: 6, border: '1px solid #ccc',
+          cursor: 'pointer', fontSize: 14, background: '#fff',
+        }}>
+          Increment ({count})
+        </button>
+        <span style={{ fontSize: 13, color: '#666' }}>
+          Previous: {prevCount.current} | Debounced: {debouncedCount}
+        </span>
+      </div>
+      <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+        <button onClick={() => setIsOn(v => !v)} style={{
+          padding: '8px 16px', borderRadius: 6, border: 'none', cursor: 'pointer',
+          fontSize: 14, fontWeight: 500,
+          background: isOn ? '#198754' : '#dc3545', color: '#fff',
+          transition: 'background 0.2s',
+        }}>
+          {isOn ? 'ON' : 'OFF'}
+        </button>
+        <span style={{ fontSize: 13, color: '#666' }}>useToggle pattern</span>
+      </div>
+    </div>
+  )
+}
+
+render(<HooksDemo />)
+`} noInline />
+
 ## Hook Categories
 
 ### State Management

@@ -24,6 +24,27 @@ Container is the outermost grid wrapper. It establishes the grid context, applie
 | `rowComponent` | `ComponentType` | — | Custom Row component (cascades) |
 | `contentAlignX` | `ContentAlignX` | — | Row alignment (cascades) |
 
+## Context Shape
+
+Container provides a `ContainerContext` to all descendant Rows and Cols:
+
+```tsx
+{
+  columns: number | number[] | Record<string, number>,
+  size: ValueType,
+  gap: ValueType,
+  padding: ValueType,
+  gutter: ValueType,
+  colCss: ExtraStyles,
+  colComponent: ComponentType,
+  rowCss: ExtraStyles,
+  rowComponent: ComponentType,
+  contentAlignX: ContentAlignX,
+}
+```
+
+All values are memoized and only recomputed when props change.
+
 ## Styling
 
 Container renders as a flex column container:
