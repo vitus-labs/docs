@@ -1,13 +1,13 @@
 ---
-title: Vitus Labs UI System
-description: A comprehensive UI system for building React applications with type-safe, composable, and themeable components.
+title: Vitus Labs
+description: A modular ecosystem for building, styling, testing, and shipping React applications.
 ---
 
-## Overview
+Vitus Labs is a collection of packages spanning two areas: a **UI system** for building React interfaces, and **developer tools** for building, testing, linting, and shipping packages.
 
-Vitus Labs UI System is a collection of packages for building modern React applications. It provides a complete toolkit from CSS-in-JS styling to composable UI components, animations, and layout grids.
+## UI System
 
-## Packages
+Components, styling, layout, hooks, and theming for React applications.
 
 | Package | Description |
 |---------|-------------|
@@ -16,14 +16,33 @@ Vitus Labs UI System is a collection of packages for building modern React appli
 | [@vitus-labs/attrs](/docs/attrs) | Composable attribute factory for component configuration |
 | [@vitus-labs/elements](/docs/elements) | Base UI primitives: Element, List, Text, Overlay, Portal |
 | [@vitus-labs/rocketstyle](/docs/rocketstyle) | Advanced component styling with themes, pseudo-states, and dimensions |
-| [@vitus-labs/unistyle](/docs/unistyle) | Universal responsive styling utilities |
+| [@vitus-labs/unistyle](/docs/unistyle) | Universal responsive styling utilities (170+ CSS properties) |
 | [@vitus-labs/coolgrid](/docs/coolgrid) | Responsive grid system with Container, Row, and Col |
-| [@vitus-labs/hooks](/docs/hooks) | Collection of 28+ React hooks for common patterns |
-| [@vitus-labs/kinetic](/docs/kinetic) | Animation and transition system |
-| [@vitus-labs/kinetic-presets](/docs/kinetic-presets) | Pre-built animation presets and factories |
-| [@vitus-labs/connectors](/docs/connectors) | CSS-in-JS engine connectors (styler, emotion, styled-components) |
+| [@vitus-labs/hooks](/docs/hooks) | Collection of 28 React hooks for common patterns |
+| [@vitus-labs/connectors](/docs/connectors) | CSS-in-JS engine adapters (styler, emotion, styled-components) |
+| [@vitus-labs/rocketstories](/docs/rocketstories) | Auto-generated Storybook stories from rocketstyle components |
+
+## Developer Tools
+
+Shared configurations and build tooling for the full development lifecycle.
+
+| Package | Description |
+|---------|-------------|
+| [@vitus-labs/tools-core](/docs/tools-core) | Cascading config loader, file discovery, and package metadata |
+| [@vitus-labs/tools-rolldown](/docs/tools-rolldown) | Rust-based bundler for library packages with DTS generation |
+| [@vitus-labs/tools-rollup](/docs/tools-rollup) | Rollup-based build tool (legacy alternative to Rolldown) |
+| [@vitus-labs/tools-vitest](/docs/tools-vitest) | Shared Vitest config factory with sensible defaults |
+| [@vitus-labs/tools-storybook](/docs/tools-storybook) | Preconfigured Storybook 10 with auto-discovery |
+| [@vitus-labs/tools-typescript](/docs/tools-typescript) | Shared tsconfig presets for libraries and Next.js apps |
+| [@vitus-labs/tools-lint](/docs/tools-lint) | Shared Biome config for formatting and linting |
+| [@vitus-labs/tools-nextjs](/docs/tools-nextjs) | Next.js config wrapper with security headers |
+| [@vitus-labs/tools-nextjs-images](/docs/tools-nextjs-images) | Image optimization plugin — WebP, LQIP, responsive, SVG sprites |
+| [@vitus-labs/tools-atlas](/docs/tools-atlas) | Dependency graph visualizer and monorepo health analyzer |
+| [@vitus-labs/tools-favicon](/docs/tools-favicon) | Multi-platform favicon and PWA manifest generator |
 
 ## Quick Start
+
+Install the core UI packages:
 
 ```package-install
 @vitus-labs/core @vitus-labs/styler @vitus-labs/connector-styler @vitus-labs/elements @vitus-labs/rocketstyle

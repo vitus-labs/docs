@@ -6,10 +6,10 @@ import './global.css'
 export const metadata: Metadata = {
   title: {
     template: '%s | Vitus Labs',
-    default: 'Vitus Labs — React UI System',
+    default: 'Vitus Labs — React UI & Developer Tools',
   },
   description:
-    'A comprehensive, type-safe React component system with composable styling, responsive layouts, and swappable CSS engines.',
+    'A modular ecosystem for building, styling, testing, and shipping React applications — from UI primitives to developer tooling.',
 }
 
 export default function RootLayout({ children }: { children: ReactNode }) {
