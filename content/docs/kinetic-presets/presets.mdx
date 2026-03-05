@@ -1,0 +1,315 @@
+---
+title: Presets Reference
+description: Complete reference of all 122 animation presets organized by category.
+---
+
+All presets define symmetric enter/leave animations. Enter animates from a hidden state to visible; leave reverses it. Each preset can be spread onto `<Transition>` or passed to `kinetic().preset()`.
+
+```tsx
+import { fadeUp } from '@vitus-labs/kinetic-presets'
+
+// Usage with Transition
+<Transition show={visible} {...fadeUp}>
+  <div>content</div>
+</Transition>
+
+// Usage with kinetic factory
+const AnimatedDiv = kinetic('div').preset(fadeUp)
+```
+
+## Fades
+
+Opacity transitions with optional directional movement.
+
+| Preset | Transform | Distance |
+|--------|-----------|----------|
+| `fade` | None (pure opacity) | — |
+| `fadeUp` | translateY | 16px |
+| `fadeDown` | translateY | -16px |
+| `fadeLeft` | translateX | 16px |
+| `fadeRight` | translateX | -16px |
+| `fadeUpBig` | translateY | 48px |
+| `fadeDownBig` | translateY | -48px |
+| `fadeLeftBig` | translateX | 48px |
+| `fadeRightBig` | translateX | -48px |
+| `fadeUpLeft` | translate | Y:16px, X:-16px |
+| `fadeUpRight` | translate | Y:16px, X:16px |
+| `fadeDownLeft` | translate | Y:-16px, X:-16px |
+| `fadeDownRight` | translate | Y:-16px, X:16px |
+| `fadeScale` | scale | 0.9 + opacity |
+
+## Slides
+
+Directional movement with opacity.
+
+| Preset | Direction | Distance |
+|--------|-----------|----------|
+| `slideUp` | translateY | 16px |
+| `slideDown` | translateY | -16px |
+| `slideLeft` | translateX | 16px |
+| `slideRight` | translateX | -16px |
+| `slideUpBig` | translateY | 48px |
+| `slideDownBig` | translateY | -48px |
+| `slideLeftBig` | translateX | 48px |
+| `slideRightBig` | translateX | -48px |
+
+## Scales
+
+Scale transforms with opacity.
+
+| Preset | From Scale | Extra |
+|--------|------------|-------|
+| `scaleIn` | 0.85 | — |
+| `scaleUp` | 0.6 | — |
+| `scaleDown` | 1.2 | — |
+| `scaleOut` | 1.15 | Reverse scale |
+| `scaleInUp` | 0.85 | +translateY 16px |
+| `scaleInDown` | 0.85 | +translateY -16px |
+| `scaleInLeft` | 0.85 | +translateX 16px |
+| `scaleInRight` | 0.85 | +translateX -16px |
+| `scaleRotateIn` | 0.8 | +rotate -15deg |
+
+## Blurs
+
+Gaussian blur effects with opacity.
+
+| Preset | Blur Amount | Extra |
+|--------|-------------|-------|
+| `blurIn` | 8px | — |
+| `blurInUp` | 8px | +translateY 16px |
+| `blurInDown` | 8px | +translateY -16px |
+| `blurInLeft` | 8px | +translateX 16px |
+| `blurInRight` | 8px | +translateX -16px |
+| `blurScale` | 8px | +scale 0.95 |
+
+## Bounces
+
+Spring-eased entrances with overshoot.
+
+| Preset | Direction |
+|--------|-----------|
+| `bounceIn` | Scale (spring easing) |
+| `bounceInUp` | translateY + spring |
+| `bounceInDown` | translateY + spring |
+| `bounceInLeft` | translateX + spring |
+| `bounceInRight` | translateX + spring |
+
+## Rotations
+
+Rotation transforms with opacity.
+
+| Preset | Rotation | Extra |
+|--------|----------|-------|
+| `rotateIn` | -15deg | — |
+| `rotateInReverse` | 15deg | Opposite direction |
+| `rotateInUp` | -15deg | +translateY 16px |
+| `rotateInDown` | -15deg | +translateY -16px |
+
+## Flips
+
+3D flip effects using perspective.
+
+| Preset | Axis | Perspective |
+|--------|------|-------------|
+| `flipX` | rotateX | 600px |
+| `flipXReverse` | rotateX (reverse) | 600px |
+| `flipY` | rotateY | 600px |
+| `flipYReverse` | rotateY (reverse) | 600px |
+| `flipDiagonal` | rotate3d(1,1,0) | 800px |
+| `flipDiagonalReverse` | rotate3d(1,1,0) reverse | 800px |
+
+## Zooms
+
+Zoom effects (larger distance than scale presets).
+
+| Preset | From | Extra |
+|--------|------|-------|
+| `zoomIn` | scale 0 | — |
+| `zoomInUp` | scale 0 | +translateY 48px |
+| `zoomInDown` | scale 0 | +translateY -48px |
+| `zoomInLeft` | scale 0 | +translateX 48px |
+| `zoomInRight` | scale 0 | +translateX -48px |
+| `zoomOut` | scale 1 → 0 | Disappear |
+| `zoomOutUp` | → scale 0 | +translateY -48px |
+| `zoomOutDown` | → scale 0 | +translateY 48px |
+| `zoomOutLeft` | → scale 0 | +translateX -48px |
+| `zoomOutRight` | → scale 0 | +translateX 48px |
+
+## Clip Path
+
+CSS `clip-path` reveal animations.
+
+| Preset | Shape |
+|--------|-------|
+| `clipTop` | Wipe from top |
+| `clipBottom` | Wipe from bottom |
+| `clipLeft` | Wipe from left |
+| `clipRight` | Wipe from right |
+| `clipCenter` | Expand from center |
+| `clipCircle` | Circular reveal |
+| `clipDiamond` | Diamond reveal |
+| `clipCorner` | Reveal from corner |
+
+## Perspective
+
+3D perspective transforms.
+
+| Preset | Origin |
+|--------|--------|
+| `perspectiveUp` | rotateX from bottom |
+| `perspectiveDown` | rotateX from top |
+| `perspectiveLeft` | rotateY from right |
+| `perspectiveRight` | rotateY from left |
+
+## Swings
+
+Swing-in from an edge using transform-origin.
+
+| Preset | Origin |
+|--------|--------|
+| `swingInTop` | Swing from top edge |
+| `swingInBottom` | Swing from bottom edge |
+| `swingInLeft` | Swing from left edge |
+| `swingInRight` | Swing from right edge |
+
+## Tilts
+
+Slight 3D tilt entrances.
+
+| Preset | Direction |
+|--------|-----------|
+| `tiltInUp` | Tilts up into view |
+| `tiltInDown` | Tilts down into view |
+| `tiltInLeft` | Tilts left into view |
+| `tiltInRight` | Tilts right into view |
+
+## Floats
+
+Gentle floating entrances (larger distance, slower).
+
+| Preset | Direction |
+|--------|-----------|
+| `floatUp` | Float up |
+| `floatDown` | Float down |
+| `floatLeft` | Float left |
+| `floatRight` | Float right |
+
+## Flies
+
+Dramatic fly-in from off-screen.
+
+| Preset | Direction |
+|--------|-----------|
+| `flyInUp` | From below viewport |
+| `flyInDown` | From above viewport |
+| `flyInLeft` | From right of viewport |
+| `flyInRight` | From left of viewport |
+
+## Light Speed
+
+Skewed high-speed entrances.
+
+| Preset | Direction |
+|--------|-----------|
+| `lightSpeedInLeft` | Skew + slide from left |
+| `lightSpeedInRight` | Skew + slide from right |
+
+## Back
+
+"Back" easing entrances with slight overshoot.
+
+| Preset | Direction |
+|--------|-----------|
+| `backInUp` | Back-ease from below |
+| `backInDown` | Back-ease from above |
+| `backInLeft` | Back-ease from right |
+| `backInRight` | Back-ease from left |
+
+## Pushes
+
+Push-in from the side (translate 100%).
+
+| Preset | Direction |
+|--------|-----------|
+| `pushInLeft` | Push in from left |
+| `pushInRight` | Push in from right |
+
+## Rolls
+
+Rotate + translate entrance.
+
+| Preset | Direction |
+|--------|-----------|
+| `rollInLeft` | Roll in from left |
+| `rollInRight` | Roll in from right |
+
+## Swirls
+
+Spiral-in rotation with scale.
+
+| Preset | Direction |
+|--------|-----------|
+| `swirlIn` | Clockwise swirl |
+| `swirlInReverse` | Counter-clockwise swirl |
+
+## Slits
+
+Narrow slit reveal with 3D rotation.
+
+| Preset | Axis |
+|--------|------|
+| `slitHorizontal` | Horizontal slit |
+| `slitVertical` | Vertical slit |
+
+## Expand
+
+Dimension expansion with opacity.
+
+| Preset | Axis |
+|--------|------|
+| `expandX` | scaleX 0 → 1 |
+| `expandY` | scaleY 0 → 1 |
+
+## Squish
+
+Asymmetric scale (squash and stretch).
+
+| Preset | Axis |
+|--------|------|
+| `squishX` | Horizontal squash |
+| `squishY` | Vertical squash |
+
+## Skews
+
+Skew transforms with opacity.
+
+| Preset | Axis |
+|--------|------|
+| `skewIn` | skewX |
+| `skewInReverse` | skewX (reverse) |
+| `skewInY` | skewY |
+| `skewInYReverse` | skewY (reverse) |
+
+## Special
+
+Unique animation effects.
+
+| Preset | Effect |
+|--------|--------|
+| `popIn` | Quick scale pop with spring easing |
+| `puffIn` | Scale up from tiny with blur |
+| `puffOut` | Scale down with blur |
+| `rubberIn` | Rubber-band scale effect |
+| `newspaperIn` | Spin + scale (newspaper fold) |
+| `springIn` | Spring easing scale |
+| `spinIn` | 360deg rotation entrance |
+| `spinInReverse` | Reverse 360deg rotation |
+
+## Drop / Rise
+
+Vertical drop and rise with gravity-like easing.
+
+| Preset | Direction |
+|--------|-----------|
+| `drop` | Drop from above |
+| `rise` | Rise from below |

@@ -1,0 +1,699 @@
+---
+title: Kinetic
+description: Declarative enter/leave animations for React — Transition, Collapse, Stagger, TransitionGroup, and a chainable component factory.
+---
+
+`@vitus-labs/kinetic` provides declarative animation primitives for React. It handles the full enter/leave lifecycle — mounting, animating, and unmounting — with both CSS class-based and inline style-based transitions.
+
+## Installation
+
+```package-install
+@vitus-labs/kinetic
+```
+
+**Peer dependencies:** `react >= 18`, `@vitus-labs/hooks`
+
+## Try It Live
+
+<LiveCode code={`function KineticDemo() {
+  const [show, setShow] = React.useState(true)
+  const [mode, setMode] = React.useState('fade')
+
+  const presets = {
+    fade: {
+      enterStyle: { opacity: 0 },
+      enterToStyle: { opacity: 1 },
+      enterTransition: 'opacity 300ms ease-out',
+      leaveStyle: { opacity: 1 },
+      leaveToStyle: { opacity: 0 },
+      leaveTransition: 'opacity 200ms ease-in',
+    },
+    slideUp: {
+      enterStyle: { opacity: 0, transform: 'translateY(16px)' },
+      enterToStyle: { opacity: 1, transform: 'translateY(0)' },
+      enterTransition: 'all 300ms ease-out',
+      leaveStyle: { opacity: 1, transform: 'translateY(0)' },
+      leaveToStyle: { opacity: 0, transform: 'translateY(16px)' },
+      leaveTransition: 'all 200ms ease-in',
+    },
+    scaleIn: {
+      enterStyle: { opacity: 0, transform: 'scale(0.85)' },
+      enterToStyle: { opacity: 1, transform: 'scale(1)' },
+      enterTransition: 'all 300ms ease-out',
+      leaveStyle: { opacity: 1, transform: 'scale(1)' },
+      leaveToStyle: { opacity: 0, transform: 'scale(0.85)' },
+      leaveTransition: 'all 200ms ease-in',
+    },
+  }
+
+  const preset = presets[mode]
+  const ref = React.useRef(null)
+  const [stage, setStage] = React.useState(show ? 'entered' : 'hidden')
+
+  React.useEffect(() => {
+    if (show && (stage === 'hidden' || stage === 'leaving')) {
+      setStage('entering')
+      const el = ref.current
+      if (el) {
+        Object.assign(el.style, preset.enterStyle)
+        el.style.transition = preset.enterTransition
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            Object.assign(el.style, preset.enterToStyle)
+          })
+        })
+        const timer = setTimeout(() => setStage('entered'), 350)
+        return () => clearTimeout(timer)
+      }
+    } else if (!show && (stage === 'entered' || stage === 'entering')) {
+      setStage('leaving')
+      const el = ref.current
+      if (el) {
+        Object.assign(el.style, preset.leaveStyle)
+        el.style.transition = preset.leaveTransition
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            Object.assign(el.style, preset.leaveToStyle)
+          })
+        })
+        const timer = setTimeout(() => setStage('hidden'), 250)
+        return () => clearTimeout(timer)
+      }
+    }
+  }, [show])
+
+  return (
+    <div style={{ fontFamily: 'system-ui' }}>
+      <div style={{ display: 'flex', gap: 8, marginBottom: 16, alignItems: 'center' }}>
+        <button onClick={() => setShow(!show)} style={{
+          padding: '8px 16px', borderRadius: 6, border: '1px solid #ccc',
+          cursor: 'pointer', fontSize: 14, background: '#fff',
+        }}>
+          {show ? 'Hide' : 'Show'}
+        </button>
+        {['fade', 'slideUp', 'scaleIn'].map(m => (
+          <button key={m} onClick={() => setMode(m)} style={{
+            padding: '6px 12px', borderRadius: 6, border: 'none', cursor: 'pointer',
+            fontSize: 13, fontWeight: 500,
+            background: mode === m ? '#0d6efd' : '#e9ecef',
+            color: mode === m ? '#fff' : '#333',
+          }}>
+            {m}
+          </button>
+        ))}
+        <span style={{ fontSize: 12, color: '#888', marginLeft: 8 }}>
+          stage: {stage}
+        </span>
+      </div>
+      {stage !== 'hidden' && (
+        <div ref={ref} style={{
+          padding: 20, borderRadius: 12,
+          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+          color: 'white', fontWeight: 500, fontSize: 15,
+        }}>
+          Animated content with {mode} preset
+        </div>
+      )}
+    </div>
+  )
+}
+
+render(<KineticDemo />)
+`} noInline />
+
+## Core Concepts
+
+### Two Animation Approaches
+
+Kinetic supports two ways to define animations. You can mix and match both on the same component.
+
+**Style-based** — inline `CSSProperties` objects, zero external CSS needed:
+
+```tsx
+<Transition
+  show={isVisible}
+  enterStyle={{ opacity: 0, transform: 'scale(0.95)' }}
+  enterToStyle={{ opacity: 1, transform: 'scale(1)' }}
+  enterTransition="all 300ms ease-out"
+  leaveStyle={{ opacity: 1, transform: 'scale(1)' }}
+  leaveToStyle={{ opacity: 0, transform: 'scale(0.95)' }}
+  leaveTransition="all 200ms ease-in"
+>
+  <div>Content</div>
+</Transition>
+```
+
+**Class-based** — CSS class names (works with Tailwind, CSS modules, etc.):
+
+```tsx
+<Transition
+  show={isVisible}
+  enter="transition-all duration-300 ease-out"
+  enterFrom="opacity-0 scale-95"
+  enterTo="opacity-100 scale-100"
+  leave="transition-all duration-200 ease-in"
+  leaveFrom="opacity-100 scale-100"
+  leaveTo="opacity-0 scale-95"
+>
+  <div>Content</div>
+</Transition>
+```
+
+### Lifecycle Stages
+
+Every transition moves through four stages:
+
+```
+hidden ─── show=true ──→ entering ──→ entered
+                                        │
+                         ┌── show=false ─┘
+                         ▼
+                       leaving ──→ hidden (unmount)
+```
+
+| Stage | Description |
+|-------|-------------|
+| `hidden` | Element is unmounted (or `display: none` if `unmount={false}`) |
+| `entering` | Enter animation is playing — start styles applied, then end styles on next frame |
+| `entered` | Enter animation complete, element is fully visible |
+| `leaving` | Leave animation is playing, then transitions back to `hidden` |
+
+### How Transition Works Internally
+
+1. **Enter:** On mount, applies `enterStyle` (or `enterFrom` class) to the element. On the next animation frame, applies `enterToStyle` (or `enterTo` class). The browser's CSS transition animates between the two states.
+
+2. **Detection:** Listens for `transitionend` and `animationend` events on the element. Ignores bubbled events from children (checks `event.target === element`). A safety timeout (default 5000ms) completes the transition if browser events never fire.
+
+3. **Leave:** Removes enter classes, applies `leaveStyle`/`leaveFrom`, then on next frame applies `leaveToStyle`/`leaveTo`. After completion, unmounts the element.
+
+4. **Unmount behavior:** By default, `unmount={true}` removes the element from the DOM. Set `unmount={false}` to keep the element with `display: none` instead (useful for preserving scroll position or form state).
+
+### Four Modes
+
+| Mode | Component | Use Case | Example |
+|------|-----------|----------|---------|
+| **Transition** | `<Transition>` | Single element enter/leave | Modal, tooltip, dropdown |
+| **Collapse** | `<Collapse>` | Height-based expand/collapse | Accordion, FAQ, details |
+| **Stagger** | `<Stagger>` | Sequential animation of child list | Menu items, card grids |
+| **Group** | `<TransitionGroup>` | Key-based enter/exit of dynamic lists | Notifications, chat messages |
+
+## Quick Start
+
+### Basic Fade
+
+```tsx
+import { Transition, fade } from '@vitus-labs/kinetic'
+
+function FadeExample() {
+  const [show, setShow] = useState(true)
+
+  return (
+    <>
+      <button onClick={() => setShow(!show)}>Toggle</button>
+      <Transition show={show} {...fade}>
+        <div className="card">I fade in and out</div>
+      </Transition>
+    </>
+  )
+}
+```
+
+### Modal Dialog
+
+A more realistic example — fade backdrop with scale-in panel:
+
+```tsx
+import { Transition, fade, scaleIn } from '@vitus-labs/kinetic'
+import { useScrollLock, useFocusTrap, useKeyboard } from '@vitus-labs/hooks'
+
+function Modal({ open, onClose, children }) {
+  const panelRef = useRef(null)
+  useScrollLock(open)
+  useFocusTrap(panelRef, open)
+  useKeyboard('Escape', onClose)
+
+  return (
+    <>
+      {/* Backdrop */}
+      <Transition show={open} {...fade}>
+        <div
+          onClick={onClose}
+          style={{
+            position: 'fixed', inset: 0,
+            background: 'rgba(0,0,0,0.5)',
+            zIndex: 50,
+          }}
+        />
+      </Transition>
+
+      {/* Panel */}
+      <Transition show={open} {...scaleIn}>
+        <div
+          ref={panelRef}
+          role="dialog"
+          aria-modal="true"
+          style={{
+            position: 'fixed', top: '50%', left: '50%',
+            transform: 'translate(-50%, -50%)',
+            background: 'white', borderRadius: 12,
+            padding: 24, maxWidth: 480, width: '90%',
+            zIndex: 51,
+          }}
+        >
+          {children}
+          <button onClick={onClose}>Close</button>
+        </div>
+      </Transition>
+    </>
+  )
+}
+```
+
+### Dropdown Menu
+
+```tsx
+import { Transition, scaleIn } from '@vitus-labs/kinetic'
+import { useClickOutside } from '@vitus-labs/hooks'
+
+function Dropdown({ trigger, children }) {
+  const [open, setOpen] = useState(false)
+  const ref = useRef(null)
+  useClickOutside(ref, () => setOpen(false))
+
+  return (
+    <div ref={ref} style={{ position: 'relative' }}>
+      <button onClick={() => setOpen(!open)}>{trigger}</button>
+      <Transition
+        show={open}
+        enterStyle={{ opacity: 0, transform: 'translateY(-4px) scale(0.97)' }}
+        enterToStyle={{ opacity: 1, transform: 'translateY(0) scale(1)' }}
+        enterTransition="all 150ms ease-out"
+        leaveStyle={{ opacity: 1, transform: 'translateY(0) scale(1)' }}
+        leaveToStyle={{ opacity: 0, transform: 'translateY(-4px) scale(0.97)' }}
+        leaveTransition="all 100ms ease-in"
+      >
+        <div style={{
+          position: 'absolute', top: '100%', right: 0,
+          marginTop: 4, minWidth: 200,
+          background: 'white', borderRadius: 8,
+          boxShadow: '0 10px 25px rgba(0,0,0,0.12)',
+          border: '1px solid #e5e7eb',
+        }}>
+          {children}
+        </div>
+      </Transition>
+    </div>
+  )
+}
+```
+
+### Chainable Component Factory
+
+The `kinetic()` factory creates reusable animated components with an immutable chaining API — similar to `attrs()` and `rocketstyle()`:
+
+```tsx
+import { kinetic, fade, slideUp } from '@vitus-labs/kinetic'
+
+// Create a fade-in div
+const FadeDiv = kinetic('div').preset(fade)
+
+// Or build step by step with full control
+const SlidePanel = kinetic('aside')
+  .enter({ opacity: 0, transform: 'translateY(16px)' })
+  .enterTo({ opacity: 1, transform: 'translateY(0)' })
+  .enterTransition('all 300ms ease-out')
+  .leave({ opacity: 1, transform: 'translateY(0)' })
+  .leaveTo({ opacity: 0, transform: 'translateY(16px)' })
+  .leaveTransition('all 200ms ease-in')
+
+// Class-based with Tailwind
+const TailwindFade = kinetic('div')
+  .enterClass({
+    active: 'transition-all duration-300 ease-out',
+    from: 'opacity-0 translate-y-2',
+    to: 'opacity-100 translate-y-0',
+  })
+  .leaveClass({
+    active: 'transition-all duration-200 ease-in',
+    from: 'opacity-100 translate-y-0',
+    to: 'opacity-0 translate-y-2',
+  })
+
+// Switch modes via chaining
+const Accordion = kinetic('div').collapse({ transition: 'height 400ms ease' })
+const StaggerList = kinetic('ul').preset(slideUp).stagger({ interval: 50 })
+const AnimatedList = kinetic('div').preset(fade).group()
+```
+
+Usage — kinetic components work like regular HTML elements with extra animation props:
+
+```tsx
+function App() {
+  const [open, setOpen] = useState(false)
+
+  return (
+    <>
+      <button onClick={() => setOpen(!open)}>Toggle</button>
+      <FadeDiv show={open} className="my-panel" onClick={handleClick}>
+        <p>All HTML attributes are forwarded to the DOM</p>
+      </FadeDiv>
+    </>
+  )
+}
+```
+
+**Immutability:** Each chain method returns a new component. The original is never modified:
+
+```tsx
+const Base = kinetic('div').preset(fade)
+const WithTimeout = Base.config({ timeout: 3000 }) // Base is unchanged
+const WithCallback = Base.on({ onAfterEnter: () => console.log('done') })
+```
+
+### Accordion with Collapse
+
+```tsx
+import { Collapse } from '@vitus-labs/kinetic'
+import { useToggle } from '@vitus-labs/hooks'
+
+function AccordionItem({ title, children, defaultOpen = false }) {
+  const [open, toggle] = useToggle(defaultOpen)
+
+  return (
+    <div style={{ borderBottom: '1px solid #e5e7eb' }}>
+      <button
+        onClick={toggle}
+        aria-expanded={open}
+        style={{
+          display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+          width: '100%', padding: '16px 0',
+          background: 'none', border: 'none', cursor: 'pointer',
+          fontSize: 16, fontWeight: 500,
+        }}
+      >
+        {title}
+        <span style={{
+          transform: open ? 'rotate(180deg)' : 'rotate(0)',
+          transition: 'transform 300ms ease',
+        }}>
+          ▼
+        </span>
+      </button>
+      <Collapse show={open} transition="height 300ms ease">
+        <div style={{ paddingBottom: 16 }}>
+          {children}
+        </div>
+      </Collapse>
+    </div>
+  )
+}
+
+function FAQ() {
+  return (
+    <div>
+      <AccordionItem title="What is Kinetic?">
+        A declarative animation library for React with enter/leave lifecycle.
+      </AccordionItem>
+      <AccordionItem title="Does it support SSR?">
+        Yes. Elements are not rendered until show=true, so there's no hydration mismatch.
+      </AccordionItem>
+      <AccordionItem title="How does Collapse measure height?">
+        It reads scrollHeight on the content wrapper and animates from 0 to the measured value.
+      </AccordionItem>
+    </div>
+  )
+}
+```
+
+### Staggered Card Grid
+
+```tsx
+import { Stagger, slideUp } from '@vitus-labs/kinetic'
+import { useIntersection } from '@vitus-labs/hooks'
+
+function CardGrid({ cards }) {
+  const [ref, entry] = useIntersection({ threshold: 0.1 })
+  const isVisible = entry?.isIntersecting ?? false
+
+  return (
+    <div ref={ref}>
+      <Stagger show={isVisible} interval={60} appear {...slideUp}>
+        {cards.map((card) => (
+          <div
+            key={card.id}
+            style={{
+              padding: 24, borderRadius: 12,
+              border: '1px solid #e5e7eb',
+              background: 'white',
+            }}
+          >
+            <h3>{card.title}</h3>
+            <p>{card.description}</p>
+          </div>
+        ))}
+      </Stagger>
+    </div>
+  )
+}
+```
+
+### Notification Toast Stack
+
+```tsx
+import { TransitionGroup, slideRight } from '@vitus-labs/kinetic'
+
+function ToastContainer({ toasts, onDismiss }) {
+  return (
+    <div style={{
+      position: 'fixed', top: 16, right: 16,
+      display: 'flex', flexDirection: 'column', gap: 8,
+      zIndex: 100,
+    }}>
+      <TransitionGroup
+        enterStyle={{ opacity: 0, transform: 'translateX(100%)' }}
+        enterToStyle={{ opacity: 1, transform: 'translateX(0)' }}
+        enterTransition="all 300ms cubic-bezier(0.16, 1, 0.3, 1)"
+        leaveStyle={{ opacity: 1, transform: 'translateX(0)' }}
+        leaveToStyle={{ opacity: 0, transform: 'translateX(100%)' }}
+        leaveTransition="all 200ms ease-in"
+      >
+        {toasts.map((toast) => (
+          <div
+            key={toast.id}
+            style={{
+              padding: '12px 16px', borderRadius: 8, minWidth: 280,
+              background: toast.type === 'error' ? '#fef2f2' : '#f0fdf4',
+              border: `1px solid ${toast.type === 'error' ? '#fecaca' : '#bbf7d0'}`,
+              display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+            }}
+          >
+            <span>{toast.message}</span>
+            <button onClick={() => onDismiss(toast.id)} style={{
+              background: 'none', border: 'none', cursor: 'pointer', fontSize: 18,
+            }}>
+              ×
+            </button>
+          </div>
+        ))}
+      </TransitionGroup>
+    </div>
+  )
+}
+```
+
+## Built-in Presets
+
+Kinetic ships with 6 built-in presets for common animations:
+
+| Preset | Effect | Enter Duration | Leave Duration |
+|--------|--------|----------------|----------------|
+| `fade` | Opacity 0 → 1 | 300ms ease-out | 200ms ease-in |
+| `scaleIn` | Scale 0.95 + fade | 300ms ease-out | 200ms ease-in |
+| `slideUp` | Translate Y +16px + fade | 300ms ease-out | 200ms ease-in |
+| `slideDown` | Translate Y -16px + fade | 300ms ease-out | 200ms ease-in |
+| `slideLeft` | Translate X +16px + fade | 300ms ease-out | 200ms ease-in |
+| `slideRight` | Translate X -16px + fade | 300ms ease-out | 200ms ease-in |
+
+For 122 additional presets with factories and composition utilities, see [`@vitus-labs/kinetic-presets`](/docs/kinetic-presets).
+
+### Custom Presets
+
+Create your own preset object:
+
+```tsx
+import type { Preset } from '@vitus-labs/kinetic'
+
+const popIn: Preset = {
+  enterStyle: { opacity: 0, transform: 'scale(0.5)' },
+  enterToStyle: { opacity: 1, transform: 'scale(1)' },
+  enterTransition: 'all 400ms cubic-bezier(0.34, 1.56, 0.64, 1)',
+  leaveStyle: { opacity: 1, transform: 'scale(1)' },
+  leaveToStyle: { opacity: 0, transform: 'scale(0.5)' },
+  leaveTransition: 'all 200ms ease-in',
+}
+
+// Use with Transition
+<Transition show={visible} {...popIn}>
+  <div>Pops in with spring easing</div>
+</Transition>
+
+// Or with kinetic factory
+const PopDiv = kinetic('div').preset(popIn)
+```
+
+## Accessibility
+
+### Reduced Motion
+
+Kinetic integrates with the `useReducedMotion` hook from `@vitus-labs/hooks`. The `<Collapse>` component automatically skips height animation when the user prefers reduced motion, applying changes instantly instead.
+
+For Transition/Stagger/Group, you can check `useReducedMotion()` and conditionally skip animations or use simpler transitions:
+
+```tsx
+import { useReducedMotion } from '@vitus-labs/hooks'
+import { Transition, fade } from '@vitus-labs/kinetic'
+
+function AnimatedCard({ show, children }) {
+  const reducedMotion = useReducedMotion()
+
+  // Option A: Skip animation entirely
+  if (reducedMotion) {
+    return show ? <div>{children}</div> : null
+  }
+
+  // Option B: Use instant transition
+  const preset = reducedMotion
+    ? { enterTransition: 'none', leaveTransition: 'none' }
+    : fade
+
+  return (
+    <Transition show={show} {...preset}>
+      <div>{children}</div>
+    </Transition>
+  )
+}
+```
+
+### ARIA Patterns
+
+When using Transition with interactive elements, ensure proper ARIA attributes:
+
+```tsx
+// Disclosure pattern (accordion, details)
+<button aria-expanded={open} aria-controls="panel-1" onClick={toggle}>
+  Toggle
+</button>
+<Collapse show={open}>
+  <div id="panel-1" role="region">Content</div>
+</Collapse>
+
+// Dialog pattern (modal)
+<Transition show={open}>
+  <div role="dialog" aria-modal="true" aria-labelledby="dialog-title">
+    <h2 id="dialog-title">Title</h2>
+  </div>
+</Transition>
+
+// Alert pattern (toast)
+<div role="alert" aria-live="polite">
+  <TransitionGroup {...fade}>
+    {alerts.map(a => <div key={a.id}>{a.message}</div>)}
+  </TransitionGroup>
+</div>
+```
+
+## Edge Cases
+
+### Safety Timeout
+
+If a CSS transition or animation doesn't fire `transitionend`/`animationend` (e.g., `transition: none`, element hidden by parent, or browser doesn't support the property), the safety timeout (default 5000ms) completes the transition. You can adjust this per-component:
+
+```tsx
+<Transition show={show} timeout={2000} {...fade}>
+  <div>2-second safety timeout</div>
+</Transition>
+```
+
+### Appear on Mount
+
+By default, elements present on first render skip the enter animation. Set `appear` to animate on mount:
+
+```tsx
+<Transition show={true} appear {...slideUp}>
+  <div>Animates in on first render</div>
+</Transition>
+```
+
+### Keep Mounted
+
+Set `unmount={false}` to keep the element in the DOM when hidden (uses `display: none`):
+
+```tsx
+<Transition show={show} unmount={false} {...fade}>
+  <form>
+    {/* Form state preserved when hidden */}
+    <input name="search" />
+  </form>
+</Transition>
+```
+
+### Children Requirements
+
+The `<Transition>` child must accept `className`, `style`, and `ref` props. This works with most HTML elements and React components using `forwardRef`:
+
+```tsx
+// Works — HTML elements accept all props
+<Transition show={show} {...fade}>
+  <div>OK</div>
+</Transition>
+
+// Works — forwardRef component
+const Card = forwardRef((props, ref) => <div ref={ref} {...props} />)
+<Transition show={show} {...fade}>
+  <Card>OK</Card>
+</Transition>
+```
+
+## Exports
+
+```tsx
+import {
+  // Components
+  Transition,
+  Collapse,
+  Stagger,
+  TransitionGroup,
+
+  // Chainable factory
+  kinetic,
+
+  // Built-in presets
+  fade,
+  scaleIn,
+  slideUp,
+  slideDown,
+  slideLeft,
+  slideRight,
+  presets,
+
+  // Hooks
+  useTransitionState,
+  useAnimationEnd,
+} from '@vitus-labs/kinetic'
+
+import type {
+  Preset,
+  TransitionStage,
+  TransitionProps,
+  CollapseProps,
+  StaggerProps,
+  TransitionGroupProps,
+  TransitionCallbacks,
+  ClassTransitionProps,
+  StyleTransitionProps,
+  TransitionStateResult,
+  KineticComponent,
+  UseTransitionState,
+  UseAnimationEnd,
+} from '@vitus-labs/kinetic'
+```
