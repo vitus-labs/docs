@@ -3,155 +3,171 @@ title: API Reference
 description: Complete API reference for @vitus-labs/tools-storybook.
 ---
 
-## main()
+## Storybook Main Config
+
+The default export from `@vitus-labs/tools-storybook/storybook/main` provides a complete `StorybookConfig`:
 
 ```tsx
-main(options?: Partial<StorybookConfig>): StorybookConfig
-```
+import type { StorybookConfig } from '@storybook/react-vite'
 
-Returns a complete Storybook main configuration. Merges user options with defaults.
-
-### Default Main Config
-
-```tsx
-{
-  framework: '@storybook/react-vite',
-  addons: [
-    '@storybook/addon-essentials',
-    '@storybook/addon-a11y',
-    ...CONFIG.addons,
+const STORYBOOK_CONFIG: StorybookConfig = {
+  framework: resolveFramework(CONFIG.framework),
+  stories: CONFIG.storiesDir,
+  addons: [/* mapped from CONFIG.addons */],
+  experimental_indexers: (existing) => [
+    manualStoryIndexer,
+    autoDiscoveryIndexer,
+    ...wrappedExisting,
   ],
-  stories: CONFIG.stories,           // From vl-tools.config.mjs
-  staticDirs: CONFIG.staticDirs,
-  refs: CONFIG.refs,
-  typescript: {
-    reactDocgen: 'react-docgen',
-    skipCompiler: true,
+  viteFinal: async (config) => {
+    // Platform globals, extensions, aliases, plugins
+    return config
   },
-  experimental_indexers: [rocketstoriesIndexer],
-  viteFinal: (config) => ({
-    ...config,
-    plugins: [...config.plugins, rocketstoriesVitePlugin()],
-  }),
 }
 ```
 
-### Rocketstories Indexer
+### Framework Resolution
 
-The custom indexer handles `.rocketstories` files:
+| Config Value | Storybook Framework |
+|-------------|-------------------|
+| `'vite'` (default) | `@storybook/react-vite` |
+| `'next'` | `@storybook/nextjs-vite` |
+| `'react-native'` | `@storybook/react-vite` |
+
+### viteFinal
+
+The `viteFinal` hook:
+
+1. **Defines platform globals** (`__BROWSER__`, `__WEB__`, `__NATIVE__`, `__NODE__`, `__CLIENT__`, `__VITUS_LABS_STORIES__`)
+2. **Resolves platform extensions** — `.web.*` for web frameworks, `.native.*` for React Native
+3. **Aliases `react-native`** to `react-native-web` (React Native framework only)
+4. **Mocks `next/font`** via esbuild plugin (Next.js framework only)
+5. **Adds Vite plugins** — `vite-tsconfig-paths` and `rocketstoriesVitePlugin`
+
+### Indexers
+
+Three indexers in priority order:
+
+| Indexer | Purpose |
+|---------|---------|
+| `manualStoryIndexer` | Handles manually written `.stories.*` files |
+| `autoDiscoveryIndexer` | Auto-discovers components from `index.ts` files |
+| Wrapped CSF indexer | Default Storybook indexer, wrapped to skip rocketstories-generated files |
+
+The CSF wrapper reads each `.stories.*` file and checks for rocketstories patterns (e.g. `stories.init()`). If detected, it returns an empty index to avoid parse errors.
+
+### Addons Map
+
+Only external addons need mapping — Storybook 10 essentials are built into core:
 
 ```tsx
-{
-  test: /\.rocketstories\.[jt]sx?$/,
-  createIndex: async (fileName, options) => {
-    // Reads file, extracts named exports
-    // Returns: [{ exportName, type: 'story', ... }]
+const ADDONS_MAP: Record<string, string> = {
+  a11y: '@storybook/addon-a11y',
+  chromatic: '@chromatic-com/storybook',
+  designs: '@storybook/addon-designs',
+  docs: '@storybook/addon-docs',
+  mode: '@vueless/storybook-dark-mode',
+  pseudoStates: 'storybook-addon-pseudo-states',
+  themes: '@storybook/addon-themes',
+  vitest: '@storybook/addon-vitest',
+}
+```
+
+## Storybook Preview Config
+
+The default export from `@vitus-labs/tools-storybook/storybook/preview` provides preview configuration for controls, layout, and theming.
+
+## Storybook Manager Config
+
+The default export from `@vitus-labs/tools-storybook/storybook/manager` configures the Storybook manager UI (sidebar, toolbar, theme).
+
+## StoriesConfig Interface
+
+```tsx
+interface StoriesConfig {
+  framework?: 'vite' | 'next' | 'react-native'
+  outDir?: string
+  port?: number
+  storiesDir?: string[]
+  monorepoStoriesDir?: string[]
+  ui?: {
+    theme?: 'dark' | 'light'
   }
-}
-```
-
-### Rocketstories Vite Plugin
-
-Intercepts `.rocketstories` file requests during Vite dev/build:
-
-```tsx
-{
-  name: 'vitus-labs-rocketstories',
-  resolveId(source) {
-    // Handles virtual module resolution for .rocketstories
-  },
-  load(id) {
-    // Transforms .rocketstories → standard Storybook module
-    // Generates: export default { ... }; export const StoryName = { ... };
-  },
-}
-```
-
-## preview()
-
-```tsx
-preview(options?: Partial<StorybookPreview>): StorybookPreview
-```
-
-Returns preview configuration merged with defaults.
-
-### Default Preview Config
-
-```tsx
-{
-  parameters: {
-    controls: {
-      expanded: true,
-      sort: 'requiredFirst',
-    },
+  globals?: Record<string, any>
+  addons?: Partial<{
+    controls: boolean | { expanded: boolean }
+    actions: boolean
+    a11y: boolean
+    toolbars: boolean
+    docs: boolean
+    viewport: boolean | { options: Record<string, any> }
+    chromatic: boolean
+    designs: boolean
+    mode: boolean
+    pseudoStates: boolean
+    themes: boolean
+    vitest: boolean
+    measure: boolean
+    outline: boolean
+    darkMode: { dark: any; light: any }
     backgrounds: {
-      disable: true,
-    },
-    layout: 'centered',
-  },
-}
-```
-
-### Usage with Decorators
-
-```tsx
-import { preview } from '@vitus-labs/tools-storybook'
-import Theme from '@vitus-labs/rocketstories/decorators/Theme'
-
-export default preview({
-  decorators: [Theme],
-  parameters: {
-    layout: 'fullscreen',
-  },
-})
-```
-
-## manager()
-
-```tsx
-manager(options?: ManagerOptions): void
-```
-
-Configures the Storybook manager (sidebar, toolbar). Call from `.storybook/manager.ts`.
-
-```tsx
-import { manager } from '@vitus-labs/tools-storybook'
-
-manager()
-```
-
-## Configuration Shape
-
-From `vl-tools.config.mjs`:
-
-```tsx
-interface StorybookConfig {
-  stories: string[]              // Story discovery patterns
-  addons: string[]               // Additional Storybook addons
-  staticDirs: string[]           // Static asset directories
-  refs: Record<string, {         // Storybook composition
-    title: string
-    url: string
+      default: string
+      options: Record<string, { name: string; value: string }>
+      grid?: { disable?: boolean; cellSize?: number; opacity?: number }
+    }
   }>
+  rocketstories?: {
+    module: string
+    export?: string
+  }
 }
 ```
 
 ### Default Configuration
 
+Defaults are resolved from `@vitus-labs/tools-core`'s config loading system. The `stories` key in `vl-tools.config.mjs` is merged with:
+
 ```tsx
 {
-  stories: [
-    'src/**/*.stories.@(ts|tsx|js|jsx)',
-    'src/**/*.rocketstories.@(ts|tsx|js|jsx)',
-  ],
-  addons: [],
-  staticDirs: [],
-  refs: {},
+  framework: 'vite',
+  port: 6006,
+  storiesDir: ['/src/**/*.stories.@(js|jsx|ts|tsx|md|mdx)'],
+  addons: {
+    a11y: true,
+    chromatic: true,
+    docs: true,
+    themes: true,
+    vitest: true,
+  },
+  rocketstories: {
+    module: '@vitus-labs/rocketstories',
+    export: 'rocketstories',
+  },
 }
 ```
 
-## Exports
+## Rocketstories Vite Plugin
+
+The `rocketstoriesVitePlugin` intercepts virtual story module requests:
 
 ```tsx
-import { main, preview, manager } from '@vitus-labs/tools-storybook'
+rocketstoriesVitePlugin(config: {
+  module: string   // e.g. '@vitus-labs/rocketstories'
+  export?: string  // e.g. 'rocketstories'
+})
+```
+
+It generates story imports from the configured rocketstories module, allowing auto-discovered stories to use your project's `init()` factory with decorators.
+
+## Exports Summary
+
+```tsx
+// Config and types
+import { CONFIG } from '@vitus-labs/tools-storybook'
+import type { StoriesConfig } from '@vitus-labs/tools-storybook'
+
+// Storybook configs (re-export as default in .storybook/ files)
+export { default } from '@vitus-labs/tools-storybook/storybook/main'
+export { default } from '@vitus-labs/tools-storybook/storybook/preview'
+export { default } from '@vitus-labs/tools-storybook/storybook/manager'
 ```

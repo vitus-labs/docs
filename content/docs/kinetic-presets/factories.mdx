@@ -1,0 +1,291 @@
+---
+title: Factories & Utilities
+description: Create custom presets with factory functions and modify existing presets with composition utilities.
+---
+
+## Factories
+
+Factory functions create custom presets with full control over timing, easing, and effect parameters. All factories return a `Preset` object compatible with `<Transition>` and `kinetic().preset()`.
+
+### createFade
+
+Create a fade preset with optional directional movement.
+
+```tsx
+import { createFade } from '@vitus-labs/kinetic-presets'
+
+// Pure opacity fade with custom duration
+const slowFade = createFade({ duration: 500 })
+
+// Fade with directional movement
+const fadeUpCustom = createFade({ direction: 'up', distance: 24, duration: 400 })
+
+// Fast enter, slow leave
+const asymmetric = createFade({ duration: 150, leaveDuration: 400 })
+```
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `direction` | `'up' \| 'down' \| 'left' \| 'right'` | — | Direction of movement (omit for pure opacity) |
+| `distance` | `number` | `16` | Translation distance in px |
+| `duration` | `number` | `300` | Enter duration in ms |
+| `leaveDuration` | `number` | `200` | Leave duration in ms |
+| `easing` | `string` | `'ease-out'` | Enter easing |
+| `leaveEasing` | `string` | `'ease-in'` | Leave easing |
+
+---
+
+### createSlide
+
+Create a directional slide preset.
+
+```tsx
+import { createSlide } from '@vitus-labs/kinetic-presets'
+
+const slideFromLeft = createSlide({ direction: 'left', distance: 32, duration: 250 })
+const slideDown = createSlide({ direction: 'down', distance: 48 })
+```
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `direction` | `'up' \| 'down' \| 'left' \| 'right'` | `'up'` | Slide direction |
+| `distance` | `number` | `16` | Translation distance in px |
+| `duration` | `number` | `300` | Enter duration in ms |
+| `leaveDuration` | `number` | `200` | Leave duration in ms |
+| `easing` | `string` | `'ease-out'` | Enter easing |
+| `leaveEasing` | `string` | `'ease-in'` | Leave easing |
+
+---
+
+### createScale
+
+Create a scale transform preset.
+
+```tsx
+import { createScale } from '@vitus-labs/kinetic-presets'
+
+const scaleFromSmall = createScale({ from: 0.8, duration: 400 })
+
+// Spring bounce effect
+const bounceScale = createScale({
+  from: 0.5,
+  easing: 'cubic-bezier(0.34, 1.56, 0.64, 1)',
+})
+```
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `from` | `number` | `0.9` | Starting scale factor (0-1) |
+| `duration` | `number` | `300` | Enter duration in ms |
+| `leaveDuration` | `number` | `200` | Leave duration in ms |
+| `easing` | `string` | `'ease-out'` | Enter easing |
+| `leaveEasing` | `string` | `'ease-in'` | Leave easing |
+
+---
+
+### createRotate
+
+Create a rotation preset.
+
+```tsx
+import { createRotate } from '@vitus-labs/kinetic-presets'
+
+const gentleRotate = createRotate({ degrees: 10, duration: 400 })
+
+// Counter-clockwise
+const reverseRotate = createRotate({ degrees: -90 })
+```
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `degrees` | `number` | `15` | Rotation angle (negative for counter-clockwise) |
+| `duration` | `number` | `300` | Enter duration in ms |
+| `leaveDuration` | `number` | `200` | Leave duration in ms |
+| `easing` | `string` | `'ease-out'` | Enter easing |
+| `leaveEasing` | `string` | `'ease-in'` | Leave easing |
+
+---
+
+### createBlur
+
+Create a blur effect preset with optional scale.
+
+```tsx
+import { createBlur } from '@vitus-labs/kinetic-presets'
+
+const heavyBlur = createBlur({ amount: 12, duration: 400 })
+
+// Blur with scale for a "puff" effect
+const puff = createBlur({ amount: 8, scale: 0.95 })
+```
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `amount` | `number` | `8` | Blur amount in px |
+| `scale` | `number` | — | Optional scale factor (omit for pure blur) |
+| `duration` | `number` | `300` | Enter duration in ms |
+| `leaveDuration` | `number` | `200` | Leave duration in ms |
+| `easing` | `string` | `'ease-out'` | Enter easing |
+| `leaveEasing` | `string` | `'ease-in'` | Leave easing |
+
+---
+
+## Composition Utilities
+
+Utilities to modify, combine, and transform existing presets without mutating them.
+
+### compose
+
+Merge multiple presets into one. Later presets override earlier ones for conflicting properties.
+
+```tsx
+import { compose, fade, slideUp, scaleIn } from '@vitus-labs/kinetic-presets'
+
+const fadeSlide = compose(fade, slideUp)
+// Result: { opacity: 0, transform: 'translateY(16px)' } → { opacity: 1, transform: 'translateY(0)' }
+
+const triple = compose(fade, slideUp, scaleIn)
+```
+
+**Merge behavior:**
+- Style objects are shallow-merged (later keys win)
+- Transition strings use the last preset's value
+- CSS class names are space-concatenated
+
+**Important:** If two presets modify the same CSS `transform` property, the last one wins since CSS transform is a single string. Use factories for combined transform effects.
+
+---
+
+### withDuration
+
+Override the enter and leave durations of a preset.
+
+```tsx
+import { withDuration, fadeUp } from '@vitus-labs/kinetic-presets'
+
+// Same duration for enter and leave
+const slow = withDuration(fadeUp, 500)
+
+// Different durations
+const fastIn = withDuration(fadeUp, 150, 400)
+```
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `preset` | `Preset` | The preset to modify |
+| `enterMs` | `number` | Enter duration in ms |
+| `leaveMs` | `number` | Leave duration in ms (defaults to `enterMs`) |
+
+---
+
+### withEasing
+
+Override the easing function of a preset.
+
+```tsx
+import { withEasing, fadeUp } from '@vitus-labs/kinetic-presets'
+
+// Same easing for both
+const spring = withEasing(fadeUp, 'cubic-bezier(0.34, 1.56, 0.64, 1)')
+
+// Different easing for enter and leave
+const custom = withEasing(fadeUp, 'ease-out', 'ease-in')
+```
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `preset` | `Preset` | The preset to modify |
+| `enterEasing` | `string` | Enter easing |
+| `leaveEasing` | `string` | Leave easing (defaults to `enterEasing`) |
+
+---
+
+### withDelay
+
+Add a delay before transitions start.
+
+```tsx
+import { withDelay, fadeUp } from '@vitus-labs/kinetic-presets'
+
+// Same delay for both
+const delayed = withDelay(fadeUp, 100)
+
+// Delay only on enter
+const enterDelayed = withDelay(fadeUp, 200, 0)
+```
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `preset` | `Preset` | The preset to modify |
+| `enterDelayMs` | `number` | Enter delay in ms |
+| `leaveDelayMs` | `number` | Leave delay in ms (defaults to `enterDelayMs`) |
+
+---
+
+### reverse
+
+Swap enter and leave animations. The enter animation becomes the leave animation and vice versa.
+
+```tsx
+import { reverse, slideUp } from '@vitus-labs/kinetic-presets'
+
+// slideUp enters by sliding up, leaves by sliding down
+// reversed: enters by sliding down, leaves by sliding up
+const slideDownOnLeave = reverse(slideUp)
+```
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `preset` | `Preset` | The preset to reverse |
+
+---
+
+## Recipes
+
+### Staggered List with Custom Timing
+
+```tsx
+import { kinetic } from '@vitus-labs/kinetic'
+import { fadeUp, withDuration, withEasing } from '@vitus-labs/kinetic-presets'
+
+const StaggerList = kinetic('ul')
+  .preset(withEasing(
+    withDuration(fadeUp, 400),
+    'cubic-bezier(0.34, 1.56, 0.64, 1)',
+  ))
+  .stagger({ interval: 60, reverseLeave: true })
+```
+
+### Modal with Backdrop
+
+```tsx
+import { kinetic } from '@vitus-labs/kinetic'
+import { fade, scaleIn, withDuration } from '@vitus-labs/kinetic-presets'
+
+const Backdrop = kinetic('div').preset(withDuration(fade, 200))
+const ModalPanel = kinetic('div').preset(scaleIn)
+```
+
+### Notification Toast
+
+```tsx
+import { kinetic } from '@vitus-labs/kinetic'
+import { createSlide, withEasing } from '@vitus-labs/kinetic-presets'
+
+const Toast = kinetic('div').preset(
+  withEasing(
+    createSlide({ direction: 'right', distance: 320, duration: 350 }),
+    'cubic-bezier(0.16, 1, 0.3, 1)',
+  ),
+)
+```
+
+### Accordion with Stagger
+
+```tsx
+import { kinetic } from '@vitus-labs/kinetic'
+import { fadeUp } from '@vitus-labs/kinetic-presets'
+
+const AccordionBody = kinetic('div').collapse({ transition: 'height 300ms ease' })
+const AccordionItems = kinetic('div').preset(fadeUp).stagger({ interval: 30 })
+```

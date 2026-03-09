@@ -1,0 +1,263 @@
+---
+title: Kinetic Presets
+description: 122 ready-to-use animation presets, 5 customizable factories, and composition utilities for @vitus-labs/kinetic.
+---
+
+`@vitus-labs/kinetic-presets` provides a comprehensive library of 122 animation presets organized into 25 categories, plus 5 factory functions for creating custom presets and 5 composition utilities.
+
+## Installation
+
+```package-install
+@vitus-labs/kinetic-presets
+```
+
+**Peer dependencies:** `react >= 18`, `@vitus-labs/kinetic`
+
+## Quick Start
+
+```tsx
+import { kinetic } from '@vitus-labs/kinetic'
+import { fadeUp, scaleIn, compose, withDuration } from '@vitus-labs/kinetic-presets'
+
+// Use a preset directly
+const FadeCard = kinetic('div').preset(fadeUp)
+
+// Customize duration
+const SlowFade = kinetic('div').preset(withDuration(fadeUp, 500))
+
+// Compose multiple effects
+const FadeScale = kinetic('div').preset(compose(fadeUp, scaleIn))
+```
+
+Or use with the `<Transition>` component:
+
+```tsx
+import { Transition } from '@vitus-labs/kinetic'
+import { slideUp } from '@vitus-labs/kinetic-presets'
+
+<Transition show={visible} {...slideUp}>
+  <div>Animated content</div>
+</Transition>
+```
+
+## Preset Categories
+
+All 122 presets are organized into 25 categories:
+
+| Category | Count | Examples |
+|----------|-------|---------|
+| [Fades](/docs/kinetic-presets/presets#fades) | 14 | `fade`, `fadeUp`, `fadeDownBig`, `fadeUpLeft` |
+| [Slides](/docs/kinetic-presets/presets#slides) | 8 | `slideUp`, `slideDown`, `slideLeftBig` |
+| [Scales](/docs/kinetic-presets/presets#scales) | 9 | `scaleIn`, `scaleUp`, `scaleDown`, `scaleRotateIn` |
+| [Blurs](/docs/kinetic-presets/presets#blurs) | 6 | `blurIn`, `blurInDown`, `blurScale` |
+| [Bounces](/docs/kinetic-presets/presets#bounces) | 5 | `bounceIn`, `bounceInDown`, `bounceInLeft` |
+| [Rotations](/docs/kinetic-presets/presets#rotations) | 4 | `rotateIn`, `rotateInReverse`, `rotateInDown` |
+| [Flips](/docs/kinetic-presets/presets#flips) | 6 | `flipX`, `flipY`, `flipDiagonal` |
+| [Zooms](/docs/kinetic-presets/presets#zooms) | 10 | `zoomIn`, `zoomOut`, `zoomInDown`, `zoomOutLeft` |
+| [Clip Path](/docs/kinetic-presets/presets#clip-path) | 8 | `clipCircle`, `clipDiamond`, `clipCenter` |
+| [Perspective](/docs/kinetic-presets/presets#perspective) | 4 | `perspectiveUp`, `perspectiveDown` |
+| [Swings](/docs/kinetic-presets/presets#swings) | 4 | `swingInTop`, `swingInBottom`, `swingInLeft` |
+| [Tilts](/docs/kinetic-presets/presets#tilts) | 4 | `tiltInUp`, `tiltInDown`, `tiltInLeft` |
+| [Floats](/docs/kinetic-presets/presets#floats) | 4 | `floatUp`, `floatDown`, `floatLeft` |
+| [Flies](/docs/kinetic-presets/presets#flies) | 4 | `flyInUp`, `flyInDown`, `flyInLeft` |
+| [Light Speed](/docs/kinetic-presets/presets#light-speed) | 2 | `lightSpeedInLeft`, `lightSpeedInRight` |
+| [Back](/docs/kinetic-presets/presets#back) | 4 | `backInUp`, `backInDown`, `backInLeft` |
+| [Pushes](/docs/kinetic-presets/presets#pushes) | 2 | `pushInLeft`, `pushInRight` |
+| [Rolls](/docs/kinetic-presets/presets#rolls) | 2 | `rollInLeft`, `rollInRight` |
+| [Swirls](/docs/kinetic-presets/presets#swirls) | 2 | `swirlIn`, `swirlInReverse` |
+| [Slits](/docs/kinetic-presets/presets#slits) | 2 | `slitHorizontal`, `slitVertical` |
+| [Expand](/docs/kinetic-presets/presets#expand) | 2 | `expandX`, `expandY` |
+| [Squish](/docs/kinetic-presets/presets#squish) | 2 | `squishX`, `squishY` |
+| [Skews](/docs/kinetic-presets/presets#skews) | 4 | `skewIn`, `skewInReverse`, `skewInY` |
+| [Special](/docs/kinetic-presets/presets#special) | 8 | `popIn`, `puffIn`, `rubberIn`, `newspaperIn`, `springIn`, `spinIn` |
+| [Drop/Rise](/docs/kinetic-presets/presets#drop--rise) | 2 | `drop`, `rise` |
+
+## Factories
+
+5 factory functions create custom presets with full control over timing, easing, and parameters:
+
+| Factory | Creates | Key Options |
+|---------|---------|-------------|
+| [`createFade`](/docs/kinetic-presets/factories#createfade) | Fade with optional direction | `direction`, `distance`, `duration` |
+| [`createSlide`](/docs/kinetic-presets/factories#createslide) | Directional slide | `direction`, `distance`, `duration` |
+| [`createScale`](/docs/kinetic-presets/factories#createscale) | Scale transform | `from`, `duration`, `easing` |
+| [`createRotate`](/docs/kinetic-presets/factories#createrotate) | Rotation | `degrees`, `duration`, `easing` |
+| [`createBlur`](/docs/kinetic-presets/factories#createblur) | Blur + optional scale | `amount`, `scale`, `duration` |
+
+## Composition Utilities
+
+5 utility functions modify and combine presets:
+
+| Utility | Description | Example |
+|---------|-------------|---------|
+| [`compose`](/docs/kinetic-presets/factories#compose) | Merge multiple presets into one | `compose(fade, slideUp)` |
+| [`withDuration`](/docs/kinetic-presets/factories#withduration) | Override enter/leave duration | `withDuration(fade, 500, 200)` |
+| [`withEasing`](/docs/kinetic-presets/factories#witheasing) | Override enter/leave easing | `withEasing(fade, 'ease-in-out')` |
+| [`withDelay`](/docs/kinetic-presets/factories#withdelay) | Add delay to transitions | `withDelay(fade, 100)` |
+| [`reverse`](/docs/kinetic-presets/factories#reverse) | Swap enter and leave animations | `reverse(slideUp)` |
+
+## Common Patterns
+
+### Page Section Reveal
+
+Animate sections as users scroll into view:
+
+```tsx
+import { kinetic } from '@vitus-labs/kinetic'
+import { fadeUp, withDuration, withEasing } from '@vitus-labs/kinetic-presets'
+import { useIntersection } from '@vitus-labs/hooks'
+
+const RevealSection = kinetic('section')
+  .preset(withEasing(withDuration(fadeUp, 600), 'cubic-bezier(0.16, 1, 0.3, 1)'))
+
+function HeroSection({ children }) {
+  const [ref, entry] = useIntersection({ threshold: 0.2 })
+  const visible = entry?.isIntersecting ?? false
+
+  return (
+    <div ref={ref}>
+      <RevealSection show={visible} appear>
+        {children}
+      </RevealSection>
+    </div>
+  )
+}
+```
+
+### Tooltip with Directional Presets
+
+Choose the animation based on placement:
+
+```tsx
+import { kinetic } from '@vitus-labs/kinetic'
+import { fadeUp, fadeDown, fadeLeft, fadeRight } from '@vitus-labs/kinetic-presets'
+
+const presetMap = {
+  top: fadeDown,     // tooltip above: slides down into view
+  bottom: fadeUp,    // tooltip below: slides up into view
+  left: fadeRight,   // tooltip left: slides right into view
+  right: fadeLeft,   // tooltip right: slides left into view
+}
+
+function Tooltip({ show, placement = 'top', children }) {
+  const Component = kinetic('div').preset(presetMap[placement])
+
+  return (
+    <Component show={show} role="tooltip">
+      {children}
+    </Component>
+  )
+}
+```
+
+### Sequential Feature Cards
+
+```tsx
+import { kinetic } from '@vitus-labs/kinetic'
+import { bounceIn, withDelay } from '@vitus-labs/kinetic-presets'
+
+const StaggerCards = kinetic('div')
+  .preset(bounceIn)
+  .stagger({ interval: 80, reverseLeave: true })
+
+function Features({ features, visible }) {
+  return (
+    <StaggerCards show={visible} appear>
+      {features.map((f) => (
+        <div key={f.id} className="feature-card">
+          <h3>{f.title}</h3>
+          <p>{f.description}</p>
+        </div>
+      ))}
+    </StaggerCards>
+  )
+}
+```
+
+### Animated Route Transitions
+
+```tsx
+import { kinetic } from '@vitus-labs/kinetic'
+import { fade, slideLeft, compose, withDuration } from '@vitus-labs/kinetic-presets'
+
+const PageTransition = kinetic('div').preset(
+  withDuration(compose(fade, slideLeft), 200, 150)
+)
+
+// In your layout
+function Layout({ children, routeKey }) {
+  return (
+    <PageTransition show={true} appear key={routeKey}>
+      <main>{children}</main>
+    </PageTransition>
+  )
+}
+```
+
+## How Presets Work
+
+A preset is a plain object with enter/leave style and class definitions:
+
+```tsx
+// This is what fadeUp looks like internally:
+const fadeUp = {
+  enterStyle: { opacity: 0, transform: 'translateY(16px)' },
+  enterToStyle: { opacity: 1, transform: 'translateY(0)' },
+  enterTransition: 'all 300ms ease-out',
+  leaveStyle: { opacity: 1, transform: 'translateY(0)' },
+  leaveToStyle: { opacity: 0, transform: 'translateY(16px)' },
+  leaveTransition: 'all 200ms ease-in',
+}
+```
+
+All 122 presets follow this symmetric pattern (leave reverses enter). The library uses a compact internal helper that generates both directions from a single pair of states, keeping the bundle small despite the large number of presets.
+
+## Tree-Shaking
+
+All 122 presets are individually exported for tree-shaking. Import only what you use:
+
+```tsx
+// Only bundles fadeUp and scaleIn — everything else is eliminated
+import { fadeUp, scaleIn } from '@vitus-labs/kinetic-presets'
+```
+
+The `presets` object re-exports everything as a single object (useful for exploration/debugging), but prefer named imports for production builds.
+
+## Exports
+
+```tsx
+import {
+  // Factories
+  createFade,
+  createSlide,
+  createScale,
+  createRotate,
+  createBlur,
+
+  // Utilities
+  compose,
+  withDuration,
+  withEasing,
+  withDelay,
+  reverse,
+
+  // All 122 presets (named exports)
+  fade,
+  fadeUp,
+  fadeDown,
+  // ... see full list in Presets Reference
+
+  // All presets as object
+  presets,
+} from '@vitus-labs/kinetic-presets'
+
+import type {
+  Preset,
+  Direction,
+  FadeOptions,
+  SlideOptions,
+  ScaleOptions,
+  RotateOptions,
+  BlurOptions,
+} from '@vitus-labs/kinetic-presets'
+```

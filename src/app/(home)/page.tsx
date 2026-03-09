@@ -56,6 +56,18 @@ const uiPackages = [
     href: '/docs/connectors',
   },
   {
+    title: 'Kinetic',
+    description:
+      'Declarative enter/leave animations — Transition, Collapse, Stagger, and TransitionGroup.',
+    href: '/docs/kinetic',
+  },
+  {
+    title: 'Kinetic Presets',
+    description:
+      '122 animation presets, 5 factories, and composition utilities for Kinetic.',
+    href: '/docs/kinetic-presets',
+  },
+  {
     title: 'Rocketstories',
     description:
       'Auto-generated Storybook stories from rocketstyle components.',
@@ -201,7 +213,7 @@ export default function HomePage() {
         <div className="flex items-center gap-2 rounded-full border border-fd-border bg-fd-card/60 px-4 py-1.5 text-sm backdrop-blur-sm">
           <span className="inline-block h-2 w-2 rounded-full bg-emerald-500" />
           <span className="text-fd-muted-foreground">
-            v2.0.0-alpha.25 — actively developed
+            v2.0.0-alpha.26 — actively developed
           </span>
         </div>
 
@@ -214,9 +226,9 @@ export default function HomePage() {
         </h1>
 
         <p className="max-w-2xl text-lg leading-relaxed text-fd-muted-foreground md:text-xl">
-          A modular ecosystem of 24 packages — composable UI primitives,
-          a 3KB CSS-in-JS engine, responsive layouts, and developer tools
-          that keep your whole monorepo in sync.
+          A modular ecosystem of 26 packages — composable UI primitives,
+          a 3KB CSS-in-JS engine, animations, responsive layouts, and
+          developer tools that keep your whole monorepo in sync.
         </p>
 
         <div className="flex flex-wrap justify-center gap-3">
@@ -243,7 +255,7 @@ export default function HomePage() {
         {/* Stats */}
         <div className="mt-4 flex flex-wrap justify-center gap-10">
           <div className="stat-pill">
-            <span className="stat-value">24</span>
+            <span className="stat-value">26</span>
             <span className="stat-label">Packages</span>
           </div>
           <div className="stat-pill">
@@ -257,6 +269,10 @@ export default function HomePage() {
           <div className="stat-pill">
             <span className="stat-value">28</span>
             <span className="stat-label">React Hooks</span>
+          </div>
+          <div className="stat-pill">
+            <span className="stat-value">122</span>
+            <span className="stat-label">Animation Presets</span>
           </div>
         </div>
       </section>
