@@ -54,6 +54,55 @@ import App from './App'
 createRoot(document.getElementById('root')!).render(<App />)
 ```
 
+### React Native (Expo)
+
+```package-install
+@vitus-labs/core @vitus-labs/connector-native @vitus-labs/elements @vitus-labs/rocketstyle
+```
+
+```tsx title="src/init.ts"
+import { init } from '@vitus-labs/core'
+import { View, Text } from 'react-native'
+import {
+  css,
+  styled,
+  provider,
+  useTheme,
+  createMediaQueries,
+} from '@vitus-labs/connector-native'
+
+init({
+  css,
+  styled,
+  provider,
+  useTheme,
+  component: View,
+  textComponent: Text,
+  createMediaQueries,
+})
+```
+
+```tsx title="App.tsx"
+import './src/init'
+import { Element } from '@vitus-labs/elements'
+
+export default function App() {
+  return (
+    <Element padding={24}>
+      Hello from React Native!
+    </Element>
+  )
+}
+```
+
+Key differences from web setup:
+- Use `connector-native` instead of `connector-styler`
+- Set `component: View` and `textComponent: Text` (RN primitives instead of HTML tags)
+- Pass `createMediaQueries` for responsive breakpoint support
+- No `@vitus-labs/styler` needed — the native connector handles CSS parsing internally
+
+See the [React Native connector docs](/docs/connectors/native) for details on how CSS template literals are converted to style objects.
+
 ## Your First Component
 
 ```tsx
@@ -120,3 +169,5 @@ render(<Greeting />)
 - Learn about the [styling engine](/docs/styler) — high-performance CSS-in-JS
 - Explore [Elements](/docs/elements) — base UI primitives
 - Build composable components with [Rocketstyle](/docs/rocketstyle)
+- Add animations with [Kinetic](/docs/kinetic)
+- Set up [React Native](/docs/connectors/native) support
