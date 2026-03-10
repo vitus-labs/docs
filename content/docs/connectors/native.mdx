@@ -1,0 +1,169 @@
+---
+title: React Native Connector
+description: CSS engine adapter for React Native — parses CSS template literals into style objects.
+---
+
+`@vitus-labs/connector-native` bridges the Vitus Labs component system to React Native. Instead of generating CSS class names and injecting `<style>` rules (as web connectors do), it parses CSS template literals into React Native `StyleSheet`-compatible objects and applies them via the `style` prop.
+
+## Installation
+
+```package-install
+@vitus-labs/connector-native
+```
+
+**Peer dependencies:** `react`, `react-native`
+
+## Configuration
+
+```tsx title="src/init.ts"
+import { init } from '@vitus-labs/core'
+import { View, Text } from 'react-native'
+import {
+  css,
+  styled,
+  provider,
+  useTheme,
+  createMediaQueries,
+} from '@vitus-labs/connector-native'
+
+init({
+  css,
+  styled,
+  provider,
+  useTheme,
+  component: View,
+  textComponent: Text,
+  createMediaQueries,
+})
+```
+
+Import this file early in your app entry point (e.g., `App.tsx` or `index.ts`).
+
+## How It Works
+
+### css()
+
+The `css` tagged template parses CSS declarations into a flat style object. It supports the same tagged template syntax as the web connectors, but the output is a React Native style object instead of a CSS string.
+
+```tsx
+import { css } from '@vitus-labs/connector-native'
+
+// Static — parsed once at creation time
+const base = css`
+  width: 100px;
+  background-color: blue;
+  border-radius: 8px;
+`
+base.resolve({}) // { width: 100, backgroundColor: 'blue', borderRadius: 8 }
+
+// Dynamic — resolved per render with props
+const dynamic = css`
+  width: ${(p) => p.$size}px;
+  color: ${(p) => p.$color};
+`
+dynamic.resolve({ $size: 200, $color: 'red' }) // { width: 200, color: 'red' }
+```
+
+**CSS Parsing:**
+- CSS property names are converted to camelCase (`background-color` → `backgroundColor`)
+- Numeric values are parsed to numbers (`100px` → `100`, `0.5` → `0.5`)
+- Color values, strings, and other non-numeric values stay as strings
+- Nested selectors (`&:hover`, `@media`) are ignored (not supported in RN)
+
+### styled()
+
+Creates a React component that resolves the CSS template into a style object and applies it via the `style` prop. Works with any React Native component.
+
+```tsx
+import { styled } from '@vitus-labs/connector-native'
+import { View, Text } from 'react-native'
+
+const Box = styled(View)`
+  padding: 16px;
+  background-color: #f0f0f0;
+  border-radius: 8px;
+`
+
+const Label = styled(Text)`
+  font-size: 14px;
+  color: ${(p) => p.$active ? 'blue' : 'gray'};
+`
+
+// Usage
+<Box>
+  <Label $active>Hello React Native</Label>
+</Box>
+```
+
+**Prop filtering:** By default, `as`, `$`-prefixed, and `data-*` props are not forwarded to the underlying component. Customize with `shouldForwardProp`:
+
+```tsx
+const Custom = styled(View, {
+  shouldForwardProp: (prop) => !prop.startsWith('internal'),
+})`
+  padding: 16px;
+`
+```
+
+**Style merging:** An explicit `style` prop is merged with the template styles (explicit wins):
+
+```tsx
+<Box style={{ backgroundColor: 'red' }} />
+// backgroundColor overrides #f0f0f0 from the template
+```
+
+### ThemeProvider & useTheme
+
+Works identically to the web connectors — provides a theme object via React context:
+
+```tsx
+import { ThemeProvider, useTheme } from '@vitus-labs/connector-native'
+
+const theme = {
+  colors: { primary: '#0d6efd', text: '#333' },
+  spacing: 8,
+}
+
+<ThemeProvider theme={theme}>
+  <App />
+</ThemeProvider>
+```
+
+### createMediaQueries
+
+The web unistyle system uses CSS `@media` queries for responsive styles. React Native has no CSS media queries, so `createMediaQueries` provides an equivalent by evaluating the current screen width against breakpoints at render time (mobile-first).
+
+```tsx
+import { createMediaQueries } from '@vitus-labs/connector-native'
+```
+
+This is passed to `init()` and used automatically by `@vitus-labs/unistyle` when rendering on React Native. You don't call it directly — it's an internal integration point.
+
+**How it works:**
+- Base breakpoint (value `0`) — styles always apply
+- Other breakpoints — styles apply only when `Dimensions.get('window').width >= breakpointValue`
+- Uses `Dimensions` API from `react-native` for current screen width
+
+## Differences from Web Connectors
+
+| Feature | Web (styler/SC/emotion) | Native |
+|---------|------------------------|--------|
+| Output | CSS string → class name | Style object → `style` prop |
+| `@media` queries | Native CSS | `Dimensions.get('window').width` check |
+| CSS nesting (`&:hover`) | Supported | Ignored (no CSS in RN) |
+| `keyframes` | Supported | Not available |
+| `createGlobalStyle` | Supported | Not available |
+| `as` prop | Polymorphic element | Not forwarded |
+| Transient `$` props | Not forwarded to DOM | Not forwarded to component |
+| `shouldForwardProp` | Supported | Supported |
+
+## Supported CSS Properties
+
+The CSS parser handles standard React Native style properties:
+
+- **Layout:** `width`, `height`, `padding`, `margin`, `flex`, `align-items`, `justify-content`, etc.
+- **Visual:** `background-color`, `border-radius`, `border-width`, `opacity`, etc.
+- **Typography:** `font-size`, `font-weight`, `color`, `line-height`, `text-align`, etc.
+- **Transform:** `transform` values are parsed but must use RN-compatible syntax
+
+Properties not supported by React Native's style system are silently ignored.

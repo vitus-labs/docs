@@ -152,19 +152,24 @@ init({ css: engineCss, styled: engineStyled, provider: engineProvider })
 
 ## Choosing a Connector
 
-| Connector | Size | When to Use |
-|-----------|------|-------------|
-| **connector-styler** | ~3KB gzipped | New projects, best performance |
-| **connector-styled-components** | ~12KB gzipped | Existing styled-components codebase |
-| **connector-emotion** | ~11KB gzipped | Existing Emotion codebase |
+| Connector | Platform | Size | When to Use |
+|-----------|----------|------|-------------|
+| **connector-styler** | Web | ~3KB gzipped | New projects, best performance |
+| **connector-styled-components** | Web | ~12KB gzipped | Existing styled-components codebase |
+| **connector-emotion** | Web | ~11KB gzipped | Existing Emotion codebase |
+| **[connector-native](/docs/connectors/native)** | React Native | Minimal | React Native applications |
 
-### Compatibility
+### Web Connector Compatibility
 
-All connectors support:
+All web connectors support:
 - CSS-in-CSS nesting (tagged template composition)
 - Dynamic interpolations (functions receiving props)
 - Theme context via provider
 - Keyframes and global styles
+
+### React Native
+
+For React Native, use `connector-native` which parses CSS template literals into style objects instead of generating CSS class names. See the [dedicated React Native connector page](/docs/connectors/native) for details.
 
 ### Switching Engines
 
