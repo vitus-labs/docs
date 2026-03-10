@@ -213,7 +213,7 @@ export default function HomePage() {
         <div className="flex items-center gap-2 rounded-full border border-fd-border bg-fd-card/60 px-4 py-1.5 text-sm backdrop-blur-sm">
           <span className="inline-block h-2 w-2 rounded-full bg-emerald-500" />
           <span className="text-fd-muted-foreground">
-            v2.0.0-alpha.26 — actively developed
+            actively developed
           </span>
         </div>
 
