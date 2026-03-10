@@ -32,6 +32,8 @@ function ResizablePanel() {
 
 Reads initial dimensions from `getBoundingClientRect()` and updates via `ResizeObserver`.
 
+**SSR safe** — gracefully returns `{ 0, 0 }` when `ResizeObserver` is unavailable.
+
 ---
 
 ## useIntersection
@@ -69,6 +71,8 @@ function LazyImage({ src, alt }) {
 `[(node: Element | null) => void, IntersectionObserverEntry | null]`
 
 The entry object contains: `isIntersecting`, `intersectionRatio`, `boundingClientRect`, `intersectionRect`, `rootBounds`, `target`, `time`.
+
+**SSR safe** — returns `null` entry when `IntersectionObserver` is unavailable.
 
 ---
 
