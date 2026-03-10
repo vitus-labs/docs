@@ -1,0 +1,134 @@
+---
+title: Tools MCP
+description: MCP server for AI assistants to scaffold, configure, and diagnose @vitus-labs/tools projects.
+---
+
+`@vitus-labs/tools-mcp` is a [Model Context Protocol](https://modelcontextprotocol.io) server that exposes 3 tools and 12 documentation resources over stdio transport. It enables AI assistants (Claude, Cursor, Copilot) to scaffold new projects, add tooling to existing ones, and diagnose configuration issues — all using the @vitus-labs/tools ecosystem.
+
+## Installation
+
+```package-install
+@vitus-labs/tools-mcp
+```
+
+## Quick Start
+
+### Claude Desktop
+
+Add to `~/Library/Application Support/Claude/claude_desktop_config.json`:
+
+```json
+{
+  "mcpServers": {
+    "vitus-labs-tools": {
+      "command": "npx",
+      "args": ["vl_mcp"]
+    }
+  }
+}
+```
+
+### Claude Code
+
+Add to your project's `.mcp.json`:
+
+```json
+{
+  "mcpServers": {
+    "vitus-labs-tools": {
+      "command": "npx",
+      "args": ["vl_mcp"]
+    }
+  }
+}
+```
+
+### Programmatic
+
+```tsx
+import { createServer } from '@vitus-labs/tools-mcp'
+import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js'
+
+const server = createServer()
+const transport = new StdioServerTransport()
+await server.connect(transport)
+```
+
+## Tools
+
+### scaffold_package
+
+Scaffold a new project pre-configured with @vitus-labs/tools. Creates all config files (package.json, tsconfig, biome, vitest, vl-tools.config.mjs) for the selected preset.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `name` | `string` | Package name (e.g. `@my-org/my-lib`) |
+| `directory` | `string` | Absolute path to create the project in |
+| `preset` | `'library' \| 'nextjs' \| 'storybook'` | Project type |
+
+**Presets:**
+
+| Preset | Includes | Build Command |
+|--------|----------|---------------|
+| `library` | rolldown, vitest, typescript, biome | `bun run build` |
+| `nextjs` | Next.js, typescript, biome | `bun run dev` |
+| `storybook` | Storybook, biome | `bun run stories` |
+
+### add_tooling
+
+Add @vitus-labs/tools packages to an existing project. Merges dependencies, scripts, and config files into the existing package.json without overwriting.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `directory` | `string` | Absolute path to project root (must contain package.json) |
+| `tools` | `string[]` | Tools to add |
+
+**Available tools:**
+
+| Tool | Package | What it adds |
+|------|---------|-------------|
+| `typescript` | `@vitus-labs/tools-typescript` | tsconfig.json extending shared preset |
+| `lint` | `@vitus-labs/tools-lint` | biome.json + lint/format scripts |
+| `vitest` | `@vitus-labs/tools-vitest` | vitest.config.ts + test scripts |
+| `rolldown` | `@vitus-labs/tools-rolldown` | build/dev scripts |
+| `rollup` | `@vitus-labs/tools-rollup` | build/dev scripts |
+| `nextjs` | `@vitus-labs/tools-nextjs` | next.config.ts with withVitusLabs |
+| `nextjs-images` | `@vitus-labs/tools-nextjs-images` | Image optimization dependency |
+| `storybook` | `@vitus-labs/tools-storybook` | stories/stories:build scripts |
+| `favicon` | `@vitus-labs/tools-favicon` | favicon script |
+| `atlas` | `@vitus-labs/tools-atlas` | atlas script |
+
+### diagnose_config
+
+Analyze a project for @vitus-labs/tools configuration issues. Returns a report with errors, warnings, and suggestions.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `directory` | `string` | Absolute path to the project root to diagnose |
+
+**Checks performed:**
+
+| Check | Severity | What it detects |
+|-------|----------|----------------|
+| Missing package.json | error | No package.json found |
+| Invalid JSON | error | package.json is not valid JSON |
+| Missing ESM | warning | Missing `"type": "module"` |
+| Missing tsconfig | warning | No tsconfig.json or non-standard extends |
+| Missing Biome | warning | No biome.json (also detects legacy ESLint) |
+| Missing vl-tools.config | info | No vl-tools.config.mjs |
+| Missing exports.types | warning | `exports["."].types` not set |
+| Missing .js extensions | error | Relative imports without .js extension |
+| Missing dependencies | error | Scripts reference tools not in dependencies |
+
+## Documentation Resources
+
+The server also exposes read-only documentation resources via the MCP resource protocol:
+
+| URI | Content |
+|-----|---------|
+| `docs://vitus-labs/overview` | Package table with quick start guide |
+| `docs://vitus-labs/packages/{name}` | Per-package documentation |
+
+Available package docs: `core`, `rolldown`, `rollup`, `typescript`, `lint`, `vitest`, `nextjs`, `nextjs-images`, `storybook`, `favicon`, `atlas`.
+
+These resources give AI assistants instant context about the @vitus-labs/tools ecosystem without needing web access.
