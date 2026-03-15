@@ -1,0 +1,883 @@
+# Vitus Labs — Full API Reference
+
+> Modular React UI ecosystem: components, styling, layout, hooks, animations, and theming — with web and React Native support.
+
+---
+
+## @vitus-labs/core
+
+Configuration, initialization, and shared utilities. Every app must call `init()` before rendering.
+
+### init(config)
+
+Initializes the CSS engine and platform configuration.
+
+```tsx
+import { init } from '@vitus-labs/core'
+import * as connector from '@vitus-labs/connector-styler'
+
+init({ ...connector, component: 'div', textComponent: 'span' })
+```
+
+**Config properties:**
+- `css` — CSS template tag function (required via connector)
+- `styled` — Styled component factory (required via connector)
+- `provider` — Theme provider component (required via connector)
+- `keyframes` — Keyframes template tag (optional)
+- `createGlobalStyle` — Global style factory (optional)
+- `useTheme` — Theme hook (optional)
+- `component` — Default HTML element for Element (e.g. 'div')
+- `textComponent` — Default HTML element for Text (e.g. 'span')
+- `createMediaQueries` — Custom media query factory (optional, native uses Dimensions)
+
+### CSSEngineConnector Interface
+
+```typescript
+interface CSSEngineConnector {
+  css: (strings: TemplateStringsArray, ...values: any[]) => any
+  styled: (tag: any, options?: any) => (strings: TemplateStringsArray, ...values: any[]) => any
+  provider: FC<{ theme: any; children: ReactNode }>
+  keyframes?: (strings: TemplateStringsArray, ...values: any[]) => any
+  createGlobalStyle?: (strings: TemplateStringsArray, ...values: any[]) => any
+  useTheme?: () => any
+}
+```
+
+### config (singleton)
+
+Lazy delegate — destructure at module level, resolves after `init()`:
+```tsx
+const { css, styled } = config  // safe before init()
+```
+
+### Utilities
+
+```tsx
+import { get, set, merge, pick, omit, compose, throttle, isEmpty, isEqual } from '@vitus-labs/core'
+
+get(obj, 'a.b.c')                    // deep get by dot path
+set(obj, 'a.b.c', value)             // deep set (mutates)
+merge(target, source)                 // deep merge
+pick(obj, ['a', 'b'])                // keep only listed keys
+omit(obj, ['a', 'b'])                // remove listed keys
+compose(fn1, fn2, fn3)(value)        // right-to-left composition
+throttle(fn, 200)                    // throttle execution
+isEmpty(value)                       // check empty
+isEqual(a, b)                        // deep equality
+```
+
+### Other Exports
+
+- `Provider` — Context provider component
+- `context` — React context object
+- `render(vnode)` — Generic render function
+- `useStableValue(value)` — Stabilize value across renders
+- `hoistNonReactStatics(target, source)` — Hoist statics from wrapped component
+- `HTML_TAGS`, `HTML_TEXT_TAGS` — Valid HTML tag arrays
+
+---
+
+## @vitus-labs/styler
+
+High-performance CSS-in-JS engine (~3KB gzipped). Drop-in replacement for styled-components.
+
+### css
+
+Tagged template for composable CSS fragments:
+
+```tsx
+const base = css`
+  color: ${p => p.theme.colors.primary};
+  padding: 1rem;
+`
+
+const active = css`
+  font-weight: bold;
+  ${base}
+`
+```
+
+Returns lazy `CSSResult` — resolved at render time with component props/theme.
+
+### styled
+
+Component factory:
+
+```tsx
+// Tagged template
+const Button = styled.button`
+  background: blue;
+  color: white;
+  &:hover { opacity: 0.8; }
+`
+
+// With options
+const Card = styled('div', {
+  shouldForwardProp: (prop) => !prop.startsWith('$'),
+  boost: true,  // doubles selector specificity (0,2,0)
+})`
+  padding: ${p => p.$spacing}px;
+`
+
+// Polymorphic
+<Button as="a" href="/link">Click</Button>
+```
+
+### keyframes
+
+```tsx
+const spin = keyframes`
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+`
+const Spinner = styled.div`animation: ${spin} 1s linear infinite;`
+```
+
+### createGlobalStyle
+
+```tsx
+const GlobalStyles = createGlobalStyle`
+  body { margin: 0; font-family: sans-serif; }
+`
+// Render: <GlobalStyles />
+```
+
+### ThemeProvider & useTheme
+
+```tsx
+<ThemeProvider theme={{ colors: { primary: '#0066ff' } }}>
+  <App />
+</ThemeProvider>
+
+// In component:
+const theme = useTheme()
+
+// Type augmentation:
+declare module '@vitus-labs/styler' {
+  interface DefaultTheme {
+    colors: { primary: string }
+  }
+}
+```
+
+### Interpolation Types
+
+Function interpolations receive `{ theme, ...props }`:
+```tsx
+styled.div`
+  color: ${p => p.theme.colors.primary};
+  ${p => p.$active && css`font-weight: bold;`}
+  ${baseStyles}
+  ${[style1, style2]}
+`
+```
+
+### Performance
+
+- **Static path** (no functions): CSS computed once at module creation, className cached
+- **Dynamic path** (has functions): Re-resolved per render, CSS string cache prevents recomputation
+- **SSR**: React 19 `<style precedence>` for FOUC-free streaming
+- **Client**: `useInsertionEffect` + single shared `<style>` DOM node
+
+---
+
+## @vitus-labs/elements
+
+Base UI primitives for building interfaces.
+
+### Element
+
+Flexible container with layout utilities and content slots:
+
+```tsx
+<Element
+  tag="section"
+  direction="rows"
+  gap={16}
+  alignX="center"
+  alignY="center"
+  padding={24}
+  beforeContent={<Icon />}
+  afterContent={<Arrow />}
+  css={css`border: 1px solid gray;`}
+>
+  Main content
+</Element>
+```
+
+**Props:**
+- `tag` — HTML element (default from init config)
+- `innerRef` — Ref forwarding
+- `children`, `content`, `label` — Content (multiple modes)
+- `block` — Display block vs inline-flex
+- `direction` — 'inline' | 'rows' | 'reverseInline' | 'reverseRows'
+- `gap` — Spacing between items
+- `alignX`, `alignY` — Self alignment
+- `contentAlignX`, `contentAlignY` — Content alignment
+- `beforeContent`, `afterContent` — Slot content
+- `beforeContentAlignX/Y`, `afterContentAlignX/Y` — Slot alignment
+- `equalBeforeAfter` — Match before/after slot sizes
+- `css`, `contentCss`, `beforeContentCss`, `afterContentCss` — CSS extensions
+
+### Text
+
+Semantic text component:
+
+```tsx
+<Text tag="h1" paragraph>Hello World</Text>
+```
+
+**Props:** `children`, `label`, `tag`, `paragraph` (renders as `<p>`), `block`, `css`
+
+### List
+
+Data-driven list rendering:
+
+```tsx
+<List
+  data={items}
+  itemKey="id"
+  rootElement
+  gap={8}
+  component={({ item }) => <Card>{item.name}</Card>}
+/>
+```
+
+### Overlay
+
+Positioned overlay for dropdowns, tooltips, popovers, modals:
+
+```tsx
+<Overlay
+  type="dropdown"
+  openOn="click"
+  closeOn="clickOutsideContent"
+  align="bottom"
+  alignX="left"
+  offsetY={4}
+  closeOnEsc
+  trigger={({ ref, active }) => (
+    <button ref={ref}>Toggle {active ? '▲' : '▼'}</button>
+  )}
+  content={({ active }) => (
+    <div>Dropdown content</div>
+  )}
+/>
+```
+
+**Props:**
+- `type`: dropdown | tooltip | popover | modal | custom
+- `openOn`: click | hover | manual
+- `closeOn`: click | clickOnTrigger | clickOutsideContent | hover | manual
+- `align`: top | bottom | left | right
+- `alignX`: left | center | right
+- `alignY`: top | center | bottom
+- `offsetX`, `offsetY` — Pixel offset from trigger
+- `position`: absolute | fixed | relative | static
+- `closeOnEsc` — ESC key closes
+- `disabled` — Blocks opening
+- `onOpen`, `onClose` — Event callbacks
+
+### Portal
+
+DOM portal:
+
+```tsx
+<Portal DOMLocation={document.getElementById('modals')} tag="div">
+  <Modal />
+</Portal>
+```
+
+**Web only** — not exported in native builds.
+
+---
+
+## @vitus-labs/attrs
+
+Chainable component factory for composable component configuration.
+
+### Factory
+
+```tsx
+import attrs from '@vitus-labs/attrs'
+
+const Button = attrs({ name: 'Button', component: Element })
+  .attrs({ tag: 'button', type: 'button' })
+  .attrs<{ primary?: boolean }>(({ primary }) => ({
+    css: primary ? primaryStyles : defaultStyles,
+  }))
+  .config({ name: 'PrimaryButton' })
+  .statics({ isButton: true })
+  .compose({ withTooltip: TooltipHOC })
+```
+
+### Chain Methods
+
+**`.attrs(param, config?)`**
+- Object: `{ propName: value }` — static defaults
+- Callback: `(props) => ({ ... })` — dynamic computation
+- Config: `{ priority: boolean, filter: string[] }`
+- Priority attrs resolve first (overwritten by normal attrs and explicit props)
+
+**`.config({ name?, component?, DEBUG? })`**
+- Update display name or swap wrapped component
+
+**`.statics(param)`**
+- Attach static values: `{ isCustom: true, variant: 'primary' }`
+- Access via `Component.meta.isCustom`
+
+**`.compose(param)`**
+- HOC composition: `{ hocName: WrappingFunction }`
+- Remove with `{ hocName: false }`
+
+### Props Merge Order
+
+`priorityAttrs` → `normalAttrs` → `explicit props` (last wins, undefined values filtered)
+
+---
+
+## @vitus-labs/rocketstyle
+
+Multi-state styling system with dimensions, themes, and dark/light mode support.
+
+### Factory
+
+```tsx
+import rocketstyle from '@vitus-labs/rocketstyle'
+
+const Button = rocketstyle({
+  dimensions: {
+    size: ['sm', 'md', 'lg'],
+    variant: ['primary', 'secondary', 'ghost'],
+  },
+  useBooleans: true,
+})({ name: 'Button', component: Element })
+  .theme(({ colors }) => ({
+    backgroundColor: colors.primary,
+    color: colors.text,
+  }))
+  .styles((css) => css`
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+  `)
+  .size({
+    sm: { fontSize: 14, padding: '4px 8px' },
+    md: { fontSize: 16, padding: '8px 16px' },
+    lg: { fontSize: 18, padding: '12px 24px' },
+  })
+  .variant({
+    primary: (theme) => ({ backgroundColor: theme.colors.primary }),
+    secondary: (theme) => ({ backgroundColor: theme.colors.secondary }),
+    ghost: { backgroundColor: 'transparent' },
+  })
+```
+
+Usage:
+```tsx
+// With boolean props (when useBooleans: true)
+<Button lg primary>Click me</Button>
+
+// With explicit dimension props
+<Button size="lg" variant="primary">Click me</Button>
+```
+
+### Chain Methods
+
+**`.theme(param)`**
+- Object or callback: `(theme, css) => ({ ... })`
+- Dark/light mode: `(theme, mode, css) => ({ bg: mode('black', 'white') })`
+
+**`.styles(param)`**
+- `(css) => css\`...CSS...\`` — rendered styles
+
+**`.attrs(param, config?)`**
+- Same as attrs, but callback receives theme: `(props, theme, helpers) => ({ ... })`
+
+**`.config(options)`**
+- `provider` — Component becomes theme provider
+- `consumer` — Consume parent provider theme
+- `inversed` — Invert dark/light theme
+- `passProps` — Forward props to origin component
+
+**Dimension methods** (dynamic based on config):
+- `.size({ sm: {...}, md: {...} })`, `.variant({ primary: {...} })`, etc.
+
+---
+
+## @vitus-labs/unistyle
+
+170+ CSS property mappings with responsive breakpoints and automatic unit conversion.
+
+### makeItResponsive
+
+Core responsive engine:
+
+```tsx
+const responsiveStyles = makeItResponsive({
+  css,
+  styles: ({ theme, css, rootSize }) => css`
+    padding: ${theme.padding};
+    margin: ${theme.margin};
+    background: ${theme.background};
+  `,
+})
+```
+
+### Responsive Syntax
+
+All responsive-aware props accept:
+```tsx
+// Single value (all breakpoints)
+<Element padding={16} />
+
+// Array (mobile-first: xs, sm, md, lg, xl)
+<Element padding={[8, 12, 16, 24, 32]} />
+
+// Breakpoint object
+<Element padding={{ xs: 8, md: 16, xl: 32 }} />
+```
+
+### Unit Conversion
+
+- Numbers → rem (web) or px (native)
+- Strings with units → unchanged
+- `rootSize` defaults to 16
+
+### Default Breakpoints
+
+```
+xs: 0, sm: 576, md: 768, lg: 992, xl: 1200
+```
+
+Mobile-first: uses `min-width` media queries in em units.
+
+### Key Exports
+
+- `makeItResponsive` — Responsive CSS wrapper
+- `createMediaQueries` — Builds breakpoint → media query map
+- `sortBreakpoints` — Sort breakpoints ascending
+- `normalizeTheme`, `transformTheme` — Theme data transformers
+- `styles` — Property mapping system
+- `alignContent` — Flexbox/grid alignment utilities
+- `stripUnit`, `value`, `values` — Unit manipulation
+- `extendCss` — Extend base CSS with additional rules
+
+---
+
+## @vitus-labs/coolgrid
+
+Responsive 12-column grid system.
+
+### Components
+
+```tsx
+import { Container, Row, Col } from '@vitus-labs/coolgrid'
+
+<Container columns={12} gap={16} padding={20}>
+  <Row contentAlignX="spaceBetween">
+    <Col size={{ xs: 12, md: 6, lg: 4 }}>
+      Column 1
+    </Col>
+    <Col size={{ xs: 12, md: 6, lg: 4 }}>
+      Column 2
+    </Col>
+    <Col size={{ xs: 12, md: 12, lg: 4 }}>
+      Column 3
+    </Col>
+  </Row>
+</Container>
+```
+
+### Container Props
+
+- `columns` — Grid columns (default 12)
+- `gap` — Gutter between columns (responsive)
+- `gutter` — Additional spacing
+- `padding` — Internal padding (responsive)
+- `containerWidth` — Max-width per breakpoint
+- `contentAlignX` — center | left | right | spaceAround | spaceBetween | spaceEvenly
+- `colCss`, `rowCss` — CSS overrides for child Col/Row
+- `component` — Custom HTML element
+
+### Col Props
+
+- `size` — Column span (responsive: number, array, or breakpoint object)
+- Inherits gap, gutter, columns from Container/Row context
+
+### Platform Support
+
+- Web: CSS flex layout with calc()
+- Native: Uses `onLayout` + context-based width calculation
+
+---
+
+## @vitus-labs/hooks
+
+27+ React hooks for common patterns.
+
+### DOM & Element
+
+| Hook | Signature | Purpose |
+|------|-----------|---------|
+| `useClickOutside` | `(ref, handler)` | Detect click/touch outside element |
+| `useElementSize` | `() => [refCallback, { width, height }]` | Track element dimensions via ResizeObserver |
+| `useFocusTrap` | `(ref, enabled?)` | Trap Tab/Shift+Tab within container |
+| `useHover` | `(initial?) => { hover, onMouseEnter, onMouseLeave }` | Hover state with spread handlers |
+| `useFocus` | `(initial?) => { focused, onFocus, onBlur }` | Focus state with spread handlers |
+| `useIntersection` | `(options?) => [refCallback, entry]` | Viewport intersection observation |
+| `useScrollLock` | `(enabled)` | Lock page scroll (reference counted) |
+
+### State Management
+
+| Hook | Signature | Purpose |
+|------|-----------|---------|
+| `useControllableState` | `({ value?, defaultValue, onChange? }) => [value, setValue]` | Unified controlled/uncontrolled pattern |
+| `useToggle` | `(initial?) => [value, toggle, setTrue, setFalse]` | Boolean state with helpers |
+| `usePrevious` | `(value) => previousValue` | Value from previous render |
+| `useLatest` | `(value) => ref` | Ref always holding latest value |
+
+### Timing
+
+| Hook | Signature | Purpose |
+|------|-----------|---------|
+| `useTimeout` | `(callback, delay) => { reset, clear }` | Declarative setTimeout (null disables) |
+| `useInterval` | `(callback, delay)` | Declarative setInterval (null pauses) |
+| `useDebouncedCallback` | `(callback, delay) => debouncedFn` | Debounced callback with cancel/flush |
+| `useDebouncedValue` | `(value, delay) => debouncedValue` | Debounced value |
+| `useThrottledCallback` | `(callback, delay) => throttledFn` | Throttled callback with cancel |
+| `useUpdateEffect` | `(effect, deps?)` | useEffect that skips initial mount |
+
+### Layout & Responsive
+
+| Hook | Signature | Purpose |
+|------|-----------|---------|
+| `useWindowResize` | `(params?) => { width, height }` | Viewport size (throttled 200ms) |
+| `useBreakpoint` | `() => string \| undefined` | Active breakpoint name from theme |
+| `useMediaQuery` | `(query) => boolean` | CSS media query subscription |
+
+### Theme & Styling
+
+| Hook | Signature | Purpose |
+|------|-----------|---------|
+| `useRootSize` | `() => { rootSize, pxToRem, remToPx }` | Root font size + conversion helpers |
+| `useThemeValue` | `(path) => value` | Deep-read theme by dot-path |
+| `useColorScheme` | `() => 'light' \| 'dark'` | OS color scheme preference |
+| `useSpacing` | `(base?) => (multiplier) => string` | Spacing function (default 8px base) |
+
+### Accessibility
+
+| Hook | Signature | Purpose |
+|------|-----------|---------|
+| `useReducedMotion` | `() => boolean` | Detects prefers-reduced-motion |
+
+### Utilities
+
+| Hook | Signature | Purpose |
+|------|-----------|---------|
+| `useMergedRef` | `(...refs) => callbackRef` | Merge multiple refs into one |
+| `useIsomorphicLayoutEffect` | — | useLayoutEffect on client, useEffect on server |
+
+---
+
+## @vitus-labs/kinetic
+
+CSS-transition based animation components.
+
+### Transition
+
+```tsx
+import { Transition } from '@vitus-labs/kinetic'
+import { fadeUp } from '@vitus-labs/kinetic-presets'
+
+<Transition show={visible} appear {...fadeUp}>
+  <div>Animated content</div>
+</Transition>
+```
+
+**Props:**
+- `show` — Controls visibility (enter/leave)
+- `appear` — Animate on initial mount
+- `unmount` — Remove from DOM when hidden (default true, else display:none)
+- `timeout` — Safety timeout ms (default 5000)
+- Class-based: `enter`, `enterFrom`, `enterTo`, `leave`, `leaveFrom`, `leaveTo`
+- Style-based: `enterStyle`, `enterToStyle`, `enterTransition`, `leaveStyle`, `leaveToStyle`, `leaveTransition`
+- Callbacks: `onEnter`, `onAfterEnter`, `onLeave`, `onAfterLeave`
+
+### TransitionGroup
+
+Key-based enter/exit for lists:
+
+```tsx
+<TransitionGroup {...fadeUp}>
+  {items.map(item => <div key={item.id}>{item.name}</div>)}
+</TransitionGroup>
+```
+
+### Stagger
+
+Sequential animation with configurable delay:
+
+```tsx
+<Stagger show={visible} interval={50} reverseLeave {...fadeUp}>
+  {items.map(item => <div key={item.id}>{item.name}</div>)}
+</Stagger>
+```
+
+**Additional props:** `interval` (delay between children, default 50ms), `reverseLeave` (reverse order on exit)
+
+### Collapse
+
+Height-aware expand/collapse:
+
+```tsx
+<Collapse show={expanded} transition="height 300ms ease">
+  <div>Collapsible content</div>
+</Collapse>
+```
+
+### Lifecycle Stages
+
+`hidden` → `entering` → `entered` → `leaving` → `hidden`
+
+Respects `prefers-reduced-motion` automatically.
+
+---
+
+## @vitus-labs/kinetic-presets
+
+65+ animation presets and composition utilities.
+
+### Preset Categories
+
+**Fades:** fade, fadeUp, fadeDown, fadeLeft, fadeRight, fadeUpBig, fadeDownBig, fadeLeftBig, fadeRightBig, fadeUpLeft, fadeUpRight, fadeDownLeft, fadeDownRight, fadeScale
+**Slides:** slideUp, slideDown, slideLeft, slideRight, slideUpBig, slideDownBig, slideLeftBig, slideRightBig
+**Scales:** scaleIn, scaleOut, scaleUp, scaleDown, scaleInUp, scaleInDown, scaleInLeft, scaleInRight, scaleRotateIn
+**Blurs:** blurIn, blurInUp, blurInDown, blurInLeft, blurInRight, blurScale
+**Rotations:** rotateIn, rotateInUp, rotateInDown, rotateInReverse
+**Flips:** flipX, flipXReverse, flipY, flipYReverse, flipDiagonal, flipDiagonalReverse
+**Clips:** clipTop, clipBottom, clipLeft, clipRight, clipCenter, clipCorner, clipCircle, clipDiamond
+**Bounces:** bounceIn, bounceInUp, bounceInDown, bounceInLeft, bounceInRight, springIn
+**Perspectives:** perspectiveUp, perspectiveDown, perspectiveLeft, perspectiveRight
+**Swings:** swingInTop, swingInBottom, swingInLeft, swingInRight
+**Others:** puffIn, puffOut, swirlIn, swirlInReverse, tiltInUp/Down/Left/Right, rubberIn, squishX/Y, lightSpeedInLeft/Right, floatUp/Down/Left/Right, pushInLeft/Right, skewIn/InReverse/InY/InYReverse, zoomIn/Out/InUp/InDown/InLeft/InRight, spinIn/InReverse, slitHorizontal/Vertical, popIn, expandX/Y, drop, rise, newspaperIn
+
+### Customizable Factories
+
+```tsx
+import { createFade, createSlide, createScale, createRotate, createBlur } from '@vitus-labs/kinetic-presets'
+
+const customFade = createFade({
+  direction: 'up',
+  distance: 32,
+  duration: 400,
+  leaveDuration: 200,
+  easing: 'ease-out',
+  leaveEasing: 'ease-in',
+})
+
+const customScale = createScale({ from: 0.8, duration: 300 })
+const customRotate = createRotate({ degrees: 45, duration: 500 })
+const customBlur = createBlur({ amount: 12, scale: 0.95 })
+```
+
+### Composition Utilities
+
+```tsx
+import { compose, withDuration, withEasing, withDelay, reverse } from '@vitus-labs/kinetic-presets'
+
+// Combine presets
+const fadeAndScale = compose(fadeUp, scaleIn)
+
+// Override timing
+const slowFade = withDuration(fadeUp, 800, 400)
+const bouncyFade = withEasing(fadeUp, 'cubic-bezier(0.34, 1.56, 0.64, 1)')
+const delayedFade = withDelay(fadeUp, 200)
+
+// Swap enter ↔ leave
+const fadeOut = reverse(fadeUp)
+```
+
+### Preset Shape
+
+```typescript
+type Preset = {
+  enterStyle?: CSSProperties
+  enterToStyle?: CSSProperties
+  leaveStyle?: CSSProperties
+  leaveToStyle?: CSSProperties
+  enterTransition?: string
+  leaveTransition?: string
+  enter?: string       // CSS class
+  enterFrom?: string
+  enterTo?: string
+  leave?: string
+  leaveFrom?: string
+  leaveTo?: string
+}
+```
+
+---
+
+## @vitus-labs/rocketstories
+
+Auto-generated Storybook stories from rocketstyle components.
+
+### Usage
+
+```tsx
+import rocketstories from '@vitus-labs/rocketstories'
+
+const stories = rocketstories(Button)
+  .storyOptions({ direction: 'rows', gap: 16 })
+  .attrs({ children: 'Click me' })
+
+export default stories.init()
+export const Main = stories.main()
+export const Sizes = stories.dimension('size')
+export const Variants = stories.dimension('variant')
+export const Custom = stories.render((props) => (
+  <div>
+    <Button {...props} primary>Primary</Button>
+    <Button {...props} secondary>Secondary</Button>
+  </div>
+))
+```
+
+### Story Methods
+
+- `.main()` — Default showcase (all dimension combinations for rocketstyle)
+- `.dimension(key, options?)` — Matrix of all values for a dimension
+- `.render(callback)` — Custom render story
+- `.list(params)` — List-based rendering
+
+### Configuration
+
+- `.storyOptions({ direction, alignX, alignY, gap, pseudo })` — Layout
+- `.controls({ propName: { type, options, description } })` — Storybook controls
+- `.attrs(defaults)` — Default props
+- `.config({ name, prefix, decorators })` — Meta config
+- `.decorators([...])` — Storybook decorators
+
+---
+
+## Connector Packages
+
+### @vitus-labs/connector-styler
+
+Re-exports styler as CSSEngineConnector:
+```tsx
+import * as connector from '@vitus-labs/connector-styler'
+init(connector)
+```
+
+### @vitus-labs/connector-native
+
+React Native connector:
+```tsx
+import * as connector from '@vitus-labs/connector-native'
+import { View, Text } from 'react-native'
+init({ ...connector, component: View, textComponent: Text })
+```
+
+- `css` — Parses CSS strings to RN style objects
+- `styled` — Wraps RN components, filters `as`/`$`-prefixed/`data-*` props
+- `createMediaQueries` — Uses `Dimensions.get('window').width`
+
+---
+
+## Platform Support
+
+| Feature | Web | React Native |
+|---------|-----|-------------|
+| Element, Text, List | Yes | Yes |
+| Overlay, Portal | Yes | No (DOM-dependent) |
+| Coolgrid | CSS flex + calc() | onLayout + context width |
+| Media queries | CSS @media | Dimensions API |
+| Styler | Full CSS | CSS string → RN style |
+| Kinetic | CSS transitions | Separate .native.ts |
+
+`.native.ts` file convention: auto-resolved by Metro bundler and rolldown build.
+
+---
+
+## Developer Tools
+
+Monorepo of pre-configured build, lint, test, and dev tools. All packages are ESM (`"type": "module"`), configured via `vl-tools.config.mjs`.
+
+### @vitus-labs/tools-core
+
+Shared config loader and package metadata. Loads `vl-tools.config.mjs` files with cascading resolution (root → package). Exports: `defineConfig`, `PKG`, `VL_CONFIG`, `TS_CONFIG`, `loadFileToJSON`, `swapGlobals`.
+
+### @vitus-labs/tools-rolldown
+
+Rust-based bundler for TypeScript libraries. Reads `package.json` fields (`exports`, `main`, `module`, `browser`, `umd:main`, `unpkg`) to generate ESM/CJS/UMD/IIFE output with automatic DTS generation. Injects platform globals (`__WEB__`, `__NATIVE__`, `__BROWSER__`, `__NODE__`, `__CLIENT__`, `__VERSION__`).
+
+**Advanced build options** for non-library targets (Chrome extensions, CLI tools, Lambda, Electron):
+- `entries` — Explicit input/output pairs with per-entry format, bypasses package.json detection
+- `bundleAll` — Bundle all dependencies (no externals)
+- `copyFiles` — Copy static assets post-build
+- `banner` / `footer` — Inject text at top/bottom of output (e.g., shebangs)
+- `alias` — Resolve aliases for import remapping
+- `plugins` — Custom rolldown plugins
+
+CLI: `vl_rolldown_build`, `vl_rolldown_watch`
+
+### @vitus-labs/tools-rollup
+
+Legacy Rollup-based bundler with DTS via API Extractor. Same output format detection and config as rolldown. CLI: `vl_build`, `vl_build-watch`.
+
+### @vitus-labs/tools-vitest
+
+Shared Vitest config factory. `createVitestConfig()` returns config with coverage, path aliases, and sensible defaults.
+
+### @vitus-labs/tools-storybook
+
+Preconfigured Storybook with auto-discovery indexer, addon mapping (a11y, themes, vitest, pseudo-states), and framework support (Next.js + Vite, React + Vite).
+
+CLI: `vl_stories`, `vl_stories_build`, `vl_stories_monorepo`, `vl_stories_monorepo_build`
+
+### @vitus-labs/tools-typescript
+
+Shared tsconfig presets: `lib` (libraries, declaration emit), `app` (Next.js/apps, no emit), `base` (common strict settings).
+
+### @vitus-labs/tools-lint
+
+Shared Biome config for formatting and linting. Rules: noUnusedVariables, noUnusedImports, noUndeclaredVariables, useHookAtTopLevel, noExcessiveCognitiveComplexity (max 15), organizeImports, and more.
+
+### @vitus-labs/tools-nextjs
+
+Next.js config wrapper with security headers (HSTS, X-Content-Type-Options, Referrer-Policy, X-Frame-Options, Permissions-Policy), transpilePackages, and image optimization config.
+
+### @vitus-labs/tools-nextjs-images
+
+Image optimization for Next.js — WebP conversion, LQIP (Low Quality Image Placeholders), responsive images, SVG sprites. Resource query API: `?webp`, `?lqip`, `?resize`, `?sprite`.
+
+### @vitus-labs/tools-atlas
+
+Dependency graph visualizer and monorepo health analyzer. Scans workspace, detects cycles, computes depth/impact, version drift, health scores (0-100). Generates HTML reports and markdown.
+
+CLI: `vl_atlas`, `vl_atlas_report`
+
+### @vitus-labs/tools-favicon
+
+Multi-platform favicon and PWA manifest generator. Outputs favicons, Apple touch icons, Android icons, MS tile images, and `manifest.webmanifest`.
+
+### @vitus-labs/tools-mcp
+
+MCP (Model Context Protocol) server for AI assistants. Exposes 3 tools and 12 documentation resources:
+- `scaffold_package` — Bootstrap library, Next.js, or Storybook projects
+- `add_tooling` — Add tools to existing projects (all 10 packages supported)
+- `diagnose_config` — Detect misconfigurations (ESM, imports, deps, exports)
+- `docs://vitus-labs/*` — Package documentation resources
+
+Install: `bunx @vitus-labs/tools-mcp` or configure in Claude Desktop / Cursor MCP settings.
+
+---
+
+## Links
+
+- Docs: https://vitus-labs.dev
+- GitHub (UI System): https://github.com/vitus-labs/ui-system
+- GitHub (Tools): https://github.com/vitus-labs/tools
+- npm: https://www.npmjs.com/org/vitus-labs

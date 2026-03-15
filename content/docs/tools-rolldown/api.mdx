@@ -43,6 +43,24 @@ interface BuildConfig {
   external: string[]             // Additional external packages
   exclude: string[]              // Exclude patterns
   globals: Record<string, string>  // UMD global variable mappings
+
+  // Advanced build options
+  entries?: Array<{              // Explicit entries (bypasses package.json)
+    input: string
+    file: string
+    format?: 'es' | 'cjs' | 'umd' | 'iife'
+    env?: 'development' | 'production'
+    platform?: 'universal' | 'browser' | 'node' | 'native'
+  }>
+  bundleAll?: boolean            // Bundle all deps, no externals (default: false)
+  copyFiles?: Array<{            // Copy static files post-build
+    from: string
+    to: string
+  }>
+  banner?: string                // Inject at top of output
+  footer?: string                // Inject at bottom of output
+  alias?: Record<string, string> // Resolve aliases
+  plugins?: RolldownPlugin[]     // Custom plugins (default: [])
 }
 ```
 
@@ -80,6 +98,13 @@ interface BuildConfig {
     react: 'React',
     ReactDOM: 'react-dom',
   },
+  entries: undefined,
+  bundleAll: false,
+  copyFiles: undefined,
+  banner: undefined,
+  footer: undefined,
+  alias: undefined,
+  plugins: [],
 }
 ```
 
@@ -109,10 +134,11 @@ The pipeline is generated from `package.json` fields:
 ```tsx
 interface BuildVariant {
   file: string           // Output file path
-  format: 'es' | 'cjs' | 'umd'
+  format: 'es' | 'cjs' | 'umd' | 'iife'
   env: 'development' | 'production'
   platform: 'universal' | 'browser' | 'node' | 'web' | 'native'
-  typesFilePath?: string  // Only first build gets DTS
+  input?: string         // Per-entry input (overrides sourceDir)
+  typesFilePath?: string // Only first build gets DTS
 }
 ```
 
@@ -173,6 +199,18 @@ Same pattern applies to `node`, `web`, and `native` platforms.
   name: PKG.bundleName,   // camelCase package name
   globals: swapGlobals(CONFIG.globals),
   sourcemap: true,
+}
+```
+
+### IIFE Output
+
+```tsx
+{
+  format: 'iife',
+  exports: 'named',
+  name: PKG.bundleName,
+  sourcemap: true,
+  esModule: true,
 }
 ```
 

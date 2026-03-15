@@ -1,0 +1,60 @@
+# Vitus Labs
+
+> Modular React UI ecosystem: components, styling, layout, hooks, animations, and theming — with web and React Native support.
+
+## UI System Packages
+
+- **@vitus-labs/core**: Configuration, initialization (`init()`), CSS engine connector interface, utilities (get, set, merge, compose, pick, omit, throttle, isEmpty)
+- **@vitus-labs/styler**: High-performance CSS-in-JS engine (~3KB gzip). Exports: css, styled, keyframes, createGlobalStyle, ThemeProvider, useTheme. Static templates cached at module level; dynamic templates re-resolved per render with CSS string cache.
+- **@vitus-labs/connector-styler**: Connects styler to core's CSSEngineConnector interface
+- **@vitus-labs/connector-emotion**: Connects Emotion to core's CSSEngineConnector interface
+- **@vitus-labs/connector-styled-components**: Connects styled-components to core's CSSEngineConnector interface
+- **@vitus-labs/connector-native**: React Native CSS connector — parses CSS strings to RN style objects, uses Dimensions for media queries
+- **@vitus-labs/elements**: Base UI primitives — Element (flex layout with before/after content slots), Text, List (data-driven rendering), Overlay (dropdown/tooltip/popover/modal), Portal
+- **@vitus-labs/attrs**: Chainable component factory — attrs().attrs().config().statics().compose(). Props merge: priorityAttrs → attrs → explicit props.
+- **@vitus-labs/rocketstyle**: Multi-state styling system with dimensions, themes, dark/light mode. Chain: .theme(), .styles(), .attrs(), .config(), .statics(), .compose()
+- **@vitus-labs/rocketstories**: Auto-generated Storybook stories from rocketstyle components with dimension exploration
+- **@vitus-labs/unistyle**: 170+ CSS property mappings, responsive breakpoints (mobile-first), automatic unit conversion (numbers → rem)
+- **@vitus-labs/coolgrid**: Responsive 12-column grid — Container, Row, Col. Supports responsive props via arrays or breakpoint objects.
+- **@vitus-labs/hooks**: 27+ React hooks — DOM (useClickOutside, useElementSize, useFocusTrap, useIntersection, useScrollLock), state (useControllableState, useToggle, usePrevious), timing (useTimeout, useInterval, useDebouncedCallback, useThrottledCallback), theme (useBreakpoint, useColorScheme, useSpacing, useRootSize), accessibility (useReducedMotion, useMediaQuery)
+- **@vitus-labs/kinetic**: CSS-transition animations — Transition, TransitionGroup, Stagger, Collapse. 4-stage lifecycle: hidden → entering → entered → leaving. Respects prefers-reduced-motion.
+- **@vitus-labs/kinetic-presets**: 65+ animation presets (fade, slide, scale, rotate, flip, blur, clip, bounce, spring) + 5 customizable factories (createFade, createSlide, createScale, createRotate, createBlur) + composition utilities (compose, withDuration, withEasing, withDelay, reverse)
+
+## Developer Tools Packages
+
+- **@vitus-labs/tools-core**: Cascading config loader, file discovery, package metadata
+- **@vitus-labs/tools-rolldown**: Rust-based bundler for library packages with DTS generation
+- **@vitus-labs/tools-vitest**: Shared Vitest config factory with sensible defaults
+- **@vitus-labs/tools-storybook**: Preconfigured Storybook with auto-discovery
+- **@vitus-labs/tools-typescript**: Shared tsconfig presets
+- **@vitus-labs/tools-lint**: Shared Biome config for formatting and linting
+- **@vitus-labs/tools-nextjs**: Next.js config wrapper with security headers
+- **@vitus-labs/tools-nextjs-images**: Image optimization — WebP, LQIP, responsive, SVG sprites
+- **@vitus-labs/tools-atlas**: Dependency graph visualizer and monorepo health analyzer
+- **@vitus-labs/tools-favicon**: Multi-platform favicon and PWA manifest generator
+- **@vitus-labs/tools-rollup**: Rollup-based bundler (legacy alternative to rolldown)
+- **@vitus-labs/tools-mcp**: MCP server for AI assistants — scaffold projects, add tooling, diagnose configs
+
+## Quick Start
+
+```bash
+npm install @vitus-labs/core @vitus-labs/styler @vitus-labs/connector-styler @vitus-labs/elements
+```
+
+```tsx
+// App entry — initialize CSS engine
+import { init } from '@vitus-labs/core'
+import * as connector from '@vitus-labs/connector-styler'
+init({ ...connector, component: 'div', textComponent: 'span' })
+
+// Build components
+import { Element } from '@vitus-labs/elements'
+<Element tag="main" padding={24}>Hello</Element>
+```
+
+## Links
+
+- Docs: https://vitus-labs.dev
+- GitHub: https://github.com/vitus-labs/ui-system
+- npm: https://www.npmjs.com/org/vitus-labs
+- Full API reference: https://vitus-labs.dev/llms-full.txt

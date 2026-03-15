@@ -198,6 +198,78 @@ lib/analysis/index.html
 
 Templates: `'network'` (default), `'treemap'`, `'sunburst'`
 
+## Advanced Build Options
+
+For non-library builds such as Chrome extensions, CLI tools, serverless functions, or Electron apps, you can bypass the `package.json`-driven pipeline with explicit configuration:
+
+```js
+// vl-tools.config.mjs
+export default {
+  build: {
+    // Explicit entries — skips package.json field detection
+    entries: [
+      { input: 'src/background.ts', file: 'dist/background.js', format: 'iife', env: 'production' },
+      { input: 'src/content.ts', file: 'dist/content.js', format: 'iife' },
+      { input: 'src/popup.ts', file: 'dist/popup.js', format: 'es' },
+    ],
+
+    // Bundle all dependencies (no externals)
+    bundleAll: true,
+
+    // Copy static assets after build
+    copyFiles: [
+      { from: 'src/manifest.json', to: 'dist/manifest.json' },
+      { from: 'src/popup.html', to: 'dist/popup.html' },
+    ],
+
+    // Inject text at top/bottom of output
+    banner: '#!/usr/bin/env node',
+    footer: '// Built with @vitus-labs/tools-rolldown',
+
+    // Resolve aliases
+    alias: {
+      '@': './src',
+    },
+
+    // Custom rolldown plugins (appended to built-in ones)
+    plugins: [],
+
+    // Disable declarations for non-library builds
+    typescript: false,
+  },
+}
+```
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `entries` | `Array<{ input, file, format?, env?, platform? }>` | `undefined` | Explicit entry points (bypasses package.json detection) |
+| `bundleAll` | `boolean` | `false` | Bundle all dependencies instead of externalizing |
+| `copyFiles` | `Array<{ from, to }>` | `undefined` | Copy static files/directories after build |
+| `banner` | `string` | `undefined` | Text injected at the top of each output file |
+| `footer` | `string` | `undefined` | Text injected at the bottom of each output file |
+| `alias` | `Record<string, string>` | `undefined` | Resolve aliases for import remapping |
+| `plugins` | `RolldownPlugin[]` | `[]` | Custom plugins appended to built-in ones |
+
+### Entry Format Options
+
+Each entry in the `entries` array supports:
+
+| Field | Required | Default | Values |
+|-------|----------|---------|--------|
+| `input` | yes | — | Source file path (e.g., `'src/index.ts'`) |
+| `file` | yes | — | Output file path (e.g., `'dist/index.js'`) |
+| `format` | no | `'es'` | `'es'`, `'cjs'`, `'umd'`, `'iife'` |
+| `env` | no | `'development'` | `'development'`, `'production'` |
+| `platform` | no | `'universal'` | `'universal'`, `'browser'`, `'node'`, `'native'` |
+
+### Use Cases
+
+- **Chrome extensions** — multiple IIFE entries, `bundleAll: true`, `copyFiles` for manifest/HTML
+- **CLI tools** — single entry, `banner: '#!/usr/bin/env node'`, `bundleAll: true`
+- **AWS Lambda** — single entry, `bundleAll: true`, `env: 'production'`
+- **Electron** — separate entries for main (node) and renderer (browser)
+- **Web Workers** — IIFE or ES entry alongside the main app
+
 ## Build Pipeline
 
 The tool generates multiple builds sequentially. A typical library with ESM + CJS + types produces:
