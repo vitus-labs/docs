@@ -11,7 +11,7 @@ description: Shared Vitest configuration factory with sensible defaults for Type
 @vitus-labs/tools-vitest
 ```
 
-**Peer dependencies:** `vite >= 6`, `vitest >= 4`
+**Peer dependencies:** `vite >= 8`, `vitest >= 4`
 
 ## Quick Start
 
@@ -44,7 +44,8 @@ createVitestConfig(options?: VitestConfigOptions): UserConfig
 | `pool` | `'threads' \| 'forks' \| 'vmThreads' \| 'vmForks'` | `'threads'` | Worker pool strategy |
 | `include` | `string[]` | — | Extra test discovery patterns (appended to defaults) |
 | `exclude` | `string[]` | — | Extra exclusion patterns (appended to defaults) |
-| `coverageExclude` | `string[]` | — | Extra coverage exclusion patterns |
+| `coverageExclude` | `string[]` | — | Extra coverage exclusion patterns (appended to defaults) |
+| `coverageInclude` | `string[]` | — | Extra coverage inclusion patterns (appended to defaults) |
 | `coverageThresholds` | `CoverageThresholds` | All 90% | Override coverage thresholds |
 
 ### CoverageThresholds
@@ -189,10 +190,49 @@ When `css: false` (default), CSS modules resolve to non-scoped class names durin
 
 When `css: true`, full CSS processing is enabled — useful when testing CSS-dependent logic.
 
-## Exports
+## Exported Defaults
+
+For consumers using `mergeConfig`, the default coverage arrays are exported so they can be spread into overrides:
 
 ```tsx
-import { createVitestConfig } from '@vitus-labs/tools-vitest'
+import {
+  createVitestConfig,
+  DEFAULT_COVERAGE_EXCLUDE,
+  DEFAULT_COVERAGE_INCLUDE,
+} from '@vitus-labs/tools-vitest'
+
+import { mergeConfig } from 'vitest/config'
+
+// Recommended: use coverageExclude option directly
+export default createVitestConfig({
+  coverageExclude: ['src/generated/**'],
+})
+
+// Alternative: use mergeConfig with exported defaults
+export default mergeConfig(createVitestConfig(), {
+  test: {
+    coverage: {
+      exclude: [...DEFAULT_COVERAGE_EXCLUDE, 'src/generated/**'],
+    },
+  },
+})
+```
+
+### Default Coverage Patterns
+
+```tsx
+DEFAULT_COVERAGE_INCLUDE = ['src/**/*.ts', 'src/**/*.tsx']
+DEFAULT_COVERAGE_EXCLUDE = ['src/**/*.test.ts', 'src/**/*.test.tsx', 'src/**/index.ts', 'src/bin/**']
+```
+
+## All Exports
+
+```tsx
+import {
+  createVitestConfig,
+  DEFAULT_COVERAGE_EXCLUDE,
+  DEFAULT_COVERAGE_INCLUDE,
+} from '@vitus-labs/tools-vitest'
 
 import type {
   VitestConfigOptions,

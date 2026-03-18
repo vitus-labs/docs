@@ -111,6 +111,38 @@ The tool reads your `package.json` to determine what to build:
 | `node` | ESM | node |
 | `default` | ESM | universal |
 
+### Subpath Exports
+
+Packages with multiple entry points are automatically detected and built:
+
+```json
+{
+  "exports": {
+    ".": {
+      "import": "./lib/index.js",
+      "types": "./lib/types/index.d.ts"
+    },
+    "./devtools": {
+      "import": "./lib/devtools.js",
+      "types": "./lib/types/devtools.d.ts"
+    },
+    "./validation/zod": {
+      "import": "./lib/validation/zod.js",
+      "types": "./lib/types/validation/zod.d.ts"
+    }
+  }
+}
+```
+
+Each subpath is resolved to a source file by convention:
+- `"."` → `src/index.ts`
+- `"./devtools"` → `src/devtools` (resolves to `src/devtools.ts` or `src/devtools/index.ts`)
+- `"./validation/zod"` → `src/validation/zod`
+
+Separate `.d.ts` declarations are generated for each subpath with a `types` field.
+
+Passthrough exports like `"./package.json": "./package.json"` are automatically skipped (not built).
+
 ### main / module Fields (Fallback)
 
 ```json
@@ -174,7 +206,7 @@ When `typescript: true`, the first build in the pipeline generates a rolled-up `
 }
 ```
 
-Only one `.d.ts` file is generated per build (for the first build variant).
+For packages with subpath exports, a separate `.d.ts` file is generated for each subpath that has a `types` field.
 
 ## External Dependencies
 

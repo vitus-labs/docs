@@ -23,8 +23,8 @@
 ## Developer Tools Packages
 
 - **@vitus-labs/tools-core**: Cascading config loader, file discovery, package metadata
-- **@vitus-labs/tools-rolldown**: Rust-based bundler for library packages with DTS generation
-- **@vitus-labs/tools-vitest**: Shared Vitest config factory with sensible defaults
+- **@vitus-labs/tools-rolldown**: Rust-based bundler with DTS generation, subpath exports support, advanced options (entries, bundleAll, copyFiles, banner/footer, alias, plugins)
+- **@vitus-labs/tools-vitest**: Shared Vitest config factory (vite 8+), exported coverage defaults for mergeConfig
 - **@vitus-labs/tools-storybook**: Preconfigured Storybook with auto-discovery
 - **@vitus-labs/tools-typescript**: Shared tsconfig presets
 - **@vitus-labs/tools-lint**: Shared Biome config for formatting and linting

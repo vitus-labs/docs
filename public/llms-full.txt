@@ -811,7 +811,7 @@ Shared config loader and package metadata. Loads `vl-tools.config.mjs` files wit
 
 ### @vitus-labs/tools-rolldown
 
-Rust-based bundler for TypeScript libraries. Reads `package.json` fields (`exports`, `main`, `module`, `browser`, `umd:main`, `unpkg`) to generate ESM/CJS/UMD/IIFE output with automatic DTS generation. Injects platform globals (`__WEB__`, `__NATIVE__`, `__BROWSER__`, `__NODE__`, `__CLIENT__`, `__VERSION__`).
+Rust-based bundler for TypeScript libraries. Reads `package.json` fields (`exports`, `main`, `module`, `browser`, `umd:main`, `unpkg`) to generate ESM/CJS/UMD/IIFE output with automatic DTS generation. Supports subpath exports — `"./devtools"` auto-resolves to `src/devtools`, with separate `.d.ts` per subpath. Passthrough exports (e.g., `"./package.json"`) are skipped. Injects platform globals (`__WEB__`, `__NATIVE__`, `__BROWSER__`, `__NODE__`, `__CLIENT__`, `__VERSION__`).
 
 **Advanced build options** for non-library targets (Chrome extensions, CLI tools, Lambda, Electron):
 - `entries` — Explicit input/output pairs with per-entry format, bypasses package.json detection
@@ -829,7 +829,7 @@ Legacy Rollup-based bundler with DTS via API Extractor. Same output format detec
 
 ### @vitus-labs/tools-vitest
 
-Shared Vitest config factory. `createVitestConfig()` returns config with coverage, path aliases, and sensible defaults.
+Shared Vitest config factory. `createVitestConfig()` returns config with coverage, path aliases, and sensible defaults. Exports `DEFAULT_COVERAGE_EXCLUDE` and `DEFAULT_COVERAGE_INCLUDE` for `mergeConfig` compatibility. Peer dep: vite >= 8, vitest >= 4.
 
 ### @vitus-labs/tools-storybook
 
