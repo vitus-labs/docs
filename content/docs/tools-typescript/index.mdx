@@ -1,9 +1,9 @@
 ---
 title: Tools TypeScript
-description: Shared TypeScript configuration presets for libraries and Next.js applications.
+description: Shared TypeScript configuration presets for libraries, Node packages, and Next.js applications.
 ---
 
-`@vitus-labs/tools-typescript` provides two opinionated TypeScript configuration presets — one for building libraries, one for Next.js applications. Both target ES2024 with strict type checking.
+`@vitus-labs/tools-typescript` provides three opinionated TypeScript configuration presets — one for bundled libraries, one for pure Node packages, one for Next.js applications. All target ES2024 with strict type checking.
 
 ## Installation
 
@@ -11,19 +11,35 @@ description: Shared TypeScript configuration presets for libraries and Next.js a
 @vitus-labs/tools-typescript
 ```
 
-**Peer dependency:** TypeScript >= 5
+**Peer dependency:** TypeScript >= 6
 
 ## Presets
 
-### lib — Library Development
+### lib — Bundled Library Development
 
-For packages published to npm. Generates declaration files and source maps. Uses `module: Preserve` so bundlers (Rolldown, Rollup) choose the output format.
+For packages bundled by Rolldown/Rollup/Vite/etc. before consumers see them. Uses `moduleResolution: Bundler` because the bundler resolves imports — extensions on relative imports are optional. Generates declaration files and source maps.
 
 ```json
 // tsconfig.json
 {
   "extends": "@vitus-labs/tools-typescript/lib"
 }
+```
+
+### node — Pure Node Packages (built with plain tsc)
+
+For server/CLI packages that emit raw `.js` directly via `tsc` and are consumed by Node's strict ESM resolver. Uses `moduleResolution: NodeNext` + `rewriteRelativeImportExtensions` — extensions on relative imports are required at compile time, and `.ts`/`.tsx` extensions in source are rewritten to `.js` at emit. No DOM, no JSX, no JS interop — pure server TypeScript.
+
+```json
+// tsconfig.json
+{
+  "extends": "@vitus-labs/tools-typescript/node"
+}
+```
+
+```ts
+// Source can use .ts extensions; tsc rewrites to .js at emit
+import { foo } from './foo.ts'
 ```
 
 ### nextjs — Next.js Applications
@@ -39,22 +55,25 @@ For Next.js apps with SSR/SSG. Uses `jsx: preserve` (Next.js handles JSX transfo
 
 ## Comparison
 
-| Setting | lib | nextjs |
-|---------|-----|--------|
-| `target` | ES2024 | ES2024 |
-| `module` | Preserve | ESNext |
-| `moduleResolution` | Bundler | Bundler |
-| `jsx` | react-jsx | preserve |
-| `strict` | true | true |
-| `noUncheckedIndexedAccess` | true | true |
-| `declaration` | true | — |
-| `declarationMap` | true | — |
-| `sourceMap` | true | — |
-| `inlineSources` | true | — |
-| `incremental` | — | true |
-| `lib` | ES2024, dom | ES2024, dom, dom.iterable |
-| `include` | `src` | `next-env.d.ts`, `**/*.ts`, `**/*.tsx` |
-| `exclude` | node_modules, `__stories__`, lib | node_modules |
+| Setting | lib | node | nextjs |
+|---------|-----|------|--------|
+| `target` | ES2024 | ES2024 | ES2024 |
+| `module` | Preserve | NodeNext | ESNext |
+| `moduleResolution` | Bundler | NodeNext | Bundler |
+| `rewriteRelativeImportExtensions` | — | true | — |
+| `jsx` | react-jsx | — | preserve |
+| `allowJs` | true | — | true |
+| `lib` | ES2024, dom | ES2024 | ES2024, dom, dom.iterable |
+| `types` | node | node | — |
+| `strict` | true | true | true |
+| `noUncheckedIndexedAccess` | true | true | true |
+| `declaration` | true | true | — |
+| `declarationMap` | true | true | — |
+| `sourceMap` | true | true | — |
+| `inlineSources` | true | true | — |
+| `incremental` | — | — | true |
+| `include` | `src` | `src` | `next-env.d.ts`, `**/*.ts`, `**/*.tsx` |
+| `exclude` | node_modules, `__stories__`, lib | node_modules, lib | node_modules |
 
 ## Shared Principles
 
@@ -101,14 +120,58 @@ Both presets enforce:
 }
 ```
 
-**When to use:** Building reusable libraries that publish `.d.ts` files and source maps to npm.
+**When to use:** Building reusable libraries that get bundled (Rolldown/Rollup/Vite/webpack/esbuild) before consumers see them. The bundler resolves imports, so `Bundler` resolution is permissive about extensions.
 
 **Key behaviors:**
 - `module: Preserve` — lets the downstream bundler decide ESM vs CJS output format
+- `moduleResolution: Bundler` — bundler-friendly; extensions on relative imports are optional
 - `jsx: react-jsx` — uses the modern JSX transform (React 17+, no `import React` needed)
 - `declaration: true` + `declarationMap: true` — generates `.d.ts` files with source maps for IDE "Go to Definition"
 - `inlineSources: true` — embeds original source in source maps for debugging
+- `lib: [ES2024, dom]` — for browser/SSR libraries
 - Excludes `__stories__` and `lib` directories
+
+## node Preset Details
+
+```json
+{
+  "compilerOptions": {
+    "target": "ES2024",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "rewriteRelativeImportExtensions": true,
+    "moduleDetection": "force",
+    "verbatimModuleSyntax": true,
+    "lib": ["ES2024"],
+    "types": ["node"],
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "inlineSources": true,
+    "noEmit": true
+  },
+  "include": ["src"],
+  "exclude": ["node_modules", "lib"]
+}
+```
+
+**When to use:** Server, CLI, or library packages that build with plain `tsc` and ship raw `.js` for Node's strict ESM resolver to consume directly. No bundler in the chain.
+
+**Key behaviors:**
+- `module: NodeNext` + `moduleResolution: NodeNext` — Node's actual ESM resolution algorithm; extensions on relative imports are **required at compile time**
+- `rewriteRelativeImportExtensions: true` — write `.ts`/`.tsx` extensions in source; `tsc` rewrites them to `.js` at emit. The `.js`-in-source convention also still works
+- `lib: [ES2024]` — no DOM (server-only)
+- No `jsx` (server code shouldn't render React)
+- No `allowJs` (TS-only — server code shouldn't need to interop with JS sources)
+- `types: ["node"]` — Node typings included by default
+
+The strictness catches missing-extension bugs at build time instead of consumer runtime — you can't ship a package whose imports won't resolve under Node ESM.
 
 ## nextjs Preset Details
 
@@ -164,14 +227,20 @@ Override any setting in your project's `tsconfig.json`:
 }
 ```
 
-In a monorepo, each package selects the appropriate preset:
+In a monorepo, each package selects the appropriate preset based on **what consumers see**:
 
 ```
 monorepo/
 ├── packages/
-│   └── my-lib/
-│       └── tsconfig.json → extends "@vitus-labs/tools-typescript/lib"
+│   ├── my-bundled-lib/         (bundled by rolldown before publish)
+│   │   └── tsconfig.json → extends "@vitus-labs/tools-typescript/lib"
+│   ├── my-cli-tool/            (built with plain tsc, ships raw .js)
+│   │   └── tsconfig.json → extends "@vitus-labs/tools-typescript/node"
+│   └── my-server/              (Node server, ships raw .js)
+│       └── tsconfig.json → extends "@vitus-labs/tools-typescript/node"
 └── apps/
-    └── my-app/
+    └── my-app/                 (Next.js app)
         └── tsconfig.json → extends "@vitus-labs/tools-typescript/nextjs"
 ```
+
+**Choosing between `lib` and `node`:** if the package gets bundled before consumers see it, use `lib`. If consumers receive raw `.js` that Node loads directly (no bundler in the chain), use `node` — the strictness catches missing-extension bugs at compile time.
