@@ -31,7 +31,7 @@ Every connector exports these functions:
 
 ### connector-styler (Recommended)
 
-Uses the built-in `@vitus-labs/styler` engine. Lightweight (~3KB gzipped), purpose-built for the UI system.
+Uses the built-in `@vitus-labs/styler` engine (~9.7 KB gzipped) — purpose-built for the UI system.
 
 ```package-install
 @vitus-labs/connector-styler
@@ -152,12 +152,12 @@ init({ css: engineCss, styled: engineStyled, provider: engineProvider })
 
 ## Choosing a Connector
 
-| Connector | Platform | Size | When to Use |
-|-----------|----------|------|-------------|
-| **connector-styler** | Web | ~3KB gzipped | New projects, best performance |
-| **connector-styled-components** | Web | ~12KB gzipped | Existing styled-components codebase |
-| **connector-emotion** | Web | ~11KB gzipped | Existing Emotion codebase |
-| **[connector-native](/docs/connectors/native)** | React Native | Minimal | React Native applications |
+| Connector | Platform | Size (gzipped) | When to Use |
+|-----------|----------|----------------|-------------|
+| **connector-styler** | Web | ~9.7 KB (engine) + 193 B (adapter) | New projects, best performance |
+| **connector-styled-components** | Web | ~12 KB (engine) + 186 B (adapter) | Existing styled-components codebase |
+| **connector-emotion** | Web | ~11 KB (engine) + 1.1 KB (adapter) | Existing Emotion codebase |
+| **[connector-native](/docs/connectors/native)** | React Native | 2.74 KB | React Native applications |
 
 ### Web Connector Compatibility
 
