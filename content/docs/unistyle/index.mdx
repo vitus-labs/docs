@@ -22,6 +22,75 @@ Unistyle is a data-driven CSS property mapping and responsive design system. It 
 
 Requires `@vitus-labs/core` and a CSS engine connector.
 
+## Try It Live
+
+Drag the slider to simulate viewport width. The chip below shows which breakpoint Unistyle's responsive resolver picks for each width:
+
+<LiveCode code={`function ResponsiveDemo() {
+  // Default mobile-first breakpoints (matches the unistyle defaults).
+  const breakpoints = { xs: 0, sm: 576, md: 768, lg: 992, xl: 1200, xxl: 1400 }
+
+  // Simulated responsive value: { sm: 14, md: 16, lg: 20, xl: 24 }
+  const responsivePadding = { sm: 8, md: 16, lg: 24, xl: 32 }
+
+  const [width, setWidth] = React.useState(800)
+
+  // Pick the active breakpoint for the current width — mobile-first
+  // resolver: largest breakpoint whose threshold <= width.
+  const sortedKeys = Object.entries(breakpoints).sort((a, b) => a[1] - b[1])
+  const active = sortedKeys.reduce((acc, [k, min]) => width >= min ? k : acc, 'xs')
+
+  // Pick the active responsive value: cascade down from active to find the
+  // nearest defined value (mobile-first inheritance).
+  const order = sortedKeys.map(([k]) => k)
+  const activeIdx = order.indexOf(active)
+  let resolvedPadding = 0
+  for (let i = activeIdx; i >= 0; i--) {
+    if (responsivePadding[order[i]] != null) {
+      resolvedPadding = responsivePadding[order[i]]
+      break
+    }
+  }
+
+  return (
+    <div style={{ fontFamily: 'system-ui' }}>
+      <div style={{ marginBottom: 12, fontSize: 14, color: '#495057' }}>
+        Simulated viewport: <strong>{width}px</strong>
+      </div>
+      <input
+        type="range"
+        min={320}
+        max={1600}
+        value={width}
+        onChange={(e) => setWidth(Number(e.target.value))}
+        style={{ width: '100%', marginBottom: 16 }}
+      />
+      <div style={{ display: 'flex', gap: 6, marginBottom: 16, flexWrap: 'wrap' }}>
+        {Object.entries(breakpoints).map(([k, min]) => (
+          <span
+            key={k}
+            style={{
+              padding: '4px 10px',
+              borderRadius: 6,
+              fontSize: 12,
+              fontWeight: 500,
+              background: k === active ? '#0d6efd' : '#e9ecef',
+              color: k === active ? 'white' : '#495057',
+            }}
+          >
+            {k} ≥ {min}px
+          </span>
+        ))}
+      </div>
+      <div style={{ background: '#f8f9fa', borderRadius: 8, padding: resolvedPadding, transition: 'padding 200ms' }}>
+        <div style={{ background: '#0d6efd', color: 'white', padding: 12, borderRadius: 6, textAlign: 'center', fontSize: 13 }}>
+          padding = {resolvedPadding}px (resolved from <code style={{ background: 'rgba(255,255,255,0.2)', padding: '2px 6px', borderRadius: 3 }}>{JSON.stringify(responsivePadding)}</code>)
+        </div>
+      </div>
+    </div>
+  )
+}`} />
+
 ## Quick Example
 
 ```tsx
