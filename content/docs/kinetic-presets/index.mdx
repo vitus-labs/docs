@@ -13,6 +13,139 @@ description: 122 ready-to-use animation presets, 5 customizable factories, and c
 
 **Peer dependencies:** `react >= 18`, `@vitus-labs/kinetic`
 
+## Try It Live
+
+Pick a preset and toggle visibility — the box will animate in and out using the selected preset's enter/leave config:
+
+<LiveCode code={`function PresetGallery() {
+  const presets = {
+    fadeUp: {
+      enter: { opacity: 0, transform: 'translateY(20px)' },
+      enterTo: { opacity: 1, transform: 'translateY(0)' },
+      leave: { opacity: 1, transform: 'translateY(0)' },
+      leaveTo: { opacity: 0, transform: 'translateY(20px)' },
+      transition: 'all 350ms cubic-bezier(0.4, 0, 0.2, 1)',
+    },
+    slideRight: {
+      enter: { opacity: 0, transform: 'translateX(-30px)' },
+      enterTo: { opacity: 1, transform: 'translateX(0)' },
+      leave: { opacity: 1, transform: 'translateX(0)' },
+      leaveTo: { opacity: 0, transform: 'translateX(-30px)' },
+      transition: 'all 350ms cubic-bezier(0.4, 0, 0.2, 1)',
+    },
+    scaleIn: {
+      enter: { opacity: 0, transform: 'scale(0.85)' },
+      enterTo: { opacity: 1, transform: 'scale(1)' },
+      leave: { opacity: 1, transform: 'scale(1)' },
+      leaveTo: { opacity: 0, transform: 'scale(0.85)' },
+      transition: 'all 350ms cubic-bezier(0.34, 1.56, 0.64, 1)',
+    },
+    rotateIn: {
+      enter: { opacity: 0, transform: 'rotate(-180deg) scale(0.5)' },
+      enterTo: { opacity: 1, transform: 'rotate(0deg) scale(1)' },
+      leave: { opacity: 1, transform: 'rotate(0deg) scale(1)' },
+      leaveTo: { opacity: 0, transform: 'rotate(180deg) scale(0.5)' },
+      transition: 'all 450ms cubic-bezier(0.4, 0, 0.2, 1)',
+    },
+    flipX: {
+      enter: { opacity: 0, transform: 'perspective(400px) rotateX(90deg)' },
+      enterTo: { opacity: 1, transform: 'perspective(400px) rotateX(0deg)' },
+      leave: { opacity: 1, transform: 'perspective(400px) rotateX(0deg)' },
+      leaveTo: { opacity: 0, transform: 'perspective(400px) rotateX(-90deg)' },
+      transition: 'all 400ms ease-out',
+    },
+    bounceIn: {
+      enter: { opacity: 0, transform: 'scale(0.3)' },
+      enterTo: { opacity: 1, transform: 'scale(1)' },
+      leave: { opacity: 1, transform: 'scale(1)' },
+      leaveTo: { opacity: 0, transform: 'scale(0.3)' },
+      transition: 'all 500ms cubic-bezier(0.68, -0.55, 0.265, 1.55)',
+    },
+  }
+
+  const [name, setName] = React.useState('fadeUp')
+  const [show, setShow] = React.useState(true)
+  const ref = React.useRef(null)
+  const preset = presets[name]
+
+  React.useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    if (show) {
+      Object.assign(el.style, preset.enter)
+      el.style.transition = ''
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        el.style.transition = preset.transition
+        Object.assign(el.style, preset.enterTo)
+      }))
+    } else {
+      el.style.transition = preset.transition
+      Object.assign(el.style, preset.leaveTo)
+    }
+  }, [show, name, preset])
+
+  return (
+    <div style={{ fontFamily: 'system-ui' }}>
+      <div style={{ display: 'flex', gap: 8, marginBottom: 16, flexWrap: 'wrap' }}>
+        {Object.keys(presets).map(key => (
+          <button
+            key={key}
+            type="button"
+            onClick={() => { setShow(false); setTimeout(() => { setName(key); setShow(true) }, 400) }}
+            style={{
+              padding: '6px 12px',
+              borderRadius: 6,
+              border: 'none',
+              background: name === key ? '#0d6efd' : '#e9ecef',
+              color: name === key ? 'white' : '#212529',
+              cursor: 'pointer',
+              fontSize: 13,
+              fontWeight: 500,
+            }}
+          >
+            {key}
+          </button>
+        ))}
+      </div>
+      <button
+        type="button"
+        onClick={() => setShow(s => !s)}
+        style={{
+          padding: '6px 14px',
+          borderRadius: 6,
+          border: '1px solid #adb5bd',
+          background: 'transparent',
+          color: '#495057',
+          cursor: 'pointer',
+          fontSize: 13,
+          marginBottom: 16,
+        }}
+      >
+        {show ? 'Hide' : 'Show'}
+      </button>
+      <div style={{ minHeight: 120, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f8f9fa', borderRadius: 8, padding: 24 }}>
+        <div
+          ref={ref}
+          style={{
+            width: 100,
+            height: 100,
+            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+            borderRadius: 12,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: 'white',
+            fontWeight: 600,
+            fontSize: 14,
+          }}
+        >
+          {name}
+        </div>
+      </div>
+    </div>
+  )
+}`} />
+
 ## Quick Start
 
 ```tsx
