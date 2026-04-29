@@ -520,6 +520,23 @@ All benchmarks run via Vitest bench. React is externalized in all bundle measure
 | styled-components | 44.93 KB | 17.89 KB |
 | @emotion/react + styled | 48.26 KB | 16.59 KB |
 
+styler beats styled-components by **45%** and Emotion by **40%** while supporting React 19 SSR, `@layer` wrapping, `@media`/`@supports`/`@container` rule splitting, specificity boost, theming, global styles, keyframes, and multi-tier render caching.
+
+### What's in the bundle
+
+For a CSS-in-JS engine that ships SSR + bundler-style features, ~10 KB gzipped is the realistic floor. The size breaks down across these source modules:
+
+| Module | Lines | Concern |
+|---|---:|---|
+| `sheet.ts` | 449 | StyleSheet class, SSR hydration, `@media`/`@supports`/`@container` rule splitting, `@layer` support, bounded cache + eviction, `prepare()` cache for React 19 `<style precedence>` |
+| `forward.ts` | 282 | HTML attribute allowlist, SVG element list, custom `shouldForwardProp`, transient (`$`-prefix) prop filtering |
+| `styled.ts` | 271 | Static/dynamic split, multi-tier hot+WeakMap cache, polymorphic `as` prop, SSR + client paths, specificity boost (`.foo.foo`) |
+| `resolve.ts` | 189 | Tagged template resolver, `normalizeCSS` single-pass scanner |
+| `globalStyle.ts` | 84 | `createGlobalStyle` |
+| Other | 188 | `hash`, `useCSS`, `keyframes`, `ThemeProvider`, `evict`, `css`, `shared`, `index` |
+
+If you're optimizing for the smallest possible bundle and don't need SSR or the full HTML attribute filter, [goober](https://github.com/cristianbote/goober) at 1.31 KB is the minimal-feature option. styler's value is the feature set per kilobyte.
+
 ### Performance (ops/sec, higher is better)
 
 | Benchmark | styler | styled-components | @emotion | goober |
