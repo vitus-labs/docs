@@ -241,11 +241,11 @@ interface CSSEngineConnector {
 
 Three official connectors are available:
 
-| Connector | Package | Size | Notes |
-|-----------|---------|------|-------|
-| Styler | `@vitus-labs/connector-styler` | ~3KB gzip | Custom lightweight engine, recommended |
-| Emotion | `@vitus-labs/connector-emotion` | Wraps @emotion | Adapter matching styled-components composition |
-| styled-components | `@vitus-labs/connector-styled-components` | Wraps SC | Direct pass-through |
+| Connector | Package | Size (gzipped) | Notes |
+|-----------|---------|---------------:|-------|
+| Styler | `@vitus-labs/connector-styler` | ~9.7 KB engine + 193 B adapter | Built-in engine, recommended |
+| Emotion | `@vitus-labs/connector-emotion` | ~11 KB engine + 1.1 KB adapter | Adapter matching styled-components composition |
+| styled-components | `@vitus-labs/connector-styled-components` | ~12 KB engine + 186 B adapter | Direct pass-through |
 
 Only CSS-in-JS libraries supporting styled-components-style composition (CSS-in-CSS nesting via `css` tagged templates) are fully compatible.
 
