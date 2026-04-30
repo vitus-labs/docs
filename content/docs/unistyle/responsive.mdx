@@ -64,7 +64,7 @@ Explicit breakpoint assignment. Gaps filled by previous breakpoint:
 
 ## Transformation Pipeline
 
-The responsive engine applies 4 transformations:
+The responsive engine applies 5 transformations:
 
 ### 1. Normalize
 
@@ -125,7 +125,35 @@ Removes duplicate breakpoints with identical styles:
 // sm and lg removed — avoids duplicate @media blocks
 ```
 
-### 4. Media Query Wrapping
+### 4. Per-Breakpoint Delta Diff
+
+After each breakpoint's CSS is rendered, the cascade optimizer compares it to the running cascade and drops declarations whose `prop: value` is unchanged. Mobile-first `@media (min-width: …)` already inherits earlier declarations, so re-emitting them at every breakpoint is pure byte waste.
+
+```css
+/* Without delta diff — every breakpoint repeats every property */
+{ position: absolute; bottom: -4.375rem; right: -12.5rem; height: 28.75rem; }
+@media (min-width: 36em) {
+  position: absolute; bottom: -4.375rem; right: -11.25rem; height: 28.75rem;
+}
+@media (min-width: 48em) {
+  position: absolute; bottom: 0; right: -11.25rem; height: 40rem;
+}
+
+/* With delta diff — each breakpoint only emits what actually changed */
+{ position: absolute; bottom: -4.375rem; right: -12.5rem; height: 28.75rem; }
+@media (min-width: 36em) { right: -11.25rem; }
+@media (min-width: 48em) { bottom: 0; height: 40rem; }
+```
+
+The diff operates on the rendered CSS strings, parsing top-level declarations + opaque blocks (nested selectors / at-rules) with quote-, paren-, and brace-aware scanning. Selector blocks like `&:hover { … }` are deduped by exact text match.
+
+**Limitations** the optimizer doesn't model:
+- **Shorthand vs longhand** — if breakpoint A sets `padding: 1rem` and B sets `padding-top: 0`, both are kept (different `prop` keys). Conversely, B's `padding` shorthand is always emitted because it resets sides A didn't set.
+- **Whitespace-equivalent blocks** — `&:hover{color:red}` and `&:hover { color: red; }` would both be emitted.
+
+**Engine compatibility** — the diff runs on stringified results. If a styles callback returns an engine-specific object whose default `toString()` yields `[object Object]`, the optimizer bypasses and the original unoptimized path runs unchanged. Styler's `CSSResult.toString()` resolves with empty props, so styles callbacks that destructure theme at call-time (the project convention) work transparently.
+
+### 5. Media Query Wrapping
 
 Each remaining breakpoint gets wrapped in its media query:
 
