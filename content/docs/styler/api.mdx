@@ -153,21 +153,43 @@ Creates an isolated `StyleSheet` instance. Use for SSR per-request isolation.
 | `insertGlobal(cssText)` | `void` | Inject unscoped global CSS. Dedup by hash. |
 | `getClassName(cssText)` | `string` | Compute class name without injecting (render-phase safe). |
 | `prepare(cssText, boost?)` | `{ className, rules }` | Compute class + full rule text without injecting. For SSR `<style precedence>`. |
-| `getStyleTag()` | `string` | Complete `<style data-vl="">...</style>` tag with collected CSS. |
-| `getStyles()` | `string` | Raw collected CSS rules string (no `<style>` wrapper). |
+| `getStyleTag()` | `string` | Complete `<style data-vl="">...</style>` tag with collected CSS. **Manual mode only** — empty under the default React 19 precedence path. |
+| `getStyles()` | `string` | Raw collected CSS rules string (no `<style>` wrapper). **Manual mode only** — empty under the default precedence path. |
 | `has(className)` | `boolean` | O(1) cache lookup for dedup check. |
 | `reset()` | `void` | Clear ssrBuffer + cache. Call between server requests. |
 | `clearCache()` | `void` | Clear dedup cache only. Useful for HMR. |
 | `clearAll()` | `void` | Clear cache + ssrBuffer + remove all DOM rules. Full HMR reset. |
 | `cacheSize` (getter) | `number` | Current number of cached entries. |
 
-### SSR Pattern
+### SSR — Default (React 19 `<style precedence>`)
+
+On the server, styled components render `<style href={className} precedence="medium">` elements alongside their DOM output. React 19's streaming renderer hoists these to `<head>` automatically, dedupes by `href`, and orders them by precedence. This is the **default path — no manual style collection needed**.
+
+Precedence levels:
+- **`medium`** — Component styles (from `styled()` and `useCSS()`)
+- **`low`** — Global styles (from `createGlobalStyle()`)
+
+### Hydration
+
+On the client, `StyleSheet.mount()`:
+
+1. Looks for an existing `<style data-vl="">` element. If present, reuses its CSSOM sheet and seeds the dedup cache from any rules already inside it. Otherwise, creates a fresh empty `<style data-vl="">`.
+2. Walks every `<style data-precedence][data-href]>` tag React emitted during SSR and pre-populates the dedup cache with those `data-href` values. This is what prevents the first `useInsertionEffect` from re-injecting a rule that's already in the DOM under a precedence tag.
+3. On subsequent renders, `useInsertionEffect` cache-hits and skips insertion for any class already known.
+
+### Manual SSR Mode (legacy / streaming)
+
+For pipelines that need to collect CSS by hand (e.g. older SSR runtimes that don't process `<style precedence>`), opt in by calling `sheet.insert()` / `sheet.insertGlobal()` outside of render:
 
 ```tsx
 import { createSheet } from '@vitus-labs/styler'
 
 // Per-request isolation
 const sheet = createSheet()
+
+// Manually push rules into the buffer (NOT done automatically — the default
+// precedence path leaves ssrBuffer empty to avoid duplicate emission).
+sheet.insert('color: red;')
 
 // Render your app...
 const html = renderToString(<App />)
@@ -186,21 +208,7 @@ response.send(`<!DOCTYPE html><html><head>${styleTag}</head><body>${html}</body>
 sheet.reset()
 ```
 
-### Hydration
-
-On the client:
-1. `StyleSheet` mounts, finds existing `<style data-vl="">` in DOM
-2. Parses existing rules into the dedup cache (prevents re-injection)
-3. Reuses the DOM element for future insertions
-4. `useInsertionEffect` skips insertion for already-cached classes
-
-### React 19 Style Precedence
-
-On the server, styled components render `<style href={className} precedence="medium">` elements alongside their DOM output. React 19's streaming renderer hoists these to `<head>` automatically, providing FOUC-free delivery without manual style collection.
-
-Precedence levels:
-- **`medium`** — Component styles (from `styled()` and `useCSS()`)
-- **`low`** — Global styles (from `createGlobalStyle()`)
+Under the default precedence path, `getStyleTag()` and `getStyles()` return empty output because the buffer was never populated — every rule travelled through React 19's collected `<style precedence>` tags instead.
 
 ### @layer Support
 
