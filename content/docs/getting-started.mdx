@@ -17,7 +17,7 @@ Initialize the CSS-in-JS engine at the root of your application. This connects t
 
 ```tsx title="src/init.ts"
 import { init } from '@vitus-labs/core'
-import connector from '@vitus-labs/connector-styler'
+import * as connector from '@vitus-labs/connector-styler'
 
 init({
   ...connector,
@@ -25,6 +25,8 @@ init({
   textComponent: 'span',
 })
 ```
+
+`@vitus-labs/connector-styler` exposes `css`, `styled`, `provider`, `useTheme`, `keyframes`, and `createGlobalStyle` as named exports (no default export). The namespace import above spreads all of them into `init()` in one go.
 
 Import this file early in your app entry point (e.g., `_app.tsx`, `layout.tsx`, or `main.tsx`).
 

@@ -308,19 +308,22 @@ normalizeTheme(
 // }
 ```
 
-**Object values** — missing breakpoints remain undefined (no carry-forward from previous):
+**Object values** — null/undefined breakpoints carry forward the most recently seen value (same propagation rule as arrays):
 
 ```tsx
 normalizeTheme(
   { fontSize: { sm: 14, lg: 18 } },
   ['xs', 'sm', 'md', 'lg']
 )
-// { fontSize: { xs: undefined, sm: 14, md: undefined, lg: 18 } }
+// { fontSize: { xs: undefined, sm: 14, md: 14, lg: 18 } }
+//                                     ↑ md inherits from sm
 ```
+
+`xs` stays `undefined` because there is no prior breakpoint to inherit from.
 
 ### transformTheme()
 
-Pivots from property-centric to breakpoint-centric. Consecutive breakpoints with identical values are deduplicated (optimization):
+Pivots from property-centric to breakpoint-centric. Pure pivot — every breakpoint is emitted, with each property keyed under its breakpoint:
 
 ```tsx
 import { transformTheme } from '@vitus-labs/unistyle'
@@ -331,6 +334,9 @@ transformTheme(
 )
 // {
 //   xs: { fontSize: 12, color: 'red' },
-//   md: { fontSize: 16 }              ← sm omitted (same as xs)
+//   sm: { fontSize: 12 },
+//   md: { fontSize: 16 },
 // }
 ```
+
+Deduplication of consecutive identical breakpoints happens in a separate `optimizeTheme()` step — `makeItResponsive` chains both (`transformTheme` → `optimizeTheme`) so consumers get the optimized output by default. Call `transformTheme` directly only if you need the raw pivot.

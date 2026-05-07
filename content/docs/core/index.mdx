@@ -19,7 +19,7 @@ The `init()` function connects a CSS-in-JS engine to the entire UI system. Call 
 
 ```tsx title="src/init.ts"
 import { init } from '@vitus-labs/core'
-import connector from '@vitus-labs/connector-styler'
+import * as connector from '@vitus-labs/connector-styler'
 
 init({
   ...connector,
@@ -227,7 +227,7 @@ Every connector package must satisfy this interface:
 ```tsx
 interface CSSEngineConnector {
   // Required
-  css: (strings: TemplateStringsArray, ...values: any[]) => any
+  css: (strings: TemplateStringsArray, ...values: any[]) => CSSEngineResult
   styled: ((tag: any, options?: any) => (strings: TemplateStringsArray, ...values: any[]) => any)
     & Record<string, any>
   provider: FC<{ theme: any; children: ReactNode }>
@@ -243,9 +243,24 @@ Three official connectors are available:
 
 | Connector | Package | Size (gzipped) | Notes |
 |-----------|---------|---------------:|-------|
-| Styler | `@vitus-labs/connector-styler` | ~9.7 KB engine + 193 B adapter | Built-in engine, recommended |
-| Emotion | `@vitus-labs/connector-emotion` | ~11 KB engine + 1.1 KB adapter | Adapter matching styled-components composition |
+| Styler | `@vitus-labs/connector-styler` | ~10.3 KB engine + 193 B adapter | Built-in engine, recommended |
+| Emotion | `@vitus-labs/connector-emotion` | ~11 KB engine + 1.28 KB adapter | Adapter matching styled-components composition |
 | styled-components | `@vitus-labs/connector-styled-components` | ~12 KB engine + 186 B adapter | Direct pass-through |
+
+### CSSEngineResult — Augmentable Type
+
+`css()` returns `CSSEngineResult`, an **empty interface** core exposes for connectors to augment via TypeScript module declaration merging. Each connector declares its concrete result type so consumers' `` css`...` `` calls type to the engine they actually `init()`'d with — without core depending on any specific engine package.
+
+```tsx
+// inside @vitus-labs/connector-styler
+import type { CSSResult as StylerCSSResult } from '@vitus-labs/styler'
+
+declare module '@vitus-labs/core' {
+  interface CSSEngineResult extends StylerCSSResult {}
+}
+```
+
+Application code never imports `CSSEngineResult` directly — it resolves to the augmented shape of whichever connector is active in the project.
 
 Only CSS-in-JS libraries supporting styled-components-style composition (CSS-in-CSS nesting via `css` tagged templates) are fully compatible.
 
@@ -267,7 +282,7 @@ type HTMLTags = (typeof HTML_TAGS)[number]
 
 ### HTML_TEXT_TAGS
 
-A subset of **37 text-level semantic tags** for elements that semantically contain text:
+A subset of **40 text-level semantic tags** for elements that semantically contain text:
 
 ```tsx
 const HTML_TEXT_TAGS = ['abbr', 'b', 'bdi', 'bdo', 'big', 'blockquote', 'cite', 'code',
@@ -320,17 +335,18 @@ This mapping covers all 102 tags with proper element-specific attribute types (e
 | `useStableValue` | Hook | Stabilize value reference via deep equality |
 | `hoistNonReactStatics` | Function | Copy static properties between components |
 | `HTML_TAGS` | `string[]` | All 102 HTML tag names |
-| `HTML_TEXT_TAGS` | `string[]` | 37 text-level semantic tags |
+| `HTML_TEXT_TAGS` | `string[]` | 40 text-level semantic tags |
 
 ### Types
 
 | Export | Description |
 |--------|-------------|
 | `CSSEngineConnector` | Interface for CSS-in-JS engine connectors |
+| `CSSEngineResult` | Augmentable empty interface — connectors merge their concrete `css\`...\`` result type into it via TS module declaration merging |
 | `Breakpoints` | `Record<string, number>` — breakpoint name → pixel value |
 | `BreakpointKeys` | `keyof Breakpoints` — union of breakpoint names |
 | `HTMLTags` | Union of all 102 HTML tag names |
-| `HTMLTextTags` | Union of 37 text semantic tags |
+| `HTMLTextTags` | Union of 40 text semantic tags |
 | `HTMLElementAttrs` | Maps tag names to React prop types |
 | `HTMLTagAttrsByTag<T>` | Generic helper to look up attrs for a tag |
 | `IsEmpty` | Return type of `isEmpty()` with conditional narrowing |

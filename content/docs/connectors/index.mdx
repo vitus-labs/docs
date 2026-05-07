@@ -27,11 +27,15 @@ Every connector exports these functions:
 | `createGlobalStyle` | Tagged template | No | Create global CSS |
 | `useTheme` | `() => theme` | No | Access current theme |
 
+### Engine-Agnostic Result Type
+
+`css()`'s return type is `CSSEngineResult` — an empty interface exposed by `@vitus-labs/core` that connectors augment via TypeScript module declaration merging. Each connector declares its concrete result shape so consumers' `` css`...` `` calls type-check against whichever engine they `init()`'d with, without `core` depending on any engine package. See [Core › CSSEngineResult](/docs/core#csseengineresult-augmentable-type) for details.
+
 ## Available Connectors
 
 ### connector-styler (Recommended)
 
-Uses the built-in `@vitus-labs/styler` engine (~9.7 KB gzipped) — purpose-built for the UI system.
+Uses the built-in `@vitus-labs/styler` engine (~10.3 KB gzipped) — purpose-built for the UI system.
 
 ```package-install
 @vitus-labs/connector-styler
@@ -154,9 +158,9 @@ init({ css: engineCss, styled: engineStyled, provider: engineProvider })
 
 | Connector | Platform | Size (gzipped) | When to Use |
 |-----------|----------|----------------|-------------|
-| **connector-styler** | Web | ~9.7 KB (engine) + 193 B (adapter) | New projects, best performance |
+| **connector-styler** | Web | ~10.3 KB (engine) + 193 B (adapter) | New projects, best performance |
 | **connector-styled-components** | Web | ~12 KB (engine) + 186 B (adapter) | Existing styled-components codebase |
-| **connector-emotion** | Web | ~11 KB (engine) + 1.1 KB (adapter) | Existing Emotion codebase |
+| **connector-emotion** | Web | ~11 KB (engine) + 1.28 KB (adapter) | Existing Emotion codebase |
 | **[connector-native](/docs/connectors/native)** | React Native | 2.74 KB | React Native applications |
 
 ### Web Connector Compatibility

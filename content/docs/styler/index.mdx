@@ -1,6 +1,6 @@
 ---
 title: Styler
-description: High-performance CSS-in-JS engine for Vitus Labs UI System (~9.7 KB gzipped).
+description: High-performance CSS-in-JS engine for Vitus Labs UI System (~10.3 KB gzipped).
 ---
 
 `@vitus-labs/styler` is a CSS-in-JS engine replacing styled-components. It provides a familiar tagged template literal API with static/dynamic path optimization, automatic class name hashing, and React 19 SSR support.
@@ -15,7 +15,7 @@ description: High-performance CSS-in-JS engine for Vitus Labs UI System (~9.7 KB
 
 ## Key Features
 
-- **~9.7 KB gzipped** — full-featured engine with SSR, @layer, and concurrent-mode-safe injection
+- **~10.3 KB gzipped** — full-featured engine with SSR, @layer, and concurrent-mode-safe injection
 - **Static/dynamic split** — Templates without function interpolations compute class once at definition time (zero per-render cost)
 - **FNV-1a hashing** — Deterministic class names, automatic deduplication
 - **CSS-in-CSS composition** — Nest `css` results inside `styled` or other `css` calls
@@ -504,8 +504,8 @@ if (import.meta.hot) {
 }
 ```
 
-- `sheet.clearCache()` — Clear dedup cache only (keep injected CSS)
-- `sheet.clearAll()` — Clear cache + ssrBuffer + remove all DOM rules
+- `sheet.clearCache()` — Clears the dedup cache plus the resolve-side caches (`insertCache`, `prepareCache`, `normCache`). Keeps the already-injected CSS in the DOM. Useful for HMR scenarios where you want to recompute classes but not flush rules.
+- `sheet.clearAll()` — Clears everything `clearCache()` does, plus the SSR buffer, plus removes all rules from the DOM. Also fires registered `clearCallbacks` so consumers like `styled.ts` reset their `staticComponentCache` and `hotCache`. Use for full HMR resets.
 
 ## Benchmarks
 
@@ -516,7 +516,7 @@ All benchmarks run via Vitest bench. React is externalized in all bundle measure
 | Library | Minified | Gzipped |
 |---------|--------:|--------:|
 | goober | 2.32 KB | 1.31 KB |
-| **@vitus-labs/styler** | **24.0 KB** | **9.73 KB** |
+| **@vitus-labs/styler** | **~32 KB** | **10.34 KB** |
 | styled-components | 44.93 KB | 17.89 KB |
 | @emotion/react + styled | 48.26 KB | 16.59 KB |
 
@@ -524,16 +524,16 @@ styler beats styled-components by **45%** and Emotion by **40%** while supportin
 
 ### What's in the bundle
 
-For a CSS-in-JS engine that ships SSR + bundler-style features, ~10 KB gzipped is the realistic floor. The size breaks down across these source modules:
+For a CSS-in-JS engine that ships SSR + bundler-style features, ~10 KB gzipped is the realistic floor. The size is driven by these source modules:
 
-| Module | Lines | Concern |
-|---|---:|---|
-| `sheet.ts` | 449 | StyleSheet class, SSR hydration, `@media`/`@supports`/`@container` rule splitting, `@layer` support, bounded cache + eviction, `prepare()` cache for React 19 `<style precedence>` |
-| `forward.ts` | 282 | HTML attribute allowlist, SVG element list, custom `shouldForwardProp`, transient (`$`-prefix) prop filtering |
-| `styled.ts` | 271 | Static/dynamic split, multi-tier hot+WeakMap cache, polymorphic `as` prop, SSR + client paths, specificity boost (`.foo.foo`) |
-| `resolve.ts` | 189 | Tagged template resolver, `normalizeCSS` single-pass scanner |
-| `globalStyle.ts` | 84 | `createGlobalStyle` |
-| Other | 188 | `hash`, `useCSS`, `keyframes`, `ThemeProvider`, `evict`, `css`, `shared`, `index` |
+| Module | Concern |
+|---|---|
+| `sheet.ts` | StyleSheet class, SSR hydration, `@media`/`@supports`/`@container` rule splitting, `@layer` support, bounded cache + eviction, `prepare()` cache for React 19 `<style precedence>`, broadcast hooks for static-cache resets on `clearAll()` |
+| `forward.ts` | HTML attribute allowlist, SVG element list, custom `shouldForwardProp`, transient (`$`-prefix) prop filtering |
+| `styled.ts` | Static/dynamic split, multi-tier hot+WeakMap cache, polymorphic `as` prop, SSR + client paths, specificity boost (`.foo.foo`) |
+| `resolve.ts` | Tagged template resolver, `normalizeCSS` single-pass scanner |
+| `globalStyle.ts` | `createGlobalStyle` |
+| Other | `hash`, `useCSS`, `keyframes`, `ThemeProvider`, `evict`, `css`, `shared`, `index` |
 
 If you're optimizing for the smallest possible bundle and don't need SSR or the full HTML attribute filter, [goober](https://github.com/cristianbote/goober) at 1.31 KB is the minimal-feature option. styler's value is the feature set per kilobyte.
 

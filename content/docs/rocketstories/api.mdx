@@ -30,13 +30,17 @@ One-shot factory that creates a story builder directly for a component.
 
 ## Builder Methods
 
-### .init()
+### .init
 
 ```tsx
-.init(): StorybookMeta
+.init: { component, title, decorators }
 ```
 
-Returns the Storybook default export object containing `component`, `title`, and `decorators`.
+The Storybook default export object — a **property**, not a method (no parentheses). Use it directly as the file's default export:
+
+```tsx
+export default stories.init
+```
 
 ### .main()
 
@@ -118,7 +122,7 @@ Configure story layout.
 .config(options: ConfigOptions): RocketStoriesBuilder
 ```
 
-Update configuration (name, prefix, decorators, storyOptions).
+Update configuration (`name`, `prefix`, `decorators`, `storyOptions`, `component`). When `component` differs from the current component, `attrs` are reset (the prior attrs were tailored to the old component's prop shape). Other story-level config is preserved.
 
 ### .decorators(decorators)
 
@@ -134,7 +138,7 @@ Add or replace Storybook decorators.
 .replaceComponent(component: ComponentType): RocketStoriesBuilder
 ```
 
-Swap the showcased component while keeping configuration.
+Swap the showcased component while keeping `storyOptions`, `controls`, and `decorators`. Resets `attrs` when the new component differs from the current one — same swap-reset behaviour as `.config({ component })`.
 
 ## Types
 

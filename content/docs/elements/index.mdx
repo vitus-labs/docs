@@ -241,22 +241,28 @@ type PropsCallback =
     ) => Record<string, unknown>)
 ```
 
-### IteratorProps
+### IteratorProps (generic Props\<T\>)
 
-Full props type for the internal Iterator component (used by List):
+The Iterator's public type is a generic `Props<T>` that discriminates on the element type of `data`:
 
 ```tsx
-type IteratorProps = Partial<{
-  children: ReactNode
-  data: Array<string | number | ObjectValue | null>
-  component: ElementType
-  valueName: string
-  wrapComponent: ElementType
-  itemProps: PropsCallback
-  wrapProps: PropsCallback
-  itemKey: string | ((item, index: number) => string | number)
-}>
+type Props<T = unknown> = unknown extends T
+  ? LooseProps                       // no narrowing → today's loose backwards-compatible shape
+  : T extends string | number
+    ? SimpleProps<T>                 // primitive items → valueName REQUIRED
+    : T extends ObjectValue
+      ? ObjectProps<T>               // object items → valueName FORBIDDEN, itemKey is keyof T | (item) => …
+      : ChildrenProps                // no data, just children
 ```
+
+`T` is inferred at the JSX call site from the `data` array, so consumers usually don't write the generic explicitly:
+
+```tsx
+<List data={['a', 'b']} component={Tag} valueName="label" />          // T inferred as string
+<List data={[{ id: 1, name: 'Alice' }]} component={Row} itemKey="id" />  // T inferred as object, itemKey gets keyof T
+```
+
+The legacy `LooseProps` shape (the union of everything) is the fallback when `T` can't be narrowed — existing call sites continue to type-check without changes.
 
 ## Exports
 
@@ -290,8 +296,6 @@ import type {
   Responsive,
   ResponsiveBoolType,
   VLStatic,
-  VLForwardedComponent,
-  VLComponent,
   PropsCallback,
   ObjectValue,
   ExtendedProps,

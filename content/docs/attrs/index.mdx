@@ -248,7 +248,7 @@ The system manages two ref sources internally:
 - `$attrsRef` — The consumer's ref (from the outermost `attrsHoc`)
 - `ref` — Intermediate HOC refs (from `compose` wrappers)
 
-Both are merged via `useImperativeHandle` into a single internal ref, ensuring all sources point to the same DOM node.
+Both are bundled into a single `useRef({ $attrsRef, ref })` object that's forwarded to the inner render component, so all ref sources point to the same DOM node without any `useImperativeHandle` indirection.
 
 ### Debug Mode
 

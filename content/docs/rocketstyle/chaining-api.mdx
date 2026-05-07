@@ -55,6 +55,15 @@ const LinkButton = Button.config({ component: 'a' })
 // Renders as <a> with all Button's themes and styles
 ```
 
+> **Component swap resets attrs / priorityAttrs / compose / filterAttrs.**
+> When the new `component` differs from the current one, these chain values
+> are dropped — they were tailored to the previous component's prop shape and
+> would silently leak invalid props onto the new component. Themes,
+> dimensions, statics, and pseudo configuration are preserved (they describe
+> the styling system, not the component's prop shape). Same-component swaps
+> are a no-op for attrs. Re-chain `.attrs()`, `.compose()`, etc. after the
+> swap if you need fresh configuration on the new component.
+
 #### provider
 
 Enables pseudo-state broadcasting to child consumers. See [Provider & Consumer](/docs/rocketstyle/provider-consumer).
@@ -415,9 +424,13 @@ Every chain method calls `cloneAndEnhance(currentOptions, newOptions)` internall
 1. Deep-clones the current configuration
 2. For array-based options (`theme`, `attrs`, dimension callbacks), appends to the array
 3. For object-based options (`compose`, `statics`), merges
-4. Returns a fresh `rocketComponent()` with the merged configuration
+4. **Detects component swaps** — when `newOptions.component` is set and differs
+   from the current component, drops `attrs` / `priorityAttrs` / `compose` /
+   `filterAttrs` (these are component-shape-specific). Style-side state
+   (themes, dimensions, statics, pseudo, etc.) is preserved.
+5. Returns a fresh `rocketComponent()` with the merged configuration
 
-This ensures immutability — the original component is never modified.
+This ensures immutability — the original component is never modified — while preventing prior prop-side configuration from silently leaking onto a new component when `.config({ component })` swaps it.
 
 ## API Reference
 
