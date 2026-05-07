@@ -1,405 +1,262 @@
 ---
 title: API Reference
-description: Complete API reference for Kinetic components, hooks, and the chainable factory.
+description: Complete reference for the kinetic chain factory, component props, hooks, presets, and types.
 ---
 
-## Transition
+## kinetic(tag)
 
-The core animation primitive. Handles enter/leave lifecycle for a single child element.
-
-```tsx
-import { Transition } from '@vitus-labs/kinetic'
-
-<Transition
-  show={isVisible}
-  appear
-  enterStyle={{ opacity: 0, transform: 'scale(0.95)' }}
-  enterToStyle={{ opacity: 1, transform: 'scale(1)' }}
-  enterTransition="all 300ms ease-out"
-  leaveStyle={{ opacity: 1, transform: 'scale(1)' }}
-  leaveToStyle={{ opacity: 0, transform: 'scale(0.95)' }}
-  leaveTransition="all 200ms ease-in"
-  onEnter={() => console.log('entering')}
-  onAfterEnter={() => console.log('entered')}
-  onLeave={() => console.log('leaving')}
-  onAfterLeave={() => console.log('left')}
->
-  <div>Animated content</div>
-</Transition>
-```
-
-### Props
-
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `show` | `boolean` | — | Controls visibility. `true` = enter, `false` = leave + unmount |
-| `appear` | `boolean` | `false` | Animate on initial mount |
-| `unmount` | `boolean` | `true` | Unmount when hidden. If `false`, keeps with `display: none` |
-| `timeout` | `number` | `5000` | Safety timeout in ms — completes transition if `transitionend` never fires |
-| `children` | `ReactElement` | — | Single child element (must accept `className`, `style`, and `ref`) |
-
-#### Style-Based Animation Props
-
-| Prop | Type | Description |
-|------|------|-------------|
-| `enterStyle` | `CSSProperties` | Inline styles for enter start state |
-| `enterToStyle` | `CSSProperties` | Inline styles for enter end state |
-| `enterTransition` | `string` | CSS `transition` shorthand for enter (e.g. `"all 300ms ease-out"`) |
-| `leaveStyle` | `CSSProperties` | Inline styles for leave start state |
-| `leaveToStyle` | `CSSProperties` | Inline styles for leave end state |
-| `leaveTransition` | `string` | CSS `transition` shorthand for leave |
-
-#### Class-Based Animation Props
-
-| Prop | Type | Description |
-|------|------|-------------|
-| `enter` | `string` | Classes applied during the entire enter phase |
-| `enterFrom` | `string` | Classes applied on first frame, removed on next frame |
-| `enterTo` | `string` | Classes applied on second frame, kept until complete |
-| `leave` | `string` | Classes applied during the entire leave phase |
-| `leaveFrom` | `string` | Classes applied on first frame of leave |
-| `leaveTo` | `string` | Classes applied on second frame, kept until complete |
-
-#### Lifecycle Callbacks
-
-| Callback | Description |
-|----------|-------------|
-| `onEnter` | Called immediately when entering begins |
-| `onAfterEnter` | Called when enter animation completes |
-| `onLeave` | Called immediately when leaving begins |
-| `onAfterLeave` | Called when leave animation completes |
-
-### How It Works
-
-1. **Enter:** Sets `enterStyle`/`enterFrom` classes on mount, then on the next animation frame applies `enterToStyle`/`enterTo` classes. Listens for `transitionend`/`animationend` to complete.
-2. **Leave:** Sets `leaveStyle`/`leaveFrom`, then applies `leaveToStyle`/`leaveTo`. After completion, unmounts (or hides).
-3. **Safety timeout:** If the browser event never fires (no transition defined, element removed), the safety `timeout` completes the transition.
-
----
-
-## Collapse
-
-Height-based expand/collapse with smooth animation. Measures content height automatically.
+The single public factory. Returns a renderable React component with chain methods attached.
 
 ```tsx
-import { Collapse } from '@vitus-labs/kinetic'
-
-<Collapse
-  show={isExpanded}
-  transition="height 300ms ease"
-  appear
->
-  <div style={{ padding: 16 }}>
-    <p>Collapsible content of any height.</p>
-    <p>Height is measured automatically.</p>
-  </div>
-</Collapse>
+function kinetic<Tag extends ElementType>(tag: Tag): KineticComponent<Tag, 'transition'>
 ```
 
-### Props
+| Argument | Type | Description |
+|---|---|---|
+| `tag` | `ElementType` | HTML tag name (`'div'`, `'section'`, …) or any React component that forwards refs. |
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `show` | `boolean` | — | Controls expanded/collapsed state |
-| `transition` | `string` | `"height 300ms ease"` | CSS transition for height animation |
-| `appear` | `boolean` | `false` | Animate on initial mount |
-| `timeout` | `number` | `5000` | Safety timeout in ms |
-| `children` | `ReactElement` | — | Content to collapse |
-
-Plus all [lifecycle callbacks](#lifecycle-callbacks).
-
-### How It Works
-
-1. Wraps children in a `div` with `overflow: hidden`
-2. On enter: measures content height via `scrollHeight`, animates from `0` to measured height
-3. On leave: animates from current height to `0`
-4. Respects `prefers-reduced-motion` — skips animation and applies changes instantly
-
----
-
-## Stagger
-
-Sequentially animates a list of children with configurable delay between each.
+The returned component is a `KineticComponent<Tag, Mode>` — a React FC with chain methods (`.preset`, `.enter`, `.collapse`, `.group`, …). Default mode: `'transition'`.
 
 ```tsx
-import { Stagger } from '@vitus-labs/kinetic'
-import { slideUp } from '@vitus-labs/kinetic'
+import { kinetic, fade } from '@vitus-labs/kinetic'
 
-<Stagger show={show} interval={60} reverseLeave {...slideUp}>
-  <div key="a">First</div>
-  <div key="b">Second</div>
-  <div key="c">Third</div>
-</Stagger>
-```
-
-### Props
-
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `show` | `boolean` | — | Controls visibility of all children |
-| `interval` | `number` | `50` | Delay in ms between each child's animation start |
-| `reverseLeave` | `boolean` | `false` | Reverse stagger order on leave (last exits first) |
-| `appear` | `boolean` | `false` | Animate on initial mount |
-| `timeout` | `number` | `5000` | Safety timeout in ms |
-| `children` | `ReactElement[]` | — | Children to stagger |
-
-Plus all [style-based](#style-based-animation-props), [class-based](#class-based-animation-props), and [lifecycle callback](#lifecycle-callbacks) props.
-
-### CSS Variables
-
-Each staggered child receives CSS custom properties:
-
-| Variable | Value |
-|----------|-------|
-| `--stagger-index` | The child's stagger index (0-based) |
-| `--stagger-interval` | The interval as a CSS time value (e.g. `"50ms"`) |
-
-You can use these in CSS for additional effects:
-
-```css
-.stagger-item {
-  animation-delay: calc(var(--stagger-index) * var(--stagger-interval));
-}
-```
-
----
-
-## TransitionGroup
-
-Manages enter/exit animations for dynamic keyed lists. Items animate in when added and out when removed.
-
-```tsx
-import { TransitionGroup } from '@vitus-labs/kinetic'
-import { fade } from '@vitus-labs/kinetic'
-
-<TransitionGroup {...fade} appear>
-  {items.map((item) => (
-    <div key={item.id}>{item.name}</div>
-  ))}
-</TransitionGroup>
-```
-
-### Props
-
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `appear` | `boolean` | `false` | Animate children present on initial mount |
-| `timeout` | `number` | `5000` | Safety timeout in ms |
-| `children` | `ReactElement[]` | — | Keyed children (must have unique `key` props) |
-
-Plus all [style-based](#style-based-animation-props), [class-based](#class-based-animation-props), and [lifecycle callback](#lifecycle-callbacks) props.
-
-### How It Works
-
-1. Tracks children by `key` across renders
-2. New keys trigger an enter animation
-3. Removed keys trigger a leave animation before unmounting
-4. Reappearing keys cancel the leave and re-enter
-5. Children present on first render only animate if `appear={true}`
-
----
-
-## kinetic() Factory
-
-Creates reusable animated components with an immutable chaining API. Each chain method returns a new component — the original is never mutated.
-
-```tsx
-import { kinetic } from '@vitus-labs/kinetic'
-
-const component = kinetic('div')
-```
-
-### Chain Methods
-
-| Method | Signature | Description |
-|--------|-----------|-------------|
-| `.preset(p)` | `(preset: Preset) => KineticComponent` | Apply a preset (style + class config) |
-| `.enter(styles)` | `(styles: CSSProperties) => KineticComponent` | Set enter start styles |
-| `.enterTo(styles)` | `(styles: CSSProperties) => KineticComponent` | Set enter end styles |
-| `.enterTransition(v)` | `(value: string) => KineticComponent` | Set enter CSS transition |
-| `.leave(styles)` | `(styles: CSSProperties) => KineticComponent` | Set leave start styles |
-| `.leaveTo(styles)` | `(styles: CSSProperties) => KineticComponent` | Set leave end styles |
-| `.leaveTransition(v)` | `(value: string) => KineticComponent` | Set leave CSS transition |
-| `.enterClass(opts)` | `({ active?, from?, to? }) => KineticComponent` | Set enter CSS classes |
-| `.leaveClass(opts)` | `({ active?, from?, to? }) => KineticComponent` | Set leave CSS classes |
-| `.config(opts)` | `(opts: ConfigOpts) => KineticComponent` | Set mode-specific options (appear, timeout, etc.) |
-| `.on(cbs)` | `(callbacks: TransitionCallbacks) => KineticComponent` | Attach lifecycle callbacks |
-| `.collapse(opts?)` | `({ transition? }?) => KineticComponent<'collapse'>` | Switch to collapse mode |
-| `.stagger(opts?)` | `({ interval?, reverseLeave? }?) => KineticComponent<'stagger'>` | Switch to stagger mode |
-| `.group()` | `() => KineticComponent<'group'>` | Switch to group mode |
-
-### Mode-Specific Props
-
-The props accepted by the rendered component depend on the mode:
-
-#### Transition Mode (default)
-
-```tsx
+// Default transition mode
 const FadeDiv = kinetic('div').preset(fade)
 
-<FadeDiv show={true} appear unmount timeout={3000} className="card">
-  content
-</FadeDiv>
+// Switch modes via chain
+const Accordion = kinetic('div').collapse()
+const StaggerList = kinetic('ul').preset(slideUp).stagger({ interval: 50 })
+const AnimatedList = kinetic('ul').preset(fade).group()
 ```
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `show` | `boolean` | — | Required. Controls visibility |
-| `appear` | `boolean` | `false` | Animate on mount |
-| `unmount` | `boolean` | `true` | Unmount when hidden |
-| `timeout` | `number` | `5000` | Safety timeout |
+All chain methods return a **new** component instance (immutable) — re-chain to extend or override.
 
-Plus all standard HTML attributes for the tag.
+## Chain Methods
 
-#### Collapse Mode
+### `.preset(preset)`
+
+Spread a preset's style and class props onto the component. Equivalent to calling `.enter()`, `.enterTo()`, `.enterTransition()`, `.leave()`, `.leaveTo()`, `.leaveTransition()` (and/or the class equivalents) with the preset's values.
 
 ```tsx
-const Accordion = kinetic('div').collapse({ transition: 'height 400ms ease' })
-
-<Accordion show={true} className="panel">
-  content
-</Accordion>
+.preset(preset: StyleTransitionProps & ClassTransitionProps): KineticComponent<Tag, Mode>
 ```
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `show` | `boolean` | — | Required. Controls expanded state |
-| `appear` | `boolean` | `false` | Animate on mount |
-| `timeout` | `number` | `5000` | Safety timeout |
-| `transition` | `string` | `"height 300ms ease"` | CSS transition |
+Use built-in presets (`fade`, `slideUp`, `scaleIn`, …) or any object matching the shape.
 
-#### Stagger Mode
+### `.enter(styles)` / `.enterTo(styles)` / `.enterTransition(value)`
+
+Style-based **enter** definition.
 
 ```tsx
-const StaggerList = kinetic('ul').preset(slideUp).stagger({ interval: 60 })
-
-<StaggerList show={true}>
-  <li key="a">First</li>
-  <li key="b">Second</li>
-</StaggerList>
+.enter(styles: CSSProperties)             // Initial styles applied at enter start
+.enterTo(styles: CSSProperties)           // End styles applied on next animation frame
+.enterTransition(value: string)           // CSS transition shorthand for enter
 ```
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `show` | `boolean` | — | Required. Controls visibility |
-| `appear` | `boolean` | `false` | Animate on mount |
-| `timeout` | `number` | `5000` | Safety timeout |
-| `interval` | `number` | `50` | Delay between each child |
-| `reverseLeave` | `boolean` | `false` | Reverse order on leave |
+### `.leave(styles)` / `.leaveTo(styles)` / `.leaveTransition(value)`
 
-#### Group Mode
+Mirror of the enter triplet, for the leave phase.
 
 ```tsx
-const AnimatedList = kinetic('div').preset(fade).group()
-
-<AnimatedList appear>
-  {items.map(item => <div key={item.id}>{item.name}</div>)}
-</AnimatedList>
+.leave(styles: CSSProperties)
+.leaveTo(styles: CSSProperties)
+.leaveTransition(value: string)
 ```
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `appear` | `boolean` | `false` | Animate initial children |
-| `timeout` | `number` | `5000` | Safety timeout |
+### `.enterClass(opts)` / `.leaveClass(opts)`
 
----
-
-## useTransitionState
-
-Low-level hook for building custom transition components. Manages the four-stage lifecycle state machine.
+Class-based animation definition. Compatible with Tailwind, CSS modules, or any class-based system.
 
 ```tsx
-import { useTransitionState } from '@vitus-labs/kinetic'
-
-function CustomTransition({ show, children }) {
-  const { stage, ref, shouldMount, complete } = useTransitionState({
-    show,
-    appear: true,
-  })
-
-  if (!shouldMount) return null
-
-  return (
-    <div
-      ref={ref}
-      onTransitionEnd={complete}
-      style={{
-        opacity: stage === 'entering' || stage === 'entered' ? 1 : 0,
-        transition: 'opacity 300ms',
-      }}
-    >
-      {children}
-    </div>
-  )
-}
+.enterClass({ active?: string, from?: string, to?: string })
+.leaveClass({ active?: string, from?: string, to?: string })
 ```
 
-### Parameters
+| Field | Maps to internal prop | Lifecycle |
+|---|---|---|
+| `active` | `enter` / `leave` | Applied during the entire phase |
+| `from` | `enterFrom` / `leaveFrom` | Applied on first frame, removed on next |
+| `to` | `enterTo` / `leaveTo` | Applied on second frame, kept until complete |
 
-| Parameter | Type | Default | Description |
-|-----------|------|---------|-------------|
-| `show` | `boolean` | — | Controls visibility |
-| `appear` | `boolean` | `false` | Run enter animation on initial mount |
+### `.config(opts)`
 
-### Returns
-
-| Property | Type | Description |
-|----------|------|-------------|
-| `stage` | `TransitionStage` | Current stage: `'hidden'` \| `'entering'` \| `'entered'` \| `'leaving'` |
-| `ref` | `RefObject<HTMLElement>` | Ref to attach to the animating element |
-| `shouldMount` | `boolean` | Whether the element should be rendered (`false` when `hidden`) |
-| `complete` | `() => void` | Call when the animation finishes to advance the state machine |
-
----
-
-## useAnimationEnd
-
-Low-level hook that listens for `transitionend` and `animationend` events on an element, with a safety timeout.
+Configure mode-agnostic and mode-specific defaults. The accepted shape narrows based on the current mode.
 
 ```tsx
-import { useAnimationEnd } from '@vitus-labs/kinetic'
+// Transition mode (default)
+.config({ appear?: boolean; unmount?: boolean; timeout?: number })
 
-useAnimationEnd({
-  ref: elementRef,
-  onEnd: () => console.log('animation finished'),
-  active: isAnimating,
-  timeout: 5000,
+// Collapse mode
+.config({ appear?: boolean; timeout?: number; transition?: string })
+
+// Stagger mode
+.config({ appear?: boolean; timeout?: number; interval?: number; reverseLeave?: boolean })
+
+// Group mode
+.config({ appear?: boolean; timeout?: number })
+```
+
+| Field | Default | Modes | Description |
+|---|---|---|---|
+| `appear` | `false` | all | Animate the initial mount as if `show` flipped to `true` |
+| `unmount` | `true` | transition | When `false`, hide with `display: none` instead of removing from DOM |
+| `timeout` | `5000` | all | Safety timeout (ms) — completes the transition if `transitionend` never fires |
+| `transition` | `'height 300ms ease'` | collapse | CSS transition shorthand applied to the height animation |
+| `interval` | `50` | stagger | Delay (ms) between each child's animation start |
+| `reverseLeave` | `false` | stagger | Reverse stagger order on leave |
+
+### `.on(callbacks)`
+
+Set component-level default lifecycle callbacks. Per-render props override these.
+
+```tsx
+.on({
+  onEnter?: () => void
+  onAfterEnter?: () => void
+  onLeave?: () => void
+  onAfterLeave?: () => void
 })
 ```
 
-### Parameters
+### `.collapse(opts?)` / `.stagger(opts?)` / `.group()`
 
-| Parameter | Type | Default | Description |
-|-----------|------|---------|-------------|
-| `ref` | `RefObject<HTMLElement>` | — | Ref to the animating element |
-| `onEnd` | `() => void` | — | Called when animation completes (or timeout fires) |
-| `active` | `boolean` | — | Only listens when `true` |
-| `timeout` | `number` | `5000` | Safety timeout if browser events never fire |
-
-### Behavior
-
-- Listens for both `transitionend` and `animationend`
-- Ignores events bubbled from child elements (checks `event.target === element`)
-- Calls `onEnd` exactly once per active cycle
-- Cleans up listeners on deactivation or unmount
-
----
-
-## Preset Type
-
-Both `@vitus-labs/kinetic` and `@vitus-labs/kinetic-presets` use this type:
+Switch the component into a different mode. Returns a `KineticComponent<Tag, NewMode>` — the prop shape narrows accordingly.
 
 ```tsx
-type Preset = {
-  // Style-based
+.collapse(opts?: { transition?: string; appear?: boolean; timeout?: number }): KineticComponent<Tag, 'collapse'>
+.stagger(opts?: { interval?: number; reverseLeave?: boolean; appear?: boolean; timeout?: number }): KineticComponent<Tag, 'stagger'>
+.group(): KineticComponent<Tag, 'group'>
+```
+
+Mode switching is final for that link of the chain — the returned component reflects the new mode and accepts only that mode's props.
+
+## Component Props
+
+The rendered component's prop shape depends on its mode. Below is the full per-mode prop list. All shapes also include the chosen `tag`'s HTML attributes (e.g. `className`, `onClick`, `id`).
+
+### Transition mode
+
+```tsx
+type KineticTransitionProps<Tag> = HTMLAttrsOf<Tag> & {
+  show: boolean
+  appear?: boolean
+  unmount?: boolean
+  timeout?: number
+  children?: ReactNode
+} & Partial<TransitionCallbacks>
+```
+
+| Prop | Type | Default | Description |
+|---|---|---|---|
+| `show` | `boolean` | — | `true` runs enter, `false` runs leave + unmount |
+| `appear` | `boolean` | `false` | Animate on initial mount |
+| `unmount` | `boolean` | `true` | Unmount on leave; if `false`, keep with `display: none` |
+| `timeout` | `number` | `5000` | Safety timeout (ms) |
+| `children` | `ReactNode` | — | Single rendered element |
+
+### Collapse mode
+
+```tsx
+type KineticCollapseProps<Tag> = HTMLAttrsOf<Tag> & {
+  show: boolean
+  appear?: boolean
+  timeout?: number
+  transition?: string
+  children?: ReactNode
+} & Partial<TransitionCallbacks>
+```
+
+| Prop | Type | Default | Description |
+|---|---|---|---|
+| `show` | `boolean` | — | `true` expands, `false` collapses |
+| `appear` | `boolean` | `false` | Animate the collapse on initial mount |
+| `timeout` | `number` | `5000` | Safety timeout (ms) |
+| `transition` | `string` | `'height 300ms ease'` | CSS transition shorthand for the height animation |
+| `children` | `ReactNode` | — | Content whose `scrollHeight` is measured |
+
+### Stagger mode
+
+```tsx
+type KineticStaggerProps<Tag> = HTMLAttrsOf<Tag> & {
+  show: boolean
+  appear?: boolean
+  timeout?: number
+  interval?: number
+  reverseLeave?: boolean
+  children: ReactElement | ReactElement[]
+} & Partial<TransitionCallbacks>
+```
+
+| Prop | Type | Default | Description |
+|---|---|---|---|
+| `show` | `boolean` | — | Controls visibility of all children |
+| `appear` | `boolean` | `false` | Animate on initial mount |
+| `timeout` | `number` | `5000` | Safety timeout (ms) |
+| `interval` | `number` | `50` | Delay (ms) between each child's animation start |
+| `reverseLeave` | `boolean` | `false` | Reverse stagger order on leave |
+| `children` | `ReactElement[] \| ReactElement` | — | Children to stagger (must have stable keys) |
+
+### Group mode
+
+```tsx
+type KineticGroupProps<Tag> = HTMLAttrsOf<Tag> & {
+  appear?: boolean
+  timeout?: number
+  children: ReactElement | ReactElement[]
+} & Partial<TransitionCallbacks>
+```
+
+| Prop | Type | Default | Description |
+|---|---|---|---|
+| `appear` | `boolean` | `false` | Animate the initial children on mount |
+| `timeout` | `number` | `5000` | Safety timeout (ms) |
+| `children` | `ReactElement[] \| ReactElement` | — | Keyed children — adding triggers enter, removing triggers leave |
+
+There is no `show` prop in group mode — visibility is driven entirely by which children are present in the array.
+
+## Lifecycle Callbacks
+
+```tsx
+type TransitionCallbacks = {
+  onEnter?: () => void
+  onAfterEnter?: () => void
+  onLeave?: () => void
+  onAfterLeave?: () => void
+}
+```
+
+| Callback | When it fires |
+|----------|---------------|
+| `onEnter` | Enter phase begins (start styles applied) |
+| `onAfterEnter` | Enter animation completes (browser fires `transitionend` or safety timeout) |
+| `onLeave` | Leave phase begins |
+| `onAfterLeave` | Leave animation completes — fires immediately before unmount |
+
+Callbacks set via `.on()` are component-level defaults; per-instance props on the rendered component override them.
+
+In `prefers-reduced-motion: reduce` mode, the visible animation is skipped but callbacks still fire so analytics and focus-management side-effects remain consistent.
+
+## Animation Prop Shapes
+
+Used internally by the chain methods and exported as types.
+
+### `StyleTransitionProps`
+
+```tsx
+type StyleTransitionProps = {
   enterStyle?: CSSProperties
   enterToStyle?: CSSProperties
   enterTransition?: string
   leaveStyle?: CSSProperties
   leaveToStyle?: CSSProperties
   leaveTransition?: string
+}
+```
 
-  // Class-based
+### `ClassTransitionProps`
+
+```tsx
+type ClassTransitionProps = {
   enter?: string
   enterFrom?: string
   enterTo?: string
@@ -409,14 +266,117 @@ type Preset = {
 }
 ```
 
-Presets are spread onto `<Transition>` or passed to `.preset()`:
+### `TransitionStage`
 
 ```tsx
-// Spread onto Transition
-<Transition show={show} {...myPreset}>
-  <div>content</div>
-</Transition>
+type TransitionStage = 'hidden' | 'entering' | 'entered' | 'leaving'
+```
 
-// Or use with kinetic factory
-const AnimatedDiv = kinetic('div').preset(myPreset)
+## Built-in Presets
+
+Six presets ship in the core package. Each is a `Preset` (`StyleTransitionProps & ClassTransitionProps`).
+
+```tsx
+import {
+  fade,
+  scaleIn,
+  slideUp,
+  slideDown,
+  slideLeft,
+  slideRight,
+} from '@vitus-labs/kinetic'
+```
+
+| Preset | Effect |
+|--------|---|
+| `fade` | Opacity 0 → 1 on enter, reverse on leave |
+| `scaleIn` | Scale + opacity, slight zoom-in feel |
+| `slideUp` | Translate from below + fade |
+| `slideDown` | Translate from above + fade |
+| `slideLeft` | Translate from right + fade |
+| `slideRight` | Translate from left + fade |
+
+For 122 additional presets, factory generators, and composition utilities, see [`@vitus-labs/kinetic-presets`](/docs/kinetic-presets).
+
+## Hooks
+
+### `useTransitionState`
+
+The state machine that powers transition mode. Drive enter / leave manually for cases the chain factory doesn't cover.
+
+```tsx
+import { useTransitionState } from '@vitus-labs/kinetic'
+
+const { stage, ref, shouldMount, complete } = useTransitionState({
+  show,
+  appear: false,
+  timeout: 5000,
+})
+```
+
+Returns:
+
+| Field | Type | Description |
+|---|---|---|
+| `stage` | `TransitionStage` | Current lifecycle stage |
+| `ref` | `RefObject<HTMLElement \| null>` | Attach to the element you're animating |
+| `shouldMount` | `boolean` | Whether to render the element at all |
+| `complete` | `() => void` | Call to advance to the next stage when the animation finishes |
+
+### `useAnimationEnd`
+
+Detect `transitionend` / `animationend` with a safety timeout fallback. Ignores bubbled events from children.
+
+```tsx
+import { useAnimationEnd } from '@vitus-labs/kinetic'
+
+useAnimationEnd(elementRef, () => onComplete(), {
+  timeout: 5000,
+  active: stage === 'entering' || stage === 'leaving',
+})
+```
+
+## TransitionStateResult
+
+Returned shape from `useTransitionState`:
+
+```tsx
+type TransitionStateResult = {
+  stage: TransitionStage
+  ref: RefObject<HTMLElement | null>
+  shouldMount: boolean
+  complete: () => void
+}
+```
+
+## Exports
+
+```tsx
+import {
+  // Factory
+  kinetic,
+  // Presets
+  presets,
+  fade,
+  scaleIn,
+  slideUp,
+  slideDown,
+  slideLeft,
+  slideRight,
+  // Hooks
+  useTransitionState,
+  useAnimationEnd,
+} from '@vitus-labs/kinetic'
+
+import type {
+  KineticComponent,
+  Preset,
+  ClassTransitionProps,
+  StyleTransitionProps,
+  TransitionCallbacks,
+  TransitionStage,
+  TransitionStateResult,
+  UseTransitionState,
+  UseAnimationEnd,
+} from '@vitus-labs/kinetic'
 ```
