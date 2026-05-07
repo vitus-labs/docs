@@ -38,19 +38,32 @@ import { List } from '@vitus-labs/elements'
 
 ## Props
 
+`List`'s props are typed via a generic `Props<T>` that **discriminates on the element type of `data`** — TypeScript narrows the prop shape automatically based on what you pass to `data`.
+
 | Prop | Type | Description |
 |------|------|-------------|
 | `children` | `ReactNode` | React children (takes priority over data) |
-| `data` | `any[]` | Array of data items to render |
+| `data` | `Array<T \| null \| undefined>` | Array of data items. T is inferred at the call site from this prop. |
 | `component` | `ComponentType` | Component to render each item |
-| `valueName` | `string` | Prop name for simple array items (strings/numbers) |
-| `itemKey` | `string \| ((item, index) => string)` | Key derivation for each item |
-| `itemProps` | `object \| (extendedProps) => object` | Extra props for each item |
+| `valueName` | `string` | Prop name for primitive items. **Required when `T` is `string \| number`; forbidden when `T` is an object.** |
+| `itemKey` | T-aware | For primitive `T`: `(item: T, index: number) => string \| number`. For object `T`: `keyof T \| ((item: T, index) => string \| number)`. |
+| `itemProps` | `object \| ((item, ext) => object)` | Extra props merged onto each item, optionally per-item. Callback gets `T`-shaped item. |
 | `wrapComponent` | `ComponentType` | Optional wrapper around each item |
-| `wrapProps` | `object \| (extendedProps) => object` | Props for the wrapper |
+| `wrapProps` | `object \| ((item, ext) => object)` | Props merged onto the wrapper, optionally per-item |
 | `rootElement` | `boolean` | Wrap list in Element container (default: `false`) |
 
 When `rootElement={true}`, all Element props are also available (tag, direction, gap, alignX, alignY, css, etc.).
+
+### Mode discrimination
+
+| `data` element type | Branch | `valueName` | `itemKey` element type |
+|---|---|---|---|
+| `string` / `number` | `SimpleProps<T>` | required | `(item: T, index) => string \| number` |
+| object | `ObjectProps<T>` | forbidden (`never`) | `keyof T \| ((item: T, index) => …)` |
+| (no `data`, just `children`) | `ChildrenProps` | forbidden | n/a |
+| (no narrowing — generic call site) | `LooseProps` | optional | union of all above |
+
+Without an explicit generic argument and without TS being able to infer T from `data`, the loose backwards-compatible shape is used — same surface as before the generic was introduced. Concrete `data` arrays narrow automatically.
 
 ## Extended Item Props
 

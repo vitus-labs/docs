@@ -11,7 +11,7 @@ description: Zero-boilerplate Storybook story generation for rocketstyle and reg
 @vitus-labs/rocketstories
 ```
 
-**Peer dependencies:** `react >= 19`, `@storybook/react >= 10`, `@vitus-labs/core`, `@vitus-labs/rocketstyle`, `@vitus-labs/unistyle`
+**Peer dependencies:** `react >= 19`, `@storybook/react ^10.3.6`, `@vitus-labs/core`, `@vitus-labs/rocketstyle`, `@vitus-labs/unistyle`
 
 ## Quick Start
 
@@ -33,7 +33,7 @@ const stories = storyOf(Button)
   })
   .storyOptions({ gap: 16, direction: 'rows' })
 
-export default stories.init()
+export default stories.init
 
 export const Default = stories.main()
 export const States = stories.dimension('state')
@@ -80,12 +80,12 @@ const stories = rocketstories(Button, {
 
 Each method returns a fully configured Storybook story ready to export.
 
-### `.init()`
+### `.init`
 
-Returns the Storybook default export (title, component, decorators):
+Returns the Storybook default export (title, component, decorators). Note that `init` is a **property**, not a method — there are no parentheses:
 
 ```tsx
-export default stories.init()
+export default stories.init
 // → { component: Button, title: 'Button', decorators: [...] }
 ```
 
@@ -206,6 +206,14 @@ stories.config({
 })
 ```
 
+> **Component swap resets attrs.** When `.config({ component })` swaps the
+> underlying component, the previously configured `attrs` are dropped — they
+> were tailored to the prior component's prop shape and would silently leak
+> invalid props onto the new component. `storyOptions`, `controls`, and
+> `decorators` are preserved (they describe story rendering, not the
+> component's prop shape). Same-component calls are a no-op for attrs.
+> Re-chain `.attrs()` after the swap if you need new defaults.
+
 ### `.decorators(decorators)`
 
 Add or replace Storybook decorators:
@@ -216,11 +224,17 @@ stories.decorators([ThemeDecorator, LayoutDecorator])
 
 ### `.replaceComponent(component)`
 
-Swap the component while keeping all configuration:
+Swap the component while keeping all story configuration:
 
 ```tsx
 const enhanced = stories.replaceComponent(EnhancedButton)
 ```
+
+> **Component swap resets attrs.** When the new component differs from the
+> previous one, `attrs` are dropped (same behaviour as
+> `.config({ component })` above). Story-level config — `storyOptions`,
+> `controls`, `decorators` — is preserved. If you need defaults for the new
+> component, re-chain `.attrs()` after the swap.
 
 ## Rocketstyle Integration
 
@@ -239,7 +253,7 @@ const stories = storyOf(Button)
   .attrs({ label: 'Click me' })
   .storyOptions({ gap: 16, direction: 'rows', pseudo: true })
 
-export default stories.init()
+export default stories.init
 export const Default = stories.main()
 
 // Auto-generates visual showcase of all states
@@ -300,7 +314,7 @@ const stories = storyOf(Card)
     },
   })
 
-export default stories.init()
+export default stories.init
 
 // Default story with controls
 export const Default = stories.main()
@@ -351,7 +365,7 @@ import { storyOf } from './shared-stories'
 import Button from './Button'
 
 const stories = storyOf(Button).attrs({ label: 'Click' })
-export default stories.init()
+export default stories.init
 export const Default = stories.main()
 export const States = stories.dimension('state')
 ```
@@ -362,7 +376,7 @@ import { storyOf } from './shared-stories'
 import Input from './Input'
 
 const stories = storyOf(Input).attrs({ placeholder: 'Type here...' })
-export default stories.init()
+export default stories.init
 export const Default = stories.main()
 export const Sizes = stories.dimension('size')
 ```

@@ -157,8 +157,8 @@ Creates an isolated `StyleSheet` instance. Use for SSR per-request isolation.
 | `getStyles()` | `string` | Raw collected CSS rules string (no `<style>` wrapper). **Manual mode only** — empty under the default precedence path. |
 | `has(className)` | `boolean` | O(1) cache lookup for dedup check. |
 | `reset()` | `void` | Clear ssrBuffer + cache. Call between server requests. |
-| `clearCache()` | `void` | Clear dedup cache only. Useful for HMR. |
-| `clearAll()` | `void` | Clear cache + ssrBuffer + remove all DOM rules. Full HMR reset. |
+| `clearCache()` | `void` | Clear the dedup cache plus resolve-side caches (`insertCache`, `prepareCache`, `normCache`). Keeps already-injected DOM rules. |
+| `clearAll()` | `void` | Everything `clearCache()` does, plus clear ssrBuffer, remove all DOM rules, and fire registered `clearCallbacks` so consumers (e.g. `styled.ts`'s static caches) reset. Full HMR reset. |
 | `cacheSize` (getter) | `number` | Current number of cached entries. |
 
 ### SSR — Default (React 19 `<style precedence>`)
@@ -327,7 +327,7 @@ A single `<style data-vl>` element is used for all injected rules. `useInsertion
 
 | Metric | Value |
 |--------|-------|
-| Bundle size | ~9.7 KB gzipped (24 KB minified) |
+| Bundle size | ~10.3 KB gzipped (~32 KB minified) |
 | Static path | O(1) per render |
 | Dynamic path | O(n) per render (n = CSS string length) |
 | Cache lookup | O(1) via Map |

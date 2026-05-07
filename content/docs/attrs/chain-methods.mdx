@@ -358,7 +358,7 @@ The system manages two ref sources:
 - **`$attrsRef`** — The consumer's ref (captured by `attrsHoc`)
 - **`ref`** — Intermediate HOC refs (from `compose` wrappers that use `forwardRef`)
 
-Both are merged via `useImperativeHandle` into a single internal ref inside the `EnhancedComponent`, ensuring all ref sources point to the same DOM node.
+Both are bundled into a single `useRef({ $attrsRef, ref })` object inside `attrs.tsx` and forwarded to the inner render component as a single ref. There's no `useImperativeHandle` — both ref sources sit on one ref object, so they always agree on the underlying DOM node.
 
 ## API Reference
 

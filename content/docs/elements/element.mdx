@@ -174,7 +174,7 @@ For `<button>`, `<fieldset>`, and `<legend>` (which don't natively support flex)
 
 ## equalBeforeAfter
 
-Measures both side sections and sets them to the larger dimension via `useLayoutEffect`. Useful for centered content with unequal side elements:
+Measures both side sections and sets them to the larger dimension. Useful for centered content with unequal side elements:
 
 ```tsx
 <Element equalBeforeAfter alignX="center">
@@ -186,7 +186,7 @@ Measures both side sections and sets them to the larger dimension via `useLayout
 // so the title is perfectly centered
 ```
 
-Uses `getBoundingClientRect()` and direct style manipulation to set both slots to `Math.max(beforeSize, afterSize)`. Recalculates when `equalBeforeAfter`, `beforeContent`, `afterContent`, or `direction` change.
+Reads `offsetWidth`/`offsetHeight` (depending on `direction`) on each slot and sets the smaller one to `Math.max(beforeSize, afterSize)` via direct style manipulation. The initial measurement runs in `useLayoutEffect` when `equalBeforeAfter`, `beforeContent`, `afterContent`, or `direction` change. After that, a `ResizeObserver` re-balances the slots whenever the element resizes — so the values stay correct without forcing a layout flush on every re-render. Falls back to the layout-effect-only path when `ResizeObserver` is unavailable.
 
 ## Ref Forwarding
 

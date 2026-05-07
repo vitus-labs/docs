@@ -23,15 +23,17 @@ Values used directly as CSS. No unit conversion.
 Numbers are converted to rem using `rootSize`. String values pass through unchanged.
 
 ```tsx
-{ fontSize: 16, gap: 24, lineHeight: 1.5 }
+{ fontSize: 16, gap: 24 }
 // With rootSize=16:
-// → font-size: 1rem; gap: 1.5rem; line-height: 1.5rem;
+// → font-size: 1rem; gap: 1.5rem;
 
 { fontSize: '2em', gap: 'auto' }
 // → font-size: 2em; gap: auto;
 ```
 
-**Properties:** `fontSize`, `gap`, `rowGap`, `columnGap`, `gridAutoRows`, `gridAutoColumns`, `lineHeight`, `letterSpacing`
+**Properties:** `fontSize`, `gap`, `rowGap`, `columnGap`, `gridAutoRows`, `gridAutoColumns`
+
+> `lineHeight` and `letterSpacing` are `simple` properties (no conversion). Numbers pass through unchanged so `lineHeight: 1.5` becomes `line-height: 1.5` (a multiplier, not `1.5rem`).
 
 ### `convert_fallback` — Fallback Chain + Conversion
 
