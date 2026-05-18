@@ -38,32 +38,36 @@ import { List } from '@vitus-labs/elements'
 
 ## Props
 
-`List`'s props are typed via a generic `Props<T>` that **discriminates on the element type of `data`** — TypeScript narrows the prop shape automatically based on what you pass to `data`.
+`List`/`Iterator` expose **four call overloads**. The active one is chosen by the element type of `data`; a `LooseProps` fallback catches everything else (forwarded/derived prop unions, heterogeneous arrays).
 
 | Prop | Type | Description |
 |------|------|-------------|
-| `children` | `ReactNode` | React children (takes priority over data) |
-| `data` | `Array<T \| null \| undefined>` | Array of data items. T is inferred at the call site from this prop. |
+| `children` | `ReactNode` | React children (takes priority over data at runtime) |
+| `data` | `Array<T \| null \| undefined>` | Array of data items. `T` is inferred at the call site from this prop. |
 | `component` | `ComponentType` | Component to render each item |
-| `valueName` | `string` | Prop name for primitive items. **Required when `T` is `string \| number`; forbidden when `T` is an object.** |
-| `itemKey` | T-aware | For primitive `T`: `(item: T, index: number) => string \| number`. For object `T`: `keyof T \| ((item: T, index) => string \| number)`. |
-| `itemProps` | `object \| ((item, ext) => object)` | Extra props merged onto each item, optionally per-item. Callback gets `T`-shaped item. |
+| `valueName` | `string` | Prop name under which each primitive value is exposed. Defaults to `'children'`. |
+| `itemKey` | `keyof T \| ((item, index) => string \| number)` | Stable key per item. Object branch keeps `keyof T` completion for direct callers. |
+| `itemProps` | `object \| ((item, ext) => object)` | Extra props merged onto each item, optionally per-item |
 | `wrapComponent` | `ComponentType` | Optional wrapper around each item |
 | `wrapProps` | `object \| ((item, ext) => object)` | Props merged onto the wrapper, optionally per-item |
 | `rootElement` | `boolean` | Wrap list in Element container (default: `false`) |
 
 When `rootElement={true}`, all Element props are also available (tag, direction, gap, alignX, alignY, css, etc.).
 
-### Mode discrimination
+### Overload selection
 
-| `data` element type | Branch | `valueName` | `itemKey` element type |
-|---|---|---|---|
-| `string` / `number` | `SimpleProps<T>` | required | `(item: T, index) => string \| number` |
-| object | `ObjectProps<T>` | forbidden (`never`) | `keyof T \| ((item: T, index) => …)` |
-| (no `data`, just `children`) | `ChildrenProps` | forbidden | n/a |
-| (no narrowing — generic call site) | `LooseProps` | optional | union of all above |
+| `data` element type | Overload | Notes |
+|---|---|---|
+| `string` / `number` | `SimpleProps<T>` | each item wrapped as `{ [valueName]: item }` |
+| object | `ObjectProps<T>` | each item spread as props; `itemKey` narrows to `keyof T` |
+| (no `data`, just `children`) | `ChildrenProps` | `children` required |
+| anything else (forwarded unions, mixed arrays) | `LooseProps` | fallback — all iterator props optional |
 
-Without an explicit generic argument and without TS being able to infer T from `data`, the loose backwards-compatible shape is used — same surface as before the generic was introduced. Concrete `data` arrays narrow automatically.
+<Callout type="info">
+**`valueName` / mode props are no longer mutually exclusive at the type level.** Earlier majors used `?: never` markers to forbid e.g. `valueName` on object arrays. Those were dropped (2.5.0) because they broke a common pattern: deriving `Partial<(typeof Wrapper)['$$types']>` and spreading it back into JSX. The `LooseProps` fallback overload (2.5.0) gives forwarded/heterogeneous data a binding home. Per-mode constraints are still honoured at runtime; they're just not enforced by the type system. Trade-off documented in the [iterator forwarding changeset](https://github.com/vitus-labs/ui-system/pull/227).
+</Callout>
+
+Without an explicit generic and without TS inferring `T` from `data`, the loose shape applies — same surface as a plain untyped call. Concrete `data` arrays still select the Simple/Object overload automatically.
 
 ## Extended Item Props
 

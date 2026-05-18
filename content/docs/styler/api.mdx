@@ -78,7 +78,7 @@ createGlobalStyle(strings: TemplateStringsArray, ...values: Interpolation[]): FC
 Returns a React component. When mounted:
 - **Static path:** CSS injected once at creation; component renders nothing on client
 - **Dynamic path:** CSS resolved per render with `{ ...props, theme }`, injected via `useInsertionEffect`
-- **SSR:** Renders `<style precedence="low">` for FOUC-free delivery
+- **SSR:** Renders `<style precedence="medium">` for FOUC-free delivery
 - CSS is **unscoped** (no `.vl-*` class wrapper)
 - Deduplicated by hash of resolved CSS
 
