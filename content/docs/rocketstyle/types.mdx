@@ -315,6 +315,27 @@ Every rocketstyle component exposes these read-only properties for TypeScript in
 
 These are compile-time only — they have no runtime value. They enable type inference when extending rocketstyle components or using them with `rocketstories`.
 
+### ExtractProps
+
+`ExtractProps<C>` derives the prop type of the wrapped component (`OA`). It is **overload-aware**: for a component declared with multiple call signatures it returns the **union of every overload's first parameter**, not just the last.
+
+```tsx
+// List/Iterator expose 4 overloads (Simple / Object / Children / Loose).
+const StyledList = rocketstyle()({ component: List, name: 'StyledList' })
+
+// StyledList's prop surface is the UNION of List's overloads — the
+// iterator API survives the wrap. `<StyledList data={users} … />`
+// keeps working; it does NOT collapse to List's last signature.
+```
+
+Resolution order: 4-overload → 3-overload → 2-overload → single-callable (`ComponentType<infer P>`) → passthrough. Non-overloaded components are unaffected (single-callable path, identical to prior behaviour).
+
+<Callout type="info">
+This is what makes `rocketstyle()({ component: List })` usable: before 2.3.0, `ExtractProps` picked only the last overload (`ChildrenProps`), so wrapping `List` lost the `data`/`itemKey`/iterator surface entirely. Combined with the elements `LooseProps` fallback overload (2.5.0), forwarding `Partial<(typeof StyledList)['$$types']>` round-trips. See PRs [#222](https://github.com/vitus-labs/ui-system/pull/222) / [#229](https://github.com/vitus-labs/ui-system/pull/229).
+
+Trade-off: generic overload type-params resolve to their constraint upper bound (`<T extends ObjectValue>` → `ObjectValue`), so per-`T` narrowing inside `itemProps` callbacks is lost *through the wrap* (direct `<List>` calls keep it). Annotate explicitly if needed: `itemProps={(item: User) => …}`.
+</Callout>
+
 ## Full Exports
 
 ```tsx

@@ -179,6 +179,34 @@ Set default props, with optional priority and filtering.
 | `isLight` | `boolean` | `true` when mode is `'light'` |
 | `createElement` | `function` | React element factory (aliased from `render()`) |
 
+### Type Surface (2.5.0+)
+
+`.attrs()` is two overloads — callback form and object form — both of which feed back into the component's typed prop surface:
+
+```tsx
+const Button = rocketstyle()({ component: Element, name: 'Button' })
+  .attrs({ tag: 'button' })
+
+// `tag` now OPTIONAL at the call site — the default fills it in.
+<Button />               // ✓ compiles
+<Button tag="a" />       // ✓ still overridable, still `HTMLTags`-typed
+```
+
+Any key passed to `.attrs({ … })` becomes **optional** at the JSX call site (it has a runtime default — the consumer shouldn't be forced to pass it). This is the headline ergonomic of wrapping: pre-fill `component`, `tag`, etc. once and downstream call sites stay clean.
+
+Callback form keeps **literal narrowing without `as const`**:
+
+```tsx
+.attrs(({ rootElement }) => ({
+  tag: 'ul',                 // stays the literal 'ul', not widened to string
+  contentAlignX: 'block',
+}))
+```
+
+<Callout type="info">
+Earlier majors required `as const` on every literal returned from an `.attrs()` callback. The callback overload now derives its return type from the component's resolved props (`DFP`), so literals narrow contextually. Object form already behaved this way. See PRs [#225](https://github.com/vitus-labs/ui-system/pull/225) (optional-at-call-site) and [#227](https://github.com/vitus-labs/ui-system/pull/227) (callback narrowing).
+</Callout>
+
 ### Priority Attrs
 
 Priority attrs are evaluated first and act as low-priority defaults that can be overridden:
