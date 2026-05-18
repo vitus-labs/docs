@@ -5,15 +5,15 @@
     "": {
       "name": "@vitus-labs/docs",
       "dependencies": {
-        "@vitus-labs/attrs": "^2.1.0",
-        "@vitus-labs/connector-styler": "^2.1.0",
-        "@vitus-labs/coolgrid": "^2.1.0",
-        "@vitus-labs/core": "^2.1.0",
-        "@vitus-labs/elements": "^2.1.0",
-        "@vitus-labs/hooks": "^2.1.0",
-        "@vitus-labs/rocketstyle": "^2.1.0",
-        "@vitus-labs/styler": "^2.1.0",
-        "@vitus-labs/unistyle": "^2.1.0",
+        "@vitus-labs/attrs": "^2.6.1",
+        "@vitus-labs/connector-styler": "^2.6.1",
+        "@vitus-labs/coolgrid": "^2.6.1",
+        "@vitus-labs/core": "^2.6.1",
+        "@vitus-labs/elements": "^2.6.1",
+        "@vitus-labs/hooks": "^2.6.1",
+        "@vitus-labs/rocketstyle": "^2.6.1",
+        "@vitus-labs/styler": "^2.6.1",
+        "@vitus-labs/unistyle": "^2.6.1",
         "fumadocs-core": "^16.8.5",
         "fumadocs-mdx": "^14.3.2",
         "fumadocs-ui": "^16.8.5",
@@ -383,23 +383,23 @@
 
     "@ungap/structured-clone": ["@ungap/structured-clone@1.3.0", "", {}, "sha512-WmoN8qaIAo7WTYWbAZuG8PYEhn5fkz7dZrqTBZ7dtt//lL2Gwms1IcnQ5yHqjDfX8Ft5j4YzDM23f87zBfDe9g=="],
 
-    "@vitus-labs/attrs": ["@vitus-labs/attrs@2.1.0", "", { "peerDependencies": { "@vitus-labs/core": "2.1.0", "react": ">= 19" } }, "sha512-gI6RJ9RrCPzlvHsUY+ln4ICnEbl+PcaftKvPFMibV1E84WPQMlUwdw3PJXuKCYDYfVxh+EcjvHyDxb/0XMyvwQ=="],
+    "@vitus-labs/attrs": ["@vitus-labs/attrs@2.6.1", "", { "peerDependencies": { "@vitus-labs/core": "^2.6.1", "react": ">= 19" } }, "sha512-K55awqKUh5cRFUshZDVGnVeNnFL/TYAg6ZwxCTpfstzVlDOx00er1ep1nQdNAO4jI92SZ97YC9qN9jKGdMWDUg=="],
 
-    "@vitus-labs/connector-styler": ["@vitus-labs/connector-styler@2.1.0", "", { "peerDependencies": { "@vitus-labs/styler": "2.1.0", "react": ">= 19" } }, "sha512-2XUfUDlnTfNi7vmx2GwAKBya6iykLo/LNTcop0QLVbNY50Lq4fafz8kXOX37gzkHn7qmE2Q5iOMt7eBmxJhKpg=="],
+    "@vitus-labs/connector-styler": ["@vitus-labs/connector-styler@2.6.1", "", { "peerDependencies": { "@vitus-labs/core": "^2.6.1", "@vitus-labs/styler": "^2.6.1", "react": ">= 19" } }, "sha512-mN0FfciK1Dyag8w/GIwbWdENyjd7YOUH+eUWz+PjHrTdI8ZzZ8PUlJUSJChdaT1l6bY9uLXL/CYhg1GdKdXnvQ=="],
 
-    "@vitus-labs/coolgrid": ["@vitus-labs/coolgrid@2.1.0", "", { "peerDependencies": { "@vitus-labs/core": "2.1.0", "@vitus-labs/unistyle": "2.1.0", "react": ">= 19", "react-native": ">= 0.76" }, "optionalPeers": ["react-native"] }, "sha512-L/nJhs06UVH/NsXDlmXYy2gTHnNuhDho3UfXQokY16+PatWYMRj+ZlI1AngEmlE00N0nF1EbrLz6vZUVug2OVw=="],
+    "@vitus-labs/coolgrid": ["@vitus-labs/coolgrid@2.6.1", "", { "peerDependencies": { "@vitus-labs/core": "^2.6.1", "@vitus-labs/unistyle": "^2.6.1", "react": ">= 19", "react-native": ">= 0.76" }, "optionalPeers": ["react-native"] }, "sha512-z40DMVn6I2GlQ/RNzBR83gL4w91AmSR3QVMQEVmAkWycDWOa9B4YRgBwACRJTYxhManZ9ooIDD1I9Xri476HhA=="],
 
-    "@vitus-labs/core": ["@vitus-labs/core@2.1.0", "", { "dependencies": { "react-is": "^19.2.4" }, "peerDependencies": { "react": ">= 19" } }, "sha512-p7htC4sZSeaZxxYHHIVDUGtVuk7Pop0GsDhHLF8xsXjbq/EOrC1MAX02IovRCdHDyYJJ8Gza5LF07Q/qMRaX2Q=="],
+    "@vitus-labs/core": ["@vitus-labs/core@2.6.1", "", { "dependencies": { "react-is": "^19.2.4" }, "peerDependencies": { "react": ">= 19" } }, "sha512-FvIAJBal8bBLYULnxTA/3tZTcfY0rF6uMkwKCzetauXte251LJ6lQumfWEbs4fqZogcsJus8dsc+z4Y6Bwvwng=="],
 
-    "@vitus-labs/elements": ["@vitus-labs/elements@2.1.0", "", { "dependencies": { "react-is": "^19.2.4" }, "peerDependencies": { "@vitus-labs/core": "2.1.0", "@vitus-labs/unistyle": "2.1.0", "react": ">= 19", "react-dom": ">= 19", "react-native": ">= 0.76" }, "optionalPeers": ["react-dom", "react-native"] }, "sha512-cf2rF5B5paNGEE6ocOWJqBlTQYdpk6yDPcHwcNkdtOi65tjZW+BVH9oiTz9qQT49dTED0P9hAfSI7WkrMHYYYw=="],
+    "@vitus-labs/elements": ["@vitus-labs/elements@2.6.1", "", { "dependencies": { "react-is": "^19.2.4" }, "peerDependencies": { "@vitus-labs/core": "^2.6.1", "@vitus-labs/unistyle": "^2.6.1", "react": ">= 19", "react-dom": ">= 19", "react-native": ">= 0.76" }, "optionalPeers": ["react-dom", "react-native"] }, "sha512-DTf/YVYPVKV1X9pmgdx0bz3VxYN2Y7O//MOEO+OzjThTLGtra8zeboKx+vJF2xumozs18dSC3tuZZZyu2W4mFA=="],
 
-    "@vitus-labs/hooks": ["@vitus-labs/hooks@2.1.0", "", { "peerDependencies": { "@vitus-labs/core": "2.1.0", "react": ">= 19", "react-native": ">= 0.76" }, "optionalPeers": ["react-native"] }, "sha512-o3ayvC/re63nx7vqdO0YPP/etItJBPGr2abqcJVYPvotzaAQhBp81VNoWkWtHslJ8RXFGq0gbDVF3R34vAI8Rg=="],
+    "@vitus-labs/hooks": ["@vitus-labs/hooks@2.6.1", "", { "peerDependencies": { "@vitus-labs/core": "^2.6.1", "react": ">= 19", "react-native": ">= 0.76" }, "optionalPeers": ["react-native"] }, "sha512-Mf8InwXB1IAXCZ2+IqMKPlsJ70rhuXEteEvok6MdNFHuOZfBnyyi7evav9d5jx5WlF4KrvUJZk9qa+ay8b+EiA=="],
 
-    "@vitus-labs/rocketstyle": ["@vitus-labs/rocketstyle@2.1.0", "", { "peerDependencies": { "@vitus-labs/core": "2.1.0", "react": ">= 19" } }, "sha512-+YHp8uon9i++VxDFypc+t9UN1/0JIdVyvnW3TyLvSIofE+bNsun8f4pbxjVjXrh+Dh5LaoQycsLBKwFYyEazqw=="],
+    "@vitus-labs/rocketstyle": ["@vitus-labs/rocketstyle@2.6.1", "", { "peerDependencies": { "@vitus-labs/core": "^2.6.1", "react": ">= 19" } }, "sha512-KSG448uMkXP54wZfBojkHVQodwAdMdO5+tf0DeC2ws/iOJiaeGCOkp2M7a1ZIfjoZfV3+z2yPBuVi+E27zGD1g=="],
 
-    "@vitus-labs/styler": ["@vitus-labs/styler@2.1.0", "", { "peerDependencies": { "react": ">= 19" } }, "sha512-l0Lq4i77Z02jIf3ms3u7vnUOVZtRo3U9l39fooVr51NYOr0x1a0vR2TQsmCi841x0ZehGEPrRF4YDYZhbRA5mQ=="],
+    "@vitus-labs/styler": ["@vitus-labs/styler@2.6.1", "", { "peerDependencies": { "@vitus-labs/core": "^2.6.1", "react": ">= 19" } }, "sha512-R9uZOjSjPIvR2RXVYS+0cgWKJ0DqYOtfbB47WeAdh2Bc9m4XsXTF3rHiRiaj/rhQt2wmWhXWcUp7tSG333TL9A=="],
 
-    "@vitus-labs/unistyle": ["@vitus-labs/unistyle@2.1.0", "", { "peerDependencies": { "@vitus-labs/core": "2.1.0", "react": ">= 19", "react-native": ">= 0.76" }, "optionalPeers": ["react-native"] }, "sha512-cGp6R4G18QixlKpAz7VZMID1qGHP6Nj9KUJjMHZSalg3IRBpLsPE4nEY76//sJLYellFZb+QU6n06A6wC02riQ=="],
+    "@vitus-labs/unistyle": ["@vitus-labs/unistyle@2.6.1", "", { "peerDependencies": { "@vitus-labs/core": "^2.6.1", "react": ">= 19", "react-native": ">= 0.76" }, "optionalPeers": ["react-native"] }, "sha512-lGrrsXtFdH60StTu6cNnG5scqPmb/ynK1UBlojfc/Rt6Ye7xpgn5leu9x8M5IalDfrIc2luDkH4OfSz7ZoIVRg=="],
 
     "acorn": ["acorn@8.16.0", "", { "bin": { "acorn": "bin/acorn" } }, "sha512-UVJyE9MttOsBQIDKw1skb9nAwQuR5wuGD3+82K6JgJlm/Y+KI92oNsMNGZCYdDsVtRHSak0pcV5Dno5+4jh9sw=="],
 
