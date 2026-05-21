@@ -1,8 +1,10 @@
 import Link from 'next/link'
 import { Counter } from '@/components/landing/Counter'
-import { Lockup, Mark } from '@/components/landing/Mark'
+import { HeroVisual } from '@/components/landing/HeroVisual'
+import { Lockup } from '@/components/landing/Mark'
 import { Reveal } from '@/components/landing/Reveal'
 import { Ticker } from '@/components/landing/Ticker'
+import { VerbRotator } from '@/components/landing/VerbRotator'
 
 // Objective inventory — verified against the monorepo on 2026-05-21:
 //   15 packages (packages/* count)
@@ -144,6 +146,9 @@ function CodeBlock() {
   const Fn = ({ children }: { children: React.ReactNode }) => (
     <span className="fn">{children}</span>
   )
+  const Num = ({ children }: { children: React.ReactNode }) => (
+    <span className="num">{children}</span>
+  )
   const Ty = ({ children }: { children: React.ReactNode }) => (
     <span className="ty">{children}</span>
   )
@@ -173,10 +178,10 @@ function CodeBlock() {
       <Kw>return</Kw> {'('}
       {'\n    '}
       {'<'}<Ty>Element</Ty> tag=<Str>"article"</Str> direction=
-      <Str>"rows"</Str> gap={'{'}<Fn>16</Fn>{'}'} padding={'{'}<Fn>24</Fn>
+      <Str>"rows"</Str> gap={'{'}<Num>16</Num>{'}'} padding={'{'}<Num>24</Num>
       {'}'}{'>'}
       {'\n      '}
-      {'<'}<Ty>Element</Ty> beforeContent={'{icon}'} gap={'{'}<Fn>8</Fn>
+      {'<'}<Ty>Element</Ty> beforeContent={'{icon}'} gap={'{'}<Num>8</Num>
       {'}'} alignY=<Str>"center"</Str>{'>'}
       {'\n        '}
       {'<'}<Ty>Text</Ty> tag=<Str>"h3"</Str>{'>'}
@@ -185,7 +190,7 @@ function CodeBlock() {
       {'\n      '}
       {'</'}<Ty>Element</Ty>{'>'}
       {'\n      '}
-      {'<'}<Ty>List</Ty> data={'{items}'} gap={'{'}<Fn>4</Fn>{'}'}{' '}
+      {'<'}<Ty>List</Ty> data={'{items}'} gap={'{'}<Num>4</Num>{'}'}{' '}
       direction=<Str>"rows"</Str> {'/>'}
       {'\n    '}
       {'</'}<Ty>Element</Ty>{'>'}
@@ -200,11 +205,15 @@ function CodeBlock() {
 export default function HomePage() {
   return (
     <main className="vl-landing">
-      {/* HERO — full-bleed so the radial glow + grid extend to viewport edges */}
+      {/* HERO — full-bleed; aurora + conic + grain stack so the radial gradient extends past the viewport */}
       <section className="vl-hero">
         <div className="vl-hero-bg" aria-hidden>
+          <div className="conic" />
+          <div className="aurora" />
+          <div className="glow-2" />
           <div className="grid" />
-          <div className="glow" />
+          <div className="noise" />
+          <div className="vignette" />
         </div>
 
         <div className="vl-hero-content">
@@ -221,7 +230,7 @@ export default function HomePage() {
                 <h1 className="vl-hero-title">
                   Build, style
                   <br />
-                  &amp; ship React
+                  &amp; <VerbRotator /> React
                   <br />
                   apps <em>composable.</em>
                 </h1>
@@ -276,41 +285,9 @@ export default function HomePage() {
               </Reveal>
             </div>
 
-            {/* Visual */}
+            {/* Visual — 3 switchable variants */}
             <Reveal delay={120}>
-              <div className="vl-hero-visual">
-                <div className="vl-orbit">
-                  <div className="ring ring-1">
-                    <span className="node" />
-                  </div>
-                  <div className="ring ring-2">
-                    <span className="node n2" />
-                  </div>
-                  <div className="ring ring-3">
-                    <span className="node n3" />
-                  </div>
-                  <div className="ring ring-4">
-                    <span className="node" />
-                  </div>
-                </div>
-
-                <span className="vl-hv-label l1">
-                  <span className="acc">core</span> · engine
-                </span>
-                <span className="vl-hv-label l2">
-                  <span className="acc">styler</span> · 4.82 KB
-                </span>
-                <span className="vl-hv-label l3">
-                  <span className="acc">kinetic</span> · 123 presets
-                </span>
-                <span className="vl-hv-label l4">
-                  <span className="acc">elements</span> · 5 primitives
-                </span>
-
-                <div className="vl-hv-center">
-                  <Mark size={96} />
-                </div>
-              </div>
+              <HeroVisual />
             </Reveal>
           </div>
         </div>
