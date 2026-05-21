@@ -232,7 +232,9 @@ export default function HomePage() {
                   <br />
                   &amp; <VerbRotator />
                   <br />
-                  React apps <em>faster.</em>
+                  React apps
+                  <br />
+                  <em>faster.</em>
                 </h1>
               </Reveal>
 
