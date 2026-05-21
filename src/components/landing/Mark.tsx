@@ -74,25 +74,27 @@ type LockupProps = {
   size?: number
   gap?: number
   variant?: MarkVariant
+  textSize?: number
   className?: string
 }
 
 export function Lockup({
   size = 36,
-  gap = 14,
+  gap = 12,
   variant = 'solid',
+  textSize,
   className,
 }: LockupProps) {
+  // Default the wordmark text to ~60% of mark height so it reads as a unit
+  // with the mark rather than as a small label next to a big symbol.
+  const fontSize = textSize ?? Math.round(size * 0.6)
   return (
     <span
       className={`vl-lockup ${className ?? ''}`}
       style={{ display: 'inline-flex', alignItems: 'center', gap }}
     >
       <Mark size={size} variant={variant} />
-      <span
-        className="vl-wordmark"
-        style={{ fontSize: Math.round(size * 0.44) }}
-      >
+      <span className="vl-wordmark" style={{ fontSize }}>
         vitus<span className="dot">·</span>labs
       </span>
     </span>

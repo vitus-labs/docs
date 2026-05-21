@@ -1,8 +1,10 @@
 import Link from 'next/link'
 import { Counter } from '@/components/landing/Counter'
-import { Lockup, Mark } from '@/components/landing/Mark'
+import { HeroVisual } from '@/components/landing/HeroVisual'
+import { Lockup } from '@/components/landing/Mark'
 import { Reveal } from '@/components/landing/Reveal'
 import { Ticker } from '@/components/landing/Ticker'
+import { VerbRotator } from '@/components/landing/VerbRotator'
 
 // Objective inventory — verified against the monorepo on 2026-05-21:
 //   15 packages (packages/* count)
@@ -127,38 +129,75 @@ const ECO = [
   },
 ]
 
-const SAMPLE = `import { init } from '@vitus-labs/core'
-import * as connector from '@vitus-labs/connector-styler'
-import { Element, Text, List } from '@vitus-labs/elements'
-
-// One-line setup
-init({ ...connector, component: 'div', textComponent: 'span' })
-
-function FeatureCard({ icon, title, items }) {
-  return (
-    <Element tag="article" direction="rows" gap={16} padding={24}>
-      <Element beforeContent={icon} gap={8} alignY="center">
-        <Text tag="h3">{title}</Text>
-      </Element>
-      <List data={items} gap={4} direction="rows" />
-    </Element>
-  )
-}`
-
+/**
+ * Hand-tokenized code block. JSX-in-template-literal can't be regex-highlighted
+ * reliably (escape-then-match order, JSX angle brackets, mixed identifiers), so
+ * we render each token as an explicit JSX span — same approach as the source
+ * design HTML. CSS classes: .kw (keyword), .str (string), .fn (function/number),
+ * .ty (component type), .cm (comment).
+ */
 function CodeBlock() {
+  const Kw = ({ children }: { children: React.ReactNode }) => (
+    <span className="kw">{children}</span>
+  )
+  const Str = ({ children }: { children: React.ReactNode }) => (
+    <span className="str">{children}</span>
+  )
+  const Fn = ({ children }: { children: React.ReactNode }) => (
+    <span className="fn">{children}</span>
+  )
+  const Num = ({ children }: { children: React.ReactNode }) => (
+    <span className="num">{children}</span>
+  )
+  const Ty = ({ children }: { children: React.ReactNode }) => (
+    <span className="ty">{children}</span>
+  )
+  const Cm = ({ children }: { children: React.ReactNode }) => (
+    <span className="cm">{children}</span>
+  )
+
   return (
     <pre>
-      <code
-        // eslint-disable-next-line react/no-danger
-        dangerouslySetInnerHTML={{
-          __html: SAMPLE.replace(/&/g, '&amp;')
-            .replace(/</g, '&lt;')
-            .replace(/>/g, '&gt;')
-            .replace(/\b(import|from|function|return|const)\b/g, '<span class="kw">$1</span>')
-            .replace(/(&#39;[^&]*&#39;|&apos;[^&]*&apos;|'[^']*')/g, '<span class="str">$1</span>')
-            .replace(/(\/\/[^\n]*)/g, '<span class="cm">$1</span>'),
-        }}
-      />
+      <Kw>import</Kw>{' '}{'{ init }'}{' '}<Kw>from</Kw>{' '}
+      <Str>'@vitus-labs/core'</Str>
+      {'\n'}
+      <Kw>import</Kw> * <Kw>as</Kw> connector <Kw>from</Kw>{' '}
+      <Str>'@vitus-labs/connector-styler'</Str>
+      {'\n'}
+      <Kw>import</Kw>{' '}{'{ Element, Text, List }'}{' '}<Kw>from</Kw>{' '}
+      <Str>'@vitus-labs/elements'</Str>
+      {'\n\n'}
+      <Cm>{'// One-line setup'}</Cm>
+      {'\n'}
+      <Fn>init</Fn>({'{ ...connector, component: '}<Str>'div'</Str>
+      {', textComponent: '}<Str>'span'</Str>{' }'})
+      {'\n\n'}
+      <Kw>function</Kw> <Fn>FeatureCard</Fn>
+      {'({ icon, title, items }) {'}
+      {'\n  '}
+      <Kw>return</Kw> {'('}
+      {'\n    '}
+      {'<'}<Ty>Element</Ty> tag=<Str>"article"</Str> direction=
+      <Str>"rows"</Str> gap={'{'}<Num>16</Num>{'}'} padding={'{'}<Num>24</Num>
+      {'}'}{'>'}
+      {'\n      '}
+      {'<'}<Ty>Element</Ty> beforeContent={'{icon}'} gap={'{'}<Num>8</Num>
+      {'}'} alignY=<Str>"center"</Str>{'>'}
+      {'\n        '}
+      {'<'}<Ty>Text</Ty> tag=<Str>"h3"</Str>{'>'}
+      {'{title}'}
+      {'</'}<Ty>Text</Ty>{'>'}
+      {'\n      '}
+      {'</'}<Ty>Element</Ty>{'>'}
+      {'\n      '}
+      {'<'}<Ty>List</Ty> data={'{items}'} gap={'{'}<Num>4</Num>{'}'}{' '}
+      direction=<Str>"rows"</Str> {'/>'}
+      {'\n    '}
+      {'</'}<Ty>Element</Ty>{'>'}
+      {'\n  '}
+      {')'}
+      {'\n'}
+      {'}'}
     </pre>
   )
 }
@@ -166,20 +205,18 @@ function CodeBlock() {
 export default function HomePage() {
   return (
     <main className="vl-landing">
-      <div
-        style={{
-          maxWidth: 1440,
-          margin: '0 auto',
-          padding: '0 clamp(24px, 4vw, 64px)',
-        }}
-      >
-        {/* HERO */}
-        <section className="vl-hero">
-          <div className="vl-hero-bg" aria-hidden>
-            <div className="grid" />
-            <div className="glow" />
-          </div>
+      {/* HERO — full-bleed; aurora + conic + grain stack so the radial gradient extends past the viewport */}
+      <section className="vl-hero">
+        <div className="vl-hero-bg" aria-hidden>
+          <div className="conic" />
+          <div className="aurora" />
+          <div className="glow-2" />
+          <div className="grid" />
+          <div className="noise" />
+          <div className="vignette" />
+        </div>
 
+        <div className="vl-hero-content">
           <div className="vl-hero-inner">
             <div>
               <Reveal>
@@ -193,7 +230,7 @@ export default function HomePage() {
                 <h1 className="vl-hero-title">
                   Build, style
                   <br />
-                  &amp; ship React
+                  &amp; <VerbRotator /> React
                   <br />
                   apps <em>composable.</em>
                 </h1>
@@ -248,45 +285,15 @@ export default function HomePage() {
               </Reveal>
             </div>
 
-            {/* Visual */}
+            {/* Visual — 3 switchable variants */}
             <Reveal delay={120}>
-              <div className="vl-hero-visual">
-                <div className="vl-orbit">
-                  <div className="ring ring-1">
-                    <span className="node" />
-                  </div>
-                  <div className="ring ring-2">
-                    <span className="node n2" />
-                  </div>
-                  <div className="ring ring-3">
-                    <span className="node n3" />
-                  </div>
-                  <div className="ring ring-4">
-                    <span className="node" />
-                  </div>
-                </div>
-
-                <span className="vl-hv-label l1">
-                  <span className="acc">core</span> · engine
-                </span>
-                <span className="vl-hv-label l2">
-                  <span className="acc">styler</span> · 4.82 KB
-                </span>
-                <span className="vl-hv-label l3">
-                  <span className="acc">kinetic</span> · 123 presets
-                </span>
-                <span className="vl-hv-label l4">
-                  <span className="acc">elements</span> · 5 primitives
-                </span>
-
-                <div className="vl-hv-center">
-                  <Mark size={96} />
-                </div>
-              </div>
+              <HeroVisual />
             </Reveal>
           </div>
-        </section>
+        </div>
+      </section>
 
+      <div className="vl-container">
         {/* TICKER */}
         <Ticker />
 

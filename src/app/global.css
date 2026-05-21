@@ -44,6 +44,16 @@
   --vl-r-md: 8px;
   --vl-r-lg: 14px;
   --vl-r-xl: 24px;
+
+  /* Syntax theme — light defaults */
+  --vl-code-fg: #1f1d17;
+  --vl-code-kw: #6e8e18;
+  --vl-code-str: #b86a1f;
+  --vl-code-fn: #2f4dff;
+  --vl-code-ty: #1f1d17;
+  --vl-code-num: #b86a1f;
+  --vl-code-cm: #908b7c;
+  --vl-code-punct: #908b7c;
 }
 
 .dark {
@@ -54,6 +64,16 @@
   --vl-fg-muted: #a8a69c;
   --vl-border: #2e3138;
   --vl-accent: var(--vl-acid);
+
+  /* Syntax theme — dark */
+  --vl-code-fg: #dcdad2;
+  --vl-code-kw: #c8ff3a;
+  --vl-code-str: #f3b05b;
+  --vl-code-fn: #7aa2ff;
+  --vl-code-ty: #e8e6dd;
+  --vl-code-num: #f3b05b;
+  --vl-code-cm: #6b6e78;
+  --vl-code-punct: #6b6e78;
 }
 
 /* ============================================
@@ -127,10 +147,28 @@
   background: var(--vl-surface);
 }
 
-/* ============= HERO ============= */
+/* ============= CONTAINER (post-hero sections) ============= */
+.vl-landing .vl-container {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 0 clamp(24px, 4vw, 64px);
+}
+
+/* ============= HERO — full-bleed ============= */
 .vl-landing .vl-hero {
-  padding: 80px 0 80px;
   position: relative;
+  padding: 100px clamp(24px, 4vw, 64px) 80px;
+  min-height: calc(100vh - 64px);
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+}
+.vl-landing .vl-hero-content {
+  max-width: 1640px;
+  width: 100%;
+  margin: 0 auto;
+  position: relative;
+  z-index: 1;
 }
 .vl-landing .vl-hero-bg {
   position: absolute;
@@ -144,43 +182,181 @@
   background-image:
     linear-gradient(to right, var(--vl-border) 1px, transparent 1px),
     linear-gradient(to bottom, var(--vl-border) 1px, transparent 1px);
-  background-size: 56px 56px;
-  opacity: 0.35;
+  background-size: 72px 72px;
+  opacity: 0.4;
   mask-image: radial-gradient(
-    ellipse 80% 60% at 70% 20%,
+    ellipse 80% 60% at 60% 50%,
     black 0%,
-    transparent 70%
+    transparent 80%
   );
   -webkit-mask-image: radial-gradient(
-    ellipse 80% 60% at 70% 20%,
+    ellipse 80% 60% at 60% 50%,
     black 0%,
+    transparent 80%
+  );
+}
+/* Aurora — large animated chartreuse + cobalt bloom */
+.vl-landing .vl-hero-bg .aurora {
+  position: absolute;
+  top: -40%;
+  right: -20%;
+  width: 1100px;
+  height: 1100px;
+  background:
+    radial-gradient(circle at 30% 30%, var(--vl-accent) 0%, transparent 55%),
+    radial-gradient(
+      circle at 70% 60%,
+      color-mix(in srgb, var(--vl-accent) 80%, var(--vl-cobalt)) 0%,
+      transparent 50%
+    );
+  opacity: 0.45;
+  mix-blend-mode: multiply;
+  filter: blur(60px);
+  animation: vl-aurora 18s ease-in-out infinite alternate;
+}
+.dark .vl-landing .vl-hero-bg .aurora {
+  opacity: 0.22;
+  mix-blend-mode: screen;
+}
+@keyframes vl-aurora {
+  0% {
+    transform: translate(0, 0) scale(1) rotate(0deg);
+  }
+  50% {
+    transform: translate(-60px, 40px) scale(1.1) rotate(20deg);
+  }
+  100% {
+    transform: translate(80px, -30px) scale(0.95) rotate(-15deg);
+  }
+}
+/* Secondary cobalt counter-note */
+.vl-landing .vl-hero-bg .glow-2 {
+  position: absolute;
+  bottom: -30%;
+  left: -10%;
+  width: 800px;
+  height: 800px;
+  background: radial-gradient(circle, var(--vl-cobalt) 0%, transparent 55%);
+  opacity: 0.14;
+  filter: blur(50px);
+  animation: vl-aurora 22s ease-in-out infinite alternate-reverse;
+}
+.dark .vl-landing .vl-hero-bg .glow-2 {
+  opacity: 0.1;
+}
+/* Conic shimmer — slow rotating aurora at center */
+.vl-landing .vl-hero-bg .conic {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 1600px;
+  height: 1600px;
+  transform: translate(-50%, -50%);
+  background: conic-gradient(
+    from 0deg,
+    transparent 0deg,
+    color-mix(in srgb, var(--vl-accent) 22%, transparent) 60deg,
+    transparent 140deg,
+    color-mix(in srgb, var(--vl-cobalt) 18%, transparent) 220deg,
+    transparent 300deg,
+    color-mix(in srgb, var(--vl-accent) 18%, transparent) 360deg
+  );
+  opacity: 0.6;
+  filter: blur(80px);
+  animation: vl-spin 60s linear infinite;
+  mask-image: radial-gradient(circle, black 0%, black 40%, transparent 70%);
+  -webkit-mask-image: radial-gradient(
+    circle,
+    black 0%,
+    black 40%,
     transparent 70%
   );
 }
-.vl-landing .vl-hero-bg .glow {
-  position: absolute;
-  top: -10%;
-  right: -10%;
-  width: 700px;
-  height: 700px;
-  background: radial-gradient(circle, var(--vl-accent) 0%, transparent 60%);
-  opacity: 0.4;
-  filter: blur(40px);
+.dark .vl-landing .vl-hero-bg .conic {
+  opacity: 0.5;
 }
-.dark .vl-landing .vl-hero-bg .glow {
-  opacity: 0.15;
+@keyframes vl-spin {
+  from {
+    transform: translate(-50%, -50%) rotate(0);
+  }
+  to {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
+/* Vertical vignette so the hero meets the next section cleanly */
+.vl-landing .vl-hero-bg .vignette {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    transparent 60%,
+    var(--vl-bg) 100%
+  );
+}
+/* Subtle organic film grain */
+.vl-landing .vl-hero-bg .noise {
+  position: absolute;
+  inset: 0;
+  opacity: 0.06;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 0.7 0'/></filter><rect width='200' height='200' filter='url(%23n)'/></svg>");
+  mix-blend-mode: multiply;
+}
+.dark .vl-landing .vl-hero-bg .noise {
+  opacity: 0.04;
+  mix-blend-mode: overlay;
 }
 
 .vl-landing .vl-hero-inner {
   display: grid;
-  grid-template-columns: 1.15fr 0.85fr;
-  gap: 64px;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: 80px;
   align-items: center;
   position: relative;
+  width: 100%;
+  max-width: 1640px;
+  margin: 0 auto;
 }
 @media (max-width: 1100px) {
   .vl-landing .vl-hero-inner {
     grid-template-columns: 1fr;
+  }
+}
+
+/* ===== Verb slot — rotating word in headline ===== */
+.vl-landing .vl-verb-slot {
+  display: inline-block;
+  color: var(--vl-accent);
+  font-style: italic;
+  font-weight: 300;
+  min-width: 4.5ch;
+  text-align: left;
+  transition:
+    transform 0.42s cubic-bezier(0.7, 0, 0.3, 1),
+    opacity 0.42s;
+  will-change: transform, opacity;
+}
+.vl-landing .vl-verb-slot.out {
+  transform: translateY(-0.4em) rotateX(60deg);
+  opacity: 0;
+}
+.vl-landing .vl-verb-slot.in {
+  animation: vl-verb-in 0.42s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+@keyframes vl-verb-in {
+  from {
+    transform: translateY(0.4em) rotateX(-60deg);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0) rotateX(0);
+    opacity: 1;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .vl-landing .vl-verb-slot {
+    transition: none;
+    animation: none;
   }
 }
 
@@ -423,6 +599,343 @@
   bottom: 4%;
   right: 6%;
   animation-delay: -3s;
+}
+
+/* ============= HERO VISUAL — 3 variants ============= */
+.vl-landing .vl-hv-variant {
+  position: absolute;
+  inset: 0;
+  opacity: 1;
+  pointer-events: auto;
+  transition: opacity 0.4s ease;
+}
+.vl-landing .vl-hv-variant[hidden] {
+  display: none !important;
+}
+.vl-landing .vl-hv-variant.fading {
+  opacity: 0;
+}
+
+/* ----- Variant: Stack ----- */
+.vl-landing .vl-hv-stack-bg {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(to right, var(--vl-border) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--vl-border) 1px, transparent 1px);
+  background-size: 40px 40px;
+  opacity: 0.5;
+  mask-image: radial-gradient(circle at center, black 30%, transparent 70%);
+  -webkit-mask-image: radial-gradient(
+    circle at center,
+    black 30%,
+    transparent 70%
+  );
+  border-radius: 50%;
+}
+.vl-landing .vl-hv-stack {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  align-items: center;
+  justify-content: center;
+  transform-style: preserve-3d;
+}
+.vl-landing .vl-sbar {
+  background: var(--vl-fg);
+  border-radius: 4px;
+  transform-origin: center;
+  animation: vl-sbar 3.8s cubic-bezier(0.2, 0.7, 0.2, 1) infinite;
+  box-shadow: 0 8px 24px color-mix(in srgb, var(--vl-fg) 12%, transparent);
+}
+.vl-landing .vl-sb1 {
+  width: 64%;
+  height: 32px;
+  animation-delay: 0s;
+}
+.vl-landing .vl-sb2 {
+  width: 50%;
+  height: 32px;
+  animation-delay: 0.12s;
+}
+.vl-landing .vl-sb3 {
+  width: 36%;
+  height: 32px;
+  animation-delay: 0.24s;
+}
+.vl-landing .vl-sb4 {
+  width: 22%;
+  height: 32px;
+  background: var(--vl-accent);
+  animation-delay: 0.36s;
+  box-shadow: 0 0 32px var(--vl-accent);
+}
+@keyframes vl-sbar {
+  0% {
+    transform: translateY(-40px) scaleX(0.3);
+    opacity: 0;
+  }
+  18% {
+    transform: translateY(0) scaleX(1);
+    opacity: 1;
+  }
+  78% {
+    transform: translateY(0) scaleX(1);
+    opacity: 1;
+  }
+  92% {
+    transform: translateY(20px) scaleX(0.4);
+    opacity: 0;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+.vl-landing .vl-hv-stack-tokens {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 8%;
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  font-family: var(--vl-font-mono);
+  font-size: 11px;
+  color: var(--vl-fg-muted);
+}
+.vl-landing .vl-hv-stack-tokens span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  background: var(--vl-surface);
+  border: 1px solid var(--vl-border);
+  border-radius: 999px;
+  animation: vl-tk-pop 3.8s cubic-bezier(0.2, 0.7, 0.2, 1) infinite;
+}
+.vl-landing .vl-hv-stack-tokens span:nth-child(1) {
+  animation-delay: 0.1s;
+}
+.vl-landing .vl-hv-stack-tokens span:nth-child(2) {
+  animation-delay: 0.22s;
+}
+.vl-landing .vl-hv-stack-tokens span:nth-child(3) {
+  animation-delay: 0.34s;
+}
+.vl-landing .vl-hv-stack-tokens span:nth-child(4) {
+  animation-delay: 0.46s;
+  color: var(--vl-accent);
+  border-color: var(--vl-accent);
+}
+.vl-landing .vl-hv-stack-tokens .d {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+@keyframes vl-tk-pop {
+  0%,
+  10% {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  25%,
+  80% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  95%,
+  100% {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+}
+
+/* ----- Variant: Radar/Pulse ----- */
+.vl-landing .vl-hv-radar {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  overflow: hidden;
+  background: radial-gradient(
+    circle at center,
+    color-mix(in srgb, var(--vl-accent) 8%, transparent) 0%,
+    transparent 60%
+  );
+  border: 1px solid var(--vl-border);
+}
+.vl-landing .vl-radar-grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(to right, var(--vl-border) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--vl-border) 1px, transparent 1px);
+  background-size: 36px 36px;
+  opacity: 0.4;
+  mask-image: radial-gradient(circle, black 50%, transparent 80%);
+  -webkit-mask-image: radial-gradient(circle, black 50%, transparent 80%);
+}
+.vl-landing .vl-radar-sweep {
+  position: absolute;
+  inset: 0;
+  background: conic-gradient(
+    from 0deg,
+    transparent 0deg,
+    transparent 280deg,
+    color-mix(in srgb, var(--vl-accent) 35%, transparent) 340deg,
+    var(--vl-accent) 360deg
+  );
+  border-radius: 50%;
+  mask-image: radial-gradient(
+    circle,
+    black 0%,
+    black 60%,
+    transparent 65%
+  );
+  -webkit-mask-image: radial-gradient(
+    circle,
+    black 0%,
+    black 60%,
+    transparent 65%
+  );
+  animation: vl-sweep 4s linear infinite;
+}
+@keyframes vl-sweep {
+  from {
+    transform: rotate(0);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+.vl-landing .vl-radar-ring {
+  position: absolute;
+  inset: 50%;
+  width: 0;
+  height: 0;
+  border: 1.5px solid var(--vl-accent);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  animation: vl-radar-ring 3s ease-out infinite;
+}
+@keyframes vl-radar-ring {
+  0% {
+    width: 0;
+    height: 0;
+    opacity: 0.8;
+    border-width: 2px;
+  }
+  100% {
+    width: 90%;
+    height: 90%;
+    opacity: 0;
+    border-width: 0.5px;
+  }
+}
+.vl-landing .vl-radar-ring.r2 {
+  animation-delay: 1s;
+}
+.vl-landing .vl-radar-ring.r3 {
+  animation-delay: 2s;
+}
+.vl-landing .vl-radar-blip {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background: var(--vl-accent);
+  border-radius: 50%;
+  box-shadow: 0 0 12px var(--vl-accent);
+  animation: vl-blip 2.2s ease-out infinite;
+}
+.vl-landing .vl-radar-blip.b1 {
+  top: 22%;
+  left: 30%;
+  animation-delay: 0s;
+}
+.vl-landing .vl-radar-blip.b2 {
+  top: 68%;
+  left: 72%;
+  animation-delay: 0.5s;
+  background: var(--vl-fg);
+  box-shadow: none;
+}
+.vl-landing .vl-radar-blip.b3 {
+  top: 40%;
+  left: 80%;
+  animation-delay: 1s;
+  background: var(--vl-signal);
+  box-shadow: 0 0 12px var(--vl-signal);
+}
+.vl-landing .vl-radar-blip.b4 {
+  top: 76%;
+  left: 28%;
+  animation-delay: 1.5s;
+}
+@keyframes vl-blip {
+  0%,
+  100% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+.vl-landing .vl-radar-center {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 28%;
+  height: 28%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--vl-bg);
+  border: 1px solid var(--vl-accent);
+  border-radius: 50%;
+}
+
+/* ----- Variant switcher pill ----- */
+.vl-landing .vl-hv-switch {
+  position: absolute;
+  bottom: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: inline-flex;
+  gap: 4px;
+  padding: 4px;
+  background: var(--vl-surface);
+  border: 1px solid var(--vl-border);
+  border-radius: 999px;
+  z-index: 10;
+}
+.vl-landing .vl-hv-switch button {
+  width: 32px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 0;
+  border-radius: 999px;
+  cursor: pointer;
+  color: var(--vl-fg-muted);
+  transition: all 0.18s;
+}
+.vl-landing .vl-hv-switch button svg {
+  width: 16px;
+  height: 16px;
+}
+.vl-landing .vl-hv-switch button:hover {
+  color: var(--vl-fg);
+}
+.vl-landing .vl-hv-switch button.active {
+  background: var(--vl-accent);
+  color: var(--vl-ink-0);
 }
 
 /* ============= TICKER ============= */
@@ -703,24 +1216,28 @@
   font-family: var(--vl-font-mono);
   font-size: 13px;
   line-height: 1.7;
-  color: var(--vl-fg);
+  color: var(--vl-code-fg);
   overflow: auto;
 }
 .vl-landing .vl-demo-code .kw {
-  color: var(--vl-accent);
+  color: var(--vl-code-kw);
+  font-weight: 500;
 }
 .vl-landing .vl-demo-code .str {
-  color: var(--vl-signal);
+  color: var(--vl-code-str);
 }
 .vl-landing .vl-demo-code .fn {
-  color: var(--vl-cobalt);
+  color: var(--vl-code-fn);
+}
+.vl-landing .vl-demo-code .num {
+  color: var(--vl-code-num);
 }
 .vl-landing .vl-demo-code .cm {
-  color: var(--vl-fg-muted);
+  color: var(--vl-code-cm);
   font-style: italic;
 }
 .vl-landing .vl-demo-code .ty {
-  color: var(--vl-fg-muted);
+  color: var(--vl-code-ty);
 }
 
 /* ============= ECOSYSTEM ============= */
