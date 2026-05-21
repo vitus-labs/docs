@@ -35,7 +35,7 @@ Every connector exports these functions:
 
 ### connector-styler (Recommended)
 
-Uses the built-in `@vitus-labs/styler` engine (~10.3 KB gzipped) — purpose-built for the UI system.
+Uses the built-in `@vitus-labs/styler` engine (4.82 KB gzipped) — purpose-built for the UI system.
 
 ```package-install
 @vitus-labs/connector-styler
@@ -158,10 +158,12 @@ init({ css: engineCss, styled: engineStyled, provider: engineProvider })
 
 | Connector | Platform | Size (gzipped) | When to Use |
 |-----------|----------|----------------|-------------|
-| **connector-styler** | Web | ~10.3 KB (engine) + 193 B (adapter) | New projects, best performance |
+| **connector-styler** | Web | 4.82 KB (engine) + 193 B (adapter) | New projects; built-in engine, no external dep |
 | **connector-styled-components** | Web | ~12 KB (engine) + 186 B (adapter) | Existing styled-components codebase |
 | **connector-emotion** | Web | ~11 KB (engine) + 1.28 KB (adapter) | Existing Emotion codebase |
 | **[connector-native](/docs/connectors/native)** | React Native | 2.74 KB | React Native applications |
+
+Per-scenario `ops/sec` numbers comparing all three engines via the in-repo bench live on the [styler page](/docs/styler#competitive-bench-render-to-string--csr).
 
 ### Web Connector Compatibility
 

@@ -1,9 +1,9 @@
 ---
 title: Styler
-description: High-performance CSS-in-JS engine for Vitus Labs UI System (~10.3 KB gzipped).
+description: CSS-in-JS engine for Vitus Labs UI System — 4.82 KB gzipped, React 19 SSR via <style precedence>, regression-gated competitive bench.
 ---
 
-`@vitus-labs/styler` is a CSS-in-JS engine replacing styled-components. It provides a familiar tagged template literal API with static/dynamic path optimization, automatic class name hashing, and React 19 SSR support.
+`@vitus-labs/styler` is a CSS-in-JS engine with a styled-components-compatible API: tagged template literals, `styled.tag` shorthand, `as` polymorphism, `$`-prefixed transient props, refs, theming, keyframes, `createGlobalStyle`, and SSR. The engine has a static/dynamic split with multi-tier caching and uses React 19's `<style precedence>` for SSR streaming.
 
 ## Installation
 
@@ -15,16 +15,18 @@ description: High-performance CSS-in-JS engine for Vitus Labs UI System (~10.3 K
 
 ## Key Features
 
-- **~10.3 KB gzipped** — full-featured engine with SSR, @layer, and concurrent-mode-safe injection
-- **Static/dynamic split** — Templates without function interpolations compute class once at definition time (zero per-render cost)
-- **FNV-1a hashing** — Deterministic class names, automatic deduplication
-- **CSS-in-CSS composition** — Nest `css` results inside `styled` or other `css` calls
-- **React 19 SSR** — `<style precedence>` on server, `useInsertionEffect` on client
-- **Transient props** — `$`-prefixed props consumed by styles but never forwarded to DOM
-- **Polymorphic `as` prop** — Render as any element or component
-- **Specificity boost** — Double selector option for library component overrides
-- **@layer support** — CSS cascade layer wrapping
-- **Bounded cache** — Configurable max cache size with automatic eviction
+- **4.82 KB gzipped** (13.65 KB minified, fresh build) — full SSR engine with `@layer`, at-rule splitting, and concurrent-mode-safe injection.
+- **Static/dynamic split** — templates with no function interpolations compute their class name once at module load; subsequent renders return a pre-built ReactElement with no resolve / hash / `createElement` work.
+- **FNV-1a hashing** — deterministic class names (`vl-<base36>`), automatic dedup. Hash loop is 4-char-unrolled for ~+15-46% throughput vs the per-char loop.
+- **CSS-in-CSS composition** — nest `css\`…\`` results inside `styled\`…\`` or other `css\`…\``. Static nested results are memoized per-instance (one resolve, reused across every consumer's render).
+- **React 19 SSR** — `<style precedence="medium">` on server, `useInsertionEffect` into a single shared `<style data-vl>` element on client. No manual `collectStyles` / `ServerStyleSheet` boilerplate.
+- **Transient props** — `$`-prefixed props consumed by styles but never forwarded to DOM.
+- **Polymorphic `as` prop** — render as any element or component without breaking ref forwarding.
+- **Specificity boost** — `boost: true` doubles the selector to (0,2,0) for library-component overrides.
+- **@layer support** — opt in via `createSheet({ layer: 'components' })`.
+- **Bounded cache** — `maxCacheSize` (default 10,000) with 10% oldest-first eviction.
+- **Every tag works** — `styled.div`, `styled.p`, `styled.section`, `styled('my-element')` all hit the same `Proxy` handler. **Zero bytes per tag** added to the bundle.
+- **CI-gated perf** — every PR runs the [bench workflow](https://github.com/vitus-labs/ui-system/blob/main/.github/workflows/bench.yml) which fails on >10% regression vs main on the same runner.
 
 ## Try It Live
 
@@ -509,57 +511,64 @@ if (import.meta.hot) {
 
 ## Benchmarks
 
-All benchmarks run via Vitest bench. React is externalized in all bundle measurements.
+### Bundle size
 
-### Bundle Size
+Fresh build of `@vitus-labs/styler` (rolldown, ESM, react externalized):
 
-| Library | Minified | Gzipped |
-|---------|--------:|--------:|
-| goober | 2.32 KB | 1.31 KB |
-| **@vitus-labs/styler** | **~32 KB** | **10.34 KB** |
-| styled-components | 44.93 KB | 17.89 KB |
-| @emotion/react + styled | 48.26 KB | 16.59 KB |
+| Build | Size |
+|---|---:|
+| Bundle (unminified) | 33.97 KB |
+| Minified | 13.65 KB |
+| **Gzipped** | **4.82 KB** |
 
-styler beats styled-components by **45%** and Emotion by **40%** while supporting React 19 SSR, `@layer` wrapping, `@media`/`@supports`/`@container` rule splitting, specificity boost, theming, global styles, keyframes, and multi-tier render caching.
+Competitor numbers below are from each library's published artifact (read off bundlephobia / their dist files); they're a snapshot, not a regression-gated measurement:
 
-### What's in the bundle
+| Library | Gzipped |
+|---|---:|
+| [goober](https://github.com/cristianbote/goober) | ~1.3 KB |
+| **@vitus-labs/styler** | **4.82 KB** |
+| @emotion/react + styled | ~16.6 KB |
+| styled-components 6 | ~17.9 KB |
 
-For a CSS-in-JS engine that ships SSR + bundler-style features, ~10 KB gzipped is the realistic floor. The size is driven by these source modules:
+If you need the smallest possible bundle and don't need SSR or full HTML-prop filtering, goober is the minimal option. styler's positioning is "full SSR + composition + dedup + caching in under 5 KB gzipped."
 
-| Module | Concern |
+### What drives the size
+
+| Module | What it ships |
 |---|---|
-| `sheet.ts` | StyleSheet class, SSR hydration, `@media`/`@supports`/`@container` rule splitting, `@layer` support, bounded cache + eviction, `prepare()` cache for React 19 `<style precedence>`, broadcast hooks for static-cache resets on `clearAll()` |
-| `forward.ts` | HTML attribute allowlist, SVG element list, custom `shouldForwardProp`, transient (`$`-prefix) prop filtering |
-| `styled.ts` | Static/dynamic split, multi-tier hot+WeakMap cache, polymorphic `as` prop, SSR + client paths, specificity boost (`.foo.foo`) |
-| `resolve.ts` | Tagged template resolver, `normalizeCSS` single-pass scanner |
-| `globalStyle.ts` | `createGlobalStyle` |
-| Other | `hash`, `useCSS`, `keyframes`, `ThemeProvider`, `evict`, `css`, `shared`, `index` |
+| `sheet.ts` | `StyleSheet` class, SSR hydration, `@media`/`@supports`/`@container` rule splitting, `@layer` wrapping, bounded cache + eviction, `prepare()` cache for `<style precedence>`, `onClear` broadcast hooks |
+| `styled.ts` | static/dynamic split, hot + WeakMap component cache, LRU-2 cssText cache per dynamic render, polymorphic `as` prop, SSR vs client branches |
+| `forward.ts` | HTML attribute allowlist, transient (`$`-prefix) prop filter, `shouldForwardProp` option |
+| `resolve.ts` | tagged-template resolver, `normalizeCSS` single-pass scanner, `_isDynamic` / `_staticResolved` per-instance caches |
+| `globalStyle.ts` | `createGlobalStyle` (static + dynamic paths, SSR precedence) |
+| Other | `hash` (4-char-unrolled FNV-1a), `useCSS`, `keyframes`, `ThemeProvider`, `evict`, `css`, `shared`, `index` |
 
-If you're optimizing for the smallest possible bundle and don't need SSR or the full HTML attribute filter, [goober](https://github.com/cristianbote/goober) at 1.31 KB is the minimal-feature option. styler's value is the feature set per kilobyte.
+### Competitive bench (render-to-string + CSR)
 
-### Performance (ops/sec, higher is better)
+The canonical regression-gated suite is in-repo at [`packages/styler/benchmarks/css-perf.bench.tsx`](https://github.com/vitus-labs/ui-system/tree/main/packages/styler/benchmarks). Run with `bun run bench` from the styler package. Same-process tinybench, equivalent work (styled-components is wrapped in `ServerStyleSheet` so all three libraries serialize CSS on the SSR rows). Numbers below are 3-run medians on bun 1.3.13 / react 19.2.6.
 
-| Benchmark | styler | styled-components | @emotion | goober |
-|-----------|-------:|-------------------:|---------:|-------:|
-| css() creation | **25.2M** | 9.0M | 2.2M | 26K |
-| css() with interpolations | **24.9M** | 5.6M | 2.3M | 28K |
-| Template resolution | **21.4M** | 3.9M | — | — |
-| Dynamic interpolation | 12.4M | **13.4M** | — | — |
-| Nested composition | **8.3M** | 2.2M | 1.4M | 8K |
-| SSR renderToString | **307K** | 69K | 192K | 18K |
-| styled() factory | **17.3M** | 109K | 933K | 18.2M |
+| Scenario | styler ops/s | emotion ops/s | sc 6 ops/s | styler vs best competitor |
+|---|---:|---:|---:|---|
+| SSR static  (500 renders/tick) | **719** | 335 | 210 | **2.14×** vs emotion |
+| SSR dynamic (500 renders/tick) | **434** | 307 | 202 | **1.41×** vs emotion |
+| SSR themed  (500 renders/tick) | **363** | 286 | 184 | **1.27×** vs emotion |
+| CSR mount (100 mounts/tick) | **13912** | 13817 | 13702 | +1% vs emotion (tie) |
+| CSR update (100 updates/tick) | 13108 | 13032 | **13239** | −1% vs sc (tie) |
+| CSR many (50 distinct comps/tick) | **18933** | 18302 | 5705 | **3.32×** vs sc |
 
-Styler is **2.8–1034x faster** than alternatives across css creation, composition, and SSR. The `styled()` factory is essentially tied with goober (17.3M vs 18.2M ops/s) while being 158x faster than styled-components and 18x faster than Emotion. The only benchmark where styler doesn't lead is dynamic function interpolation, where styled-components' manual flatten is ~8% faster.
+The SSR gap is where styler's React 19 `<style precedence>` + static-element cache pay off — both emotion and styled-components have to serialize via heavier paths (sc explicitly via `ServerStyleSheet`, emotion via its own SSR plumbing). The CSR mount/update numbers are within ~1% across all three libraries because React's reconciler dominates the per-render cost.
 
-### Maintained benchmark suite (2.6+)
+A **>10% regression** on any styler row vs main on the same runner fails the [bench workflow](https://github.com/vitus-labs/ui-system/blob/main/.github/workflows/bench.yml). This caught a real regression during the 2.6.x perf round and forced a revert before merge.
 
-The numbers above are micro-benchmarks. The canonical, regression-gated suite lives in-repo at [`packages/styler/benchmarks/`](https://github.com/vitus-labs/ui-system/tree/main/packages/styler/benchmarks) — run it with `bun run bench` from the styler package. It measures **render-to-string + client mount/update** against styled-components 6 and Emotion 11 with equivalent work (sc wrapped in `ServerStyleSheet` so all three serialize CSS):
+### Helper-level microbench (audit history)
 
-| Scenario | styler | emotion | styled-components 6 |
-|---|---:|---:|---:|
-| SSR static  | **1.00×** | 0.66× | 0.18× |
-| SSR dynamic | **1.00×** | 0.77× | 0.21× |
-| SSR themed  | **1.00×** | 0.79× | 0.22× |
-| CSR mount/update | ~1.0× | ~1.0× | ~1.0× (React reconciler dominates) |
+A second bench at [`packages/styler/benchmarks/perf-audit-bench.tsx`](https://github.com/vitus-labs/ui-system/tree/main/packages/styler/benchmarks) compares individual helper old-vs-new in the same process. This is the bench used to verify each perf-PR's claimed delta during audit; representative recent results (median of 3 runs):
 
-A `>10%` regression on any styler row vs the committed baseline fails CI ([bench workflow](https://github.com/vitus-labs/ui-system/blob/main/.github/workflows/bench.yml)). On the client, all three are within noise — the SSR gap is where styler's React 19 `<style precedence>` + static-element cache pays off.
+| Helper | Δ vs main-before-PR |
+|---|---:|
+| `CSSResult._staticResolved` cache (nested-static, 8 repeats) | +149% |
+| `hashUpdate` 4-char unroll (337-char CSS) | +46% |
+| `hashUpdate` 4-char unroll (25-char CSS) | +15% |
+| `HTML_PROPS` Set → null-proto `key in obj` (5-lookup mix) | +19% |
+
+These translate into ~0% headline bench movement (the helpers target paths the headline bench doesn't exercise — nested static composition, very long CSS strings, deep `buildProps` calls). They land for real-app workloads with shared `css\`…\`` snippets, long stylesheets, and prop-heavy components.
