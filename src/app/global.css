@@ -1,10 +1,936 @@
+/* Brand fonts — must precede tailwind/fumadocs to satisfy CSS @import ordering */
+@import url('https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap');
 @import 'tailwindcss';
 @import 'fumadocs-ui/css/neutral.css';
 @import 'fumadocs-ui/css/preset.css';
 
 @source '../node_modules/fumadocs-ui/dist/**/*.js';
 
-/* Hero gradient backdrop */
+:root {
+  /* Core ink + paper */
+  --vl-ink-0: #0a0b0d;
+  --vl-ink-1: #14161a;
+  --vl-ink-2: #1e2025;
+  --vl-ink-3: #2a2d33;
+
+  --vl-paper-0: #f6f4ee;
+  --vl-paper-1: #fdfbf5;
+  --vl-paper-2: #ffffff;
+  --vl-paper-3: #ece9e0;
+
+  /* Brand accents */
+  --vl-acid: #c8ff3a;
+  --vl-acid-2: #e8ff8a;
+  --vl-acid-d: #8fb81e;
+  --vl-signal: #ff5630;
+  --vl-cobalt: #2f4dff;
+
+  /* Light mode is the default for :root */
+  --vl-bg: var(--vl-paper-0);
+  --vl-surface: var(--vl-paper-1);
+  --vl-surface-2: var(--vl-paper-2);
+  --vl-fg: var(--vl-ink-0);
+  --vl-fg-muted: #4a4740;
+  --vl-border: #d9d5c8;
+  --vl-accent: var(--vl-acid-d);
+
+  /* Type */
+  --vl-font-display: 'Geist', ui-sans-serif, system-ui, -apple-system,
+    'Helvetica Neue', sans-serif;
+  --vl-font-mono: 'Geist Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+
+  /* Radii */
+  --vl-r-sm: 4px;
+  --vl-r-md: 8px;
+  --vl-r-lg: 14px;
+  --vl-r-xl: 24px;
+}
+
+.dark {
+  --vl-bg: var(--vl-ink-0);
+  --vl-surface: var(--vl-ink-1);
+  --vl-surface-2: var(--vl-ink-2);
+  --vl-fg: #f1efe7;
+  --vl-fg-muted: #a8a69c;
+  --vl-border: #2e3138;
+  --vl-accent: var(--vl-acid);
+}
+
+/* ============================================
+   LANDING — only applied inside .vl-landing
+   so we don't clobber Fumadocs's docs UI.
+   ============================================ */
+.vl-landing {
+  font-family: var(--vl-font-display);
+  background: var(--vl-bg);
+  color: var(--vl-fg);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+.vl-landing .vl-mono {
+  font-family: var(--vl-font-mono);
+}
+.vl-landing .vl-uppercase-tag {
+  font-family: var(--vl-font-mono);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--vl-fg-muted);
+}
+
+.vl-landing .vl-wordmark {
+  font-family: var(--vl-font-mono);
+  font-weight: 500;
+  letter-spacing: -0.02em;
+}
+.vl-landing .vl-wordmark .dot {
+  color: var(--vl-accent);
+}
+
+/* ============= BUTTON ============= */
+.vl-landing .vl-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 22px;
+  border-radius: 999px;
+  font-family: var(--vl-font-display);
+  font-weight: 500;
+  font-size: 15px;
+  border: 1px solid var(--vl-border);
+  background: transparent;
+  color: var(--vl-fg);
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.18s ease;
+}
+.vl-landing .vl-btn:hover {
+  background: var(--vl-surface-2);
+  transform: translateY(-1px);
+}
+.vl-landing .vl-btn--primary {
+  background: var(--vl-accent);
+  color: var(--vl-ink-0);
+  border-color: var(--vl-accent);
+}
+.vl-landing .vl-btn--primary:hover {
+  background: var(--vl-acid-2);
+}
+.dark .vl-landing .vl-btn--primary:hover {
+  background: var(--vl-acid-2);
+}
+.vl-landing .vl-btn--ghost {
+  border-color: transparent;
+}
+.vl-landing .vl-btn--ghost:hover {
+  background: var(--vl-surface);
+}
+
+/* ============= HERO ============= */
+.vl-landing .vl-hero {
+  padding: 80px 0 80px;
+  position: relative;
+}
+.vl-landing .vl-hero-bg {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+.vl-landing .vl-hero-bg .grid {
+  position: absolute;
+  inset: -20% -20% 0 -20%;
+  background-image:
+    linear-gradient(to right, var(--vl-border) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--vl-border) 1px, transparent 1px);
+  background-size: 56px 56px;
+  opacity: 0.35;
+  mask-image: radial-gradient(
+    ellipse 80% 60% at 70% 20%,
+    black 0%,
+    transparent 70%
+  );
+  -webkit-mask-image: radial-gradient(
+    ellipse 80% 60% at 70% 20%,
+    black 0%,
+    transparent 70%
+  );
+}
+.vl-landing .vl-hero-bg .glow {
+  position: absolute;
+  top: -10%;
+  right: -10%;
+  width: 700px;
+  height: 700px;
+  background: radial-gradient(circle, var(--vl-accent) 0%, transparent 60%);
+  opacity: 0.4;
+  filter: blur(40px);
+}
+.dark .vl-landing .vl-hero-bg .glow {
+  opacity: 0.15;
+}
+
+.vl-landing .vl-hero-inner {
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  gap: 64px;
+  align-items: center;
+  position: relative;
+}
+@media (max-width: 1100px) {
+  .vl-landing .vl-hero-inner {
+    grid-template-columns: 1fr;
+  }
+}
+
+.vl-landing .vl-hero-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  padding: 6px 14px 6px 6px;
+  border: 1px solid var(--vl-border);
+  border-radius: 999px;
+  font-family: var(--vl-font-mono);
+  font-size: 12px;
+  color: var(--vl-fg-muted);
+  margin-bottom: 32px;
+  background: var(--vl-surface);
+}
+.vl-landing .vl-dot-pulse {
+  width: 8px;
+  height: 8px;
+  background: var(--vl-accent);
+  border-radius: 50%;
+  margin-left: 8px;
+  box-shadow: 0 0 0 0 var(--vl-accent);
+  animation: vl-dotpulse 2s ease-out infinite;
+}
+@keyframes vl-dotpulse {
+  0% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--vl-accent) 60%, transparent);
+  }
+  70% {
+    box-shadow: 0 0 0 10px transparent;
+  }
+  100% {
+    box-shadow: 0 0 0 0 transparent;
+  }
+}
+@keyframes vl-blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.3;
+  }
+}
+
+.vl-landing .vl-hero-title {
+  font-size: clamp(48px, 6.5vw, 96px);
+  font-weight: 500;
+  letter-spacing: -0.04em;
+  line-height: 0.94;
+  margin: 0 0 32px;
+}
+.vl-landing .vl-hero-title em {
+  font-style: italic;
+  font-weight: 300;
+  color: var(--vl-accent);
+}
+
+.vl-landing .vl-hero-sub {
+  font-size: 20px;
+  line-height: 1.5;
+  color: var(--vl-fg-muted);
+  max-width: 580px;
+  margin: 0 0 40px;
+}
+.vl-landing .vl-hero-sub strong {
+  color: var(--vl-fg);
+  font-weight: 500;
+}
+
+.vl-landing .vl-hero-ctas {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.vl-landing .vl-hero-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 32px;
+  margin-top: 64px;
+  padding-top: 32px;
+  border-top: 1px solid var(--vl-border);
+}
+.vl-landing .vl-hero-stat .n {
+  font-family: var(--vl-font-display);
+  font-size: 40px;
+  font-weight: 500;
+  letter-spacing: -0.025em;
+  line-height: 1;
+}
+.vl-landing .vl-hero-stat .n em {
+  font-style: normal;
+  color: var(--vl-accent);
+}
+.vl-landing .vl-hero-stat .lbl {
+  margin-top: 8px;
+  font-family: var(--vl-font-mono);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--vl-fg-muted);
+}
+
+/* Hero visual — orbit */
+.vl-landing .vl-hero-visual {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto;
+}
+.vl-landing .vl-orbit {
+  position: absolute;
+  inset: 0;
+}
+.vl-landing .vl-orbit .ring {
+  position: absolute;
+  border: 1px dashed var(--vl-border);
+  border-radius: 50%;
+}
+.vl-landing .vl-orbit .ring-1 {
+  inset: 0;
+  animation: vl-orbit 30s linear infinite;
+}
+.vl-landing .vl-orbit .ring-2 {
+  inset: 12%;
+  animation: vl-orbit 22s linear infinite reverse;
+  border-style: solid;
+  opacity: 0.5;
+}
+.vl-landing .vl-orbit .ring-3 {
+  inset: 24%;
+  animation: vl-orbit 18s linear infinite;
+}
+.vl-landing .vl-orbit .ring-4 {
+  inset: 36%;
+  animation: vl-orbit 14s linear infinite reverse;
+  border-style: solid;
+  opacity: 0.5;
+}
+@keyframes vl-orbit {
+  from {
+    transform: rotate(0);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+.vl-landing .vl-orbit .ring > .node {
+  position: absolute;
+  top: 50%;
+  right: 0;
+  width: 10px;
+  height: 10px;
+  background: var(--vl-accent);
+  border-radius: 50%;
+  transform: translate(50%, -50%);
+  box-shadow: 0 0 16px var(--vl-accent);
+}
+.vl-landing .vl-orbit .ring > .node.n2 {
+  background: var(--vl-fg);
+  box-shadow: none;
+}
+.vl-landing .vl-orbit .ring > .node.n3 {
+  background: var(--vl-signal);
+  box-shadow: 0 0 16px var(--vl-signal);
+}
+.vl-landing .vl-hv-center {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 36%;
+  height: 36%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--vl-bg);
+  border-radius: 50%;
+  border: 1px solid var(--vl-border);
+}
+.vl-landing .vl-hv-center::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: 50%;
+  background: conic-gradient(
+    from 0deg,
+    transparent 70%,
+    var(--vl-accent),
+    transparent
+  );
+  -webkit-mask: radial-gradient(circle, transparent 64%, black 65%);
+  mask: radial-gradient(circle, transparent 64%, black 65%);
+  animation: vl-orbit 4s linear infinite;
+}
+.vl-landing .vl-hv-label {
+  position: absolute;
+  font-family: var(--vl-font-mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--vl-fg-muted);
+  background: var(--vl-bg);
+  border: 1px solid var(--vl-border);
+  padding: 4px 8px;
+  border-radius: 4px;
+  white-space: nowrap;
+  animation: vl-float 4s ease-in-out infinite;
+}
+@keyframes vl-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+.vl-landing .vl-hv-label .acc {
+  color: var(--vl-accent);
+}
+.vl-landing .vl-hv-label.l1 {
+  top: 6%;
+  left: 2%;
+}
+.vl-landing .vl-hv-label.l2 {
+  top: 12%;
+  right: 0;
+  animation-delay: -1s;
+}
+.vl-landing .vl-hv-label.l3 {
+  bottom: 18%;
+  left: -2%;
+  animation-delay: -2s;
+}
+.vl-landing .vl-hv-label.l4 {
+  bottom: 4%;
+  right: 6%;
+  animation-delay: -3s;
+}
+
+/* ============= TICKER ============= */
+.vl-landing .vl-ticker {
+  margin: 60px 0;
+  padding: 24px 0;
+  border-top: 1px solid var(--vl-border);
+  border-bottom: 1px solid var(--vl-border);
+  overflow: hidden;
+  background: var(--vl-surface);
+  position: relative;
+}
+.vl-landing .vl-ticker::before,
+.vl-landing .vl-ticker::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 120px;
+  z-index: 2;
+  pointer-events: none;
+}
+.vl-landing .vl-ticker::before {
+  left: 0;
+  background: linear-gradient(to right, var(--vl-surface), transparent);
+}
+.vl-landing .vl-ticker::after {
+  right: 0;
+  background: linear-gradient(to left, var(--vl-surface), transparent);
+}
+.vl-landing .vl-ticker-track {
+  display: inline-flex;
+  gap: 48px;
+  font-family: var(--vl-font-mono);
+  font-size: 20px;
+  color: var(--vl-fg-muted);
+  white-space: nowrap;
+  animation: vl-scroll 60s linear infinite;
+}
+.vl-landing .vl-ticker-track:hover {
+  animation-play-state: paused;
+}
+.vl-landing .vl-ticker-track span.acc {
+  color: var(--vl-accent);
+}
+.vl-landing .vl-ticker-track span.pkg {
+  color: var(--vl-fg);
+}
+@keyframes vl-scroll {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+/* ============= SECTION ============= */
+.vl-landing .vl-section {
+  padding: 80px 0;
+  position: relative;
+}
+.vl-landing .vl-section-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+  margin-bottom: 56px;
+  gap: 48px;
+}
+@media (max-width: 800px) {
+  .vl-landing .vl-section-head {
+    flex-direction: column;
+    align-items: start;
+  }
+}
+.vl-landing .vl-section-head .eyebrow {
+  font-family: var(--vl-font-mono);
+  font-size: 12px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--vl-accent);
+  margin-bottom: 16px;
+}
+.vl-landing .vl-section-head h2 {
+  font-size: clamp(36px, 4.5vw, 64px);
+  font-weight: 500;
+  letter-spacing: -0.035em;
+  line-height: 1;
+  margin: 0;
+  max-width: 14ch;
+}
+.vl-landing .vl-section-head h2 em {
+  font-style: italic;
+  font-weight: 300;
+  color: var(--vl-accent);
+}
+.vl-landing .vl-section-head .right {
+  text-align: right;
+  color: var(--vl-fg-muted);
+  font-size: 16px;
+  line-height: 1.5;
+  max-width: 360px;
+}
+@media (max-width: 800px) {
+  .vl-landing .vl-section-head .right {
+    text-align: left;
+  }
+}
+
+/* ============= FEATURES ============= */
+.vl-landing .vl-features {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 1px;
+  background: var(--vl-border);
+  border: 1px solid var(--vl-border);
+  border-radius: var(--vl-r-xl);
+  overflow: hidden;
+}
+.vl-landing .vl-feature {
+  background: var(--vl-bg);
+  padding: 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  position: relative;
+  overflow: hidden;
+  transition: background 0.3s;
+}
+.vl-landing .vl-feature:hover {
+  background: var(--vl-surface);
+}
+.vl-landing .vl-feature .glyph {
+  font-family: var(--vl-font-mono);
+  font-size: 24px;
+  color: var(--vl-accent);
+  line-height: 1;
+}
+.vl-landing .vl-feature h3 {
+  font-size: 22px;
+  font-weight: 500;
+  letter-spacing: -0.015em;
+  margin: 8px 0 0;
+}
+.vl-landing .vl-feature p {
+  color: var(--vl-fg-muted);
+  font-size: 15px;
+  line-height: 1.55;
+  margin: 0;
+}
+.vl-landing .vl-feature .meta {
+  margin-top: auto;
+  padding-top: 24px;
+  font-family: var(--vl-font-mono);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--vl-fg-muted);
+  display: flex;
+  justify-content: space-between;
+}
+.vl-landing .vl-f-span-4 {
+  grid-column: span 4;
+}
+@media (max-width: 900px) {
+  .vl-landing .vl-f-span-4 {
+    grid-column: span 12;
+  }
+}
+
+/* ============= DEMO ============= */
+.vl-landing .vl-demo {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 48px;
+  align-items: center;
+}
+@media (max-width: 1000px) {
+  .vl-landing .vl-demo {
+    grid-template-columns: 1fr;
+  }
+}
+.vl-landing .vl-demo-copy h2 {
+  font-size: clamp(32px, 4vw, 48px);
+  font-weight: 500;
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+  margin: 16px 0 24px;
+}
+.vl-landing .vl-demo-copy p {
+  font-size: 17px;
+  line-height: 1.6;
+  color: var(--vl-fg-muted);
+  margin: 0 0 24px;
+}
+.vl-landing .vl-demo-copy ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  font-family: var(--vl-font-mono);
+  font-size: 14px;
+}
+.vl-landing .vl-demo-copy ul li {
+  padding: 12px 0;
+  border-bottom: 1px solid var(--vl-border);
+  display: flex;
+  gap: 14px;
+  align-items: baseline;
+}
+.vl-landing .vl-demo-copy ul li::before {
+  content: '▽';
+  color: var(--vl-accent);
+  font-size: 10px;
+}
+.vl-landing .vl-demo-copy ul li b {
+  color: var(--vl-fg);
+  font-weight: 600;
+}
+.vl-landing .vl-demo-copy ul li .dim {
+  color: var(--vl-fg-muted);
+}
+
+.vl-landing .vl-demo-code {
+  background: var(--vl-surface);
+  border: 1px solid var(--vl-border);
+  border-radius: var(--vl-r-lg);
+  overflow: hidden;
+  position: relative;
+}
+.vl-landing .vl-demo-code-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--vl-border);
+  font-family: var(--vl-font-mono);
+  font-size: 12px;
+  color: var(--vl-fg-muted);
+  background: var(--vl-surface-2);
+}
+.vl-landing .vl-demo-code-head .dots {
+  display: flex;
+  gap: 6px;
+}
+.vl-landing .vl-demo-code-head .dots span {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--vl-border);
+}
+.vl-landing .vl-demo-code-head .file::before {
+  content: '';
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  background: var(--vl-accent);
+  margin-right: 8px;
+  vertical-align: -1px;
+  border-radius: 2px;
+}
+.vl-landing .vl-demo-code-head .blink {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.vl-landing .vl-demo-code-head .blink::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  background: var(--vl-accent);
+  border-radius: 50%;
+  animation: vl-blink 1.6s ease-in-out infinite;
+}
+.vl-landing .vl-demo-code pre {
+  margin: 0;
+  padding: 24px;
+  font-family: var(--vl-font-mono);
+  font-size: 13px;
+  line-height: 1.7;
+  color: var(--vl-fg);
+  overflow: auto;
+}
+.vl-landing .vl-demo-code .kw {
+  color: var(--vl-accent);
+}
+.vl-landing .vl-demo-code .str {
+  color: var(--vl-signal);
+}
+.vl-landing .vl-demo-code .fn {
+  color: var(--vl-cobalt);
+}
+.vl-landing .vl-demo-code .cm {
+  color: var(--vl-fg-muted);
+  font-style: italic;
+}
+.vl-landing .vl-demo-code .ty {
+  color: var(--vl-fg-muted);
+}
+
+/* ============= ECOSYSTEM ============= */
+.vl-landing .vl-eco {
+  margin-top: 16px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+@media (max-width: 900px) {
+  .vl-landing .vl-eco {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+@media (max-width: 540px) {
+  .vl-landing .vl-eco {
+    grid-template-columns: 1fr;
+  }
+}
+.vl-landing .vl-pkg {
+  background: var(--vl-surface);
+  border: 1px solid var(--vl-border);
+  border-radius: var(--vl-r-md);
+  padding: 20px;
+  transition: all 0.2s;
+  cursor: pointer;
+  text-decoration: none;
+  color: inherit;
+  display: block;
+  position: relative;
+  overflow: hidden;
+}
+.vl-landing .vl-pkg:hover {
+  border-color: var(--vl-accent);
+  transform: translateY(-2px);
+  background: var(--vl-surface-2);
+}
+.vl-landing .vl-pkg::after {
+  content: '↗';
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  font-size: 12px;
+  color: var(--vl-fg-muted);
+  transition: all 0.2s;
+}
+.vl-landing .vl-pkg:hover::after {
+  color: var(--vl-accent);
+  transform: translate(2px, -2px);
+}
+.vl-landing .vl-pkg .nm {
+  font-family: var(--vl-font-mono);
+  font-size: 14px;
+  color: var(--vl-accent);
+  margin-bottom: 6px;
+}
+.vl-landing .vl-pkg .ttl {
+  font-size: 15px;
+  font-weight: 500;
+  margin: 0 0 6px;
+}
+.vl-landing .vl-pkg .desc {
+  font-size: 13px;
+  color: var(--vl-fg-muted);
+  line-height: 1.45;
+  margin: 0;
+}
+
+/* ============= INSTALL ============= */
+.vl-landing .vl-install {
+  margin: 80px 0 0;
+  padding: 64px;
+  background: var(--vl-surface);
+  border: 1px solid var(--vl-border);
+  border-radius: var(--vl-r-xl);
+  position: relative;
+  overflow: hidden;
+}
+@media (max-width: 800px) {
+  .vl-landing .vl-install {
+    padding: 40px;
+  }
+}
+.vl-landing .vl-install::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  right: -10%;
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, var(--vl-accent) 0%, transparent 60%);
+  opacity: 0.1;
+  filter: blur(40px);
+  pointer-events: none;
+}
+.vl-landing .vl-install-grid {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 64px;
+  align-items: center;
+  position: relative;
+}
+@media (max-width: 900px) {
+  .vl-landing .vl-install-grid {
+    grid-template-columns: 1fr;
+  }
+}
+.vl-landing .vl-install h2 {
+  font-size: clamp(32px, 3.5vw, 48px);
+  font-weight: 500;
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+  margin: 8px 0 16px;
+}
+.vl-landing .vl-install p {
+  color: var(--vl-fg-muted);
+  margin: 0;
+  max-width: 480px;
+  line-height: 1.55;
+  font-size: 17px;
+}
+
+.vl-landing .vl-terminal {
+  background: var(--vl-bg);
+  border: 1px solid var(--vl-border);
+  border-radius: var(--vl-r-md);
+  min-width: 380px;
+  max-width: 100%;
+  overflow: hidden;
+}
+@media (max-width: 900px) {
+  .vl-landing .vl-terminal {
+    min-width: 0;
+  }
+}
+.vl-landing .vl-terminal-head {
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--vl-border);
+  font-family: var(--vl-font-mono);
+  font-size: 11px;
+  color: var(--vl-fg-muted);
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.vl-landing .vl-terminal-head .dots {
+  display: flex;
+  gap: 5px;
+}
+.vl-landing .vl-terminal-head .dots span {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--vl-border);
+}
+.vl-landing .vl-terminal pre {
+  margin: 0;
+  padding: 18px;
+  font-family: var(--vl-font-mono);
+  font-size: 13px;
+  line-height: 1.7;
+  overflow: auto;
+}
+.vl-landing .vl-terminal pre .prompt {
+  color: var(--vl-accent);
+}
+.vl-landing .vl-terminal pre .cmd {
+  color: var(--vl-fg);
+}
+.vl-landing .vl-terminal pre .ok {
+  color: var(--vl-accent);
+}
+.vl-landing .vl-terminal pre .info {
+  color: var(--vl-fg-muted);
+}
+.vl-landing .vl-terminal pre .cursor {
+  display: inline-block;
+  width: 8px;
+  height: 16px;
+  background: var(--vl-accent);
+  vertical-align: -3px;
+  animation: vl-blink 1s steps(2) infinite;
+}
+
+/* ============= REVEAL =============
+   Default visible — SSR + no-JS works. Only hide once .vl-reveal--armed
+   is added by the client effect, then bring it back via .in.
+*/
+.vl-landing .vl-reveal {
+  transition:
+    opacity 0.8s cubic-bezier(0.2, 0.7, 0.2, 1),
+    transform 0.8s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.vl-landing .vl-reveal--armed {
+  opacity: 0;
+  transform: translateY(20px);
+}
+.vl-landing .vl-reveal--armed.in {
+  opacity: 1;
+  transform: translateY(0);
+}
+@media (prefers-reduced-motion: reduce) {
+  .vl-landing .vl-reveal--armed {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
+
+/* ============= LEGACY (kept for any /docs pages that still use these) ============= */
 .hero-glow {
   position: absolute;
   inset: 0;
@@ -12,85 +938,18 @@
   pointer-events: none;
   z-index: -1;
 }
-
-.hero-glow::before {
-  content: '';
-  position: absolute;
-  top: -40%;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 800px;
-  height: 600px;
-  border-radius: 50%;
-  background: radial-gradient(
-    ellipse at center,
-    oklch(0.65 0.18 250 / 0.12) 0%,
-    oklch(0.6 0.15 280 / 0.06) 40%,
-    transparent 70%
-  );
-  filter: blur(60px);
-}
-
-:is(.dark) .hero-glow::before {
-  background: radial-gradient(
-    ellipse at center,
-    oklch(0.55 0.2 250 / 0.18) 0%,
-    oklch(0.45 0.15 280 / 0.08) 40%,
-    transparent 70%
-  );
-}
-
-/* Stat pill */
 .stat-pill {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 2px;
 }
-
-.stat-pill .stat-value {
-  font-size: 1.5rem;
-  font-weight: 700;
-  letter-spacing: -0.025em;
-  background: linear-gradient(135deg, var(--color-fd-foreground), var(--color-fd-muted-foreground));
-  background-clip: text;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-.stat-pill .stat-label {
-  font-size: 0.75rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--color-fd-muted-foreground);
-}
-
-/* Feature card hover lift */
 .feature-card {
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
 }
-
-.feature-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 24px -8px oklch(0.3 0 0 / 0.08);
-}
-
-:is(.dark) .feature-card:hover {
-  box-shadow: 0 8px 24px -8px oklch(0.1 0 0 / 0.4);
-}
-
-/* Code block with accent border */
 .code-showcase {
   position: relative;
   overflow: hidden;
-}
-
-.code-showcase::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 2px;
-  background: linear-gradient(90deg, oklch(0.6 0.18 250), oklch(0.65 0.15 310), oklch(0.6 0.18 250));
 }
