@@ -1,9 +1,10 @@
 import type { BaseLayoutProps } from 'fumadocs-ui/layouts/shared'
+import { Lockup } from '@/components/landing/Mark'
 
 export function baseOptions(): BaseLayoutProps {
   return {
     nav: {
-      title: 'Vitus Labs',
+      title: <Lockup size={22} />,
     },
     links: [
       {

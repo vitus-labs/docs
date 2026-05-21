@@ -1,409 +1,532 @@
 import Link from 'next/link'
-import { Card, Cards } from 'fumadocs-ui/components/card'
+import { Counter } from '@/components/landing/Counter'
+import { Lockup, Mark } from '@/components/landing/Mark'
+import { Reveal } from '@/components/landing/Reveal'
+import { Ticker } from '@/components/landing/Ticker'
 
-const uiPackages = [
+// Objective inventory — verified against the monorepo on 2026-05-21:
+//   15 packages (packages/* count)
+//   styler bundle: 4.82 KB gzipped (size-limit budget 12 KB; actual measured)
+//   28 React hooks (packages/hooks/src/use*.ts, deduped against .native variants)
+//   123 kinetic presets (exported consts in kinetic-presets/src/presets.ts)
+//   170+ CSS prop descriptors (packages/unistyle/src/styles/styles/propertyMap.ts)
+//   5 element primitives: Element, Text, List, Overlay, Portal
+const STATS = [
+  { n: 15, lbl: 'Packages', suffix: '' },
+  { n: 4.82, lbl: 'KB Styler (gzip)', suffix: '', float: true },
+  { n: 170, lbl: 'CSS props', suffix: '+' },
+  { n: 123, lbl: 'Motion presets', suffix: '' },
+]
+
+const FEATURES = [
   {
-    title: 'Core',
-    description:
-      'Configuration singleton, CSS engine connector, and utility functions.',
-    href: '/docs/core',
+    glyph: '{ }',
+    title: 'Type-safe end to end',
+    meta: '01 · core',
+    body: 'Generic inference on dimensions, themes, and prop shapes. Iterator/List narrow per call-site mode; rocketstyle preserves dimension types through chain methods.',
   },
   {
-    title: 'Styler',
-    description:
-      'Lightweight CSS-in-JS engine (~3KB gzipped) with static/dynamic splitting.',
-    href: '/docs/styler',
+    glyph: '▽▽▽',
+    title: 'Composable by design',
+    meta: '02 · attrs',
+    body: 'Chainable factories — .attrs(), .theme(), .styles(), .compose(). priorityAttrs → attrs → explicit props (last wins). Marker-based detection (IS_ATTRS).',
   },
   {
-    title: 'Attrs',
-    description:
-      'Immutable chainable default-props factory for React components.',
-    href: '/docs/attrs',
+    glyph: '⇌',
+    title: 'Swap the engine',
+    meta: '03 · connectors',
+    body: 'Same component code runs on built-in Styler (4.82 KB), styled-components, or Emotion via a single connector swap. RN target via connector-native.',
   },
   {
-    title: 'Elements',
-    description: 'Core UI primitives — Element, Text, List, Overlay, Portal.',
-    href: '/docs/elements',
+    glyph: '[ ]',
+    title: 'Responsive built-in',
+    meta: '04 · coolgrid',
+    body: 'Layout props accept scalars, arrays, or breakpoint objects. Mobile-first via the unistyle responsive resolver — no media-query boilerplate.',
   },
   {
-    title: 'Rocketstyle',
-    description:
-      'Dimension-based styling with theming, pseudo-states, and light/dark mode.',
-    href: '/docs/rocketstyle',
+    glyph: '( )',
+    title: 'Batteries included',
+    meta: '05 · tools-*',
+    body: 'Shared rolldown bundler, vitest config (90% coverage default), biome lint, and storybook 10 preset — published as separate @vitus-labs/tools-* packages.',
   },
   {
-    title: 'Unistyle',
-    description:
-      '170+ CSS property mappings with responsive breakpoints and unit conversion.',
-    href: '/docs/unistyle',
-  },
-  {
-    title: 'Coolgrid',
-    description:
-      'Flexible responsive grid system with Container, Row, and Col.',
-    href: '/docs/coolgrid',
-  },
-  {
-    title: 'Hooks',
-    description:
-      '28 React hooks for state, DOM, events, timing, theming, and accessibility.',
-    href: '/docs/hooks',
-  },
-  {
-    title: 'Connectors',
-    description:
-      'CSS engine adapters — switch between Styler, styled-components, or Emotion.',
-    href: '/docs/connectors',
-  },
-  {
-    title: 'Kinetic',
-    description:
-      'Declarative enter/leave animations — Transition, Collapse, Stagger, and TransitionGroup.',
-    href: '/docs/kinetic',
-  },
-  {
-    title: 'Kinetic Presets',
-    description:
-      '122 animation presets, 5 factories, and composition utilities for Kinetic.',
-    href: '/docs/kinetic-presets',
-  },
-  {
-    title: 'Rocketstories',
-    description:
-      'Auto-generated Storybook stories from rocketstyle components.',
-    href: '/docs/rocketstories',
+    glyph: '//',
+    title: '4.82 KB CSS engine',
+    meta: '06 · styler',
+    body: 'Static/dynamic split, React 19 <style precedence> SSR, useInsertionEffect injection, FNV-1a class hash, CI-gated competitive perf bench against Emotion + styled-components.',
   },
 ]
 
-const toolsPackages = [
+const ECO = [
   {
-    title: 'Tools Core',
-    description:
-      'Cascading config loader, file discovery, and package metadata.',
-    href: '/docs/tools-core',
+    n: 'core',
+    t: 'Core',
+    d: 'Configuration singleton, CSS engine connector, utilities.',
   },
   {
-    title: 'Tools Rolldown',
-    description:
-      'Rust-based bundler for library packages with DTS generation.',
-    href: '/docs/tools-rolldown',
+    n: 'styler',
+    t: 'Styler',
+    d: '4.82 KB gzipped CSS-in-JS engine, SSR via React 19 <style precedence>.',
+  },
+  { n: 'attrs', t: 'Attrs', d: 'Immutable chainable default-props factory.' },
+  {
+    n: 'elements',
+    t: 'Elements',
+    d: 'Five UI primitives — Element, Text, List, Overlay, Portal.',
   },
   {
-    title: 'Tools Rollup',
-    description: 'Rollup-based build tool — legacy alternative to Rolldown.',
-    href: '/docs/tools-rollup',
+    n: 'rocketstyle',
+    t: 'Rocketstyle',
+    d: 'Dimension-based styling with theming and per-mode narrowing.',
   },
   {
-    title: 'Tools Vitest',
-    description:
-      'Shared Vitest config factory with sensible defaults and 90% coverage.',
-    href: '/docs/tools-vitest',
+    n: 'unistyle',
+    t: 'Unistyle',
+    d: '170+ CSS prop descriptors with responsive breakpoints.',
   },
   {
-    title: 'Tools Storybook',
-    description:
-      'Preconfigured Storybook 10 with auto-discovery and rocketstories.',
-    href: '/docs/tools-storybook',
+    n: 'coolgrid',
+    t: 'Coolgrid',
+    d: 'Responsive grid — Container, Row, Col (web + native).',
+  },
+  { n: 'hooks', t: 'Hooks', d: '28 React hooks; .native overrides where DOM-bound.' },
+  {
+    n: 'connector-styler',
+    t: 'Connector · Styler',
+    d: 'Adapter (~300 B) for the built-in engine.',
   },
   {
-    title: 'Tools TypeScript',
-    description: 'Shared tsconfig presets for libraries and Next.js apps.',
-    href: '/docs/tools-typescript',
+    n: 'connector-emotion',
+    t: 'Connector · Emotion',
+    d: 'Adapter for Emotion if you prefer their engine.',
   },
   {
-    title: 'Tools Lint',
-    description: 'Shared Biome config for formatting and linting.',
-    href: '/docs/tools-lint',
+    n: 'connector-styled-components',
+    t: 'Connector · SC',
+    d: 'Adapter for styled-components.',
   },
   {
-    title: 'Tools Next.js',
-    description: 'Next.js config wrapper with security headers.',
-    href: '/docs/tools-nextjs',
+    n: 'connector-native',
+    t: 'Connector · Native',
+    d: 'React Native styled() + CSS-string → RN style parser.',
   },
   {
-    title: 'Tools Next.js Images',
-    description:
-      'Image optimization plugin — WebP, LQIP, responsive, SVG sprites.',
-    href: '/docs/tools-nextjs-images',
+    n: 'kinetic',
+    t: 'Kinetic',
+    d: 'Declarative enter/leave + TransitionGroup; GPU-composited.',
   },
   {
-    title: 'Tools Atlas',
-    description:
-      'Dependency graph visualizer and monorepo health analyzer.',
-    href: '/docs/tools-atlas',
+    n: 'kinetic-presets',
+    t: 'Kinetic Presets',
+    d: '123 animation presets, 5 factories, composition utilities.',
   },
   {
-    title: 'Tools Favicon',
-    description: 'Multi-platform favicon and PWA manifest generator.',
-    href: '/docs/tools-favicon',
-  },
-]
-
-const features = [
-  {
-    icon: '{}',
-    title: 'Type-Safe End to End',
-    description:
-      'Generic inference, dimension types, strict prop validation. TypeScript is a first-class citizen, not an afterthought.',
-  },
-  {
-    icon: '<>',
-    title: 'Composable by Design',
-    description:
-      'Chainable APIs everywhere — .attrs(), .theme(), .styles(). Build complex components from small, reusable pieces.',
-  },
-  {
-    icon: '><',
-    title: 'Swap Your Engine',
-    description:
-      'Write components once, run with Styler, styled-components, or Emotion. Switch CSS engines without touching component code.',
-  },
-  {
-    icon: '[]',
-    title: 'Responsive Built In',
-    description:
-      'Every layout prop accepts scalars, arrays, or breakpoint objects. Mobile-first responsive design without media query boilerplate.',
-  },
-  {
-    icon: '()',
-    title: 'Batteries Included',
-    description:
-      'Build, test, lint, bundle, analyze — shared configs and tooling so every package in your monorepo stays consistent.',
-  },
-  {
-    icon: '//',
-    title: '3KB CSS Engine',
-    description:
-      'Custom Styler engine with static/dynamic splitting, concurrent-mode safe injection, and deterministic class hashing.',
+    n: 'rocketstories',
+    t: 'Rocketstories',
+    d: 'Auto-generated Storybook stories from rocketstyle components.',
   },
 ]
 
-const codeExample = `import { init } from '@vitus-labs/core'
-import connector from '@vitus-labs/connector-styler'
+const SAMPLE = `import { init } from '@vitus-labs/core'
+import * as connector from '@vitus-labs/connector-styler'
 import { Element, Text, List } from '@vitus-labs/elements'
 
 // One-line setup
 init({ ...connector, component: 'div', textComponent: 'span' })
 
-// Start building
 function FeatureCard({ icon, title, items }) {
   return (
     <Element tag="article" direction="rows" gap={16} padding={24}>
       <Element beforeContent={icon} gap={8} alignY="center">
         <Text tag="h3">{title}</Text>
       </Element>
-      <List
-        component={({ children }) => <Text>{children}</Text>}
-        data={items}
-        valueName="children"
-        gap={4}
-        direction="rows"
-      />
+      <List data={items} gap={4} direction="rows" />
     </Element>
   )
 }`
 
+function CodeBlock() {
+  return (
+    <pre>
+      <code
+        // eslint-disable-next-line react/no-danger
+        dangerouslySetInnerHTML={{
+          __html: SAMPLE.replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/\b(import|from|function|return|const)\b/g, '<span class="kw">$1</span>')
+            .replace(/(&#39;[^&]*&#39;|&apos;[^&]*&apos;|'[^']*')/g, '<span class="str">$1</span>')
+            .replace(/(\/\/[^\n]*)/g, '<span class="cm">$1</span>'),
+        }}
+      />
+    </pre>
+  )
+}
+
 export default function HomePage() {
   return (
-    <main className="flex flex-col items-center">
-      {/* Hero */}
-      <section className="relative flex flex-col items-center justify-center gap-8 px-6 pb-20 pt-28 text-center md:pb-28 md:pt-36">
-        <div className="hero-glow" aria-hidden="true" />
-
-        <div className="flex items-center gap-2 rounded-full border border-fd-border bg-fd-card/60 px-4 py-1.5 text-sm backdrop-blur-sm">
-          <span className="inline-block h-2 w-2 rounded-full bg-emerald-500" />
-          <span className="text-fd-muted-foreground">
-            actively developed
-          </span>
-        </div>
-
-        <h1 className="max-w-3xl text-5xl font-extrabold tracking-tight md:text-6xl lg:text-7xl">
-          Build, style &amp; ship{' '}
-          <span className="bg-gradient-to-r from-blue-600 via-violet-600 to-fuchsia-600 bg-clip-text text-transparent dark:from-blue-400 dark:via-violet-400 dark:to-fuchsia-400">
-            React apps
-          </span>{' '}
-          faster
-        </h1>
-
-        <p className="max-w-2xl text-lg leading-relaxed text-fd-muted-foreground md:text-xl">
-          A modular ecosystem of 26 packages — composable UI primitives,
-          a 3KB CSS-in-JS engine, animations, responsive layouts, and
-          developer tools that keep your whole monorepo in sync.
-        </p>
-
-        <div className="flex flex-wrap justify-center gap-3">
-          <Link
-            href="/docs/getting-started"
-            className="rounded-xl bg-fd-primary px-7 py-3 text-base font-semibold text-fd-primary-foreground shadow-lg shadow-fd-primary/20 transition-all hover:-translate-y-0.5 hover:shadow-xl hover:shadow-fd-primary/25"
-          >
-            Get Started
-          </Link>
-          <Link
-            href="/docs"
-            className="rounded-xl border border-fd-border bg-fd-background px-7 py-3 text-base font-semibold transition-all hover:-translate-y-0.5 hover:bg-fd-accent"
-          >
-            Browse Docs
-          </Link>
-          <Link
-            href="https://github.com/vitus-labs"
-            className="rounded-xl border border-fd-border bg-fd-background px-7 py-3 text-base font-semibold transition-all hover:-translate-y-0.5 hover:bg-fd-accent"
-          >
-            GitHub
-          </Link>
-        </div>
-
-        {/* Stats */}
-        <div className="mt-4 flex flex-wrap justify-center gap-10">
-          <div className="stat-pill">
-            <span className="stat-value">26</span>
-            <span className="stat-label">Packages</span>
+    <main className="vl-landing">
+      <div
+        style={{
+          maxWidth: 1440,
+          margin: '0 auto',
+          padding: '0 clamp(24px, 4vw, 64px)',
+        }}
+      >
+        {/* HERO */}
+        <section className="vl-hero">
+          <div className="vl-hero-bg" aria-hidden>
+            <div className="grid" />
+            <div className="glow" />
           </div>
-          <div className="stat-pill">
-            <span className="stat-value">3KB</span>
-            <span className="stat-label">CSS Engine</span>
-          </div>
-          <div className="stat-pill">
-            <span className="stat-value">170+</span>
-            <span className="stat-label">CSS Props</span>
-          </div>
-          <div className="stat-pill">
-            <span className="stat-value">28</span>
-            <span className="stat-label">React Hooks</span>
-          </div>
-          <div className="stat-pill">
-            <span className="stat-value">122</span>
-            <span className="stat-label">Animation Presets</span>
-          </div>
-        </div>
-      </section>
 
-      {/* Code showcase */}
-      <section className="w-full max-w-4xl px-6 py-12">
-        <div className="code-showcase overflow-hidden rounded-2xl border border-fd-border bg-fd-card">
-          <div className="flex items-center gap-2 border-b border-fd-border px-5 py-3">
-            <span className="h-3 w-3 rounded-full bg-red-400/60" />
-            <span className="h-3 w-3 rounded-full bg-yellow-400/60" />
-            <span className="h-3 w-3 rounded-full bg-green-400/60" />
-            <span className="ml-3 text-xs text-fd-muted-foreground">
-              app.tsx
-            </span>
-          </div>
-          <pre className="overflow-x-auto p-5 text-[13px] leading-relaxed">
-            <code>{codeExample}</code>
-          </pre>
-        </div>
-      </section>
+          <div className="vl-hero-inner">
+            <div>
+              <Reveal>
+                <div className="vl-hero-tag">
+                  <span className="vl-dot-pulse" />
+                  <span>15 packages · MIT · TypeScript-first</span>
+                </div>
+              </Reveal>
 
-      {/* Features */}
-      <section className="w-full max-w-6xl px-6 py-20">
-        <h2 className="mb-3 text-center text-3xl font-bold tracking-tight md:text-4xl">
-          Why Vitus Labs?
-        </h2>
-        <p className="mx-auto mb-12 max-w-xl text-center text-fd-muted-foreground">
-          One ecosystem, zero glue code. Every package is designed to work
-          together — or standalone.
-        </p>
-        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {features.map((feature) => (
-            <div
-              key={feature.title}
-              className="feature-card rounded-2xl border border-fd-border bg-fd-card p-6"
-            >
-              <div className="mb-3 inline-flex h-10 w-10 items-center justify-center rounded-lg bg-fd-accent font-mono text-sm font-bold text-fd-muted-foreground">
-                {feature.icon}
+              <Reveal delay={50}>
+                <h1 className="vl-hero-title">
+                  Build, style
+                  <br />
+                  &amp; ship React
+                  <br />
+                  apps <em>composable.</em>
+                </h1>
+              </Reveal>
+
+              <Reveal delay={100}>
+                <p className="vl-hero-sub">
+                  A modular React ecosystem — UI primitives, a{' '}
+                  <strong>4.82&nbsp;KB</strong> CSS-in-JS engine (gzipped),
+                  declarative animations, responsive layouts, and developer
+                  tooling. Shared <strong>workspace:*</strong> deps so every
+                  package in your monorepo stays in sync.
+                </p>
+              </Reveal>
+
+              <Reveal delay={150}>
+                <div className="vl-hero-ctas">
+                  <Link
+                    className="vl-btn vl-btn--primary"
+                    href="/docs/getting-started"
+                  >
+                    Get started <span>→</span>
+                  </Link>
+                  <Link className="vl-btn" href="/docs">
+                    Browse docs
+                  </Link>
+                  <a
+                    className="vl-btn vl-btn--ghost vl-mono"
+                    href="https://github.com/vitus-labs/ui-system"
+                  >
+                    GitHub ↗
+                  </a>
+                </div>
+              </Reveal>
+
+              <Reveal delay={200}>
+                <div className="vl-hero-stats">
+                  {STATS.map((s) => (
+                    <div className="vl-hero-stat" key={s.lbl}>
+                      <div className="n">
+                        {s.float ? (
+                          // 4.82 is rendered as-is — counting fractional ints adds noise
+                          <span>{s.n}</span>
+                        ) : (
+                          <Counter target={s.n as number} suffix={s.suffix} />
+                        )}
+                      </div>
+                      <div className="lbl">{s.lbl}</div>
+                    </div>
+                  ))}
+                </div>
+              </Reveal>
+            </div>
+
+            {/* Visual */}
+            <Reveal delay={120}>
+              <div className="vl-hero-visual">
+                <div className="vl-orbit">
+                  <div className="ring ring-1">
+                    <span className="node" />
+                  </div>
+                  <div className="ring ring-2">
+                    <span className="node n2" />
+                  </div>
+                  <div className="ring ring-3">
+                    <span className="node n3" />
+                  </div>
+                  <div className="ring ring-4">
+                    <span className="node" />
+                  </div>
+                </div>
+
+                <span className="vl-hv-label l1">
+                  <span className="acc">core</span> · engine
+                </span>
+                <span className="vl-hv-label l2">
+                  <span className="acc">styler</span> · 4.82 KB
+                </span>
+                <span className="vl-hv-label l3">
+                  <span className="acc">kinetic</span> · 123 presets
+                </span>
+                <span className="vl-hv-label l4">
+                  <span className="acc">elements</span> · 5 primitives
+                </span>
+
+                <div className="vl-hv-center">
+                  <Mark size={96} />
+                </div>
               </div>
-              <h3 className="mb-2 text-base font-semibold">{feature.title}</h3>
-              <p className="text-sm leading-relaxed text-fd-muted-foreground">
-                {feature.description}
-              </p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* UI System */}
-      <section className="w-full max-w-6xl px-6 py-20">
-        <div className="mb-10 flex flex-col items-center gap-3">
-          <span className="rounded-full bg-blue-500/10 px-4 py-1 text-sm font-medium text-blue-600 dark:text-blue-400">
-            @vitus-labs/*
-          </span>
-          <h2 className="text-3xl font-bold tracking-tight md:text-4xl">
-            UI System
-          </h2>
-          <p className="max-w-lg text-center text-fd-muted-foreground">
-            Components, styling, layout, hooks, and theming — everything you
-            need to build React interfaces.
-          </p>
-        </div>
-        <Cards>
-          {uiPackages.map((pkg) => (
-            <Card
-              key={pkg.title}
-              title={pkg.title}
-              description={pkg.description}
-              href={pkg.href}
-            />
-          ))}
-        </Cards>
-      </section>
-
-      {/* Developer Tools */}
-      <section className="w-full max-w-6xl px-6 py-20">
-        <div className="mb-10 flex flex-col items-center gap-3">
-          <span className="rounded-full bg-violet-500/10 px-4 py-1 text-sm font-medium text-violet-600 dark:text-violet-400">
-            @vitus-labs/tools-*
-          </span>
-          <h2 className="text-3xl font-bold tracking-tight md:text-4xl">
-            Developer Tools
-          </h2>
-          <p className="max-w-lg text-center text-fd-muted-foreground">
-            Build, test, lint, bundle, and analyze — shared configs for the
-            full development lifecycle.
-          </p>
-        </div>
-        <Cards>
-          {toolsPackages.map((pkg) => (
-            <Card
-              key={pkg.title}
-              title={pkg.title}
-              description={pkg.description}
-              href={pkg.href}
-            />
-          ))}
-        </Cards>
-      </section>
-
-      {/* CTA */}
-      <section className="w-full max-w-3xl px-6 py-20">
-        <div className="flex flex-col items-center gap-6 rounded-2xl border border-fd-border bg-fd-card p-10 text-center">
-          <h2 className="text-2xl font-bold md:text-3xl">Ready to start?</h2>
-          <p className="max-w-md text-fd-muted-foreground">
-            Get up and running in minutes. Install the core packages, init the
-            engine, and build your first component.
-          </p>
-          <div className="w-full max-w-lg">
-            <div className="code-showcase overflow-hidden rounded-xl border border-fd-border bg-fd-secondary/30">
-              <pre className="overflow-x-auto px-5 py-4 text-sm">
-                <code>
-                  npm i @vitus-labs/core @vitus-labs/styler
-                  @vitus-labs/connector-styler @vitus-labs/elements
-                </code>
-              </pre>
-            </div>
+            </Reveal>
           </div>
-          <Link
-            href="/docs/getting-started"
-            className="rounded-xl bg-fd-primary px-7 py-3 font-semibold text-fd-primary-foreground shadow-lg shadow-fd-primary/20 transition-all hover:-translate-y-0.5 hover:shadow-xl hover:shadow-fd-primary/25"
-          >
-            Read the Guide
-          </Link>
-        </div>
-      </section>
+        </section>
 
-      {/* Footer */}
-      <footer className="w-full border-t border-fd-border px-6 py-8 text-center text-sm text-fd-muted-foreground">
-        <p>MIT License · Vitus Labs</p>
-      </footer>
+        {/* TICKER */}
+        <Ticker />
+
+        {/* FEATURES */}
+        <section className="vl-section" id="features">
+          <div className="vl-section-head">
+            <Reveal>
+              <div>
+                <div className="eyebrow">— Why Vitus Labs</div>
+                <h2>
+                  One ecosystem,
+                  <br />
+                  <em>15 packages.</em>
+                </h2>
+              </div>
+            </Reveal>
+            <Reveal delay={80}>
+              <div className="right">
+                Every package works standalone but they interlock. Type-safe end
+                to end. Swap engines (Styler/Emotion/styled-components) without
+                touching component code.
+              </div>
+            </Reveal>
+          </div>
+
+          <Reveal>
+            <div className="vl-features">
+              {FEATURES.map((f, i) => (
+                <div className="vl-feature vl-f-span-4" key={f.meta}>
+                  <div className="glyph">{f.glyph}</div>
+                  <h3>{f.title}</h3>
+                  <p>{f.body}</p>
+                  <div className="meta">
+                    <span>{f.meta}</span>
+                    <span>0{i + 1}/06</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </Reveal>
+        </section>
+
+        {/* DEMO */}
+        <section className="vl-section">
+          <div className="vl-section-head">
+            <Reveal>
+              <div>
+                <div className="eyebrow">— Developer experience</div>
+                <h2>
+                  Init in one line.
+                  <br />
+                  <em>Compose primitives.</em>
+                </h2>
+              </div>
+            </Reveal>
+            <Reveal delay={80}>
+              <div className="right">
+                Wire the engine, register a connector, build with type-safe
+                primitives. Styler computes static styles once at module-eval
+                and only re-runs dynamic interpolations per render.
+              </div>
+            </Reveal>
+          </div>
+
+          <div className="vl-demo">
+            <Reveal>
+              <div className="vl-demo-copy">
+                <div className="vl-uppercase-tag">— app.tsx</div>
+                <h2>The whole stack in three imports.</h2>
+                <p>
+                  Wire <span className="vl-mono">@vitus-labs/core</span> with
+                  any connector, then compose primitives. The Styler engine
+                  caches static templates on a single-entry hot path with a
+                  WeakMap fallback.
+                </p>
+                <ul>
+                  <li>
+                    <b>Element</b>
+                    <span className="dim"> — base primitive · 170+ CSS props</span>
+                  </li>
+                  <li>
+                    <b>Text</b>
+                    <span className="dim"> — typography, polymorphic tag</span>
+                  </li>
+                  <li>
+                    <b>List</b>
+                    <span className="dim"> — Iterator with simple/object/children modes</span>
+                  </li>
+                  <li>
+                    <b>Rocketstyle</b>
+                    <span className="dim"> — dimensions, theming, light/dark</span>
+                  </li>
+                  <li>
+                    <b>Kinetic</b>
+                    <span className="dim"> — Transition · Stagger · TransitionGroup · 123 presets</span>
+                  </li>
+                </ul>
+              </div>
+            </Reveal>
+
+            <Reveal delay={80}>
+              <div className="vl-demo-code">
+                <div className="vl-demo-code-head">
+                  <div className="dots">
+                    <span />
+                    <span />
+                    <span />
+                  </div>
+                  <div className="file">app.tsx</div>
+                  <div className="blink">live</div>
+                </div>
+                <CodeBlock />
+              </div>
+            </Reveal>
+          </div>
+        </section>
+
+        {/* ECOSYSTEM */}
+        <section className="vl-section" id="ecosystem">
+          <div className="vl-section-head">
+            <Reveal>
+              <div>
+                <div className="eyebrow">— @vitus-labs/*</div>
+                <h2>
+                  15 packages,
+                  <br />
+                  <em>built to compose.</em>
+                </h2>
+              </div>
+            </Reveal>
+            <Reveal delay={80}>
+              <div className="right">
+                Pick what you need. Every package is independently versioned
+                with Changesets in a fixed group. Click to open the doc.
+              </div>
+            </Reveal>
+          </div>
+
+          <Reveal>
+            <div className="vl-eco">
+              {ECO.map((p) => (
+                <Link
+                  key={p.n}
+                  className="vl-pkg"
+                  href={`/docs/${p.n.replace(/^connector-/, 'connectors')}`}
+                >
+                  <div className="nm">@vitus-labs/{p.n}</div>
+                  <div className="ttl">{p.t}</div>
+                  <div className="desc">{p.d}</div>
+                </Link>
+              ))}
+            </div>
+          </Reveal>
+        </section>
+
+        {/* INSTALL */}
+        <section className="vl-section" id="install">
+          <Reveal>
+            <div className="vl-install">
+              <div className="vl-install-grid">
+                <div>
+                  <div className="vl-uppercase-tag">— Three imports to ship</div>
+                  <h2>
+                    Install the engine.
+                    <br />
+                    Compose the rest.
+                  </h2>
+                  <p>
+                    Three packages are enough to render: core, a connector, and
+                    elements. Add styler-backed adapters and you have a typed
+                    component layer on top of a 4.82 KB CSS-in-JS runtime. MIT
+                    licensed.
+                  </p>
+                  <div style={{ marginTop: 24, display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+                    <Link
+                      className="vl-btn vl-btn--primary"
+                      href="/docs/getting-started"
+                    >
+                      Read the guide →
+                    </Link>
+                    <a
+                      className="vl-btn"
+                      href="https://github.com/vitus-labs/ui-system"
+                    >
+                      GitHub ↗
+                    </a>
+                  </div>
+                </div>
+
+                <div className="vl-terminal">
+                  <div className="vl-terminal-head">
+                    <div className="dots">
+                      <span />
+                      <span />
+                      <span />
+                    </div>
+                    <span>~/my-app</span>
+                  </div>
+                  <pre>
+                    <span className="info"># core + engine + primitives</span>
+                    {'\n'}
+                    <span className="prompt">$</span>{' '}
+                    <span className="cmd">npm i @vitus-labs/core \</span>
+                    {'\n   '}
+                    <span className="cmd">@vitus-labs/connector-styler \</span>
+                    {'\n   '}
+                    <span className="cmd">@vitus-labs/elements</span>
+                    {'\n\n'}
+                    <span className="info"># peer: react ^19</span>
+                    {'\n'}
+                    <span className="ok">✓ resolved 15 workspace packages</span>
+                    <span className="cursor" />
+                  </pre>
+                </div>
+              </div>
+            </div>
+          </Reveal>
+        </section>
+
+        {/* FOOTER */}
+        <footer
+          style={{
+            marginTop: 80,
+            borderTop: '1px solid var(--vl-border)',
+            padding: '40px 0',
+            display: 'flex',
+            flexWrap: 'wrap',
+            gap: 16,
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            fontFamily: 'var(--vl-font-mono)',
+            fontSize: 12,
+            color: 'var(--vl-fg-muted)',
+            letterSpacing: '0.05em',
+          }}
+        >
+          <Lockup size={28} />
+          <span>© {new Date().getFullYear()} VITUS·LABS — MIT LICENSE</span>
+        </footer>
+      </div>
     </main>
   )
 }
