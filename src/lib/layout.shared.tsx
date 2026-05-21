@@ -4,7 +4,7 @@ import { Lockup } from '@/components/landing/Mark'
 export function baseOptions(): BaseLayoutProps {
   return {
     nav: {
-      title: <Lockup size={22} />,
+      title: <Lockup size={32} />,
     },
     links: [
       {

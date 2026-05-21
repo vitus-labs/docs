@@ -127,10 +127,24 @@
   background: var(--vl-surface);
 }
 
-/* ============= HERO ============= */
+/* ============= CONTAINER (post-hero sections) ============= */
+.vl-landing .vl-container {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 0 clamp(24px, 4vw, 64px);
+}
+
+/* ============= HERO — full-bleed ============= */
 .vl-landing .vl-hero {
-  padding: 80px 0 80px;
   position: relative;
+  padding: 80px clamp(24px, 4vw, 64px);
+  overflow: hidden;
+}
+.vl-landing .vl-hero-content {
+  max-width: 1480px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 1;
 }
 .vl-landing .vl-hero-bg {
   position: absolute;
@@ -159,16 +173,16 @@
 }
 .vl-landing .vl-hero-bg .glow {
   position: absolute;
-  top: -10%;
-  right: -10%;
-  width: 700px;
-  height: 700px;
+  top: -20%;
+  right: -15%;
+  width: clamp(600px, 60vw, 1100px);
+  height: clamp(600px, 60vw, 1100px);
   background: radial-gradient(circle, var(--vl-accent) 0%, transparent 60%);
   opacity: 0.4;
-  filter: blur(40px);
+  filter: blur(60px);
 }
 .dark .vl-landing .vl-hero-bg .glow {
-  opacity: 0.15;
+  opacity: 0.18;
 }
 
 .vl-landing .vl-hero-inner {
