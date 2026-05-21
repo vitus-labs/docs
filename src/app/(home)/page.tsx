@@ -230,9 +230,9 @@ export default function HomePage() {
                 <h1 className="vl-hero-title">
                   Build, style
                   <br />
-                  &amp; <VerbRotator /> React
+                  &amp; <VerbRotator />
                   <br />
-                  apps <em>composable.</em>
+                  React apps <em>faster.</em>
                 </h1>
               </Reveal>
 
