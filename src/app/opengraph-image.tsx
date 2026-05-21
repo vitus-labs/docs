@@ -3,14 +3,14 @@ import { ImageResponse } from 'next/og'
 /**
  * Default Open Graph + Twitter card image for the site root.
  *
- * Generated at build time as a static PNG (1200×630) so social platforms
- * cache a single asset. Matches the social-kit design: stacked-triangle
- * mark + lockup top-left, big headline center, orbital motif on the right,
- * chartreuse + cobalt aurora backdrop on dark.
+ * Tuned for LinkedIn / X / Slack feed posting: dark plate (high contrast
+ * against feeds' white surfaces), oversized headline, four measured-fact
+ * pills as the visual rhythm, restrained orbital motif on the right.
+ *
+ * Generated at build time via next/og ImageResponse so a single PNG ships
+ * to /out/opengraph-image and platforms cache one canonical asset.
  */
 
-// Static export: prerender at build time so a single PNG is emitted to /out
-// and platforms cache one canonical asset.
 export const dynamic = 'force-static'
 export const alt =
   'Vitus Labs — Composable React engine. 15 packages, 4.82 KB CSS-in-JS engine, 170+ CSS props, 123 motion presets.'
@@ -18,13 +18,13 @@ export const size = { width: 1200, height: 630 }
 export const contentType = 'image/png'
 
 const INK = '#0A0B0D'
-const PAPER = '#ECEAE2'
+const SURFACE = '#14161A'
+const PAPER = '#F1EFE7'
 const ACCENT = '#C8FF3A'
 const COBALT = '#2F4DFF'
 const MUTED = '#A8A69C'
 const BORDER = '#2E3138'
 
-/** Stacked-triangle mark — three trapezoidal slabs over a unit canvas. */
 function Mark({ size: s = 36 }: { size?: number }) {
   return (
     <svg
@@ -40,83 +40,32 @@ function Mark({ size: s = 36 }: { size?: number }) {
   )
 }
 
-/** Orbital motif — frozen frame of the hero visual, scaled for the right edge. */
-function Orbit() {
-  const rings = [
-    { size: 480, opacity: 1, dashed: true },
-    { size: 360, opacity: 0.5, dashed: false },
-    { size: 260, opacity: 1, dashed: true },
-    { size: 180, opacity: 0.5, dashed: false },
-  ]
+function Pill({
+  children,
+  accent = false,
+}: {
+  children: React.ReactNode
+  accent?: boolean
+}) {
   return (
     <div
       style={{
-        position: 'absolute',
-        top: 75,
-        right: -100,
-        width: 480,
-        height: 480,
         display: 'flex',
         alignItems: 'center',
-        justifyContent: 'center',
+        padding: '14px 22px',
+        borderRadius: 999,
+        border: `1px solid ${accent ? ACCENT : BORDER}`,
+        background: accent
+          ? `linear-gradient(180deg, rgba(200,255,58,0.16), rgba(200,255,58,0.06))`
+          : SURFACE,
+        color: accent ? ACCENT : PAPER,
+        fontFamily: 'monospace',
+        fontSize: 22,
+        letterSpacing: '-0.01em',
+        fontWeight: 500,
       }}
     >
-      {rings.map((r, i) => (
-        <div
-          key={i}
-          style={{
-            position: 'absolute',
-            width: r.size,
-            height: r.size,
-            border: `1px ${r.dashed ? 'dashed' : 'solid'} ${BORDER}`,
-            borderRadius: '50%',
-            opacity: r.opacity,
-            display: 'flex',
-          }}
-        />
-      ))}
-      {/* Nodes anchored at the right edge of each ring */}
-      <div
-        style={{
-          position: 'absolute',
-          width: 12,
-          height: 12,
-          borderRadius: '50%',
-          background: ACCENT,
-          boxShadow: `0 0 24px ${ACCENT}`,
-          top: 75 - 6,
-          right: -6,
-          display: 'flex',
-        }}
-      />
-      <div
-        style={{
-          position: 'absolute',
-          width: 10,
-          height: 10,
-          borderRadius: '50%',
-          background: PAPER,
-          top: 240 - 5,
-          right: 240 - 360 / 2 - 5,
-          display: 'flex',
-        }}
-      />
-      {/* Center disc with mark */}
-      <div
-        style={{
-          position: 'absolute',
-          width: 130,
-          height: 130,
-          borderRadius: '50%',
-          background: INK,
-          border: `1px solid ${BORDER}`,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}
-      >
-        <Mark size={80} />
-      </div>
+      {children}
     </div>
   )
 }
@@ -129,7 +78,7 @@ export default async function OpenGraphImage() {
         height: '100%',
         display: 'flex',
         flexDirection: 'column',
-        padding: '64px 72px',
+        padding: '56px 72px',
         background: INK,
         color: PAPER,
         fontFamily: 'sans-serif',
@@ -137,72 +86,113 @@ export default async function OpenGraphImage() {
         overflow: 'hidden',
       }}
     >
-      {/* Background — radial chartreuse glow on the right + faint cobalt counter-note */}
+      {/* Aurora — chartreuse bloom on the right + cobalt counter-note bottom-left */}
       <div
         style={{
           position: 'absolute',
-          top: -200,
-          right: -200,
+          top: -260,
+          right: -260,
           width: 900,
           height: 900,
           borderRadius: '50%',
           background: `radial-gradient(circle at 30% 30%, ${ACCENT} 0%, transparent 55%), radial-gradient(circle at 70% 60%, ${COBALT} 0%, transparent 50%)`,
           opacity: 0.22,
-          filter: 'blur(40px)',
+          filter: 'blur(48px)',
           display: 'flex',
         }}
       />
-      {/* Faint dot-grid */}
+      <div
+        style={{
+          position: 'absolute',
+          bottom: -300,
+          left: -200,
+          width: 700,
+          height: 700,
+          borderRadius: '50%',
+          background: `radial-gradient(circle, ${COBALT} 0%, transparent 60%)`,
+          opacity: 0.08,
+          filter: 'blur(48px)',
+          display: 'flex',
+        }}
+      />
+      {/* Dot grid, masked to top-right so it doesn't fight the headline */}
       <div
         style={{
           position: 'absolute',
           inset: 0,
           backgroundImage: `linear-gradient(to right, ${BORDER} 1px, transparent 1px), linear-gradient(to bottom, ${BORDER} 1px, transparent 1px)`,
-          backgroundSize: '56px 56px',
-          opacity: 0.35,
+          backgroundSize: '64px 64px',
+          opacity: 0.3,
           display: 'flex',
           maskImage:
-            'radial-gradient(ellipse 80% 60% at 30% 50%, black 0%, transparent 70%)',
+            'radial-gradient(ellipse 90% 80% at 90% 10%, black 0%, transparent 70%)',
         }}
       />
 
-      <Orbit />
-
-      {/* Lockup */}
+      {/* TOP ROW — lockup left, MIT pill right */}
       <div
         style={{
           display: 'flex',
           alignItems: 'center',
-          gap: 14,
+          justifyContent: 'space-between',
         }}
       >
-        <Mark size={48} />
+        <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+          <Mark size={48} />
+          <div
+            style={{
+              fontSize: 28,
+              fontFamily: 'monospace',
+              letterSpacing: '-0.01em',
+              color: PAPER,
+              display: 'flex',
+            }}
+          >
+            vitus
+            <span style={{ color: ACCENT, margin: '0 3px', display: 'flex' }}>
+              ·
+            </span>
+            labs
+          </div>
+        </div>
         <div
           style={{
-            fontSize: 24,
-            fontFamily: 'monospace',
-            letterSpacing: '-0.01em',
-            color: PAPER,
             display: 'flex',
+            alignItems: 'center',
+            gap: 8,
+            padding: '8px 16px',
+            borderRadius: 999,
+            border: `1px solid ${BORDER}`,
+            background: SURFACE,
+            color: MUTED,
+            fontFamily: 'monospace',
+            fontSize: 14,
+            letterSpacing: '0.12em',
           }}
         >
-          vitus
-          <span style={{ color: ACCENT, margin: '0 2px', display: 'flex' }}>
-            ·
-          </span>
-          labs
+          <span
+            style={{
+              width: 8,
+              height: 8,
+              borderRadius: '50%',
+              background: ACCENT,
+              display: 'flex',
+              boxShadow: `0 0 8px ${ACCENT}`,
+            }}
+          />
+          OPEN SOURCE · MIT · v2.6.1
         </div>
       </div>
 
-      {/* Headline block */}
+      {/* BODY — eyebrow, big headline, stat pill row */}
       <div
         style={{
           flex: 1,
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'center',
-          gap: 24,
-          maxWidth: 720,
+          gap: 28,
+          marginTop: 16,
         }}
       >
         <div
@@ -210,7 +200,7 @@ export default async function OpenGraphImage() {
             fontSize: 18,
             fontFamily: 'monospace',
             color: ACCENT,
-            letterSpacing: '0.16em',
+            letterSpacing: '0.18em',
             textTransform: 'uppercase',
             display: 'flex',
           }}
@@ -219,23 +209,21 @@ export default async function OpenGraphImage() {
         </div>
         <div
           style={{
-            fontSize: 92,
-            fontWeight: 500,
-            letterSpacing: '-0.04em',
-            lineHeight: 0.95,
+            fontSize: 112,
+            fontWeight: 600,
+            letterSpacing: '-0.045em',
+            lineHeight: 0.92,
             display: 'flex',
             flexDirection: 'column',
           }}
         >
-          <span style={{ display: 'flex' }}>Build, style</span>
+          <span style={{ display: 'flex' }}>Build React apps</span>
           <span style={{ display: 'flex' }}>
-            &amp; ship{' '}
             <span
               style={{
                 color: ACCENT,
                 fontStyle: 'italic',
-                fontWeight: 300,
-                marginLeft: 16,
+                fontWeight: 400,
                 display: 'flex',
               }}
             >
@@ -243,20 +231,17 @@ export default async function OpenGraphImage() {
             </span>
           </span>
         </div>
-        <div
-          style={{
-            fontSize: 22,
-            color: MUTED,
-            lineHeight: 1.5,
-            display: 'flex',
-          }}
-        >
-          15 packages · 4.82 KB CSS-in-JS engine · 170+ CSS props · 123 motion
-          presets
+
+        {/* Stat pills */}
+        <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+          <Pill>15 packages</Pill>
+          <Pill accent>4.82 KB engine</Pill>
+          <Pill>170+ CSS props</Pill>
+          <Pill>123 motion presets</Pill>
         </div>
       </div>
 
-      {/* Footer */}
+      {/* FOOTER */}
       <div
         style={{
           display: 'flex',
@@ -265,11 +250,15 @@ export default async function OpenGraphImage() {
           fontSize: 16,
           fontFamily: 'monospace',
           color: MUTED,
-          letterSpacing: '0.08em',
+          letterSpacing: '0.1em',
+          paddingTop: 24,
+          borderTop: `1px solid ${BORDER}`,
         }}
       >
         <span style={{ display: 'flex' }}>vitus-labs.com</span>
-        <span style={{ display: 'flex' }}>MIT · TYPESCRIPT-FIRST</span>
+        <span style={{ display: 'flex' }}>
+          TYPESCRIPT-FIRST · REACT · REACT-NATIVE
+        </span>
       </div>
     </div>,
     {
