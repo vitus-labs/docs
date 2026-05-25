@@ -71,6 +71,7 @@ export default {
     replaceGlobals: true,       // Inject platform globals (default: true)
     typescript: true,           // Generate .d.ts files (default: true)
     filesize: true,             // Show file sizes in console (default: true)
+    sourcemap: true,            // true | false | 'hidden' | 'inline' (default: true)
     visualise: {                // Bundle visualization
       template: 'network',     // 'network' | 'treemap' | 'sunburst'
       gzipSize: true,
@@ -229,6 +230,28 @@ lib/analysis/index.html
 ```
 
 Templates: `'network'` (default), `'treemap'`, `'sunburst'`
+
+## Sourcemaps
+
+JS-bundle sourcemap generation mirrors rolldown's native `output.sourcemap` API:
+
+| `sourcemap` | Emits | `sourceMappingURL` comment | Use when |
+|---|---|---|---|
+| `true` (default) | separate `.js.map` file | yes | OSS libraries — full debuggability |
+| `'hidden'` | separate `.js.map` file | **no** | Closed-source: ship maps to error-reporting service (Sentry, etc.) without leaking via the bundle |
+| `'inline'` | base64 map embedded in `.js` | n/a | Very small bundles, simpler deploy |
+| `false` | nothing | n/a | You explicitly don't want maps |
+
+```js
+// vl-tools.config.mjs — privacy without losing debuggability
+export default {
+  build: {
+    sourcemap: 'hidden',
+  },
+}
+```
+
+DTS output never includes sourcemaps (declarations don't need them).
 
 ## Advanced Build Options
 
