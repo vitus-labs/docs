@@ -15,7 +15,7 @@ description: CSS-in-JS engine for Vitus Labs UI System — 4.82 KB gzipped, Reac
 
 ## Key Features
 
-- **4.82 KB gzipped** (13.65 KB minified, fresh build) — full SSR engine with `@layer`, at-rule splitting, and concurrent-mode-safe injection.
+- **4.82 KB gzipped** (12.21 KB minified, fresh build) — full SSR engine with `@layer`, at-rule splitting, and concurrent-mode-safe injection.
 - **Static/dynamic split** — templates with no function interpolations compute their class name once at module load; subsequent renders return a pre-built ReactElement with no resolve / hash / `createElement` work.
 - **FNV-1a hashing** — deterministic class names (`vl-<base36>`), automatic dedup. Hash loop is 4-char-unrolled for ~+15-46% throughput vs the per-char loop.
 - **CSS-in-CSS composition** — nest `css\`…\`` results inside `styled\`…\`` or other `css\`…\``. Static nested results are memoized per-instance (one resolve, reused across every consumer's render).
@@ -518,7 +518,7 @@ Fresh build of `@vitus-labs/styler` (rolldown, ESM, react externalized):
 | Build | Size |
 |---|---:|
 | Bundle (unminified) | 33.97 KB |
-| Minified | 13.65 KB |
+| Minified | 12.21 KB |
 | **Gzipped** | **4.82 KB** |
 
 Competitor numbers below are from each library's published artifact (read off bundlephobia / their dist files); they're a snapshot, not a regression-gated measurement:
